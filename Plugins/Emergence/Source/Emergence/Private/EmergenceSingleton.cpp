@@ -6,6 +6,10 @@
 #include "UObject/ObjectMacros.h"
 #include "GameDelegates.h"
 
+//for HTTP services
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
@@ -50,3 +54,34 @@ void UEmergenceSingleton::Shutdown()
 	RemoveFromRoot();
 	MarkPendingKill();
 }
+
+//HTTP Services
+void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
+
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		ResponseStr = HttpResponse->GetContentAsString();
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("EnumerateFiles request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, true);
+			return;
+		}
+	}
+	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), false);
+}
+
+void UEmergenceSingleton::GetWalletConnectURI()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete);
+	HttpRequest->SetURL("https://localhost:44350/api/getwalletconnecturi");
+	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+}
+
+

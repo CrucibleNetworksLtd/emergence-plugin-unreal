@@ -7,6 +7,9 @@
 #include "Engine/GameInstance.h"
 #include "UObject/WeakObjectPtrTemplates.h"
 #include "Containers/Map.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Containers/Queue.h"
 #include "EmergenceSingleton.generated.h"
 
 
@@ -30,6 +33,19 @@ public:
 	void Shutdown();
 
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
+
+
+	//HTTPService Functions
+private:
+	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+public:
+	UFUNCTION(BlueprintCallable)
+	void GetWalletConnectURI();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, bool, Succeeded);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
