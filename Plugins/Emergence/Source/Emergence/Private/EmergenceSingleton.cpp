@@ -78,7 +78,7 @@ void UEmergenceSingleton::GetWalletConnectURI()
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete);
-	HttpRequest->SetURL("https://localhost:44350/api/getwalletconnecturi");
+	HttpRequest->SetURL("http://localhost:50733/api/getwalletconnecturi");
 	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
