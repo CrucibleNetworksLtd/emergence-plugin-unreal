@@ -38,7 +38,11 @@ public:
 	//HTTPService Functions
 private:
 	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
+
+	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable)
 	void GetWalletConnectURI();
 
@@ -46,6 +50,20 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
+
+
+	//GetQRCode stuff
+	UFUNCTION(BlueprintCallable)
+	void GetQRCode();
+
+	bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
+
+	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, bool, Succeeded);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;

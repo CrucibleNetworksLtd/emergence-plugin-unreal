@@ -10,6 +10,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
+#include "IImageWrapperModule.h"
+#include "IImageWrapper.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
@@ -65,7 +68,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 		ResponseStr = HttpResponse->GetContentAsString();
 		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
 		{
-			UE_LOG(LogTemp, Display, TEXT("EnumerateFiles request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
 			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, true);
 			return;
 		}
@@ -84,4 +87,65 @@ void UEmergenceSingleton::GetWalletConnectURI()
 	HttpRequest->ProcessRequest();
 }
 
+void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
 
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		TArray<uint8> ResponceBytes = HttpResponse->GetContent();
+		UTexture2D* QRCodeTexture;
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+				UE_LOG(LogTemp, Display, TEXT("GetQRCode request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+				OnGetQRCodeCompleted.Broadcast(QRCodeTexture, true);
+				return;
+			}	
+		}
+	}
+	OnGetQRCodeCompleted.Broadcast(nullptr, false);
+}
+
+void UEmergenceSingleton::GetQRCode()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetQRCode_HttpRequestComplete);
+	HttpRequest->SetURL("http://localhost:50733/api/qrcode");
+	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+}
+
+bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8 >& InRawData, UTexture2D*& LoadedT2D)
+{
+	int32 Width;
+	int32 Height;
+
+	TArray<uint8> DecodedImage;
+	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+
+	if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(InRawData.GetData(), InRawData.Num()))
+	{
+		TArray<uint8> UncompressedBGRA;
+		if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
+		{
+			LoadedT2D = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
+
+			if (!LoadedT2D) return false;
+
+			Width = ImageWrapper->GetWidth();
+			Height = ImageWrapper->GetHeight();
+
+			void* TextureData = LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+			FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
+			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
+
+			LoadedT2D->UpdateResource();
+			return true;
+		}
+	}
+	return false;
+}
