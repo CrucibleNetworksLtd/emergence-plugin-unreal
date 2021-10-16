@@ -81,7 +81,7 @@ void UEmergenceSingleton::GetWalletConnectURI()
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete);
-	HttpRequest->SetURL("http://localhost:50733/api/getwalletconnecturi");
+	HttpRequest->SetURL(APIBase + "getwalletconnecturi");
 	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
@@ -112,7 +112,7 @@ void UEmergenceSingleton::GetQRCode()
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetQRCode_HttpRequestComplete);
-	HttpRequest->SetURL("http://localhost:50733/api/qrcode");
+	HttpRequest->SetURL(APIBase + "qrcode");
 	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
