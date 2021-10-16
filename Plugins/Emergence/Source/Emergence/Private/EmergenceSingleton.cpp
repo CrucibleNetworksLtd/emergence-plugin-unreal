@@ -177,3 +177,31 @@ void UEmergenceSingleton::GetHandshake()
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
 }
+
+void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
+
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		ResponseStr = HttpResponse->GetContentAsString();
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("GetBalance request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			OnGetBalanceCompleted.Broadcast(*ResponseStr, true);
+			return;
+		}
+	}
+	OnGetBalanceCompleted.Broadcast(FString(), false);
+}
+
+void UEmergenceSingleton::GetBalance()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetBalance_HttpRequestComplete);
+	HttpRequest->SetURL(APIBase + "getbalance");
+	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+}
