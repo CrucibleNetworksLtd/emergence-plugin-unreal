@@ -149,3 +149,31 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 	}
 	return false;
 }
+
+void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
+
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		ResponseStr = HttpResponse->GetContentAsString();
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("GetHandshake request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, true);
+			return;
+		}
+	}
+	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), false);
+}
+
+void UEmergenceSingleton::GetHandshake()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetHandshake_HttpRequestComplete);
+	HttpRequest->SetURL(APIBase + "handshake");
+	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+}

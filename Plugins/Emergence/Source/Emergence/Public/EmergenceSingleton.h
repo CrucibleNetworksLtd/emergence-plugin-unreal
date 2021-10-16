@@ -42,6 +42,8 @@ private:
 	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 
 	//GetWalletConnectURI stuff
@@ -66,6 +68,15 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
+
+	//Handshake stuff
+	UFUNCTION(BlueprintCallable)
+	void GetHandshake();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, HandshakeContent, bool, Succeeded);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
