@@ -111,7 +111,17 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
+	// Launch local server process stuff
+	UFUNCTION(BlueprintCallable)
+	void LaunchLocalServerProcess();
+
+	UFUNCTION(BlueprintCallable)
+	void KillLocalServerProcess();
+
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
-	TWeakObjectPtr<UGameInstance> OwningGameInstance;	
+	TWeakObjectPtr<UGameInstance> OwningGameInstance;
+
+	// Launch local server process stuff
+	FProcHandle handle;
 };

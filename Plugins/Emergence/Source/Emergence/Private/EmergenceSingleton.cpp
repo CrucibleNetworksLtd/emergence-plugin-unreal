@@ -298,3 +298,15 @@ void UEmergenceSingleton::KillSession()
 	HttpRequest->ProcessRequest();
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started."));
 }
+
+void UEmergenceSingleton::LaunchLocalServerProcess()
+{
+	FString path = FString(TEXT("C:\\Work\\W2D\\Crucible\\Emergence\\emergence-evm-server\\bin\\Debug\\net5.0\\walletConnectpoc.exe"));
+	handle = FPlatformProcess::CreateProc(*path, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
+}
+
+void UEmergenceSingleton::KillLocalServerProcess()
+{
+	// TODO this actually does nothing, we should send a finish message to the server
+	FPlatformProcess::CloseProc(handle);
+}
