@@ -46,6 +46,10 @@ private:
 	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 
 	//GetWalletConnectURI stuff
@@ -75,7 +79,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetHandshake();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, HandshakeContent, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, bool, Succeeded);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
@@ -84,10 +88,28 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetBalance();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, int, Balance, bool, Succeeded);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetBalanceCompleted OnGetBalanceCompleted;
+
+	//isConnected stuff
+	UFUNCTION(BlueprintCallable)
+	void IsConnected();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, int, StatusCode, bool, IsConnected, bool, Succeeded);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FOnIsConnectedCompleted OnIsConnectedCompleted;
+
+	//killSession stuff
+	UFUNCTION(BlueprintCallable)
+	void KillSession();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, bool, Succeeded);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
+	FOnKillSessionCompleted OnKillSessionCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;

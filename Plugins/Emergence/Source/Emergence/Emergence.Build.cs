@@ -38,7 +38,8 @@ public class Emergence : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"Http"
+				"Http",
+				"Json"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

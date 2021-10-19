@@ -12,6 +12,7 @@
 
 #include "IImageWrapperModule.h"
 #include "IImageWrapper.h"
+#include "Dom/JsonObject.h"
 
 UEmergenceSingleton::UEmergenceSingleton() {
 }
@@ -82,9 +83,9 @@ void UEmergenceSingleton::GetWalletConnectURI()
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete);
 	HttpRequest->SetURL(APIBase + "getwalletconnecturi");
-	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request started."));
 }
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -113,9 +114,9 @@ void UEmergenceSingleton::GetQRCode()
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetQRCode_HttpRequestComplete);
 	HttpRequest->SetURL(APIBase + "qrcode");
-	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("GetQRCode request started."));
 }
 
 bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8 >& InRawData, UTexture2D*& LoadedT2D)
@@ -159,12 +160,21 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		ResponseStr = HttpResponse->GetContentAsString();
 		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
 		{
+			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
+			int StatusCode = -1;
+			FString Address;
+			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+			{
+				StatusCode = JsonObject->GetIntegerField("statusCode");
+				Address = JsonObject->GetObjectField("message")->GetStringField("address");
+			}
 			UE_LOG(LogTemp, Display, TEXT("GetHandshake request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, true);
+			OnGetHandshakeCompleted.Broadcast(*Address, true);
 			return;
 		}
 	}
-	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), false);
+	OnGetHandshakeCompleted.Broadcast(FString(), false);
 }
 
 void UEmergenceSingleton::GetHandshake()
@@ -173,9 +183,9 @@ void UEmergenceSingleton::GetHandshake()
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetHandshake_HttpRequestComplete);
 	HttpRequest->SetURL(APIBase + "handshake");
-	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started."));
 }
 
 void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -187,12 +197,21 @@ void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpReq
 		ResponseStr = HttpResponse->GetContentAsString();
 		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
 		{
+			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
+			int StatusCode = -1;
+			int Balance = -1;
+			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+			{
+				StatusCode = JsonObject->GetIntegerField("statusCode");
+				Balance = JsonObject->GetObjectField("message")->GetIntegerField("balance");
+			}
 			UE_LOG(LogTemp, Display, TEXT("GetBalance request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetBalanceCompleted.Broadcast(*ResponseStr, true);
+			OnGetBalanceCompleted.Broadcast(Balance, true);
 			return;
 		}
 	}
-	OnGetBalanceCompleted.Broadcast(FString(), false);
+	OnGetBalanceCompleted.Broadcast(-1, false);
 }
 
 void UEmergenceSingleton::GetBalance()
@@ -201,7 +220,81 @@ void UEmergenceSingleton::GetBalance()
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetBalance_HttpRequestComplete);
 	HttpRequest->SetURL(APIBase + "getbalance");
-	HttpRequest->SetHeader(TEXT("accept"), TEXT("text/plain"));
 	HttpRequest->SetVerb(TEXT("GET"));
 	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("GetBalance request started."));
+}
+
+void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
+
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		ResponseStr = HttpResponse->GetContentAsString();
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
+			int StatusCode = -1;
+			bool IsConnected = false;
+			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+			{
+				StatusCode = JsonObject->GetIntegerField("statusCode");
+				IsConnected = JsonObject->GetObjectField("message")->GetBoolField("isConnected");
+			}
+			UE_LOG(LogTemp, Display, TEXT("IsConnected request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			OnIsConnectedCompleted.Broadcast(StatusCode, IsConnected, true);
+			return;
+		}
+	}
+	OnIsConnectedCompleted.Broadcast(-1, false, false);
+}
+
+void UEmergenceSingleton::IsConnected()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::IsConnected_HttpRequestComplete);
+	HttpRequest->SetURL(APIBase + "isConnected");
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("IsConnected request started."));
+}
+
+void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	FString ResponseStr, ErrorStr;
+
+	if (bSucceeded && HttpResponse.IsValid())
+	{
+		ResponseStr = HttpResponse->GetContentAsString();
+		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
+		int StatusCode = -1;
+		bool Disconnected;
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+		{
+			StatusCode = JsonObject->GetIntegerField("statusCode");
+			Disconnected = JsonObject->GetObjectField("message")->GetBoolField("disconnected");
+		}
+		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("KillSession request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
+			OnKillSessionCompleted.Broadcast(Disconnected, true);
+			return;
+		}
+	}
+	OnKillSessionCompleted.Broadcast(false, false);
+}
+
+void UEmergenceSingleton::KillSession()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::KillSession_HttpRequestComplete);
+	HttpRequest->SetURL(APIBase + "killSession");
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("KillSession request started."));
 }
