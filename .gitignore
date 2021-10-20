@@ -77,3 +77,5 @@ DerivedDataCache/*
 .vscode
 *.code-workspace
 UXDesign/Exported Assets/RawMipMaps/EMRG_Icon_PersonaEditData＿Colours.png
+
+Plugins/Emergence/EmergenceServer/
