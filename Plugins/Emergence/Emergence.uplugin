@@ -19,6 +19,11 @@
 			"Name": "Emergence",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "EmergenceEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }
