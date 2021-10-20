@@ -298,3 +298,29 @@ void UEmergenceSingleton::KillSession()
 	HttpRequest->ProcessRequest();
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started."));
 }
+
+void UEmergenceSingleton::LaunchLocalServerProcess()
+{
+	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "walletConnectpoc.exe");
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/walletConnectpoc.exe");
+	FString LoadPath;
+
+	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
+		LoadPath = EmergenceServerBinariesPath;
+	}
+	else if (FPaths::FileExists(EmergenceServerPluginPath)) {
+		LoadPath = EmergenceServerPluginPath;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Failed."));
+		return;
+	}
+	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
+	handle = FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
+}
+
+void UEmergenceSingleton::KillLocalServerProcess()
+{
+	// TODO this actually does nothing, we should send a finish message to the server
+	FPlatformProcess::CloseProc(handle);
+}
