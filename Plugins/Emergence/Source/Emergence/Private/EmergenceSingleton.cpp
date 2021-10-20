@@ -301,8 +301,22 @@ void UEmergenceSingleton::KillSession()
 
 void UEmergenceSingleton::LaunchLocalServerProcess()
 {
-	FString path = FString(TEXT("C:\\Work\\W2D\\Crucible\\Emergence\\emergence-evm-server\\bin\\Debug\\net5.0\\walletConnectpoc.exe"));
-	handle = FPlatformProcess::CreateProc(*path, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
+	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "walletConnectpoc.exe");
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/walletConnectpoc.exe");
+	FString LoadPath;
+
+	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
+		LoadPath = EmergenceServerBinariesPath;
+	}
+	else if (FPaths::FileExists(EmergenceServerPluginPath)) {
+		LoadPath = EmergenceServerPluginPath;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Failed."));
+		return;
+	}
+	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
+	handle = FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void UEmergenceSingleton::KillLocalServerProcess()
