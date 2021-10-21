@@ -304,7 +304,6 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "walletConnectpoc.exe");
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/walletConnectpoc.exe");
 	FString LoadPath;
-
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
 		LoadPath = EmergenceServerBinariesPath;
 	}
@@ -312,9 +311,21 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 		LoadPath = EmergenceServerPluginPath;
 	}
 	else {
-		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Failed."));
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Make sure you have the server files copied to Plugins/Emergence/EmergenceServer/walletConnectpoc.exe"));
 		return;
 	}
+
+	if (GConfig) {
+		FString EmergenceCustomServerLocation;
+		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GEditorPerProjectIni)) {
+			FParse::Value(*EmergenceCustomServerLocation, TEXT("FilePath="), EmergenceCustomServerLocation);
+			if (FPaths::FileExists(*EmergenceCustomServerLocation)) {
+				LoadPath = EmergenceCustomServerLocation;
+				UE_LOG(LogTemp, Warning, TEXT("Found EmergenceServer at override path (%s)."), *EmergenceCustomServerLocation);
+			}
+		}
+	}
+	
 	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
 	handle = FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
 }
