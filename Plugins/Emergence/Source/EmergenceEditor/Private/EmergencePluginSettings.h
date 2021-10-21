@@ -2,7 +2,7 @@
 #include "Engine/EngineTypes.h"
 #include "EmergencePluginSettings.generated.h"
 
-UCLASS(config = Game, defaultconfig)
+UCLASS(config = EditorPerProjectUserSettings, defaultconfig)
 class UEmergencePluginSettings : public UObject
 {
 	GENERATED_BODY()
