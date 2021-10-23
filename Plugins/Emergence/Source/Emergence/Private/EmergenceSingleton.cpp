@@ -228,27 +228,18 @@ void UEmergenceSingleton::GetBalance()
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		ResponseStr = HttpResponse->GetContentAsString();
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+	TEnumAsByte<EErrorCode> StatusCode = UErrorCodeFunctionLibrary::ResponseStatus(HttpResponse, bSucceeded);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 		{
-			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
-			int StatusCode = -1;
-			bool IsConnected = false;
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				StatusCode = JsonObject->GetIntegerField("statusCode");
-				IsConnected = JsonObject->GetObjectField("message")->GetBoolField("isConnected");
-			}
-			UE_LOG(LogTemp, Display, TEXT("IsConnected request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnIsConnectedCompleted.Broadcast(StatusCode, IsConnected, true);
+			bool IsConnected = JsonObject->GetObjectField("message")->GetBoolField("isConnected");
+			OnIsConnectedCompleted.Broadcast(IsConnected, StatusCode);
 			return;
 		}
 	}
-	OnIsConnectedCompleted.Broadcast(-1, false, false);
+	OnIsConnectedCompleted.Broadcast(false, StatusCode);
 }
 
 void UEmergenceSingleton::IsConnected()

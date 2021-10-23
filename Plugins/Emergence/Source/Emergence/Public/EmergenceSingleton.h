@@ -10,6 +10,7 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Containers/Queue.h"
+#include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceSingleton.generated.h"
 
 
@@ -97,7 +98,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void IsConnected();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, int, StatusCode, bool, IsConnected, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnIsConnectedCompleted, bool, IsConnected, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
