@@ -12,7 +12,8 @@
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceSingleton.generated.h"
-
+#pragma warning( push )
+#pragma warning( disable : 4996 )
 
 UCLASS()
 class EMERGENCE_API UEmergenceSingleton : public UObject
@@ -57,7 +58,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetWalletConnectURI();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
@@ -71,7 +72,7 @@ public:
 
 	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
@@ -80,7 +81,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetHandshake();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
@@ -89,7 +90,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void GetBalance();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, int, Balance, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnGetBalanceCompleted OnGetBalanceCompleted;
@@ -107,7 +108,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void KillSession();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, bool, Succeeded);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 	FOnKillSessionCompleted OnKillSessionCompleted;
@@ -126,3 +127,6 @@ private:
 	// Launch local server process stuff
 	FProcHandle handle;
 };
+#pragma warning( pop )
+
+DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);

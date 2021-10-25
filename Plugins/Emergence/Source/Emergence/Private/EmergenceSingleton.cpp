@@ -14,6 +14,8 @@
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
 
+DEFINE_LOG_CATEGORY(LogEmergenceHttp);
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
@@ -70,11 +72,11 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
 		{
 			UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, true);
+			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, EErrorCode::EmergenceOk);
 			return;
 		}
 	}
-	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), false);
+	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
 void UEmergenceSingleton::GetWalletConnectURI()
@@ -90,22 +92,21 @@ void UEmergenceSingleton::GetWalletConnectURI()
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		TArray<uint8> ResponceBytes = HttpResponse->GetContent();
-		UTexture2D* QRCodeTexture;
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
-				UE_LOG(LogTemp, Display, TEXT("GetQRCode request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-				OnGetQRCodeCompleted.Broadcast(QRCodeTexture, true);
-				return;
-			}	
-		}
+	TEnumAsByte<EErrorCode> ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
+		OnGetQRCodeCompleted.Broadcast(nullptr, ResponseCode);
+		return;
 	}
-	OnGetQRCodeCompleted.Broadcast(nullptr, false);
+
+	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
+	UTexture2D* QRCodeTexture;
+	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
+		return;
+	}
+	else {
+		OnGetQRCodeCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientWrongType);
+	}
 }
 
 void UEmergenceSingleton::GetQRCode()
@@ -153,28 +154,19 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 
 void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		ResponseStr = HttpResponse->GetContentAsString();
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
-			int StatusCode = -1;
-			FString Address;
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				StatusCode = JsonObject->GetIntegerField("statusCode");
-				Address = JsonObject->GetObjectField("message")->GetStringField("address");
-			}
-			UE_LOG(LogTemp, Display, TEXT("GetHandshake request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetHandshakeCompleted.Broadcast(*Address, true);
-			return;
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString Address;
+		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
+			OnGetHandshakeCompleted.Broadcast(Address, StatusCode);
 		}
+		else {
+			OnGetHandshakeCompleted.Broadcast(Address, EErrorCode::EmergenceClientWrongType);
+		}
+		return;
 	}
-	OnGetHandshakeCompleted.Broadcast(FString(), false);
+	OnGetHandshakeCompleted.Broadcast(FString(), StatusCode);
 }
 
 void UEmergenceSingleton::GetHandshake()
@@ -190,28 +182,19 @@ void UEmergenceSingleton::GetHandshake()
 
 void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		ResponseStr = HttpResponse->GetContentAsString();
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
-			int StatusCode = -1;
-			int Balance = -1;
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				StatusCode = JsonObject->GetIntegerField("statusCode");
-				Balance = JsonObject->GetObjectField("message")->GetIntegerField("balance");
-			}
-			UE_LOG(LogTemp, Display, TEXT("GetBalance request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetBalanceCompleted.Broadcast(Balance, true);
-			return;
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString Balance;
+		if (JsonObject.GetObjectField("message")->TryGetStringField("balance", Balance)) {
+			OnGetBalanceCompleted.Broadcast(Balance, StatusCode);
 		}
+		else {
+			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientWrongType);
+		}
+		return;
 	}
-	OnGetBalanceCompleted.Broadcast(-1, false);
+	OnGetBalanceCompleted.Broadcast(FString(), StatusCode);
 }
 
 void UEmergenceSingleton::GetBalance()
@@ -227,17 +210,18 @@ void UEmergenceSingleton::GetBalance()
 
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	FString ResponseStr, ErrorStr;
-	TEnumAsByte<EErrorCode> StatusCode = UErrorCodeFunctionLibrary::ResponseStatus(HttpResponse, bSucceeded);
+	TEnumAsByte<EErrorCode> StatusCode = EErrorCode::EmergenceClientFailed;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
-		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-		{
-			bool IsConnected = JsonObject->GetObjectField("message")->GetBoolField("isConnected");
+		bool IsConnected;
+		if (JsonObject.GetObjectField("message")->TryGetBoolField("isConnected", IsConnected)) {
 			OnIsConnectedCompleted.Broadcast(IsConnected, StatusCode);
-			return;
 		}
+		else {
+			OnIsConnectedCompleted.Broadcast(IsConnected, EErrorCode::EmergenceClientWrongType);
+		}
+		return;
 	}
 	OnIsConnectedCompleted.Broadcast(false, StatusCode);
 }
@@ -255,28 +239,19 @@ void UEmergenceSingleton::IsConnected()
 
 void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		ResponseStr = HttpResponse->GetContentAsString();
-		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*ResponseStr);
-		int StatusCode = -1;
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool Disconnected;
-		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-		{
-			StatusCode = JsonObject->GetIntegerField("statusCode");
-			Disconnected = JsonObject->GetObjectField("message")->GetBoolField("disconnected");
+		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {
+			OnKillSessionCompleted.Broadcast(Disconnected, StatusCode);
 		}
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			UE_LOG(LogTemp, Display, TEXT("KillSession request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnKillSessionCompleted.Broadcast(Disconnected, true);
-			return;
+		else {
+			OnKillSessionCompleted.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
 		}
+		return;
 	}
-	OnKillSessionCompleted.Broadcast(false, false);
+	OnKillSessionCompleted.Broadcast(false, StatusCode);
 }
 
 void UEmergenceSingleton::KillSession()

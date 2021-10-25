@@ -69,7 +69,11 @@ class EMERGENCE_API UErrorCodeFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	static TEnumAsByte<EErrorCode> ResponseStatus(FHttpResponsePtr HttpResponse, bool bSucceeded);
+	//tries to parse a response as json, calls GetResponseErrors automagically
+	static FJsonObject TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, TEnumAsByte<EErrorCode>& JsonObject);
+
+	//Gets any pre-content parse errors
+	static TEnumAsByte<EErrorCode> GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Status Code Int To Status Code Enum", CompactNodeTitle = "->", BlueprintAutocast))
 	static TEnumAsByte<EErrorCode> Conv_IntToErrorCode(int32 HttpStatus);

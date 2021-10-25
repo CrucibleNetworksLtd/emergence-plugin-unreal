@@ -57,7 +57,33 @@ const TMap <int32, TEnumAsByte<EErrorCode>> UErrorCodeFunctionLibrary::StatusCod
 };
 #pragma warning( pop )
 
-TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::ResponseStatus(FHttpResponsePtr HttpResponse, bool bSucceeded) {
+FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, TEnumAsByte<EErrorCode>& ReturnResponseCode) {
+
+	TEnumAsByte<EErrorCode> ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
+		ReturnResponseCode = ResponseCode;
+		return FJsonObject();
+	}
+
+	
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+	TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		ReturnResponseCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+		if (ReturnResponseCode == EErrorCode::EmergenceOk) {
+			return *JsonObject.Get();
+		}
+		else {
+			return FJsonObject();
+		}
+	}
+	ReturnResponseCode = EErrorCode::EmergenceClientJsonParseFailed;
+	return FJsonObject();
+}
+
+TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
 	//If we didn't even get a http response, give failed
 	if (!bSucceeded) return EErrorCode::EmergenceClientFailed;
 
@@ -65,16 +91,10 @@ TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::ResponseStatus(FHttpResponseP
 	if (!HttpResponse.IsValid()) return EErrorCode::EmergenceClientInvalidResponse;
 
 	//if we got a readable one but it has a http error, give that
-	if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
-
-	//if we got a http OK but a message error, give that
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-	TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
-	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-	{
-		return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+	if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
+		UE_LOG(LogTemp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
 	}
-	return EErrorCode::EmergenceClientJsonParseFailed;
+	return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
 }
 
 TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Status)
