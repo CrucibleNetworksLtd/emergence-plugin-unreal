@@ -123,9 +123,6 @@ public:
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
 	TWeakObjectPtr<UGameInstance> OwningGameInstance;
-
-	// Launch local server process stuff
-	FProcHandle handle;
 };
 #pragma warning( pop )
 

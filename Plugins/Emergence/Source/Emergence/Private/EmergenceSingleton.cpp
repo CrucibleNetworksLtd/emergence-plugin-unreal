@@ -293,11 +293,16 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	}
 	
 	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
-	handle = FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
+	FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void UEmergenceSingleton::KillLocalServerProcess()
 {
-	// TODO this actually does nothing, we should send a finish message to the server
-	FPlatformProcess::CloseProc(handle);
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::KillSession_HttpRequestComplete);
+	HttpRequest->SetURL(APIBase + "finish");
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("KillLocalServerProcess request started. Nothing is returned by this."));
 }
