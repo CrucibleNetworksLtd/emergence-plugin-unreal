@@ -52,7 +52,8 @@ const TMap <int32, TEnumAsByte<EErrorCode>> UErrorCodeFunctionLibrary::StatusCod
 	{-1, EErrorCode::EmergenceClientFailed},
 	{-2, EErrorCode::EmergenceClientInvalidResponse},
 	{-3, EErrorCode::EmergenceClientInvalidErrorCode},
-	{-4, EErrorCode::EmergenceClientJsonParseFailed}
+	{-4, EErrorCode::EmergenceClientJsonParseFailed},
+	{-5, EErrorCode::EmergenceClientWrongType}
 };
 #pragma warning( pop )
 
