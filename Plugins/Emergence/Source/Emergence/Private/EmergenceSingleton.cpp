@@ -14,6 +14,9 @@
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
 
+#include "Windows/WindowsSystemIncludes.h"
+
+
 DEFINE_LOG_CATEGORY(LogEmergenceHttp);
 
 UEmergenceSingleton::UEmergenceSingleton() {
@@ -293,7 +296,25 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	}
 	
 	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
-	FPlatformProcess::CreateProc(*LoadPath, nullptr, false, false, false, nullptr, 0, nullptr, nullptr);
+	
+	//Add the args
+	TArray<FString> Args = {
+		FString("{\"Name\":\"Crucibletest\",\"Description\":\"UnrealEngine+WalletConnect\",\"Icons\":\"https://crucible.network/wp-content/uploads/2020/10/cropped-crucible_favicon-32x32.png\",\"URL\":\"https://crucible.network\"}"),
+		FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
+	};
+
+	//combine the args
+	FString ArgString = "";
+	for (int i = 0; i < Args.Num(); i++) {
+		if (i != 0) { //add a space before the next arg
+			ArgString + " ";
+		}
+		UE_LOG(LogTemp, Display, TEXT("calling argument [%d]: %s"), i, *Args[i]);
+		ArgString = ArgString + Args[i];
+	}
+	UE_LOG(LogTemp, Display, TEXT("Total argument lenth is %d"), ArgString.Len());
+	//create the process
+	FPlatformProcess::CreateProc(*LoadPath, *ArgString, false, false, false, nullptr, 0, nullptr, nullptr);
 }
 
 void UEmergenceSingleton::KillLocalServerProcess()
