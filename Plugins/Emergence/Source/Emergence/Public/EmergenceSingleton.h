@@ -99,7 +99,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void IsConnected();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnIsConnectedCompleted, bool, IsConnected, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;

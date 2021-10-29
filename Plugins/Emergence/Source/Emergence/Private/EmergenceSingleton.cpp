@@ -218,15 +218,17 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool IsConnected;
+		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("isConnected", IsConnected)) {
-			OnIsConnectedCompleted.Broadcast(IsConnected, StatusCode);
+			Address = JsonObject.GetObjectField("message")->GetStringField("address");
+			OnIsConnectedCompleted.Broadcast(IsConnected, Address, StatusCode);
 		}
 		else {
-			OnIsConnectedCompleted.Broadcast(IsConnected, EErrorCode::EmergenceClientWrongType);
+			OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
-	OnIsConnectedCompleted.Broadcast(false, StatusCode);
+	OnIsConnectedCompleted.Broadcast(false, FString(), StatusCode);
 }
 
 void UEmergenceSingleton::IsConnected()
