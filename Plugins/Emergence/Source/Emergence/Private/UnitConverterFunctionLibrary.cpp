@@ -70,6 +70,10 @@ FString UUnitConverterFunctionLibrary::ConvertTest()
 	succeded &= Convert("3,00843092", EEtherUnitType::ETHER, EEtherUnitType::METHER, ",") == "0,00000300843092";
 	succeded &= Convert("3,00843092", EEtherUnitType::ETHER, EEtherUnitType::TETHER, ",") == "0,00000000000300843092";
 
+	succeded &= Convert("1000034343434343434344", EEtherUnitType::WEI, EEtherUnitType::ETHER, ",") == "1000,034343434343434344";
+	succeded &= Convert("1000034343434343434344", EEtherUnitType::WEI, EEtherUnitType::KETHER, ",") == "1,000034343434343434344";
+	succeded &= Convert("100003434343434343434422", EEtherUnitType::WEI, EEtherUnitType::METHER, ",") == "0,100003434343434343434422";
+
 	return succeded ? "True" : "False";
 }
 
@@ -99,6 +103,13 @@ FString UUnitConverterFunctionLibrary::Convert(const FString& source, EEtherUnit
 			result += "0";
 		}
 
+		return result;
+	}
+
+	if (source.Len() > -resultLength)
+	{
+		FString result(source);
+		result.InsertAt(source.Len() + resultLength, comaSeparator);
 		return result;
 	}
 

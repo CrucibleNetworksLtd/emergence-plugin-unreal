@@ -26,9 +26,9 @@ class EMERGENCE_API UUnitConverterFunctionLibrary : public UBlueprintFunctionLib
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Converts EtherUnit To EtherUnit", CompactNodeTitle = "->", BlueprintAutocast))
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Converts EtherUnit To EtherUnit", CompactNodeTitle = "->"))
 	static FString Convert(const FString& source, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, const FString& comaSeparator);
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Converts Test", CompactNodeTitle = "->", BlueprintAutocast))
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Converts Test", CompactNodeTitle = "->"))
 	static FString ConvertTest();
 private:
 	static FString Convert(const FString& source, const FString& beforeComa, const FString& afterComa, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, const FString& comaSeparator);
