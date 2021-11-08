@@ -16,6 +16,8 @@
 
 #include "Windows/WindowsSystemIncludes.h"
 
+#include "Containers/UnrealString.h"
+
 
 DEFINE_LOG_CATEGORY(LogEmergenceHttp);
 
@@ -218,15 +220,17 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool IsConnected;
+		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("isConnected", IsConnected)) {
-			OnIsConnectedCompleted.Broadcast(IsConnected, StatusCode);
+			Address = JsonObject.GetObjectField("message")->GetStringField("address");
+			OnIsConnectedCompleted.Broadcast(IsConnected, Address, StatusCode);
 		}
 		else {
-			OnIsConnectedCompleted.Broadcast(IsConnected, EErrorCode::EmergenceClientWrongType);
+			OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
-	OnIsConnectedCompleted.Broadcast(false, StatusCode);
+	OnIsConnectedCompleted.Broadcast(false, FString(), StatusCode);
 }
 
 void UEmergenceSingleton::IsConnected()
@@ -297,9 +301,11 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	
 	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
 	
+	const FString JsonArgs("\"{\\\"Name\\\":\\\"Crucibletest\\\",\\\"Description\\\":\\\"UnrealEngineWalletConnect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
+
 	//Add the args
 	TArray<FString> Args = {
-		FString("{\"Name\":\"Crucibletest\",\"Description\":\"UnrealEngine+WalletConnect\",\"Icons\":\"https://crucible.network/wp-content/uploads/2020/10/cropped-crucible_favicon-32x32.png\",\"URL\":\"https://crucible.network\"}"),
+		JsonArgs,
 		FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
 	};
 
@@ -307,7 +313,7 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	FString ArgString = "";
 	for (int i = 0; i < Args.Num(); i++) {
 		if (i != 0) { //add a space before the next arg
-			ArgString + " ";
+			ArgString = ArgString + " ";
 		}
 		UE_LOG(LogTemp, Display, TEXT("calling argument [%d]: %s"), i, *Args[i]);
 		ArgString = ArgString + Args[i];
@@ -315,6 +321,7 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 	UE_LOG(LogTemp, Display, TEXT("Total argument lenth is %d"), ArgString.Len());
 	//create the process
 	FPlatformProcess::CreateProc(*LoadPath, *ArgString, false, false, false, nullptr, 0, nullptr, nullptr);
+	UE_LOG(LogTemp, Display, TEXT("calling: %s %s"), *LoadPath, *ArgString);
 }
 
 void UEmergenceSingleton::KillLocalServerProcess()
