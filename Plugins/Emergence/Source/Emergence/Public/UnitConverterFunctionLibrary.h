@@ -26,9 +26,9 @@ class EMERGENCE_API UUnitConverterFunctionLibrary : public UBlueprintFunctionLib
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Converts EtherUnit To EtherUnit", CompactNodeTitle = "->"))
-	static FString Convert(const FString& source, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, const FString& comaSeparator);
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Converts Test", CompactNodeTitle = "->"))
+	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Unit Conversion Library", meta = (DisplayName = "Convert EtherUnit To EtherUnit"))
+	static FString Convert(const FString& source, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, UPARAM(DisplayName="Decimal separator") const FString& comaSeparator);
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Unit Conversion Library", meta = (DisplayName = "Unit Conversion Unit Test"))
 	static FString ConvertTest();
 private:
 	static FString Convert(const FString& source, const FString& beforeComa, const FString& afterComa, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, const FString& comaSeparator);
