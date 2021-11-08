@@ -11,7 +11,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
+#include "PersonaStructs.h"
 #include "EmergenceSingleton.generated.h"
+
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 
@@ -52,6 +54,8 @@ private:
 	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 
 	//GetWalletConnectURI stuff
@@ -119,6 +123,17 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void KillLocalServerProcess();
+
+	//Persona Server Stuff
+	
+	//Get Personas stuff
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests|Persona Server")
+	void GetPersonas();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetPersonasCompleted, FEmergencePersonaListResponse, Response, TEnumAsByte<EErrorCode>, StatusCode);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests|Persona Server")
+	FOnGetPersonasCompleted OnGetPersonasCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;

@@ -334,3 +334,26 @@ void UEmergenceSingleton::KillLocalServerProcess()
 	HttpRequest->ProcessRequest();
 	UE_LOG(LogTemp, Display, TEXT("KillLocalServerProcess request started. Nothing is returned by this."));
 }
+
+void UEmergenceSingleton::GetPersonas()
+{
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UEmergenceSingleton::GetPersonas_HttpRequestComplete);
+	HttpRequest->SetURL("https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/personas");
+	HttpRequest->SetVerb(TEXT("GET"));
+	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("GetPersonas request started."));
+}
+
+void UEmergenceSingleton::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FEmergencePersonaListResponse ResponceStruct = FEmergencePersonaListResponse(*HttpResponse->GetContentAsString());
+		OnGetPersonasCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		return;
+	}
+	OnKillSessionCompleted.Broadcast(false, StatusCode);
+}
