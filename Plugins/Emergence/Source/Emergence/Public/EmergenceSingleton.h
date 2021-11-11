@@ -41,6 +41,11 @@ public:
 
 	//HTTPService Functions
 private:
+	FString CurrentAccessToken;
+
+	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
+	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
+
 	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -54,6 +59,16 @@ private:
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetAccessToken();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
+	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 
 public:
 

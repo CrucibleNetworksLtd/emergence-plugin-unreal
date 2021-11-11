@@ -66,6 +66,17 @@ void UEmergenceSingleton::Shutdown()
 	MarkPendingKill();
 }
 
+bool UEmergenceSingleton::HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode)
+{
+	if (ErrorCode == EErrorCode::Denied) {
+		OnDatabaseAuthFailed.Broadcast();
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
 //HTTP Services
 void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
@@ -242,6 +253,25 @@ void UEmergenceSingleton::KillSession()
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 }
 
+
+void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		this->CurrentAccessToken = HttpResponse->GetContentAsString();
+		OnGetAccessTokenCompleted.Broadcast(StatusCode);
+		return;
+	}
+	OnGetAccessTokenCompleted.Broadcast(StatusCode);
+}
+
+void UEmergenceSingleton::GetAccessToken()
+{
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token");
+	UE_LOG(LogTemp, Display, TEXT("GetAccessToken request started, calling GetAccessToken_HttpRequestComplete on request completed"));
+}
+
 void UEmergenceSingleton::GetPersonas()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetPersonas_HttpRequestComplete, "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/personas");
@@ -252,6 +282,10 @@ void UEmergenceSingleton::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRe
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (HandleDatabaseServerAuthFail(StatusCode)) {
+		OnKillSessionCompleted.Broadcast(false, StatusCode);
+		return;
+	}
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersonaListResponse ResponceStruct = FEmergencePersonaListResponse(*HttpResponse->GetContentAsString());
 		OnGetPersonasCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
