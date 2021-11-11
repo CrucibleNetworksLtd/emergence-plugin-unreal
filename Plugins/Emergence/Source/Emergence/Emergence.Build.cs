@@ -7,7 +7,7 @@ public class Emergence : ModuleRules
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		CppStandard = CppStandardVersion.Cpp17;
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...

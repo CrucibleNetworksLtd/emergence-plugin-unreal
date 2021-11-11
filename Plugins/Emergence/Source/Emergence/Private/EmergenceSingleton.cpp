@@ -15,7 +15,7 @@
 #include "Dom/JsonObject.h"
 
 #include "Windows/WindowsSystemIncludes.h"
-
+#include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 
 
@@ -86,7 +86,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 
 void UEmergenceSingleton::GetWalletConnectURI()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, APIBase + "getwalletconnecturi");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, APIBase + "getwalletconnecturi");
 	UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request started, calling GetWalletConnectURI_HttpRequestComplete on request completed"));
 }
 
@@ -111,7 +111,7 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 
 void UEmergenceSingleton::GetQRCode()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::GetQRCode_HttpRequestComplete, APIBase + "qrcode");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetQRCode_HttpRequestComplete, APIBase + "qrcode");
 	UE_LOG(LogTemp, Display, TEXT("GetQRCode request started, calling GetQRCode_HttpRequestComplete on request completed"));
 }
 
@@ -166,7 +166,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UEmergenceSingleton::GetHandshake()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::GetHandshake_HttpRequestComplete, APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
 
@@ -189,7 +189,7 @@ void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpReq
 
 void UEmergenceSingleton::GetBalance()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::GetBalance_HttpRequestComplete, APIBase + "getbalance");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetBalance_HttpRequestComplete, APIBase + "getbalance");
 	UE_LOG(LogTemp, Display, TEXT("GetBalance request started, calling GetBalance_HttpRequestComplete on request completed"));
 }
 
@@ -215,7 +215,7 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::IsConnected()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::IsConnected_HttpRequestComplete, APIBase + "isConnected");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, APIBase + "isConnected");
 	UE_LOG(LogTemp, Display, TEXT("IsConnected request started, calling IsConnected_HttpRequestComplete on request completed"));
 }
 
@@ -238,7 +238,7 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::KillSession()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::KillSession_HttpRequestComplete, APIBase + "killSession");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, APIBase + "killSession");
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 }
 
@@ -296,13 +296,13 @@ void UEmergenceSingleton::LaunchLocalServerProcess()
 
 void UEmergenceSingleton::KillLocalServerProcess()
 {
-	this->ExecuteHttpRequest(nullptr, APIBase + "finish");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(nullptr, nullptr, APIBase + "finish");
 	UE_LOG(LogTemp, Display, TEXT("KillLocalServerProcess request started..."));
 }
 
 void UEmergenceSingleton::GetPersonas()
 {
-	this->ExecuteHttpRequest(&UEmergenceSingleton::GetPersonas_HttpRequestComplete, "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/personas");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetPersonas_HttpRequestComplete, "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/personas");
 	UE_LOG(LogTemp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
 }
 
@@ -316,16 +316,4 @@ void UEmergenceSingleton::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRe
 		return;
 	}
 	OnKillSessionCompleted.Broadcast(false, StatusCode);
-}
-
-void UEmergenceSingleton::ExecuteHttpRequest(void(UEmergenceSingleton::*InFunc)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb, const float& Timeout)
-{
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
-	if (InFunc) {
-		HttpRequest->OnProcessRequestComplete().BindUObject(this, InFunc);
-	}
-	HttpRequest->SetURL(URL);
-	HttpRequest->SetVerb(Verb);
-	HttpRequest->SetTimeout(Timeout);
-	HttpRequest->ProcessRequest();
 }
