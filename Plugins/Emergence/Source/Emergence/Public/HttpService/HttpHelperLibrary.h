@@ -17,6 +17,8 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
+	inline static const FString APIBase = TEXT("http://localhost:50733/api/");
+
 	template<typename T>
 	inline static void ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F)
 	{

@@ -86,7 +86,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 
 void UEmergenceSingleton::GetWalletConnectURI()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, APIBase + "getwalletconnecturi");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
 	UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request started, calling GetWalletConnectURI_HttpRequestComplete on request completed"));
 }
 
@@ -111,7 +111,7 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 
 void UEmergenceSingleton::GetQRCode()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetQRCode_HttpRequestComplete, APIBase + "qrcode");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetQRCode_HttpRequestComplete, UHttpHelperLibrary::APIBase + "qrcode");
 	UE_LOG(LogTemp, Display, TEXT("GetQRCode request started, calling GetQRCode_HttpRequestComplete on request completed"));
 }
 
@@ -166,7 +166,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UEmergenceSingleton::GetHandshake()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, UHttpHelperLibrary::APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
 
@@ -189,7 +189,7 @@ void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpReq
 
 void UEmergenceSingleton::GetBalance()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetBalance_HttpRequestComplete, APIBase + "getbalance");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetBalance_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getbalance");
 	UE_LOG(LogTemp, Display, TEXT("GetBalance request started, calling GetBalance_HttpRequestComplete on request completed"));
 }
 
@@ -215,7 +215,7 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::IsConnected()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, APIBase + "isConnected");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, UHttpHelperLibrary::APIBase + "isConnected");
 	UE_LOG(LogTemp, Display, TEXT("IsConnected request started, calling IsConnected_HttpRequestComplete on request completed"));
 }
 
@@ -238,66 +238,8 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::KillSession()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, APIBase + "killSession");
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession");
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
-}
-
-void UEmergenceSingleton::LaunchLocalServerProcess()
-{
-	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "walletConnectpoc.exe");
-	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/walletConnectpoc.exe");
-	FString LoadPath;
-	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
-		LoadPath = EmergenceServerBinariesPath;
-	}
-	else if (FPaths::FileExists(EmergenceServerPluginPath)) {
-		LoadPath = EmergenceServerPluginPath;
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Make sure you have the server files copied to Plugins/Emergence/EmergenceServer/walletConnectpoc.exe"));
-		return;
-	}
-
-	if (GConfig) {
-		FString EmergenceCustomServerLocation;
-		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GEditorPerProjectIni)) {
-			FParse::Value(*EmergenceCustomServerLocation, TEXT("FilePath="), EmergenceCustomServerLocation);
-			if (FPaths::FileExists(*EmergenceCustomServerLocation)) {
-				LoadPath = EmergenceCustomServerLocation;
-				UE_LOG(LogTemp, Warning, TEXT("Found EmergenceServer at override path (%s)."), *EmergenceCustomServerLocation);
-			}
-		}
-	}
-	
-	UE_LOG(LogTemp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
-	
-	const FString JsonArgs("\"{\\\"Name\\\":\\\"Crucibletest\\\",\\\"Description\\\":\\\"UnrealEngineWalletConnect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
-
-	//Add the args
-	TArray<FString> Args = {
-		JsonArgs,
-		FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
-	};
-
-	//combine the args
-	FString ArgString = "";
-	for (int i = 0; i < Args.Num(); i++) {
-		if (i != 0) { //add a space before the next arg
-			ArgString = ArgString + " ";
-		}
-		UE_LOG(LogTemp, Display, TEXT("calling argument [%d]: %s"), i, *Args[i]);
-		ArgString = ArgString + Args[i];
-	}
-	UE_LOG(LogTemp, Display, TEXT("Total argument lenth is %d"), ArgString.Len());
-	//create the process
-	FPlatformProcess::CreateProc(*LoadPath, *ArgString, false, false, false, nullptr, 0, nullptr, nullptr);
-	UE_LOG(LogTemp, Display, TEXT("calling: %s %s"), *LoadPath, *ArgString);
-}
-
-void UEmergenceSingleton::KillLocalServerProcess()
-{
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(nullptr, nullptr, APIBase + "finish");
-	UE_LOG(LogTemp, Display, TEXT("KillLocalServerProcess request started..."));
 }
 
 void UEmergenceSingleton::GetPersonas()

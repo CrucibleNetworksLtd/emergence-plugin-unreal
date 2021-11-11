@@ -25,8 +25,6 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 public:
 	UEmergenceSingleton();
 
-	const FString APIBase = TEXT("http://localhost:50733/api/");
-
 	/** Get the global Emergence manager */
 	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
@@ -117,13 +115,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnKillSessionCompleted OnKillSessionCompleted;
-
-	// Launch local server process stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void LaunchLocalServerProcess();
-
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void KillLocalServerProcess();
 
 	//Persona Server Stuff
 	
