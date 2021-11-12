@@ -7,7 +7,7 @@
 
 void ULocalEmergenceServer::LaunchLocalServerProcess()
 {
-	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "EmergenceEVMLocalServer.exe");
+	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {

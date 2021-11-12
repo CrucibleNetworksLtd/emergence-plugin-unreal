@@ -6,6 +6,7 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
+		RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/...");
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 		PublicIncludePaths.AddRange(
