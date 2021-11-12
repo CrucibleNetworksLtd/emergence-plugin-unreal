@@ -20,7 +20,7 @@ public:
 	inline static const FString APIBase = TEXT("http://localhost:50733/api/");
 
 	template<typename T>
-	inline static void ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F)
+	inline static void ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString())
 	{
 		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
@@ -30,6 +30,14 @@ public:
 		HttpRequest->SetURL(URL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
+
+		for (int i = 0; i < Headers.Num(); i++) {
+			HttpRequest->SetHeader(Headers[i].Key, Headers[i].Value);
+		}
+
+		if (Content.Len() > 0 && HttpRequest->GetHeader("Content-Type").Len() > 0) {
+			HttpRequest->SetContentAsString(Content);
+		}
 		HttpRequest->ProcessRequest();
 	};
 };
