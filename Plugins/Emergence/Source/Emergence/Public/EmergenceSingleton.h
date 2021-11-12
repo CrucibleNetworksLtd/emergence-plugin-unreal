@@ -58,8 +58,6 @@ private:
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	void GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
 	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetAccessToken();
@@ -130,17 +128,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnKillSessionCompleted OnKillSessionCompleted;
-
-	//Persona Server Stuff
-	
-	//Get Personas stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests|Persona Server")
-	void GetPersonas();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetPersonasCompleted, FEmergencePersonaListResponse, Response, TEnumAsByte<EErrorCode>, StatusCode);
-
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests|Persona Server")
-	FOnGetPersonasCompleted OnGetPersonasCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
