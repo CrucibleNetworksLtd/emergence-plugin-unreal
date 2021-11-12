@@ -7,8 +7,8 @@
 
 void ULocalEmergenceServer::LaunchLocalServerProcess()
 {
-	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "walletConnectpoc.exe");
-	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/walletConnectpoc.exe");
+	FString EmergenceServerBinariesPath = FString(*FPlatformProcess::BaseDir() + "EmergenceEVMLocalServer.exe");
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
 		LoadPath = EmergenceServerBinariesPath;
@@ -17,7 +17,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 		LoadPath = EmergenceServerPluginPath;
 	}
 	else {
-		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Make sure you have the server files copied to Plugins/Emergence/EmergenceServer/walletConnectpoc.exe"));
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find EmergenceServer in binaries or plugin path locations. Make sure you have the server files copied to Plugins/Emergence/EmergenceServer/EmergenceEVMLocalServer.exe"));
 		return;
 	}
 
