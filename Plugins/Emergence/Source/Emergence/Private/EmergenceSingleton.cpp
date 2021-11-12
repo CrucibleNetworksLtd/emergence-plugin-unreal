@@ -95,6 +95,17 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
+FString UEmergenceSingleton::GetCurrentAccessToken()
+{
+	if (this->CurrentAccessToken.Len() > 0) {
+		return this->CurrentAccessToken;
+	}
+	else {
+		GetAccessToken();
+		return FString("-1");
+	}
+}
+
 void UEmergenceSingleton::GetWalletConnectURI()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
@@ -166,6 +177,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
 			OnGetHandshakeCompleted.Broadcast(Address, StatusCode);
+			GetAccessToken();
 		}
 		else {
 			OnGetHandshakeCompleted.Broadcast(Address, EErrorCode::EmergenceClientWrongType);
@@ -257,9 +269,12 @@ void UEmergenceSingleton::KillSession()
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
+	UE_LOG(LogTemp, Display, TEXT("Parsing %s"), *HttpResponse->GetContentAsString());
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	UE_LOG(LogTemp, Display, TEXT("Access token callback was error code: %s"), *StaticEnum<EErrorCode>()->GetValueAsString(StatusCode));
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		this->CurrentAccessToken = HttpResponse->GetContentAsString();
+		this->CurrentAccessToken = JsonObject.GetStringField("accessToken");
+		UE_LOG(LogTemp, Display, TEXT("Got access token! It is: %s"), *this->CurrentAccessToken);
 		OnGetAccessTokenCompleted.Broadcast(StatusCode);
 		return;
 	}

@@ -62,13 +62,13 @@ private:
 
 	void GetAccessToken();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
-	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
 	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 
 public:
+	//Intentionally not exposed to blueprints
+	UFUNCTION()
+	FString GetCurrentAccessToken();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
@@ -128,6 +128,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnKillSessionCompleted OnKillSessionCompleted;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
