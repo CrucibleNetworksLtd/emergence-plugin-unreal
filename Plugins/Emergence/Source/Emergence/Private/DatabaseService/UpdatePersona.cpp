@@ -1,0 +1,44 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "DatabaseService/UpdatePersona.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpService/HttpHelperLibrary.h"
+
+UUpdatePersona* UUpdatePersona::UpdatePersona(FEmergencePersona Persona)
+{
+	UUpdatePersona* BlueprintNode = NewObject<UUpdatePersona>();
+	BlueprintNode->Persona = Persona;
+	return BlueprintNode;
+}
+
+void UUpdatePersona::Activate()
+{
+	FString PersonaJsonString;
+	FJsonObjectConverter::UStructToJsonObjectString<FEmergencePersona>(this->Persona, PersonaJsonString);
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+	
+	UHttpHelperLibrary::ExecuteHttpRequest<UUpdatePersona>(
+		this,
+		&UUpdatePersona::UpdatePersona_HttpRequestComplete,
+		"https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona",
+		"PATCH",
+		60.0F,
+		Headers,
+		PersonaJsonString);
+	UE_LOG(LogTemp, Display, TEXT("UpdatePersona request started with JSON, calling UpdatePersona_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogTemp, Display, TEXT("%s"), *PersonaJsonString);
+}
+
+void UUpdatePersona::UpdatePersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
+		OnUpdatePersonaCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		return;
+	}
+	OnUpdatePersonaCompleted.Broadcast(this->Persona, StatusCode);
+}

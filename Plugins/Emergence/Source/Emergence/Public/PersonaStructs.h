@@ -138,16 +138,18 @@ struct FEmergencePersona
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FEmergenceAvatar gameAvatar;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool deleted{ false };
+	
 	FEmergencePersona() {};
 
-	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _gameAvatar ){
-
+	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _gameAvatar, bool _deleted){
 		id = _id;
 		name = _name;
 		bio = _bio;
 		settings = _settings;
 		gameAvatar = _gameAvatar;
-	
+		deleted = _deleted;
 	}
 	
 	FEmergencePersona(FString _json_){
@@ -163,8 +165,9 @@ struct FEmergencePersona
 		bio = _tmpEmergencePersona.bio;
 		settings = _tmpEmergencePersona.settings;
 		gameAvatar = _tmpEmergencePersona.gameAvatar;
+		deleted = _tmpEmergencePersona.deleted;
 	}
-	
+
 };
 
 USTRUCT(BlueprintType)
@@ -200,4 +203,30 @@ struct FEmergencePersonaListResponse
 		selected = _tmpEmergencePersonaListResponse.selected;
 	}
 	
+};
+
+USTRUCT(BlueprintType)
+struct FEmergencePersonaResponse
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FEmergencePersona persona;
+
+	FEmergencePersonaResponse() {};
+
+	FEmergencePersonaResponse(FEmergencePersona _persona) {
+		persona = _persona;
+	}
+
+	FEmergencePersonaResponse(FString _json_) {
+		FEmergencePersona _tmpEmergencePersona;
+
+		FJsonObjectConverter::JsonObjectStringToUStruct<FEmergencePersona>(
+			_json_,
+			&_tmpEmergencePersona,
+			0, 0);
+
+		persona = _tmpEmergencePersona;
+	}
 };
