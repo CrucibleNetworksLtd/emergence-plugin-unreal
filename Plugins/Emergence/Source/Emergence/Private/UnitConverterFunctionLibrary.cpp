@@ -74,6 +74,9 @@ FString UUnitConverterFunctionLibrary::ConvertTest()
 	succeded &= Convert("1000034343434343434344", EEtherUnitType::WEI, EEtherUnitType::KETHER, ",") == "1,000034343434343434344";
 	succeded &= Convert("100003434343434343434422", EEtherUnitType::WEI, EEtherUnitType::METHER, ",") == "0,100003434343434343434422";
 
+	succeded &= Convert("53232860000000000000000000", EEtherUnitType::WEI, EEtherUnitType::ETHER, ",") == "53232860";
+	succeded &= Convert("0", EEtherUnitType::WEI, EEtherUnitType::ETHER, ",") == "0";
+
 	return succeded ? "True" : "False";
 }
 
@@ -89,7 +92,7 @@ FString UUnitConverterFunctionLibrary::Convert(const FString& source, EEtherUnit
 	FString afterComa;
 	if (source.Split(comaSeparator, &beforeComa, &afterComa))
 	{
-		return Convert(source, beforeComa, afterComa, sourceUnit, targetUnit, comaSeparator);
+		return RemoveTrailingDecimals(Convert(source, beforeComa, afterComa, sourceUnit, targetUnit, comaSeparator), comaSeparator);
 	}
 
 	int8 resultLength = GetPowFactorDifference(sourceUnit, targetUnit);
@@ -110,7 +113,7 @@ FString UUnitConverterFunctionLibrary::Convert(const FString& source, EEtherUnit
 	{
 		FString result(source);
 		result.InsertAt(source.Len() + resultLength, comaSeparator);
-		return result;
+		return RemoveTrailingDecimals(result, comaSeparator);
 	}
 
 	FString result("0");
@@ -123,7 +126,7 @@ FString UUnitConverterFunctionLibrary::Convert(const FString& source, EEtherUnit
 
 	result += TrimRightmostZeros(source);
 
-	return result;
+	return RemoveTrailingDecimals(result, comaSeparator);
 }
 
 FString UUnitConverterFunctionLibrary::Convert(const FString& source, const FString& beforeComa, const FString& afterComa, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, 
@@ -239,4 +242,29 @@ FString UUnitConverterFunctionLibrary::TrimLeftmostZeros(const FString& source)
 	}
 
 	return source.Mid(trimIndex);
+}
+
+FString UUnitConverterFunctionLibrary::RemoveTrailingDecimals(const FString& source, const FString& comaSeparator)
+{
+	if (!source.Contains(comaSeparator))
+	{
+		return source;
+	}
+
+	uint8 trimIndex = source.Len();
+
+	for (int i = source.Len() - 1; i >= 0; i--)
+	{
+		if (source[i] != '0')
+		{
+			trimIndex = i;
+			if (source[i] == comaSeparator[0])
+			{
+				trimIndex--;
+			}
+			break;
+		}
+	}
+
+	return source.Mid(0, trimIndex + 1);
 }
