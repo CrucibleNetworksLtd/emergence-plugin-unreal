@@ -25,9 +25,9 @@ void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr H
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FEmergencePersonaResponse ResponceStruct = FEmergencePersonaResponse(*HttpResponse->GetContentAsString());
+		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnDeletePersonaByIDCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
 		return;
 	}
-	OnDeletePersonaByIDCompleted.Broadcast(FEmergencePersonaResponse(), StatusCode);
+	OnDeletePersonaByIDCompleted.Broadcast(FEmergencePersona(), StatusCode);
 }

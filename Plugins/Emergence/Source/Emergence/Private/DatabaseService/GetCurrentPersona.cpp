@@ -22,9 +22,9 @@ void UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete(FHttpRequestPtr H
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FEmergencePersonaResponse ResponceStruct = FEmergencePersonaResponse(*HttpResponse->GetContentAsString());
+		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnGetCurrentPersonaCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
 		return;
 	}
-	OnGetCurrentPersonaCompleted.Broadcast(FEmergencePersonaResponse(), StatusCode);
+	OnGetCurrentPersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
 }

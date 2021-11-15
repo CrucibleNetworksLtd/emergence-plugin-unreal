@@ -25,9 +25,9 @@ void UGetPersonaByID::GetPersonaByID_HttpRequestComplete(FHttpRequestPtr HttpReq
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FEmergencePersonaResponse ResponceStruct = FEmergencePersonaResponse(*HttpResponse->GetContentAsString());
+		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnGetPersonaByIDCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
 		return;
 	}
-	OnGetPersonaByIDCompleted.Broadcast(FEmergencePersonaResponse(), StatusCode);
+	OnGetPersonaByIDCompleted.Broadcast(FEmergencePersona(), StatusCode);
 }
