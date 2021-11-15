@@ -38,4 +38,6 @@ private:
 	static int8 GetPowFactorDifference(EEtherUnitType sourceUnit, EEtherUnitType targetUnit);
 	static FString TrimRightmostZeros(const FString& source);
 	static FString TrimLeftmostZeros(const FString& source);
+	static FString RemoveTrailingDecimals(const FString& source, const FString& comaSeparator);
+
 };
