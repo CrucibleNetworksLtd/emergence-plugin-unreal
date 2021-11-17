@@ -4,16 +4,28 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
 
-UGetCurrentPersona* UGetCurrentPersona::GetCurrentPersona()
+UGetCurrentPersona* UGetCurrentPersona::GetCurrentPersona(const UObject* WorldContextObject)
 {
 	UGetCurrentPersona* BlueprintNode = NewObject<UGetCurrentPersona>();
+	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
 
 void UGetCurrentPersona::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetCurrentPersona>(this, &UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete, UHttpHelperLibrary::DatabaseAPIPublic + "persona");
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UGetCurrentPersona>(
+		this, 
+		&UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete, 
+		UHttpHelperLibrary::DatabaseAPIPublic + "persona",
+		"GET",
+		60.0F,
+		Headers
+		);
 	UE_LOG(LogTemp, Display, TEXT("GetCurrentPersona request started, calling GetCurrentPersona_HttpRequestComplete on request completed"));
 }
 

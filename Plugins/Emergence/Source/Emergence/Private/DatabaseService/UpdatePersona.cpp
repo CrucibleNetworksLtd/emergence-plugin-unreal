@@ -4,11 +4,13 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
 
-UUpdatePersona* UUpdatePersona::UpdatePersona(FEmergencePersona Persona)
+UUpdatePersona* UUpdatePersona::UpdatePersona(const UObject* WorldContextObject, FEmergencePersona Persona)
 {
 	UUpdatePersona* BlueprintNode = NewObject<UUpdatePersona>();
 	BlueprintNode->Persona = Persona;
+	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
 
@@ -18,7 +20,7 @@ void UUpdatePersona::Activate()
 	FJsonObjectConverter::UStructToJsonObjectString<FEmergencePersona>(this->Persona, PersonaJsonString);
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-	
+	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 	UHttpHelperLibrary::ExecuteHttpRequest<UUpdatePersona>(
 		this,
 		&UUpdatePersona::UpdatePersona_HttpRequestComplete,
