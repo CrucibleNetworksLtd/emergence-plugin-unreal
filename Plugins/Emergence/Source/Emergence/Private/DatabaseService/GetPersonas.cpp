@@ -22,7 +22,7 @@ void UGetPersonas::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetPersonas>(
 		this,
 		&UGetPersonas::GetPersonas_HttpRequestComplete,
-		UHttpHelperLibrary::DatabaseAPIPublic + "personas",
+		UHttpHelperLibrary::DatabaseAPIPrivate + "personas",
 		"GET",
 		60.0F,
 		Headers
