@@ -6,8 +6,9 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
+		RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/...");
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+		CppStandard = CppStandardVersion.Cpp17;
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
@@ -25,7 +26,8 @@ public class Emergence : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core"
+				"Core",
+				"UMG"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,7 +41,8 @@ public class Emergence : ModuleRules
 				"Slate",
 				"SlateCore",
 				"Http",
-				"Json"
+				"Json",
+				"JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

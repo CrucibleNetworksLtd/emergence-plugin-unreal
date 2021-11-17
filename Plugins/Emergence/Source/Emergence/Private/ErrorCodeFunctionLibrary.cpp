@@ -71,12 +71,7 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr H
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 	{
 		ReturnResponseCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
-		if (ReturnResponseCode == EErrorCode::EmergenceOk) {
-			return *JsonObject.Get();
-		}
-		else {
-			return FJsonObject();
-		}
+		return *JsonObject.Get();
 	}
 	ReturnResponseCode = EErrorCode::EmergenceClientJsonParseFailed;
 	return FJsonObject();

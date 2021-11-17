@@ -1,0 +1,21 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "EmergenceUI.h"
+#include "EmergenceScreen.generated.h"
+
+/**
+ * Should be the parent of any widget that needs to be displayed as a main "screen" shown inside the Emergence UI.
+ */
+UCLASS()
+class UEmergenceScreen : public UUserWidget
+{
+	GENERATED_BODY()
+public:
+	//Get the main Emergence UI instance that is holding this screen.
+	UFUNCTION(BlueprintPure)
+	UEmergenceUI* GetEmergenceUI();
+};

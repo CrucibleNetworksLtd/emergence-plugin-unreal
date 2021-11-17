@@ -11,7 +11,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
+#include "PersonaStructs.h"
 #include "EmergenceSingleton.generated.h"
+
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 
@@ -22,8 +24,6 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 	
 public:
 	UEmergenceSingleton();
-
-	const FString APIBase = TEXT("http://localhost:50733/api/");
 
 	/** Get the global Emergence manager */
 	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
@@ -41,6 +41,11 @@ public:
 
 	//HTTPService Functions
 private:
+	FString CurrentAccessToken;
+
+	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
+	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
+
 	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -52,7 +57,18 @@ private:
 	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetAccessToken();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
+	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
+
 public:
+	//Intentionally not exposed to blueprints
+	UFUNCTION()
+	FString GetCurrentAccessToken();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
@@ -113,12 +129,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
-	// Launch local server process stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void LaunchLocalServerProcess();
-
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void KillLocalServerProcess();
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
