@@ -14,7 +14,7 @@ UGetPersonas* UGetPersonas::GetPersonas()
 
 void UGetPersonas::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetPersonas>(this, &UGetPersonas::GetPersonas_HttpRequestComplete, "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/personas");
+	UHttpHelperLibrary::ExecuteHttpRequest<UGetPersonas>(this, &UGetPersonas::GetPersonas_HttpRequestComplete, UHttpHelperLibrary::DatabaseAPIPublic + "personas");
 	UE_LOG(LogTemp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
 }
 

@@ -15,7 +15,7 @@ UDeletePersonaByID* UDeletePersonaByID::DeletePersonaByID(const FString& Persona
 
 void UDeletePersonaByID::Activate()
 {
-	FString requestURL = "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona/" + PersonaID;
+	FString requestURL = UHttpHelperLibrary::DatabaseAPIPrivate + "persona/" + PersonaID;
 	UHttpHelperLibrary::ExecuteHttpRequest<UDeletePersonaByID>(this, &UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete, requestURL, "DELETE");
 	UE_LOG(LogTemp, Display, TEXT("DeletePersonaByID request started, calling DeletePersonaByID_HttpRequestComplete on request completed"));
 }

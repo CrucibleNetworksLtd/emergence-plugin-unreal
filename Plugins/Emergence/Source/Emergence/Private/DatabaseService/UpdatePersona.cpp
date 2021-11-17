@@ -22,7 +22,7 @@ void UUpdatePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UUpdatePersona>(
 		this,
 		&UUpdatePersona::UpdatePersona_HttpRequestComplete,
-		"https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona",
+		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
 		"PATCH",
 		60.0F,
 		Headers,

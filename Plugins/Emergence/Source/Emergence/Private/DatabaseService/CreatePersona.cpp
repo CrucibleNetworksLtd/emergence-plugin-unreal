@@ -28,7 +28,7 @@ void UCreatePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreatePersona>(
 		this, 
 		&UCreatePersona::CreatePersona_HttpRequestComplete, 
-		"https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona",
+		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
 		"POST",
 		60.0F,
 		Headers,

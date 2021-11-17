@@ -18,6 +18,8 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 	
 public:
 	inline static const FString APIBase = TEXT("http://localhost:50733/api/");
+	inline static const FString DatabaseAPIPublic = TEXT("https://pfy3t4mqjb.execute-api.us-east-1.amazonaws.com/staging/");
+	inline static const FString DatabaseAPIPrivate = TEXT("https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/");
 
 	template<typename T>
 	inline static void ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString())

@@ -13,7 +13,7 @@ UGetCurrentPersona* UGetCurrentPersona::GetCurrentPersona()
 
 void UGetCurrentPersona::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetCurrentPersona>(this, &UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete, "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona");
+	UHttpHelperLibrary::ExecuteHttpRequest<UGetCurrentPersona>(this, &UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete, UHttpHelperLibrary::DatabaseAPIPublic + "persona");
 	UE_LOG(LogTemp, Display, TEXT("GetCurrentPersona request started, calling GetCurrentPersona_HttpRequestComplete on request completed"));
 }
 

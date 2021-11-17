@@ -15,7 +15,7 @@ UGetPersonaByID* UGetPersonaByID::GetPersonaByID(const FString& personaID)
 
 void UGetPersonaByID::Activate()
 {
-	FString requestURL = "https://7h2e4n5z6i.execute-api.us-east-1.amazonaws.com/staging/persona/" + PersonaID;
+	FString requestURL = UHttpHelperLibrary::DatabaseAPIPublic + "persona/" + PersonaID;
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetPersonaByID>(this, &UGetPersonaByID::GetPersonaByID_HttpRequestComplete, requestURL);
 	UE_LOG(LogTemp, Display, TEXT("GetPersonaByID request started, calling GetPersonaByID_HttpRequestComplete on request completed"));
 }
