@@ -130,6 +130,8 @@ public:
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
 private:
