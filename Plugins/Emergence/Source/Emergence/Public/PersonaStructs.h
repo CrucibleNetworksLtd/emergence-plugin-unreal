@@ -201,3 +201,32 @@ struct FEmergencePersonaListResponse
 	}
 	
 };
+
+USTRUCT(BlueprintType)
+struct FEmergenceAvatarListResponse
+{
+
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FEmergenceAvatar> avatars;
+
+
+	FEmergenceAvatarListResponse() {};
+
+	FEmergenceAvatarListResponse(TArray<FEmergenceAvatar> _avatars) {
+		avatars = _avatars;
+	}
+
+	FEmergenceAvatarListResponse(FString _json_) {
+		FEmergenceAvatarListResponse _tmpEmergenceAvatarListResponse;
+
+		FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceAvatarListResponse>(
+			_json_,
+			&_tmpEmergenceAvatarListResponse,
+			0, 0);
+
+		avatars = _tmpEmergenceAvatarListResponse.avatars;
+	}
+
+};
