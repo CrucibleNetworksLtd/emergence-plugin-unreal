@@ -33,13 +33,21 @@ public:
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
 
-		for (int i = 0; i < Headers.Num(); i++) {
-			HttpRequest->SetHeader(Headers[i].Key, Headers[i].Value);
+		//Handle headers and logging of the headers
+		FString HeaderLogText;
+		if (Headers.Num() > 0) {
+			HeaderLogText = "\nHeaders:\n";
+			for (int i = 0; i < Headers.Num(); i++) {
+				HttpRequest->SetHeader(Headers[i].Key, Headers[i].Value);
+				HeaderLogText.Append(Headers[i].Key + ": " + Headers[i].Value + "\n");
+			}
 		}
 
 		if (Content.Len() > 0 && HttpRequest->GetHeader("Content-Type").Len() > 0) {
 			HttpRequest->SetContentAsString(Content);
 		}
+
 		HttpRequest->ProcessRequest();
+		UE_LOG(LogTemp, Display, TEXT("Sent %s request to %s, timing out in %f %s \n%s"), *Verb, *URL, Timeout, *HeaderLogText, *Content);
 	};
 };
