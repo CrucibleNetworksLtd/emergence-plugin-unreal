@@ -89,16 +89,16 @@ struct FEmergenceAvatar
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString url;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FEmergenceGame game;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//FEmergenceGame game;
 
 	FEmergenceAvatar() {};
 
-	FEmergenceAvatar( FString _id, FString _url, FEmergenceGame _game ){
+	FEmergenceAvatar( FString _id, FString _url/*, FEmergenceGame _game*/ ){
 
 		id = _id;
 		url = _url;
-		game = _game;
+		//game = _game;
 	
 	}
 	
@@ -112,7 +112,7 @@ struct FEmergenceAvatar
 		
 		id = _tmpEmergencePersonaAvatar.id;
 		url = _tmpEmergencePersonaAvatar.url;
-		game = _tmpEmergencePersonaAvatar.game;
+		//game = _tmpEmergencePersonaAvatar.game;
 	}
 	
 };
@@ -136,17 +136,17 @@ struct FEmergencePersona
 	FEmergencePersonaSettings settings;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FEmergenceAvatar gameAvatar;
+	FEmergenceAvatar avatar;
 
 	FEmergencePersona() {};
 
-	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _gameAvatar ){
+	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _avatar){
 
 		id = _id;
 		name = _name;
 		bio = _bio;
 		settings = _settings;
-		gameAvatar = _gameAvatar;
+		avatar = _avatar;
 	
 	}
 	
@@ -162,7 +162,7 @@ struct FEmergencePersona
 		name = _tmpEmergencePersona.name;
 		bio = _tmpEmergencePersona.bio;
 		settings = _tmpEmergencePersona.settings;
-		gameAvatar = _tmpEmergencePersona.gameAvatar;
+		avatar = _tmpEmergencePersona.avatar;
 	}
 	
 };
