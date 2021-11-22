@@ -6,6 +6,7 @@
 #include "Misc/MessageDialog.h"
 #include "ToolMenus.h"
 #include "LevelEditor.h"
+#include "LocalEmergenceServer.h"
 
 static const FName EmergenceToolbarTabName("EmergenceToolbar");
 
@@ -27,10 +28,10 @@ void FEmergenceToolbarModule::StartupModule()
 		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::PluginButtonClicked),
 		FCanExecuteAction());
 	
-	PluginCommands->MapAction(
+	/*PluginCommands->MapAction(
 		FEmergenceToolbarCommands::Get().CheckServerStatusAction,
 		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::CheckStatusButtonClicked),
-		FCanExecuteAction());
+		FCanExecuteAction());*/
 
 	PluginCommands->MapAction(
 		FEmergenceToolbarCommands::Get().StartServerAction,
@@ -101,7 +102,7 @@ void FEmergenceToolbarModule::FillSubmenu(FMenuBuilder& MenuBuilder)
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StartServerAction);
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StopServerAction);
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().RestartServerAction);
-	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
+	//MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
 
 }
 
@@ -112,7 +113,7 @@ TSharedRef<SWidget> FEmergenceToolbarModule::FillComboButton(TSharedPtr<class FU
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StartServerAction);
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StopServerAction);
 	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().RestartServerAction);
-	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
+	//MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
 
 	return MenuBuilder.MakeWidget();
 }
@@ -141,24 +142,29 @@ void FEmergenceToolbarModule::PluginButtonClicked()
 	FMessageDialog::Open(EAppMsgType::Ok, DialogText);
 }
 
-void FEmergenceToolbarModule::CheckStatusButtonClicked()
+/*void FEmergenceToolbarModule::CheckStatusButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CheckStatusButtonClicked"));
-}
+}*/
 
 void FEmergenceToolbarModule::StartServerButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("StartServerButtonClicked"));
+	ULocalEmergenceServer::LaunchLocalServerProcess();
 }
 
 void FEmergenceToolbarModule::StopServerButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("StopServerButtonClicked"));
+	
+	ULocalEmergenceServer::KillLocalServerProcess();
 }
 
 void FEmergenceToolbarModule::RestartServerButtonClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("RestartServerButtonClicked"));
+	ULocalEmergenceServer::KillLocalServerProcess();
+	ULocalEmergenceServer::LaunchLocalServerProcess();
 }
 
 void FEmergenceToolbarModule::RegisterMenus()

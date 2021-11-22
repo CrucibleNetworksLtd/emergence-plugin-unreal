@@ -26,6 +26,7 @@ public class EmergenceToolbar : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Emergence"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

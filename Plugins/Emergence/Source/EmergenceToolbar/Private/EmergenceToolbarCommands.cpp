@@ -11,7 +11,7 @@ void FEmergenceToolbarCommands::RegisterCommands()
 	UI_COMMAND(StartServerAction, "Start server", "Start server", EUserInterfaceActionType::Button, FInputGesture());
 	UI_COMMAND(StopServerAction, "Stop server", "Stop server", EUserInterfaceActionType::Button, FInputGesture());
 	UI_COMMAND(RestartServerAction, "Restart server", "Restart server", EUserInterfaceActionType::Button, FInputGesture());
-	UI_COMMAND(CheckServerStatusAction, "Check server status", "Check server status", EUserInterfaceActionType::Button, FInputGesture());
+	//UI_COMMAND(CheckServerStatusAction, "Check server status", "Check server status", EUserInterfaceActionType::Button, FInputGesture());
 
 }
 
