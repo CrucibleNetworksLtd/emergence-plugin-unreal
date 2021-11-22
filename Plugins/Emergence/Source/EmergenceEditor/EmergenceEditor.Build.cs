@@ -16,5 +16,12 @@ public class EmergenceEditor : ModuleRules
 				"RHI"
             }
 		);
+
+		PublicDependencyModuleNames.AddRange(
+		new string[] { 
+			"Emergence" 
+			}
+		);
 	}
+	
 }
