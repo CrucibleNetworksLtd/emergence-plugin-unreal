@@ -20,4 +20,9 @@ public:
 
 public:
 	TSharedPtr< FUICommandInfo > PluginAction;
+	TSharedPtr< FUICommandInfo > CheckServerStatusAction;
+	TSharedPtr< FUICommandInfo > StartServerAction;
+	TSharedPtr< FUICommandInfo > StopServerAction;
+	TSharedPtr< FUICommandInfo > RestartServerAction;
+
 };

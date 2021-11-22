@@ -5,6 +5,7 @@
 #include "EmergenceToolbarCommands.h"
 #include "Misc/MessageDialog.h"
 #include "ToolMenus.h"
+#include "LevelEditor.h"
 
 static const FName EmergenceToolbarTabName("EmergenceToolbar");
 
@@ -25,6 +26,43 @@ void FEmergenceToolbarModule::StartupModule()
 		FEmergenceToolbarCommands::Get().PluginAction,
 		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::PluginButtonClicked),
 		FCanExecuteAction());
+	
+	PluginCommands->MapAction(
+		FEmergenceToolbarCommands::Get().CheckServerStatusAction,
+		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::CheckStatusButtonClicked),
+		FCanExecuteAction());
+
+	PluginCommands->MapAction(
+		FEmergenceToolbarCommands::Get().StartServerAction,
+		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::StartServerButtonClicked),
+		FCanExecuteAction());
+
+	PluginCommands->MapAction(
+		FEmergenceToolbarCommands::Get().StopServerAction,
+		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::StopServerButtonClicked),
+		FCanExecuteAction());
+
+	PluginCommands->MapAction(
+		FEmergenceToolbarCommands::Get().RestartServerAction,
+		FExecuteAction::CreateRaw(this, &FEmergenceToolbarModule::RestartServerButtonClicked),
+		FCanExecuteAction());
+
+
+	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+
+	{
+		TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
+		MenuExtender->AddMenuExtension("LevelEditor", EExtensionHook::After, PluginCommands, FMenuExtensionDelegate::CreateRaw(this, &FEmergenceToolbarModule::AddMenuExtension));
+
+		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+	}
+
+	{
+		TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender);
+		ToolbarExtender->AddToolBarExtension("Settings", EExtensionHook::Before, PluginCommands, FToolBarExtensionDelegate::CreateRaw(this, &FEmergenceToolbarModule::AddToolbarExtension));
+
+		LevelEditorModule.GetToolBarExtensibilityManager()->AddExtender(ToolbarExtender);
+	}
 
 	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FEmergenceToolbarModule::RegisterMenus));
 }
@@ -43,6 +81,55 @@ void FEmergenceToolbarModule::ShutdownModule()
 	FEmergenceToolbarCommands::Unregister();
 }
 
+void FEmergenceToolbarModule::AddToolbarExtension(FToolBarBuilder& Builder)
+{
+	FUIAction TempCompileOptionsCommand;
+
+	Builder.AddComboButton(
+		TempCompileOptionsCommand,
+		FOnGetContent::CreateRaw(this, &FEmergenceToolbarModule::FillComboButton, PluginCommands),
+		FText::FromString("Emergence"),
+		FText::FromString("Emergence Menu"),
+		FSlateIcon(FEmergenceToolbarStyle::GetStyleSetName(), "EmergenceToolbar.PluginAction"),
+		false
+	);
+
+}
+
+void FEmergenceToolbarModule::FillSubmenu(FMenuBuilder& MenuBuilder)
+{
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StartServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StopServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().RestartServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
+
+}
+
+TSharedRef<SWidget> FEmergenceToolbarModule::FillComboButton(TSharedPtr<class FUICommandList> Commands)
+{
+	FMenuBuilder MenuBuilder(true, Commands);
+
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StartServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().StopServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().RestartServerAction);
+	MenuBuilder.AddMenuEntry(FEmergenceToolbarCommands::Get().CheckServerStatusAction);
+
+	return MenuBuilder.MakeWidget();
+}
+
+void FEmergenceToolbarModule::AddMenuExtension(FMenuBuilder& Builder)
+{
+	Builder.BeginSection("EmergenceMenu");
+
+	Builder.AddSubMenu(FText::FromString("Emergence"),
+		FText::FromString("Interact with integration server"),
+		FNewMenuDelegate::CreateRaw(this, &FEmergenceToolbarModule::FillSubmenu),
+		false,
+		FSlateIcon(FEmergenceToolbarStyle::GetStyleSetName(), "EmergenceToolbarStyle"));
+
+	Builder.EndSection();
+}
+
 void FEmergenceToolbarModule::PluginButtonClicked()
 {
 	// Put your "OnButtonClicked" stuff here
@@ -52,6 +139,26 @@ void FEmergenceToolbarModule::PluginButtonClicked()
 							FText::FromString(TEXT("EmergenceToolbar.cpp"))
 					   );
 	FMessageDialog::Open(EAppMsgType::Ok, DialogText);
+}
+
+void FEmergenceToolbarModule::CheckStatusButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("CheckStatusButtonClicked"));
+}
+
+void FEmergenceToolbarModule::StartServerButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("StartServerButtonClicked"));
+}
+
+void FEmergenceToolbarModule::StopServerButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("StopServerButtonClicked"));
+}
+
+void FEmergenceToolbarModule::RestartServerButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("RestartServerButtonClicked"));
 }
 
 void FEmergenceToolbarModule::RegisterMenus()
@@ -64,26 +171,6 @@ void FEmergenceToolbarModule::RegisterMenus()
 		{
 			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
 			Section.AddMenuEntryWithCommandList(FEmergenceToolbarCommands::Get().PluginAction, PluginCommands);
-		}
-	}
-
-	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
-			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FEmergenceToolbarCommands::Get().PluginAction));
-				Entry.SetCommandList(PluginCommands);
-
-				/*Section.AddEntry(FToolMenuEntry::InitComboButton(
-					"EditCinematics",
-					FUIAction(), FOnGetContent::CreateStatic(nullptr),
-					//FOnGetContent::CreateStatic(&FLevelEditorToolBar::GenerateCinematicsMenuContent, InCommandList, TWeakPtr<SLevelEditor>(InLevelEditor)),
-					LOCTEXT("EditCinematics_Label", "Cinematics"),
-					LOCTEXT("EditCinematics_Tooltip", "Displays a list of Level Sequence objects to open in their respective editors"),
-					FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.EditMatinee")
-				));*/
-			}
 		}
 	}
 }

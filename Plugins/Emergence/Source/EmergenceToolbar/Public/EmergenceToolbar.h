@@ -18,10 +18,22 @@ public:
 	
 	/** This function will be bound to Command. */
 	void PluginButtonClicked();
+
+	// Toolbar buttons OnClick events
+
+	void StartServerButtonClicked();
+	void StopServerButtonClicked();
+	void RestartServerButtonClicked();
+	void CheckStatusButtonClicked();
 	
 private:
 
+	// Add toolbar and menu buttons to the editor
 	void RegisterMenus();
+	void AddToolbarExtension(FToolBarBuilder& Builder);
+	void AddMenuExtension(FMenuBuilder& Builder);
+	void FillSubmenu(FMenuBuilder& MenuBuilder);
+	TSharedRef<SWidget> FillComboButton(TSharedPtr<class FUICommandList> Commands);
 
 
 private:
