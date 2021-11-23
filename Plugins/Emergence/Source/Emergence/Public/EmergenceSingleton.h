@@ -41,7 +41,7 @@ public:
 
 	//HTTPService Functions
 private:
-	FString CurrentAccessToken;
+	FString CurrentAccessToken = "";
 
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
 	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
@@ -69,6 +69,10 @@ public:
 	//Intentionally not exposed to blueprints
 	UFUNCTION()
 	FString GetCurrentAccessToken();
+
+	//Do we have an access token?
+	UFUNCTION(BlueprintPure)
+	bool HasAccessToken();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
