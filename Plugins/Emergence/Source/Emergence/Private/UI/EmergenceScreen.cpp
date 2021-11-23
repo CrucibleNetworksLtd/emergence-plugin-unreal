@@ -4,5 +4,10 @@
 #include "UI/EmergenceScreen.h"
 
 UEmergenceUI* UEmergenceScreen::GetEmergenceUI() {
-	return Cast<UEmergenceUI>(GetParent()->GetOuter()->GetOuter());
+	if (GetParent() && GetParent()->GetOuter() && GetParent()->GetOuter()->GetOuter()) {
+		return Cast<UEmergenceUI>(GetParent()->GetOuter()->GetOuter());
+	}
+	else {
+		return nullptr;
+	}
 }
