@@ -106,6 +106,11 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 	}
 }
 
+bool UEmergenceSingleton::HasAccessToken()
+{
+	return this->CurrentAccessToken != FString("");
+}
+
 void UEmergenceSingleton::GetWalletConnectURI()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
@@ -250,6 +255,7 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 		bool Disconnected;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {
 			OnKillSessionCompleted.Broadcast(Disconnected, StatusCode);
+			this->CurrentAccessToken = "";
 		}
 		else {
 			OnKillSessionCompleted.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
