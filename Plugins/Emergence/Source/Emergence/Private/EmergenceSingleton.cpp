@@ -25,7 +25,7 @@ UEmergenceSingleton::UEmergenceSingleton() {
 }
 
 TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmergenceSingleton::GlobalManagers{};
-
+const FString defaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
@@ -194,7 +194,25 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UEmergenceSingleton::GetHandshake()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, UHttpHelperLibrary::APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
+	FString NodeURL;
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GEditorPerProjectIni))
+	{
+		FParse::Value(*NodeURL, TEXT("NodeURL="), NodeURL);
+		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
+	}
+
+	if (NodeURL=="")
+	{
+		NodeURL = defaultNodeURL;
+		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *defaultNodeURL);
+	}
+	
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
+		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
+		UHttpHelperLibrary::APIBase + "handshake", 
+		"GET", 300.F, TArray<TPair<FString, FString>>(), //extra time because they might be fiddling with their phones
+		NodeURL); 
+	
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
 
