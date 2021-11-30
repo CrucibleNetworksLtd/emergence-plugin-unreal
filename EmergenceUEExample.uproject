@@ -331,10 +331,6 @@
 			"Enabled": false
 		},
 		{
-			"Name": "PluginBrowser",
-			"Enabled": false
-		},
-		{
 			"Name": "SteamVR",
 			"Enabled": false,
 			"SupportedTargetPlatforms": [
