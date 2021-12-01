@@ -38,8 +38,8 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 
 	//Add the args
 	TArray<FString> Args = {
-		JsonArgs,
-		FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
+		"--walletconnect=" + JsonArgs,
+		"--processid=" + FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
 	};
 
 	//combine the args
