@@ -195,17 +195,15 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 void UEmergenceSingleton::GetHandshake()
 {
 	FString NodeURL;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GEditorPerProjectIni))
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GEditorPerProjectIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
 	{
-		FParse::Value(*NodeURL, TEXT("NodeURL="), NodeURL);
 		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
 	}
-
-	if (NodeURL=="")
-	{
+	else {
 		NodeURL = defaultNodeURL;
-		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *defaultNodeURL);
+		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
 	}
+
 	
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
