@@ -209,9 +209,8 @@ void UEmergenceSingleton::GetHandshake()
 	
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "handshake", 
-		"GET", 300.F, TArray<TPair<FString, FString>>(), //extra time because they might be fiddling with their phones
-		NodeURL); 
+		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
+		"GET", 300.F);  //extra time because they might be fiddling with their phones
 	
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
