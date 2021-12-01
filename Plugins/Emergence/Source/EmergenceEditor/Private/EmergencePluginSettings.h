@@ -12,4 +12,6 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server", meta = (FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
+	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
+	FString NodeURL;
 };
