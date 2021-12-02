@@ -12,6 +12,8 @@
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
+#include "UI/EmergenceUI.h"
+#include "GameFramework/PlayerController.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -65,10 +67,19 @@ private:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
 	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 
+	UEmergenceUI* CurrentEmergenceUI;
 public:
 	//Intentionally not exposed to blueprints
 	UFUNCTION()
 	FString GetCurrentAccessToken();
+
+	//Opens the Emergence UI, returns the widget to focus
+	UFUNCTION(BlueprintCallable)
+	UWidget* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
+
+	//Gets the Emergence UI
+	UFUNCTION(BlueprintPure)
+	UEmergenceUI* GetEmergenceUI();
 
 	//Do we have an access token?
 	UFUNCTION(BlueprintPure)

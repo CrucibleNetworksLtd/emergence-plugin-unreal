@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "EmergenceUI.h"
+#include "UI/EmergenceUI.h"
 #include "EmergenceScreen.generated.h"
 
 /**

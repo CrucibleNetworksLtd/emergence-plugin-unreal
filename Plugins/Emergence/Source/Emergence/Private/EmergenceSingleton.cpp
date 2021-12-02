@@ -106,6 +106,32 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 	}
 }
 
+UWidget* UEmergenceSingleton::OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass)
+{
+	if (EmergenceUIClass) {
+		CurrentEmergenceUI = CreateWidget<UEmergenceUI>(OwnerPlayerController, EmergenceUIClass);
+		CurrentEmergenceUI->AddToViewport(9999);
+		if (CurrentEmergenceUI) {
+			return CurrentEmergenceUI;
+		}
+		else {
+			return nullptr;
+		}
+	}
+	return nullptr;
+	
+}
+
+UEmergenceUI* UEmergenceSingleton::GetEmergenceUI()
+{
+	if (CurrentEmergenceUI->IsValidLowLevel()) {
+		return CurrentEmergenceUI;
+	}
+	else {
+		return nullptr;
+	}
+}
+
 bool UEmergenceSingleton::HasAccessToken()
 {
 	return this->CurrentAccessToken != FString("");

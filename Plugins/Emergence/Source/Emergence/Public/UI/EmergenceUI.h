@@ -14,7 +14,7 @@ enum class  EmergenceConfirmationType : uint8
 	Error      UMETA(ToolTip = "To be implemented as bright red, for when you really need the users attention")
 };
 
-UCLASS()
+UCLASS(HideDropdown)
 class EMERGENCE_API UEmergenceUI : public UUserWidget
 {
 	GENERATED_BODY()
