@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/NamedSlot.h"
+#include <ErrorCodeFunctionLibrary.h>
 #include "EmergenceUI.generated.h"
 
 UENUM(BlueprintType)
@@ -46,4 +47,8 @@ public:
 	//Gets the most recent loading message
 	UFUNCTION(BlueprintPure)
 	bool GetMostRecentLoadingMessage(FText& Message);
+
+	//Shows an error code for the given error
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void ShowServerErrorMessage(const EErrorCode& ErrorCode);
 };
