@@ -1,3 +1,5 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
 #pragma once
 #include "Engine/EngineTypes.h"
 #include "EmergencePluginSettings.generated.h"

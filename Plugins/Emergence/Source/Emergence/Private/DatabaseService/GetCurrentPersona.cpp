@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #include "DatabaseService/GetCurrentPersona.h"
 #include "Interfaces/IHttpRequest.h"
