@@ -27,8 +27,8 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 public:
 	UEmergenceSingleton();
 
-	/** Get the global Emergence manager */
-	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
+	/** Get the global Emergence service */
+	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
