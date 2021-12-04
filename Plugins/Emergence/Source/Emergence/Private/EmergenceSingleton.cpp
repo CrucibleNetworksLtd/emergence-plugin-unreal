@@ -234,9 +234,25 @@ void UEmergenceSingleton::GetHandshake()
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
-		"GET", 300.F);  //extra time because they might be fiddling with their phones
+		"GET", 60.F);  //extra time because they might be fiddling with their phones
 	
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
+}
+
+void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
+		return;
+	}
+	OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
+}
+
+void UEmergenceSingleton::ReinitializeWalletConnect()
+{
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete, UHttpHelperLibrary::APIBase + "reinitializewalletconnect");
+	UE_LOG(LogTemp, Display, TEXT("ReinitializeWalletConnect request started, calling ReinitializeWalletConnect_HttpRequestComplete on request completed"));
 }
 
 void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

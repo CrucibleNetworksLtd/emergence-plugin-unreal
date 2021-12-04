@@ -62,6 +62,8 @@ private:
 
 	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
+	void ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
 	void GetAccessToken();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
@@ -116,6 +118,15 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
+
+	//ReinitializeWalletConnect stuff
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	void ReinitializeWalletConnect();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
 	//Getbalance stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
