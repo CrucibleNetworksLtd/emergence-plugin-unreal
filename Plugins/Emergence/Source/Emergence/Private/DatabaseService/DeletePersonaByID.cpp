@@ -42,4 +42,5 @@ void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr H
 		return;
 	}
 	OnDeletePersonaByIDCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("DeletePersonaById", StatusCode);
 }

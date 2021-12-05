@@ -47,4 +47,5 @@ void UCreatePersona::CreatePersona_HttpRequestComplete(FHttpRequestPtr HttpReque
 		return;
 	}
 	OnCreatePersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("CreatePersona", StatusCode);
 }

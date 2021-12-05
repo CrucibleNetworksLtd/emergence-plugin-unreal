@@ -51,4 +51,5 @@ void UGetUserUnlockedAvatars::GetUserUnlockedAvatars_HttpRequestComplete(FHttpRe
 		return;
 	}
 	OnGetUserUnlockedAvatarsCompleted.Broadcast(FEmergenceAvatarListResponse(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetUserUnlockedAvatars", StatusCode);
 }

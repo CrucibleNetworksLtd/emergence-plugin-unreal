@@ -40,4 +40,5 @@ void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 		return;
 	}
 	OnGetPersonasCompleted.Broadcast(FEmergencePersonaListResponse(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetPersonas", StatusCode);
 }
