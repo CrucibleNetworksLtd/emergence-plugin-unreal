@@ -91,6 +91,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void GetWalletConnectURI();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, TEnumAsByte<EErrorCode>, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAnyRequestError OnAnyRequestError;
+
+	//This shouldn't be necessary, you should be able to call .broadcast but I couldn't get it to show up in CreatePersona for some reason
+	void CallRequestError(FString ConnectionName, TEnumAsByte<EErrorCode> StatusCode);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")

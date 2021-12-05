@@ -42,4 +42,5 @@ void USetActivePersona::SetActivePersona_HttpRequestComplete(FHttpRequestPtr Htt
 		return;
 	}
 	OnSetActivePersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("SetActivePersona", StatusCode);
 }
