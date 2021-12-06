@@ -23,7 +23,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 
 	if (GConfig) {
 		FString EmergenceCustomServerLocation;
-		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GEditorPerProjectIni)) {
+		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GGameIni)) {
 			FParse::Value(*EmergenceCustomServerLocation, TEXT("FilePath="), EmergenceCustomServerLocation);
 			if (FPaths::FileExists(*EmergenceCustomServerLocation)) {
 				LoadPath = EmergenceCustomServerLocation;

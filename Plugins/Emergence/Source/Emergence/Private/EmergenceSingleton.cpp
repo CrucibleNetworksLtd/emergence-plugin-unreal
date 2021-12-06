@@ -231,7 +231,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 void UEmergenceSingleton::GetHandshake()
 {
 	FString NodeURL;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GEditorPerProjectIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GGameIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
 	}

@@ -16,7 +16,7 @@ UGetUserUnlockedAvatars* UGetUserUnlockedAvatars::GetUserUnlockedAvatars(const U
 void UGetUserUnlockedAvatars::Activate()
 {
 	FString GameID;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("GameID"), GameID, GEditorPerProjectIni) && GameID != "") //if we can get the string from the config and successfully parse it
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("GameID"), GameID, GGameIni) && GameID != "") //if we can get the string from the config and successfully parse it
 	{
 		UE_LOG(LogTemp, Display, TEXT("Game ID set to: (%s)."), *GameID);
 	}
