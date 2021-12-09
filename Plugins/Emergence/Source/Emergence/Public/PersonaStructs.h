@@ -1,3 +1,5 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
 #pragma once
 #include "CoreMinimal.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"

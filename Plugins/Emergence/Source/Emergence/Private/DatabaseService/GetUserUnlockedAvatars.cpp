@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #include "DatabaseService/GetUserUnlockedAvatars.h"
 #include "Interfaces/IHttpRequest.h"
@@ -15,13 +15,23 @@ UGetUserUnlockedAvatars* UGetUserUnlockedAvatars::GetUserUnlockedAvatars(const U
 
 void UGetUserUnlockedAvatars::Activate()
 {
+	FString GameID;
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("GameID"), GameID, GGameIni) && GameID != "") //if we can get the string from the config and successfully parse it
+	{
+		UE_LOG(LogTemp, Display, TEXT("Game ID set to: (%s)."), *GameID);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Could not get Game ID from plugin settings"));
+	}
+
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetUserUnlockedAvatars>(
 		this, 
 		&UGetUserUnlockedAvatars::GetUserUnlockedAvatars_HttpRequestComplete, 
-		UHttpHelperLibrary::DatabaseAPIPrivate + "userUnlockedAvatars",
+		UHttpHelperLibrary::DatabaseAPIPrivate + "userUnlockedAvatars?id=" + GameID,
 		"GET",
 		60.0F,
 		Headers
@@ -41,4 +51,5 @@ void UGetUserUnlockedAvatars::GetUserUnlockedAvatars_HttpRequestComplete(FHttpRe
 		return;
 	}
 	OnGetUserUnlockedAvatarsCompleted.Broadcast(FEmergenceAvatarListResponse(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetUserUnlockedAvatars", StatusCode);
 }

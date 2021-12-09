@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "UI/EmergenceUI.h"
@@ -14,4 +14,29 @@ void UEmergenceUI::SwitchCurrentScreen(UUserWidget* NewScreen) {
 void UEmergenceUI::SwitchCurrentScreenByClass(TSubclassOf<UUserWidget> NewScreenClass)
 {
 	SwitchCurrentScreen(CreateWidget<UUserWidget>(this, NewScreenClass));
+}
+
+void UEmergenceUI::ShowLoadingMessage(FName MessageId, FText Reason)
+{
+	LoadingMessages.Add(MessageId, Reason);
+}
+
+void UEmergenceUI::HideLoadingMessage(FName MessageId)
+{
+	LoadingMessages.Remove(MessageId);
+}
+
+bool UEmergenceUI::GetMostRecentLoadingMessage(FText& Message)
+{
+	int32 NumberInMap = this->LoadingMessages.Num();
+	if (NumberInMap == 0) {
+		return false;
+	}
+
+	else {
+		TArray<FText> Texts;
+		this->LoadingMessages.GenerateValueArray(Texts);
+		Message = Texts[NumberInMap - 1];
+		return true;
+	}
 }

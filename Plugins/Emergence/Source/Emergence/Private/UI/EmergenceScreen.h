@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "EmergenceUI.h"
+#include "UI/EmergenceUI.h"
 #include "EmergenceScreen.generated.h"
 
 /**

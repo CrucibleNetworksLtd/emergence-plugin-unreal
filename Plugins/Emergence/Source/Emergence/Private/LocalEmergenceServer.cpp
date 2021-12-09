@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "LocalEmergenceServer.h"
@@ -23,7 +23,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 
 	if (GConfig) {
 		FString EmergenceCustomServerLocation;
-		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GEditorPerProjectIni)) {
+		if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("CustomEmergenceServerLocation"), EmergenceCustomServerLocation, GGameIni)) {
 			FParse::Value(*EmergenceCustomServerLocation, TEXT("FilePath="), EmergenceCustomServerLocation);
 			if (FPaths::FileExists(*EmergenceCustomServerLocation)) {
 				LoadPath = EmergenceCustomServerLocation;
@@ -38,8 +38,8 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 
 	//Add the args
 	TArray<FString> Args = {
-		JsonArgs,
-		FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
+		"--walletconnect=" + JsonArgs,
+		"--processid=" + FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
 	};
 
 	//combine the args

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "DatabaseService/GetPersonas.h"
@@ -40,4 +40,5 @@ void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 		return;
 	}
 	OnGetPersonasCompleted.Broadcast(FEmergencePersonaListResponse(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetPersonas", StatusCode);
 }

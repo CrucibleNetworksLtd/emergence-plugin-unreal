@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "DatabaseService/SetActivePersona.h"
@@ -42,4 +42,5 @@ void USetActivePersona::SetActivePersona_HttpRequestComplete(FHttpRequestPtr Htt
 		return;
 	}
 	OnSetActivePersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("SetActivePersona", StatusCode);
 }

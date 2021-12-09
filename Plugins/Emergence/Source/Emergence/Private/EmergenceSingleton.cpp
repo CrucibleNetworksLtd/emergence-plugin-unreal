@@ -25,7 +25,7 @@ UEmergenceSingleton::UEmergenceSingleton() {
 }
 
 TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmergenceSingleton::GlobalManagers{};
-
+const FString defaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
@@ -93,6 +93,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 		}
 	}
 	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
+	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
 FString UEmergenceSingleton::GetCurrentAccessToken()
@@ -106,10 +107,46 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 	}
 }
 
+UWidget* UEmergenceSingleton::OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass)
+{
+	if (EmergenceUIClass) {
+		CurrentEmergenceUI = CreateWidget<UEmergenceUI>(OwnerPlayerController, EmergenceUIClass);
+		CurrentEmergenceUI->AddToViewport(9999);
+		if (CurrentEmergenceUI) {
+			return CurrentEmergenceUI;
+		}
+		else {
+			return nullptr;
+		}
+	}
+	return nullptr;
+	
+}
+
+UEmergenceUI* UEmergenceSingleton::GetEmergenceUI()
+{
+	if (CurrentEmergenceUI->IsValidLowLevel()) {
+		return CurrentEmergenceUI;
+	}
+	else {
+		return nullptr;
+	}
+}
+
+bool UEmergenceSingleton::HasAccessToken()
+{
+	return this->CurrentAccessToken != FString("");
+}
+
 void UEmergenceSingleton::GetWalletConnectURI()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
 	UE_LOG(LogTemp, Display, TEXT("GetWalletConnectURI request started, calling GetWalletConnectURI_HttpRequestComplete on request completed"));
+}
+
+void UEmergenceSingleton::CallRequestError(FString ConnectionName, TEnumAsByte<EErrorCode> StatusCode)
+{
+	this->OnAnyRequestError.Broadcast(ConnectionName, StatusCode);
 }
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -117,6 +154,7 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	TEnumAsByte<EErrorCode> ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		OnGetQRCodeCompleted.Broadcast(nullptr, ResponseCode);
+		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
 		return;
 	}
 
@@ -128,6 +166,7 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	}
 	else {
 		OnGetQRCodeCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientWrongType);
+		OnAnyRequestError.Broadcast("GetQRCode", EErrorCode::EmergenceClientWrongType);
 	}
 }
 
@@ -181,16 +220,50 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		}
 		else {
 			OnGetHandshakeCompleted.Broadcast(Address, EErrorCode::EmergenceClientWrongType);
+			OnAnyRequestError.Broadcast("GetHandshake", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnGetHandshakeCompleted.Broadcast(FString(), StatusCode);
+	OnAnyRequestError.Broadcast("GetHandshake", StatusCode);
 }
 
 void UEmergenceSingleton::GetHandshake()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, UHttpHelperLibrary::APIBase + "handshake", "GET", 300.F); //extra time because they might be fiddling with their phones
+	FString NodeURL;
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GGameIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
+	}
+	else {
+		NodeURL = defaultNodeURL;
+		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
+	}
+
+	
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
+		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
+		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
+		"GET", 60.F);  //extra time because they might be fiddling with their phones
+	
 	UE_LOG(LogTemp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
+}
+
+void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
+	TEnumAsByte<EErrorCode> StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
+		return;
+	}
+	OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
+	OnAnyRequestError.Broadcast("ReinitializeWalletConnect", StatusCode);
+}
+
+void UEmergenceSingleton::ReinitializeWalletConnect()
+{
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete, UHttpHelperLibrary::APIBase + "reinitializewalletconnect");
+	UE_LOG(LogTemp, Display, TEXT("ReinitializeWalletConnect request started, calling ReinitializeWalletConnect_HttpRequestComplete on request completed"));
 }
 
 void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -204,10 +277,12 @@ void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpReq
 		}
 		else {
 			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientWrongType);
+			OnAnyRequestError.Broadcast("ReinitializeWalletConnect", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnGetBalanceCompleted.Broadcast(FString(), StatusCode);
+	OnAnyRequestError.Broadcast("ReinitializeWalletConnect", StatusCode);
 }
 
 void UEmergenceSingleton::GetBalance()
@@ -230,10 +305,12 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 		}
 		else {
 			OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceClientWrongType);
+			OnAnyRequestError.Broadcast("IsConnected", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnIsConnectedCompleted.Broadcast(false, FString(), StatusCode);
+	OnAnyRequestError.Broadcast("IsConnected", StatusCode);
 }
 
 void UEmergenceSingleton::IsConnected()
@@ -250,13 +327,16 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 		bool Disconnected;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {
 			OnKillSessionCompleted.Broadcast(Disconnected, StatusCode);
+			this->CurrentAccessToken = "";
 		}
 		else {
 			OnKillSessionCompleted.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
+			OnAnyRequestError.Broadcast("KillSession", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnKillSessionCompleted.Broadcast(false, StatusCode);
+	OnAnyRequestError.Broadcast("KillSession", StatusCode);
 }
 
 void UEmergenceSingleton::KillSession()
@@ -264,7 +344,6 @@ void UEmergenceSingleton::KillSession()
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession");
 	UE_LOG(LogTemp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 }
-
 
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
@@ -285,6 +364,7 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		return;
 	}
 	OnGetAccessTokenCompleted.Broadcast(StatusCode);
+	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
 }
 
 void UEmergenceSingleton::GetAccessToken()

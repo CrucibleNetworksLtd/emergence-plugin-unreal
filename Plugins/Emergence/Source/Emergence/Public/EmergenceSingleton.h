@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #pragma once
 
@@ -12,6 +12,8 @@
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
+#include "UI/EmergenceUI.h"
+#include "GameFramework/PlayerController.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -25,8 +27,8 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 public:
 	UEmergenceSingleton();
 
-	/** Get the global Emergence manager */
-	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
+	/** Get the global Emergence service */
+	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
@@ -41,7 +43,7 @@ public:
 
 	//HTTPService Functions
 private:
-	FString CurrentAccessToken;
+	FString CurrentAccessToken = "";
 
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
 	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
@@ -60,19 +62,42 @@ private:
 
 	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
+	void ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
 	void GetAccessToken();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
 	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 
+	UEmergenceUI* CurrentEmergenceUI;
 public:
 	//Intentionally not exposed to blueprints
 	UFUNCTION()
 	FString GetCurrentAccessToken();
 
+	//Opens the Emergence UI, returns the widget to focus
+	UFUNCTION(BlueprintCallable)
+	UWidget* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
+
+	//Gets the Emergence UI
+	UFUNCTION(BlueprintPure)
+	UEmergenceUI* GetEmergenceUI();
+
+	//Do we have an access token?
+	UFUNCTION(BlueprintPure)
+	bool HasAccessToken();
+
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void GetWalletConnectURI();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, TEnumAsByte<EErrorCode>, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAnyRequestError OnAnyRequestError;
+
+	//This shouldn't be necessary, you should be able to call .broadcast but I couldn't get it to show up in CreatePersona for some reason
+	void CallRequestError(FString ConnectionName, TEnumAsByte<EErrorCode> StatusCode);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, TEnumAsByte<EErrorCode>, StatusCode);
 
@@ -101,6 +126,15 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
+
+	//ReinitializeWalletConnect stuff
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	void ReinitializeWalletConnect();
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
 	//Getbalance stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")

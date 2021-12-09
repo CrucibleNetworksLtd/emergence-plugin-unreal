@@ -1,3 +1,5 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 #include "ISettingsContainer.h"

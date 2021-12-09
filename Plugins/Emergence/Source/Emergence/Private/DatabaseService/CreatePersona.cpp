@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "DatabaseService/CreatePersona.h"
@@ -47,4 +47,5 @@ void UCreatePersona::CreatePersona_HttpRequestComplete(FHttpRequestPtr HttpReque
 		return;
 	}
 	OnCreatePersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("CreatePersona", StatusCode);
 }

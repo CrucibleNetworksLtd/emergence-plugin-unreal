@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #include "DatabaseService/UpdatePersona.h"
 #include "Interfaces/IHttpRequest.h"
@@ -43,4 +43,5 @@ void UUpdatePersona::UpdatePersona_HttpRequestComplete(FHttpRequestPtr HttpReque
 		return;
 	}
 	OnUpdatePersonaCompleted.Broadcast(this->Persona, StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("UpdatePersona", StatusCode);
 }

@@ -1,8 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
 #include "UI/EmergenceScreen.h"
 
 UEmergenceUI* UEmergenceScreen::GetEmergenceUI() {
-	return Cast<UEmergenceUI>(GetParent()->GetOuter()->GetOuter());
+	if (this != nullptr 
+		&& GetParent() 
+		&& GetParent()->GetOuter() 
+		&& GetParent()->GetOuter()->GetOuter()) {
+		return Cast<UEmergenceUI>(GetParent()->GetOuter()->GetOuter());
+	}
+	else {
+		return nullptr;
+	}
 }

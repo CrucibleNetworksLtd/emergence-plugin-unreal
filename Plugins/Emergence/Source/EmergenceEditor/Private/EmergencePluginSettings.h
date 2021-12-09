@@ -1,8 +1,10 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
 #pragma once
 #include "Engine/EngineTypes.h"
 #include "EmergencePluginSettings.generated.h"
 
-UCLASS(config = EditorPerProjectUserSettings, defaultconfig)
+UCLASS(config = Game, defaultconfig)
 class UEmergencePluginSettings : public UObject
 {
 	GENERATED_BODY()
@@ -12,4 +14,8 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server", meta = (FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
+	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
+	FString NodeURL;
+	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
+	FString GameID;
 };

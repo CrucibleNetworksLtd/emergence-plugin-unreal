@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #include "DatabaseService/GetCurrentPersona.h"
 #include "Interfaces/IHttpRequest.h"
@@ -39,4 +39,5 @@ void UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete(FHttpRequestPtr H
 		return;
 	}
 	OnGetCurrentPersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetCurrentPersonaById", StatusCode);
 }
