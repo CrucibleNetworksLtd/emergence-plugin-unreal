@@ -40,10 +40,10 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 			Manager->SetGameInstance(GameInstance);
 			Manager->Init();
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Text %s"), *Manager->GetFName().ToString());
+		UE_LOG(LogTemp, Verbose, TEXT("Got Emergence Singleton: %s"), *Manager->GetFName().ToString());
 		return Manager.Get();
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Text %s"), "No manager avalible, whats going on?");
+	UE_LOG(LogTemp, Error, TEXT("Text %s"), "No manager avalible, whats going on?");
 	return nullptr;
 }
 
