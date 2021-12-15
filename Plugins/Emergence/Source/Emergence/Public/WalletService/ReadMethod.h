@@ -19,7 +19,7 @@ class EMERGENCE_API UReadMethod : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
-	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Content);
+	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content);
 
 	virtual void Activate() override;
 
@@ -32,5 +32,5 @@ private:
 	const UObject* WorldContextObject;
 	FString ContractAddress;
 	FString MethodName;
-	FString Content;
+	TArray<FString> Content;
 };

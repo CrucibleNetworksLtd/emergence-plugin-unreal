@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Content)
+UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
@@ -21,27 +21,38 @@ void UReadMethod::Activate()
 {
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-	Headers.Add(TPair<FString, FString>{"contractAddress", ContractAddress});
-	Headers.Add(TPair<FString, FString>{"methodName", MethodName});
+
+	FString ContentString;
+	if (Content.Num() > 0) {
+		ContentString.Append("[");
+		for (int i = 0; i < Content.Num(); i++) {
+			ContentString.Append("\"" + Content[i] + "\"");
+			if (i != Content.Num() - 1) {
+				ContentString.Append(",");
+			}
+		}
+		ContentString.Append("]");
+	}
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "readMethod",
+		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName,
 		"POST",
 		60.0F,
 		Headers,
-		Content);
+		ContentString);
 	UE_LOG(LogTemp, Display, TEXT("ReadMethod request started with JSON, calling ReadMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *Content);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *ContentString);
 }
 
 void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	UE_LOG(LogTemp, Display, TEXT("ReadMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnReadMethodCompleted.Broadcast(*HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
+		OnReadMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
 		return;
 	}
 	OnReadMethodCompleted.Broadcast(FString(), StatusCode);

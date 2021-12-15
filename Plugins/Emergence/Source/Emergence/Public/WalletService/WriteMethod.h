@@ -19,7 +19,7 @@ class EMERGENCE_API UWriteMethod : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
-	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Content);
+	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content);
 
 	virtual void Activate() override;
 
@@ -32,5 +32,5 @@ private:
 	const UObject* WorldContextObject;
 	FString ContractAddress;
 	FString MethodName;
-	FString Content;
+	TArray<FString> Content;
 };
