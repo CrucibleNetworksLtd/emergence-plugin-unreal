@@ -11,19 +11,21 @@
 #include "GetAvatar.generated.h"
 
 /**
- * 
+
  */
 UCLASS()
 class EMERGENCE_API UGetAvatar : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
+	
+	//For getting ERC721 avatars
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
 	static UGetAvatar* GetAvatar(const UObject* WorldContextObject, FString AvatarMetadataURI);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAvatarCompleted, UTexture2D*, Avatar, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetAvatarCompleted, UTexture2D*, Avatar, FString, Name, TEnumAsByte<EErrorCode>, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAvatarCompleted OnGetAvatarCompleted;
@@ -34,4 +36,6 @@ private:
 	void AvatarReturned(UTexture2D* Texture, TEnumAsByte<EErrorCode> StatusCode);
 	const UObject* WorldContextObject;
 	FString AvatarMetadataURI;
+	FString ERC721Name;
+	int TokenId;
 };

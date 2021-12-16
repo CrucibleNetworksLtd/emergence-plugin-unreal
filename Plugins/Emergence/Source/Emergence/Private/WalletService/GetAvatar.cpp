@@ -30,16 +30,17 @@ void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHtt
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
+		ERC721Name = JsonObject.GetStringField("name");
 		UGetTextureFromUrl* GetTextureFromUrlRequest = UGetTextureFromUrl::TextureFromUrl(JsonObject.GetStringField("image"));
 		GetTextureFromUrlRequest->OnGetTextureFromUrlCompleted.AddDynamic(this, &UGetAvatar::AvatarReturned);
 		GetTextureFromUrlRequest->Activate();
 		return;
 	}
-	OnGetAvatarCompleted.Broadcast(nullptr, StatusCode);
+	OnGetAvatarCompleted.Broadcast(nullptr, FString(), StatusCode);
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetAvatar", StatusCode);
 }
 
 void UGetAvatar::AvatarReturned(UTexture2D* Texture, TEnumAsByte<EErrorCode> StatusCode)
 {
-	OnGetAvatarCompleted.Broadcast(Texture, StatusCode);
+	OnGetAvatarCompleted.Broadcast(Texture, this->ERC721Name, StatusCode);
 }

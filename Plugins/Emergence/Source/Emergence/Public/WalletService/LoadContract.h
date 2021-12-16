@@ -18,7 +18,7 @@ class EMERGENCE_API ULoadContract : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
 	static ULoadContract* LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI);
 
 	virtual void Activate() override;
