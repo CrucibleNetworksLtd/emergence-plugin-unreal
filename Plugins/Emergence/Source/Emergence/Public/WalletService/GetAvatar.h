@@ -20,7 +20,7 @@ class EMERGENCE_API UGetAvatar : public UBlueprintAsyncActionBase
 public:
 	
 	//For getting ERC721 avatars
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get ERC721 Avatar from URL", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
 	static UGetAvatar* GetAvatar(const UObject* WorldContextObject, FString AvatarMetadataURI);
 
 	virtual void Activate() override;
