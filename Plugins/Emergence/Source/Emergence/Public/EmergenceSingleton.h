@@ -54,8 +54,6 @@ private:
 
 	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	void GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
 	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -135,15 +133,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
-
-	//Getbalance stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void GetBalance();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, TEnumAsByte<EErrorCode>, StatusCode);
-
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
-	FOnGetBalanceCompleted OnGetBalanceCompleted;
 
 	//isConnected stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")

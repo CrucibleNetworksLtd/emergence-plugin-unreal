@@ -266,31 +266,6 @@ void UEmergenceSingleton::ReinitializeWalletConnect()
 	UE_LOG(LogTemp, Display, TEXT("ReinitializeWalletConnect request started, calling ReinitializeWalletConnect_HttpRequestComplete on request completed"));
 }
 
-void UEmergenceSingleton::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
-{
-	TEnumAsByte<EErrorCode> StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString Balance;
-		if (JsonObject.GetObjectField("message")->TryGetStringField("balance", Balance)) {
-			OnGetBalanceCompleted.Broadcast(Balance, StatusCode);
-		}
-		else {
-			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientWrongType);
-			OnAnyRequestError.Broadcast("ReinitializeWalletConnect", EErrorCode::EmergenceClientWrongType);
-		}
-		return;
-	}
-	OnGetBalanceCompleted.Broadcast(FString(), StatusCode);
-	OnAnyRequestError.Broadcast("ReinitializeWalletConnect", StatusCode);
-}
-
-void UEmergenceSingleton::GetBalance()
-{
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetBalance_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getbalance");
-	UE_LOG(LogTemp, Display, TEXT("GetBalance request started, calling GetBalance_HttpRequestComplete on request completed"));
-}
-
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode = EErrorCode::EmergenceClientFailed;
