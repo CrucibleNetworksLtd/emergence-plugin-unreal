@@ -25,7 +25,6 @@ UEmergenceSingleton::UEmergenceSingleton() {
 }
 
 TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmergenceSingleton::GlobalManagers{};
-const FString defaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
@@ -236,7 +235,7 @@ void UEmergenceSingleton::GetHandshake()
 		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
 	}
 	else {
-		NodeURL = defaultNodeURL;
+		NodeURL = UEmergenceSingleton::DefaultNodeURL;
 		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
 	}
 

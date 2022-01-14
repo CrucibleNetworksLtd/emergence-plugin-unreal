@@ -24,7 +24,7 @@ void UGetBalance::Activate()
 		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
 	}
 	else {
-		NodeURL = defaultNodeURL;
+		NodeURL = UEmergenceSingleton::DefaultNodeURL;
 		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
 	}
 
