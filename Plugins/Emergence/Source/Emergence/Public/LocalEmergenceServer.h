@@ -15,7 +15,7 @@ class EMERGENCE_API ULocalEmergenceServer : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	static void LaunchLocalServerProcess();
+	static void LaunchLocalServerProcess(bool LaunchHidden = true);
 
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	static void KillLocalServerProcess();

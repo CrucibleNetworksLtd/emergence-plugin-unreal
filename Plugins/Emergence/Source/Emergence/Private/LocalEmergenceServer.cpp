@@ -5,7 +5,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Windows/WindowsSystemIncludes.h"
 
-void ULocalEmergenceServer::LaunchLocalServerProcess()
+void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
 	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
@@ -53,7 +53,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess()
 	}
 	UE_LOG(LogTemp, Display, TEXT("Total argument lenth is %d"), ArgString.Len());
 	//create the process
-	FPlatformProcess::CreateProc(*LoadPath, *ArgString, false, false, false, nullptr, 0, nullptr, nullptr);
+	FPlatformProcess::CreateProc(*LoadPath, *ArgString, false, true, LaunchHidden, nullptr, 0, nullptr, nullptr);
 	UE_LOG(LogTemp, Display, TEXT("calling: %s %s"), *LoadPath, *ArgString);
 }
 
