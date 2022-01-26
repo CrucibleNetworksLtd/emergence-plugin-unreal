@@ -30,7 +30,7 @@ void UCreateWallet::Activate()
 		"POST",
 		60.0F,
 		Headers);
-	UE_LOG(LogTemp, Display, TEXT("CreateWallet request started, calling CreateWallet_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("CreateWallet request started, calling CreateWallet_HttpRequestComplete on request completed"));
 }
 
 void UCreateWallet::CreateWallet_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

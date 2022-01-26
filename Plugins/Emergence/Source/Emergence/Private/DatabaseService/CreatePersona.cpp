@@ -33,8 +33,8 @@ void UCreatePersona::Activate()
 		60.0F,
 		Headers,
 		PersonaJsonString);
-	UE_LOG(LogTemp, Display, TEXT("CreatePersona request started with JSON, calling CreatePersona_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *PersonaJsonString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("CreatePersona request started with JSON, calling CreatePersona_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *PersonaJsonString);
 }
 
 void UCreatePersona::CreatePersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

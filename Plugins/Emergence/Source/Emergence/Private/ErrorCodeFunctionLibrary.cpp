@@ -87,7 +87,7 @@ TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRespon
 
 	//if we got a readable one but it has a http error, give that
 	if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
-		UE_LOG(LogTemp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
+		UE_LOG(LogEmergenceHttp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
 	}
 	return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
 }

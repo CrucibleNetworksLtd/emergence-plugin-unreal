@@ -43,15 +43,15 @@ void UReadMethod::Activate()
 		60.0F,
 		Headers,
 		ContentString);
-	UE_LOG(LogTemp, Display, TEXT("ReadMethod request started with JSON, calling ReadMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *ContentString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("ReadMethod request started with JSON, calling ReadMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *ContentString);
 }
 
 void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogTemp, Display, TEXT("ReadMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("ReadMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnReadMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
 		return;

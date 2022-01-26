@@ -37,16 +37,16 @@ void ULoadContract::Activate()
 		60.0F,
 		Headers,
 		OutputString);
-	UE_LOG(LogTemp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogTemp, Display, TEXT("LoadContract request started with JSON, calling LoadContract_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract request started with JSON, calling LoadContract_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }
 
 void ULoadContract::LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogTemp, Display, TEXT("LoadContract_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnLoadContractCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
 	}

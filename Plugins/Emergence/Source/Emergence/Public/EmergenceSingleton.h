@@ -14,6 +14,7 @@
 #include "PersonaStructs.h"
 #include "UI/EmergenceUI.h"
 #include "GameFramework/PlayerController.h"
+#include "Emergence.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -163,5 +164,3 @@ private:
 	TWeakObjectPtr<UGameInstance> OwningGameInstance;
 };
 #pragma warning( pop )
-
-DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);

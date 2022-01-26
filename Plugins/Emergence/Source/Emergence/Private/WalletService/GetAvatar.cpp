@@ -22,7 +22,7 @@ void UGetAvatar::Activate()
 		this, 
 		&UGetAvatar::GetAvatar_HttpRequestComplete, 
 		AvatarMetadataURI);
-	UE_LOG(LogTemp, Display, TEXT("GetAvatar request started with JSON, calling GetAvatar_HttpRequestComplete on request completed."));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAvatar request started with JSON, calling GetAvatar_HttpRequestComplete on request completed."));
 }
 
 void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

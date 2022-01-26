@@ -29,8 +29,8 @@ void UUpdatePersona::Activate()
 		60.0F,
 		Headers,
 		PersonaJsonString);
-	UE_LOG(LogTemp, Display, TEXT("UpdatePersona request started with JSON, calling UpdatePersona_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *PersonaJsonString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("UpdatePersona request started with JSON, calling UpdatePersona_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *PersonaJsonString);
 }
 
 void UUpdatePersona::UpdatePersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

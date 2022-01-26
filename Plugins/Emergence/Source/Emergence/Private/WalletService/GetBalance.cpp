@@ -21,19 +21,19 @@ void UGetBalance::Activate()
 	FString NodeURL;
 	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GGameIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
+		UE_LOG(LogEmergenceHttp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
 	}
 	else {
 		NodeURL = UEmergenceSingleton::DefaultNodeURL;
-		UE_LOG(LogTemp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
+		UE_LOG(LogEmergenceHttp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
 	}
 
 	bool success = UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
 		this, 
 		&UGetBalance::GetBalance_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + NodeURL + "&address=" + this->Address);
-	UE_LOG(LogTemp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogTemp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
 }
 
 void UGetBalance::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

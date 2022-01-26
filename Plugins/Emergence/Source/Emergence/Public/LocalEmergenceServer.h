@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Emergence.h"
 #include "LocalEmergenceServer.generated.h"
 
 /**

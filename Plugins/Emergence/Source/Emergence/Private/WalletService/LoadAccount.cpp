@@ -44,16 +44,16 @@ void ULoadAccount::Activate()
 		60.0F,
 		Headers,
 		OutputString);
-	UE_LOG(LogTemp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogTemp, Display, TEXT("LoadAccount request started with JSON, calling LoadAccount_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccount request started with JSON, calling LoadAccount_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }
 
 void ULoadAccount::LoadAccount_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogTemp, Display, TEXT("LoadAccount_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccount_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnLoadAccountCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
 	}

@@ -43,15 +43,15 @@ void UWriteMethod::Activate()
 		60.0F,
 		Headers,
 		ContentString);
-	UE_LOG(LogTemp, Display, TEXT("WriteMethod request started with JSON, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *ContentString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started with JSON, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *ContentString);
 }
 
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnWriteMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
 		return;

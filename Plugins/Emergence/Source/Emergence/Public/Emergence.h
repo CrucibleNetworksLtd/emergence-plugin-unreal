@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogEmergence, All, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, All, All);
+
 class FEmergenceModule : public IModuleInterface
 {
 public:

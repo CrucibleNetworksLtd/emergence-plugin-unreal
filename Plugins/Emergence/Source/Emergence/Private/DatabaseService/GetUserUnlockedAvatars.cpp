@@ -18,11 +18,11 @@ void UGetUserUnlockedAvatars::Activate()
 	FString GameID;
 	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("GameID"), GameID, GGameIni) && GameID != "") //if we can get the string from the config and successfully parse it
 	{
-		UE_LOG(LogTemp, Display, TEXT("Game ID set to: (%s)."), *GameID);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Game ID set to: (%s)."), *GameID);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Could not get Game ID from plugin settings"));
+		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not get Game ID from plugin settings"));
 	}
 
 	TArray<TPair<FString, FString>> Headers;
@@ -36,14 +36,14 @@ void UGetUserUnlockedAvatars::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("GetUserUnlockedAvatars request started, calling GetUserUnlockedAvatars_HttpRequestComplete on request completed"));
-	UE_LOG(LogTemp, Display, TEXT("%s"), *UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetUserUnlockedAvatars request started, calling GetUserUnlockedAvatars_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken());
 }
 
 void UGetUserUnlockedAvatars::GetUserUnlockedAvatars_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
-	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergenceAvatarListResponse ResponceStruct = FEmergenceAvatarListResponse(*HttpResponse->GetContentAsString());

@@ -37,7 +37,7 @@ void UCreateKeyStore::Activate()
 		"POST",
 		60.0F,
 		Headers);
-	UE_LOG(LogTemp, Display, TEXT("CreateKeyStore request started, calling CreateKeyStore_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("CreateKeyStore request started, calling CreateKeyStore_HttpRequestComplete on request completed"));
 }
 
 void UCreateKeyStore::CreateKeyStore_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

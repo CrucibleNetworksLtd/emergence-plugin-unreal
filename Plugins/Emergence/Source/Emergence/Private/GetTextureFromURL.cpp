@@ -12,7 +12,7 @@
 void UGetTextureFromUrl::Activate()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete, this->Url);
-	UE_LOG(LogTemp, Display, TEXT("GetTextureFromUrl request started on persona (%s), calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started on persona (%s), calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
 }
 
 void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

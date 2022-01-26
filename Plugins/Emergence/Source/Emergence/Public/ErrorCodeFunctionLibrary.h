@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Interfaces/IHttpRequest.h"
+#include "Emergence.h"
 #include "ErrorCodeFunctionLibrary.generated.h"
 
 UENUM(BlueprintType)

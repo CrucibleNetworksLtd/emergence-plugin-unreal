@@ -27,7 +27,7 @@ void UGetPersonas::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
 }
 
 void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

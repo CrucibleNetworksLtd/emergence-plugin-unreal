@@ -29,7 +29,7 @@ void UGetPersonaByID::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("GetPersonaByID request started, calling GetPersonaByID_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetPersonaByID request started, calling GetPersonaByID_HttpRequestComplete on request completed"));
 }
 
 void UGetPersonaByID::GetPersonaByID_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

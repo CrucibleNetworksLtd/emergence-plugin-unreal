@@ -47,7 +47,7 @@ public:
 			HttpRequest->SetContentAsString(Content);
 		}
 
-		UE_LOG(LogTemp, Display, TEXT("Sent %s request to %s, timing out in %f %s \n%s"), *Verb, *URL, Timeout, *HeaderLogText, *Content);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Sent %s request to %s, timing out in %f %s \n%s"), *Verb, *URL, Timeout, *HeaderLogText, *Content);
 		return HttpRequest->ProcessRequest();
 	};
 };
