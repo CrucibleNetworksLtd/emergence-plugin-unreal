@@ -37,6 +37,13 @@ void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersonaListResponse ResponceStruct = FEmergencePersonaListResponse(*HttpResponse->GetContentAsString());
 		OnGetPersonasCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		
+		for (int i = 0; i < ResponceStruct.personas.Num(); i++) {
+			if (ResponceStruct.personas[i].id == ResponceStruct.selected) {
+				UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->SetCachedCurrentPersona(ResponceStruct.personas[i]);
+			}
+		}
+
 		return;
 	}
 	OnGetPersonasCompleted.Broadcast(FEmergencePersonaListResponse(), StatusCode);

@@ -62,6 +62,12 @@ void UEmergenceSingleton::Shutdown()
 	MarkPendingKill();
 }
 
+void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
+{
+	this->CachedCurrentPersona = NewCachedCurrentPersona;
+	OnChachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
+}
+
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode)
 {
 	if (ErrorCode == EErrorCode::Denied) {

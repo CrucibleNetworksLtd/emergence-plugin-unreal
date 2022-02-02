@@ -43,6 +43,16 @@ public:
 
 	inline static const FString DefaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
+	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
+
+	UPROPERTY(BlueprintReadOnly)
+	FEmergencePersona CachedCurrentPersona;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChachedPersonaUpdated, FEmergencePersona, NewPersona);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	FOnChachedPersonaUpdated OnChachedPersonaUpdated;
+
 	//HTTPService Functions
 private:
 	FString CurrentAccessToken = "";
