@@ -8,6 +8,7 @@ void UEmergenceUI::SwitchCurrentScreen(UUserWidget* NewScreen) {
 		UUserWidget* TempNewScreen = NewScreen; //keep this around in-case doing the next method deletes whats holding it
 		CurrentScreenSlotBoundWidget->RemoveChildAt(0); //can only have one child, this is fine
 		CurrentScreenSlotBoundWidget->AddChild(TempNewScreen);
+		this->CurrentScreenSwitched(TempNewScreen);
 	}
 }
 

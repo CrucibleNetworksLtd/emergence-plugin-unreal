@@ -24,6 +24,10 @@ private:
 
 public:
 
+	//Called whenever the screen is changed
+	UFUNCTION(BlueprintImplementableEvent)
+	void CurrentScreenSwitched(UUserWidget* NewScreen);
+
 	//Switches the active screen to a new widget object
 	UFUNCTION(BlueprintCallable)
 	void SwitchCurrentScreen(UUserWidget* NewScreen);
