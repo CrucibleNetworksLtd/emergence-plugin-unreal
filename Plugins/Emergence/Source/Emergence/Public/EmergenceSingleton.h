@@ -43,6 +43,9 @@ public:
 
 	inline static const FString DefaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
+	UPROPERTY()
+	TMap<FString, UTexture2D*> DownloadedImageCache;
+
 	//HTTPService Functions
 private:
 	FString CurrentAccessToken = "";
