@@ -53,6 +53,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnChachedPersonaUpdated OnChachedPersonaUpdated;
 
+	UPROPERTY()
+	TMap<FString, UTexture2D*> DownloadedImageCache;
+
 	//HTTPService Functions
 private:
 	FString CurrentAccessToken = "";
