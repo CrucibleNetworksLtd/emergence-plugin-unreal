@@ -48,10 +48,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FEmergencePersona CachedCurrentPersona;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChachedPersonaUpdated, FEmergencePersona, NewPersona);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCachedPersonaUpdated, FEmergencePersona, NewPersona);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
-	FOnChachedPersonaUpdated OnChachedPersonaUpdated;
+	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
 
 	UPROPERTY()
 	TMap<FString, UTexture2D*> DownloadedImageCache;
