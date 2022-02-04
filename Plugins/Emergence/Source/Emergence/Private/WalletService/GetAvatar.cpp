@@ -31,7 +31,7 @@ void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHtt
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		ERC721Name = JsonObject.GetStringField("name");
-		UGetTextureFromUrl* GetTextureFromUrlRequest = UGetTextureFromUrl::TextureFromUrl(JsonObject.GetStringField("image"));
+		UGetTextureFromUrl* GetTextureFromUrlRequest = UGetTextureFromUrl::TextureFromUrl(JsonObject.GetStringField("image"), this->WorldContextObject, true);
 		GetTextureFromUrlRequest->OnGetTextureFromUrlCompleted.AddDynamic(this, &UGetAvatar::AvatarReturned);
 		GetTextureFromUrlRequest->Activate();
 		return;

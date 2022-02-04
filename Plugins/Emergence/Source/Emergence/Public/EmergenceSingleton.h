@@ -43,6 +43,9 @@ public:
 
 	inline static const FString DefaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
 
+	UPROPERTY()
+	TMap<FString, UTexture2D*> DownloadedImageCache;
+
 	//HTTPService Functions
 private:
 	FString CurrentAccessToken = "";
@@ -71,8 +74,8 @@ private:
 
 	UEmergenceUI* CurrentEmergenceUI;
 public:
-	//Intentionally not exposed to blueprints
-	UFUNCTION()
+	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
+	UFUNCTION(BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
 
 	//Opens the Emergence UI, returns the widget to focus
