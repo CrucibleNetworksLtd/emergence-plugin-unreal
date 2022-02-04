@@ -84,8 +84,8 @@ private:
 
 	UEmergenceUI* CurrentEmergenceUI;
 public:
-	//Intentionally not exposed to blueprints
-	UFUNCTION()
+	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
+	UFUNCTION(BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
 
 	//Opens the Emergence UI, returns the widget to focus
