@@ -17,12 +17,16 @@ class EMERGENCE_API UEmergenceCarouselItem : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetIndex(int indexParam, float targetXParam, bool immediate);
-	UFUNCTION(BlueprintCallable)
+
+	UFUNCTION(BlueprintPure)
 	int GetIndex();
-	UFUNCTION(BlueprintCallable)
+
+	UFUNCTION(BlueprintPure)
 	float GetTargetX();
+
 	UFUNCTION(BlueprintCallable)
 	void Move(int indexParam, float targetXParam);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnMove(int indexParam, bool left, bool immediate);
 
