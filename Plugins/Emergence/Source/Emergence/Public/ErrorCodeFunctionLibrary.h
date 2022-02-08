@@ -13,6 +13,7 @@ enum class EErrorCode : uint8 {
 	EmergenceOk = 0,
 	EmergenceNotConnected = 1,
 	EmergenceAlreadyConnected = 2,
+	EmergenceInternalError = 3,
 
 	//HTTP STATUES (can't go from http error code straight to this enum, use converter)
 	Unknown = 100,
