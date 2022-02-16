@@ -20,4 +20,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	static void KillLocalServerProcess();
+
+	//Gets the used TCP ports. Returns false if something goes wrong.
+	UFUNCTION(BlueprintPure)
+	static bool GetUsedTCPPorts(TArray<int>& UsedPorts);
 };

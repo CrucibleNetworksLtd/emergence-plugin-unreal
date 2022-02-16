@@ -27,7 +27,9 @@ public class Emergence : ModuleRules
 			new string[]
 			{
 				"Core",
-				"UMG"
+				"UMG",
+				"Sockets",
+				"Networking"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
