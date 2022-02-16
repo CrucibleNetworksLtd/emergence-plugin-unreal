@@ -5,6 +5,16 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Windows/WindowsSystemIncludes.h"
 
+//Stuff for the windows api stuff, probably should be incapsulated so it doesn't build when we start working on none-windows stuff
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
+#pragma warning(disable : 4996)
+#define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
+#define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+
 void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
 	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
@@ -61,4 +71,48 @@ void ULocalEmergenceServer::KillLocalServerProcess()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<ULocalEmergenceServer>(nullptr, nullptr, UHttpHelperLibrary::APIBase + "finish");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("KillLocalServerProcess request started..."));
+}
+
+bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
+	PMIB_TCPTABLE2 pTcpTable;
+	ULONG ulSize = 0;
+	DWORD dwRetVal = 0;
+
+	int i;
+
+	pTcpTable = (MIB_TCPTABLE2*)MALLOC(sizeof(MIB_TCPTABLE2));
+	if (pTcpTable == NULL) {
+		//Error allocating memory
+		return false;
+	}
+
+	ulSize = sizeof(MIB_TCPTABLE);
+	// Make an initial call to GetTcpTable2 to get the necessary size into the ulSize variable
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) ==
+		ERROR_INSUFFICIENT_BUFFER) {
+		FREE(pTcpTable);
+		pTcpTable = (MIB_TCPTABLE2*)MALLOC(ulSize);
+		if (pTcpTable == NULL) {
+			//Error allocating memory
+			return false;
+		}
+	}
+	// Make a second call to GetTcpTable2 to get the actual data we require
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) == NO_ERROR) {
+		for (i = 0; i < (int)pTcpTable->dwNumEntries; i++) {
+			UsedPorts.AddUnique(ntohs((u_short)pTcpTable->table[i].dwLocalPort));
+		}
+	}
+	else {
+		//failed
+		FREE(pTcpTable);
+		return false;
+	}
+
+	if (pTcpTable != NULL) {
+		FREE(pTcpTable);
+		pTcpTable = NULL;
+	}
+
+	return true;
 }
