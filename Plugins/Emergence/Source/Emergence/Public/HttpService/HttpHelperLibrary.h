@@ -17,7 +17,8 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
-	inline static const FString APIBase = TEXT("http://localhost:50733/api/");
+	inline static FString APIBase;
+
 	inline static const FString DatabaseAPIPublic = TEXT("https://pfy3t4mqjb.execute-api.us-east-1.amazonaws.com/staging/");
 	inline static const FString DatabaseAPIPrivate = TEXT("https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/");
 

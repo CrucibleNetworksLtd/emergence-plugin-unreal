@@ -24,4 +24,7 @@ public:
 	//Gets the used TCP ports. Returns false if something goes wrong.
 	UFUNCTION(BlueprintPure)
 	static bool GetUsedTCPPorts(TArray<int>& UsedPorts);
+
+private:
+	static int GetNextFreePort();
 };
