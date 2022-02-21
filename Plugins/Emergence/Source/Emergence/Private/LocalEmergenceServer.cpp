@@ -17,6 +17,11 @@
 
 void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
+	if (!UHttpHelperLibrary::APIBase.IsEmpty()) { //if we think we may already have a server
+		UE_LOG(LogEmergenceHttp, Error, TEXT("The server has already been started or was closed without calling KillLocalServerProcess. This causes Emergence's internal state to get messed up, don't do this."));
+		return;
+	}
+
 	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
 	FString LoadPath;
@@ -46,8 +51,14 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 
 	const FString JsonArgs("\"{\\\"Name\\\":\\\"Crucibletest\\\",\\\"Description\\\":\\\"UnrealEngineWalletConnect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
 
+
+	FString ServerURL = "http://localhost:" + FString::FromInt(GetNextFreePort());
+
+	UHttpHelperLibrary::APIBase = ServerURL + "/api/";
+
 	//Add the args
 	TArray<FString> Args = {
+		"--urls=\"" + ServerURL + "\"",
 		"--walletconnect=" + JsonArgs,
 		"--processid=" + FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
 	};
@@ -71,6 +82,7 @@ void ULocalEmergenceServer::KillLocalServerProcess()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<ULocalEmergenceServer>(nullptr, nullptr, UHttpHelperLibrary::APIBase + "finish");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("KillLocalServerProcess request started..."));
+	UHttpHelperLibrary::APIBase.Empty();
 }
 
 bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
@@ -115,4 +127,25 @@ bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
 	}
 
 	return true;
+}
+
+int ULocalEmergenceServer::GetNextFreePort()
+{
+	int LookingPort = 57000;
+
+	TArray<int> UsedPorts;
+	ULocalEmergenceServer::GetUsedTCPPorts(UsedPorts);
+
+	while (LookingPort < 65535 && UsedPorts.Contains(LookingPort)) {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Port %d is taken, checking next port..."), LookingPort);
+		LookingPort++;
+	}
+
+	if (LookingPort < 65535) {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Found free port %d"), LookingPort);
+		return LookingPort;
+	}
+
+	UE_LOG(LogEmergenceHttp, Error, TEXT("Couldn't find a free port!"));
+	return -1;
 }
