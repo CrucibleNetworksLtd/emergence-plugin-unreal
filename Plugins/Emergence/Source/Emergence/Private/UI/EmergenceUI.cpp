@@ -3,6 +3,23 @@
 
 #include "UI/EmergenceUI.h"
 
+void UEmergenceUI::SetUserHasLoggedInBefore(bool HasLoggedInBefore)
+{
+	if (!GConfig) return;
+
+	GConfig->SetBool(TEXT("Emergence"), TEXT("HasLoggedInBefore"), HasLoggedInBefore, GGameIni);
+	GConfig->Flush(false, GGameIni);
+}
+
+bool UEmergenceUI::GetUserHasLoggedInBefore()
+{
+	if (!GConfig) return false;
+
+	bool value = false;
+	GConfig->GetBool(TEXT("Emergence"), TEXT("HasLoggedInBefore"), value, GGameIni);
+	return value;
+}
+
 void UEmergenceUI::SwitchCurrentScreen(UUserWidget* NewScreen) {
 	if (CurrentScreenSlotBoundWidget) {
 		UUserWidget* TempNewScreen = NewScreen; //keep this around in-case doing the next method deletes whats holding it

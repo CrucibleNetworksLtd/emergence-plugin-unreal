@@ -24,6 +24,12 @@ private:
 
 public:
 
+	UFUNCTION(BlueprintCallable)
+	void SetUserHasLoggedInBefore(bool HasLoggedInBefore);
+
+	UFUNCTION(BlueprintPure)
+	bool GetUserHasLoggedInBefore();
+
 	//Called whenever the screen is changed
 	UFUNCTION(BlueprintImplementableEvent)
 	void CurrentScreenSwitched(UUserWidget* NewScreen);
