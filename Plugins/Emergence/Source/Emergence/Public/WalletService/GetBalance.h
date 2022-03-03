@@ -10,14 +10,15 @@
 #include "PersonaStructs.h"
 #include "GetBalance.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class EMERGENCE_API UGetBalance : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Gets the balance of the given address.
+	 * @param Address Address to get the balance of.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
 	static UGetBalance* GetBalance(const UObject* WorldContextObject, FString Address);
 

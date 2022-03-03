@@ -1,15 +1,15 @@
 // Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 
-#include "WalletService/LoadAccount.h"
+#include "WalletService/LoadAccountFromKeyStoreFile.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadAccount* ULoadAccount::LoadAccount(const UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const FString &NodeURL)
+ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const FString &NodeURL)
 {
-	ULoadAccount* BlueprintNode = NewObject<ULoadAccount>();
+	ULoadAccountFromKeyStoreFile* BlueprintNode = NewObject<ULoadAccountFromKeyStoreFile>();
 	BlueprintNode->Name = Name;
 	BlueprintNode->Password = Password;
 	BlueprintNode->Path = Path;
@@ -18,7 +18,7 @@ ULoadAccount* ULoadAccount::LoadAccount(const UObject* WorldContextObject, const
 	return BlueprintNode;
 }
 
-void ULoadAccount::Activate()
+void ULoadAccountFromKeyStoreFile::Activate()
 {
 	auto Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	FString AccessToken = Emergence->GetCurrentAccessToken();
@@ -36,29 +36,29 @@ void ULoadAccount::Activate()
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 	Headers.Add(TPair<FString, FString>{"Authorization", AccessToken});
-	bool success = UHttpHelperLibrary::ExecuteHttpRequest<ULoadAccount>(
+	bool success = UHttpHelperLibrary::ExecuteHttpRequest<ULoadAccountFromKeyStoreFile>(
 		this,
-		&ULoadAccount::LoadAccount_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "loadAccount",
+		&ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile_HttpRequestComplete,
+		UHttpHelperLibrary::APIBase + "LoadAccountFromKeyStoreFile",
 		"POST",
 		60.0F,
 		Headers,
 		OutputString);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
-	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccount request started with JSON, calling LoadAccount_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccountFromKeyStoreFile request started with JSON, calling LoadAccountFromKeyStoreFile_HttpRequestComplete on request completed. Json sent as part of the request: "));
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }
 
-void ULoadAccount::LoadAccount_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+void ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccount_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccountFromKeyStoreFile_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnLoadAccountCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
+		OnLoadAccountFromKeyStoreFileCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
 	}
 	else {
-		OnLoadAccountCompleted.Broadcast(FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("LoadAccount", StatusCode);
+		OnLoadAccountFromKeyStoreFileCompleted.Broadcast(FString(), StatusCode);
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("LoadAccountFromKeyStoreFile", StatusCode);
 	}
 }
