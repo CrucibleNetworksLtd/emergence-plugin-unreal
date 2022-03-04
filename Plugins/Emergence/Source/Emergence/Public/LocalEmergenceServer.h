@@ -15,9 +15,11 @@ class EMERGENCE_API ULocalEmergenceServer : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
+	//Launches the local server process. If LaunchHidden is true, it will not be visible to the user (except in Task Manager).
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	static void LaunchLocalServerProcess(bool LaunchHidden = true);
 
+	//Kills the local server process.
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	static void KillLocalServerProcess();
 
