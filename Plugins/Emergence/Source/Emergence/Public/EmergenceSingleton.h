@@ -58,7 +58,11 @@ public:
 
 	//HTTPService Functions
 private:
+	UPROPERTY()
 	FString CurrentAccessToken = "";
+
+	UPROPERTY()
+	FString CurrentAddress = "";
 
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
 	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
@@ -99,6 +103,14 @@ public:
 	//Do we have an access token?
 	UFUNCTION(BlueprintPure)
 	bool HasAccessToken();
+
+	//Do we have a wallet connected address?
+	UFUNCTION(BlueprintPure)
+	bool HasCachedAddress();
+
+	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
+	UFUNCTION(BlueprintPure)
+	FString GetCachedAddress();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")

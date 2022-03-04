@@ -140,6 +140,21 @@ bool UEmergenceSingleton::HasAccessToken()
 	return this->CurrentAccessToken != FString("");
 }
 
+bool UEmergenceSingleton::HasCachedAddress()
+{
+	return this->CurrentAddress != FString("");
+}
+
+FString UEmergenceSingleton::GetCachedAddress()
+{
+	if (this->CurrentAddress.Len() > 0) {
+		return this->CurrentAddress;
+	}
+	else {
+		return FString("-1");
+	}
+}
+
 void UEmergenceSingleton::GetWalletConnectURI()
 {
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
@@ -218,6 +233,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
 			OnGetHandshakeCompleted.Broadcast(Address, StatusCode);
+			this->CurrentAddress = Address;
 			GetAccessToken();
 		}
 		else {
