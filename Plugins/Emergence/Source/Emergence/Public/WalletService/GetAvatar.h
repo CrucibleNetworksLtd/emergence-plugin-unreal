@@ -10,18 +10,17 @@
 #include "PersonaStructs.h"
 #include "GetAvatar.generated.h"
 
-/**
-
- */
 UCLASS()
 class EMERGENCE_API UGetAvatar : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	
-	//For getting ERC721 avatars
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get ERC721 Avatar from URL", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
-	static UGetAvatar* GetAvatar(const UObject* WorldContextObject, FString AvatarMetadataURI);
+	/**
+	 * Used for getting ERC721 images, such as avatars.
+	 * @param ImageMetadataURI Usually the output of a ReadMethod call.
+	 */
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get ERC721 Image from URI", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
+	static UGetAvatar* GetAvatar(const UObject* WorldContextObject, FString ImageMetadataURI);
 
 	virtual void Activate() override;
 
@@ -35,7 +34,7 @@ private:
 	UFUNCTION()
 	void AvatarReturned(UTexture2D* Texture, TEnumAsByte<EErrorCode> StatusCode);
 	const UObject* WorldContextObject;
-	FString AvatarMetadataURI;
+	FString ImageMetadataURI;
 	FString ERC721Name;
 	int TokenId;
 };

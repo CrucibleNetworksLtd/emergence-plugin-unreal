@@ -36,6 +36,8 @@ void UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete(FHttpRequestPtr H
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnGetCurrentPersonaCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->SetCachedCurrentPersona(ResponceStruct);
 		return;
 	}
 	OnGetCurrentPersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);

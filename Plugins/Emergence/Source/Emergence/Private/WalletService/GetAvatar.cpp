@@ -8,10 +8,10 @@
 #include "EmergenceSingleton.h"
 #include "GetTextureFromURL.h"
 
-UGetAvatar* UGetAvatar::GetAvatar(const UObject* WorldContextObject, FString AvatarMetadataURI)
+UGetAvatar* UGetAvatar::GetAvatar(const UObject* WorldContextObject, FString ImageMetadataURI)
 {
 	UGetAvatar* BlueprintNode = NewObject<UGetAvatar>();
-	BlueprintNode->AvatarMetadataURI = AvatarMetadataURI;
+	BlueprintNode->ImageMetadataURI = ImageMetadataURI;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -21,7 +21,7 @@ void UGetAvatar::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetAvatar>(
 		this, 
 		&UGetAvatar::GetAvatar_HttpRequestComplete, 
-		AvatarMetadataURI);
+		ImageMetadataURI);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAvatar request started with JSON, calling GetAvatar_HttpRequestComplete on request completed."));
 }
 

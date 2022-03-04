@@ -10,14 +10,19 @@
 #include "PersonaStructs.h"
 #include "WriteMethod.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class EMERGENCE_API UWriteMethod : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Calls a "write" method on the given contract.
+	 * @param ContractAddress Address of the contract.
+	 * @param MethodName The method to call.
+	 * @param Content The parameters to call the method with.
+	 * @param LocalAccountName The local account to call the method with. Leave blank to call with the WalletConnect'd wallet.
+	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
 	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName);
 

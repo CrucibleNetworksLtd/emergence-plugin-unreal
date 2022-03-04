@@ -17,6 +17,10 @@ class EMERGENCE_API UValidateAccessToken : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Validates an access token. Usually used server-side to authenticate players.
+	 * @param AccessToken The access token to authenticate.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
 	static UValidateAccessToken* ValidateAccessToken(const UObject* WorldContextObject, const FString& AccessToken);
 

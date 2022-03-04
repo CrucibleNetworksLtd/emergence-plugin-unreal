@@ -10,14 +10,16 @@
 #include "PersonaStructs.h"
 #include "LoadContract.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class EMERGENCE_API ULoadContract : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Loads a contract into the local server's memory.
+	 * @param ContractAddress Address of the contract.
+	 * @param ABI The Application Binary Interface of the given contract.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
 	static ULoadContract* LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI);
 
