@@ -30,7 +30,9 @@ public class Emergence : ModuleRules
 				"UMG",
 				"Sockets",
 				"Networking",
-				"JsonUtilities"
+				"JsonUtilities",
+				"Slate",
+				"SlateCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -41,11 +43,9 @@ public class Emergence : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"Slate",
 				"SlateCore",
 				"Http",
 				"Json",
-				"JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
