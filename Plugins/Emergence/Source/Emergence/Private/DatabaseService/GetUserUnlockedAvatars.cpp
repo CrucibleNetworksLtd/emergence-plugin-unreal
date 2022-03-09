@@ -22,7 +22,8 @@ void UGetUserUnlockedAvatars::Activate()
 	}
 	else
 	{
-		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not get Game ID from plugin settings"));
+		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not get custom Game ID from plugin settings, using default-game-id"));
+		GameID = TEXT("default-game-id");
 	}
 
 	TArray<TPair<FString, FString>> Headers;
