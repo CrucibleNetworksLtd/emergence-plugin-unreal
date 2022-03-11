@@ -28,7 +28,7 @@ void UDeletePersonaByID::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("DeletePersonaByID request started (request URL '%s'), calling DeletePersonaByID_HttpRequestComplete on request completed"), *requestURL);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("DeletePersonaByID request started (request URL '%s'), calling DeletePersonaByID_HttpRequestComplete on request completed"), *requestURL);
 }
 
 void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -36,7 +36,7 @@ void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr H
 	TEnumAsByte<EErrorCode> StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		UE_LOG(LogTemp, Display, TEXT("Response: %s"), *HttpResponse->GetContentAsString());
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Response: %s"), *HttpResponse->GetContentAsString());
 		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnDeletePersonaByIDCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
 		return;

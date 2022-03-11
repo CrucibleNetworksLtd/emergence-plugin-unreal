@@ -1,6 +1,8 @@
 // Copyright Crucible Networks Ltd 2022. All Rights Reserved.
 
 #include "Emergence.h"
+DEFINE_LOG_CATEGORY(LogEmergence)
+DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
 

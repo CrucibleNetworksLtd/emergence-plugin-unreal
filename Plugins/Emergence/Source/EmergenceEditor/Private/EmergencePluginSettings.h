@@ -16,6 +16,6 @@ public:
 	FFilePath CustomEmergenceServerLocation;
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
 	FString NodeURL;
-	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
+	UPROPERTY(config, EditAnywhere, Category = "Emergence Server", meta=(DisplayName = "Custom Game ID"))
 	FString GameID;
 };

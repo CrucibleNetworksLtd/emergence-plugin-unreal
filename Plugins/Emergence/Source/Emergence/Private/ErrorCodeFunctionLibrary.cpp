@@ -53,7 +53,8 @@ const TMap <int32, TEnumAsByte<EErrorCode>> UErrorCodeFunctionLibrary::StatusCod
 	{-2, EErrorCode::EmergenceClientInvalidResponse},
 	{-3, EErrorCode::EmergenceClientInvalidErrorCode},
 	{-4, EErrorCode::EmergenceClientJsonParseFailed},
-	{-5, EErrorCode::EmergenceClientWrongType}
+	{-5, EErrorCode::EmergenceClientWrongType},
+	{512, EErrorCode::EmergenceInternalError}
 };
 #pragma warning( pop )
 
@@ -87,7 +88,7 @@ TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRespon
 
 	//if we got a readable one but it has a http error, give that
 	if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
-		UE_LOG(LogTemp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
+		UE_LOG(LogEmergenceHttp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
 	}
 	return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
 }

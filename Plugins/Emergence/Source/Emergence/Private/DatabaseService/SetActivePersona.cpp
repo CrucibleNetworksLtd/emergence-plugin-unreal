@@ -29,7 +29,7 @@ void USetActivePersona::Activate()
 		"PATCH",
 		60.0F,
 		Headers);
-	UE_LOG(LogTemp, Display, TEXT("SetActivePersona request started, calling SetActivePersona_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("SetActivePersona request started, calling SetActivePersona_HttpRequestComplete on request completed"));
 }
 
 void USetActivePersona::SetActivePersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

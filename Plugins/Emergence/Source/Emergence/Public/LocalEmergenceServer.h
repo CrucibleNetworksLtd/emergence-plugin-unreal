@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Emergence.h"
 #include "LocalEmergenceServer.generated.h"
 
 /**
@@ -14,9 +15,18 @@ class EMERGENCE_API ULocalEmergenceServer : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
+	//Launches the local server process. If LaunchHidden is true, it will not be visible to the user (except in Task Manager).
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	static void LaunchLocalServerProcess();
+	static void LaunchLocalServerProcess(bool LaunchHidden = true);
 
+	//Kills the local server process.
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	static void KillLocalServerProcess();
+
+	//Gets the used TCP ports. Returns false if something goes wrong.
+	UFUNCTION(BlueprintPure)
+	static bool GetUsedTCPPorts(TArray<int>& UsedPorts);
+
+private:
+	static int GetNextFreePort();
 };

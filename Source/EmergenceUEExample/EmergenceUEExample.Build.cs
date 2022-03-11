@@ -7,7 +7,14 @@ public class EmergenceUEExample : ModuleRules
 	public EmergenceUEExample(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+		CppStandard = CppStandardVersion.Cpp17;
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"HeadMountedDisplay",
+			"Emergence"
+		});
 	}
 }

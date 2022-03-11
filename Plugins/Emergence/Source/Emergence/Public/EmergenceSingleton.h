@@ -14,6 +14,7 @@
 #include "PersonaStructs.h"
 #include "UI/EmergenceUI.h"
 #include "GameFramework/PlayerController.h"
+#include "Emergence.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -40,10 +41,28 @@ public:
 
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
+	inline static const FString DefaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
+
+	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
+
+	UPROPERTY(BlueprintReadOnly)
+	FEmergencePersona CachedCurrentPersona;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCachedPersonaUpdated, FEmergencePersona, NewPersona);
+
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
+
+	UPROPERTY()
+	TMap<FString, UTexture2D*> DownloadedImageCache;
 
 	//HTTPService Functions
 private:
+	UPROPERTY()
 	FString CurrentAccessToken = "";
+
+	UPROPERTY()
+	FString CurrentAddress = "";
 
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
 	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
@@ -53,8 +72,6 @@ private:
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	void GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
@@ -71,8 +88,8 @@ private:
 
 	UEmergenceUI* CurrentEmergenceUI;
 public:
-	//Intentionally not exposed to blueprints
-	UFUNCTION()
+	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
+	UFUNCTION(BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
 
 	//Opens the Emergence UI, returns the widget to focus
@@ -86,6 +103,14 @@ public:
 	//Do we have an access token?
 	UFUNCTION(BlueprintPure)
 	bool HasAccessToken();
+
+	//Do we have a wallet connected address?
+	UFUNCTION(BlueprintPure)
+	bool HasCachedAddress();
+
+	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
+	UFUNCTION(BlueprintPure)
+	FString GetCachedAddress();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
@@ -136,15 +161,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
-	//Getbalance stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
-	void GetBalance();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, TEnumAsByte<EErrorCode>, StatusCode);
-
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
-	FOnGetBalanceCompleted OnGetBalanceCompleted;
-
 	//isConnected stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void IsConnected();
@@ -173,5 +189,3 @@ private:
 	TWeakObjectPtr<UGameInstance> OwningGameInstance;
 };
 #pragma warning( pop )
-
-DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);

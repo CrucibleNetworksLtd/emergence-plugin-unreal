@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Interfaces/IHttpRequest.h"
+#include "Emergence.h"
 #include "ErrorCodeFunctionLibrary.generated.h"
 
 UENUM(BlueprintType)
@@ -12,6 +13,7 @@ enum class EErrorCode : uint8 {
 	EmergenceOk = 0,
 	EmergenceNotConnected = 1,
 	EmergenceAlreadyConnected = 2,
+	EmergenceInternalError = 3,
 
 	//HTTP STATUES (can't go from http error code straight to this enum, use converter)
 	Unknown = 100,

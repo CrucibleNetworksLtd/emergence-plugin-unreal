@@ -27,7 +27,7 @@ void UGetPersonas::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetPersonas request started, calling GetPersonas_HttpRequestComplete on request completed"));
 }
 
 void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -37,6 +37,13 @@ void UGetPersonas::GetPersonas_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersonaListResponse ResponceStruct = FEmergencePersonaListResponse(*HttpResponse->GetContentAsString());
 		OnGetPersonasCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		
+		for (int i = 0; i < ResponceStruct.personas.Num(); i++) {
+			if (ResponceStruct.personas[i].id == ResponceStruct.selected) {
+				UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->SetCachedCurrentPersona(ResponceStruct.personas[i]);
+			}
+		}
+
 		return;
 	}
 	OnGetPersonasCompleted.Broadcast(FEmergencePersonaListResponse(), StatusCode);

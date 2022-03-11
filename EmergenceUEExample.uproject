@@ -13,7 +13,7 @@
 	"Plugins": [
 		{
 			"Name": "KantanDocGen",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "ActorLayerUtilities",

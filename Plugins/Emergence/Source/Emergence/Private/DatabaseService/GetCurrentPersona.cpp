@@ -26,7 +26,7 @@ void UGetCurrentPersona::Activate()
 		60.0F,
 		Headers
 		);
-	UE_LOG(LogTemp, Display, TEXT("GetCurrentPersona request started, calling GetCurrentPersona_HttpRequestComplete on request completed"));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetCurrentPersona request started, calling GetCurrentPersona_HttpRequestComplete on request completed"));
 }
 
 void UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -36,6 +36,8 @@ void UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete(FHttpRequestPtr H
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());
 		OnGetCurrentPersonaCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->SetCachedCurrentPersona(ResponceStruct);
 		return;
 	}
 	OnGetCurrentPersonaCompleted.Broadcast(FEmergencePersona(), StatusCode);
