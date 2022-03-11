@@ -39,7 +39,7 @@ void ULoadAccountFromKeyStoreFile::Activate()
 	bool success = UHttpHelperLibrary::ExecuteHttpRequest<ULoadAccountFromKeyStoreFile>(
 		this,
 		&ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "LoadAccountFromKeyStoreFile",
+		UHttpHelperLibrary::APIBase + "loadAccount",
 		"POST",
 		60.0F,
 		Headers,

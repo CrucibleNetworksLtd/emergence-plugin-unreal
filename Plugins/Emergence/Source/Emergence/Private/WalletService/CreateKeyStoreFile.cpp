@@ -33,7 +33,7 @@ void UCreateKeyStoreFile::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreateKeyStoreFile>(
 		this,
 		&UCreateKeyStoreFile::CreateKeyStoreFile_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "CreateKeyStoreFile" + "?privateKey=" + PrivateKey + "&password=" + Password + "&publicKey=" + PublicKey + "&path=" + Path,
+		UHttpHelperLibrary::APIBase + "createKeyStore" + "?privateKey=" + PrivateKey + "&password=" + Password + "&publicKey=" + PublicKey + "&path=" + Path,
 		"POST",
 		60.0F,
 		Headers);

@@ -26,7 +26,7 @@ void UCreateWalletAndKeyStoreFile::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreateWalletAndKeyStoreFile>(
 		this,
 		&UCreateWalletAndKeyStoreFile::CreateWalletAndKeyStoreFile_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "CreateWalletAndKeyStoreFile?path=" + Path + "&password=" + Password,
+		UHttpHelperLibrary::APIBase + "createWallet?path=" + Path + "&password=" + Password,
 		"POST",
 		60.0F,
 		Headers);
