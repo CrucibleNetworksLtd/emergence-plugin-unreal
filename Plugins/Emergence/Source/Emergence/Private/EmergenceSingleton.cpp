@@ -98,6 +98,17 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
+void UEmergenceSingleton::CancelSignInRequest()
+{
+	if (GetAccessTokenRequest && GetAccessTokenRequest->GetStatus() == EHttpRequestStatus::Processing) {
+		GetAccessTokenRequest->CancelRequest();
+	}
+
+	if (GetHandshakeRequest && GetHandshakeRequest->GetStatus() == EHttpRequestStatus::Processing) {
+		GetHandshakeRequest->CancelRequest();
+	}
+}
+
 FString UEmergenceSingleton::GetCurrentAccessToken()
 {
 	if (this->CurrentAccessToken.Len() > 0) {
@@ -259,7 +270,7 @@ void UEmergenceSingleton::GetHandshake()
 	}
 
 	
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
+	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
 		"GET", 60.F);  //extra time because they might be fiddling with their phones
@@ -362,6 +373,6 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 
 void UEmergenceSingleton::GetAccessToken()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token");
+	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling GetAccessToken_HttpRequestComplete on request completed"));
 }

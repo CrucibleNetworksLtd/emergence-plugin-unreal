@@ -58,6 +58,8 @@ public:
 
 	//HTTPService Functions
 private:
+	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetAccessTokenRequest, GetHandshakeRequest;
+
 	UPROPERTY()
 	FString CurrentAccessToken = "";
 
@@ -88,6 +90,10 @@ private:
 
 	UEmergenceUI* CurrentEmergenceUI;
 public:
+	//Cancels any open GetAccessToken and GetHandshake requests.
+	UFUNCTION(BlueprintCallable)
+	void CancelSignInRequest();
+
 	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
 	UFUNCTION(BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
