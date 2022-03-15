@@ -23,7 +23,7 @@ public:
 	inline static const FString DatabaseAPIPrivate = TEXT("https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/");
 
 	template<typename T>
-	inline static bool ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString())
+	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString())
 	{
 		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
@@ -33,7 +33,7 @@ public:
 		HttpRequest->SetURL(URL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
-
+		
 		//Handle headers and logging of the headers
 		FString HeaderLogText;
 		if (Headers.Num() > 0) {
@@ -49,6 +49,7 @@ public:
 		}
 
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Sent %s request to %s, timing out in %f %s \n%s"), *Verb, *URL, Timeout, *HeaderLogText, *Content);
-		return HttpRequest->ProcessRequest();
+		HttpRequest->ProcessRequest();
+		return HttpRequest;
 	};
 };
