@@ -36,7 +36,7 @@ void ULoadAccountFromKeyStoreFile::Activate()
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 	Headers.Add(TPair<FString, FString>{"Authorization", AccessToken});
-	bool success = UHttpHelperLibrary::ExecuteHttpRequest<ULoadAccountFromKeyStoreFile>(
+	UHttpHelperLibrary::ExecuteHttpRequest<ULoadAccountFromKeyStoreFile>(
 		this,
 		&ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile_HttpRequestComplete,
 		UHttpHelperLibrary::APIBase + "loadAccount",
@@ -44,7 +44,6 @@ void ULoadAccountFromKeyStoreFile::Activate()
 		60.0F,
 		Headers,
 		OutputString);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
 	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadAccountFromKeyStoreFile request started with JSON, calling LoadAccountFromKeyStoreFile_HttpRequestComplete on request completed. Json sent as part of the request: "));
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }

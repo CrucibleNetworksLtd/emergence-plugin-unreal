@@ -29,7 +29,7 @@ void ULoadContract::Activate()
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-	bool success = UHttpHelperLibrary::ExecuteHttpRequest<ULoadContract>(
+	UHttpHelperLibrary::ExecuteHttpRequest<ULoadContract>(
 		this, 
 		&ULoadContract::LoadContract_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "loadContract",
@@ -37,7 +37,6 @@ void ULoadContract::Activate()
 		60.0F,
 		Headers,
 		OutputString);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), success ? TEXT("True") : TEXT("False"));
 	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract request started with JSON, calling LoadContract_HttpRequestComplete on request completed. Json sent as part of the request: "));
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }
