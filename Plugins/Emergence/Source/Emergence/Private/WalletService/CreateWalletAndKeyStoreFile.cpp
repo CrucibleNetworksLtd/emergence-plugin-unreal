@@ -18,9 +18,10 @@ UCreateWalletAndKeyStoreFile *UCreateWalletAndKeyStoreFile::CreateWalletAndKeySt
 
 void UCreateWalletAndKeyStoreFile::Activate()
 {
+	Path = Path.Replace(TEXT(" "), TEXT("%20"));
+
 	auto Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	FString AccessToken = Emergence->GetCurrentAccessToken();
-
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", AccessToken});
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreateWalletAndKeyStoreFile>(

@@ -25,6 +25,8 @@ UCreateKeyStoreFile *UCreateKeyStoreFile::CreateKeyStoreFile(
 
 void UCreateKeyStoreFile::Activate()
 {
+	Path = Path.Replace(TEXT(" "), TEXT("%20"));
+
 	auto Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	FString AccessToken = Emergence->GetCurrentAccessToken();
 
