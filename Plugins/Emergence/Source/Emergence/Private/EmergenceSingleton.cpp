@@ -98,6 +98,19 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
+FString UEmergenceSingleton::GetTokenSymbol()
+{
+	FString Symbol;
+	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("TokenSymbol"), Symbol, GGameIni)) //if we can get the string from the config
+	{
+		return Symbol;
+	}
+	else
+	{
+		return "MATIC";
+	}
+}
+
 void UEmergenceSingleton::CancelSignInRequest()
 {
 	if (GetAccessTokenRequest && GetAccessTokenRequest->GetStatus() == EHttpRequestStatus::Processing) {

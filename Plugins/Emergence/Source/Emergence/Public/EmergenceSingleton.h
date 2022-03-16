@@ -90,6 +90,10 @@ private:
 
 	UEmergenceUI* CurrentEmergenceUI;
 public:
+	//Gets the token symbol set in the project settings.
+	UFUNCTION(BlueprintPure)
+	FString GetTokenSymbol();
+
 	//Cancels any open GetAccessToken and GetHandshake requests.
 	UFUNCTION(BlueprintCallable)
 	void CancelSignInRequest();

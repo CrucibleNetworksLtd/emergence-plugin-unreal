@@ -14,8 +14,13 @@ public:
 
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server", meta = (FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
+
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
 	FString NodeURL;
+
 	UPROPERTY(config, EditAnywhere, Category = "Emergence Server", meta=(DisplayName = "Custom Game ID"))
 	FString GameID;
+
+	UPROPERTY(config, EditAnywhere, Category = "Emergence Server")
+	FString TokenSymbol = "MATIC";
 };
