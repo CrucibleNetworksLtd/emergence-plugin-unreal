@@ -7,13 +7,14 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const FString &NodeURL)
+ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const FString &NodeURL, const FString& ChainID)
 {
 	ULoadAccountFromKeyStoreFile* BlueprintNode = NewObject<ULoadAccountFromKeyStoreFile>();
 	BlueprintNode->Name = Name;
 	BlueprintNode->Password = Password;
 	BlueprintNode->Path = Path;
 	BlueprintNode->NodeURL = NodeURL;
+	BlueprintNode->ChainID = ChainID;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -30,6 +31,7 @@ void ULoadAccountFromKeyStoreFile::Activate()
 	Json->SetStringField("password", this->Password);
 	Json->SetStringField("path", this->Path);
 	Json->SetStringField("nodeURL", this->NodeURL);
+	Json->SetStringField("ChainID", this->ChainID);
 
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
