@@ -71,7 +71,14 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr H
 	TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 	{
-		ReturnResponseCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+		if (JsonObject->HasField("statusCode"))
+		{
+			ReturnResponseCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+		}
+		else {
+			//this fixes weird behaviour with GetPersonas
+			ReturnResponseCode = EErrorCode::EmergenceOk;
+		}
 		return *JsonObject.Get();
 	}
 	ReturnResponseCode = EErrorCode::EmergenceClientJsonParseFailed;
