@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName)
+UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
@@ -15,6 +15,7 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FStri
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->LocalAccountName = LocalAccountName;
+	BlueprintNode->GasPrice = GasPrice;
 	return BlueprintNode;
 }
 
@@ -35,10 +36,15 @@ void UWriteMethod::Activate()
 		ContentString.Append("]");
 	}
 
+	FString GasString;
+	if (GasPrice != "" && LocalAccountName != "") {
+		GasString = "&gasPrice=" + GasPrice;
+	}
+
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
 		this, 
 		&UWriteMethod::WriteMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ),
+		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
 		"POST",
 		60.0F,
 		Headers,
