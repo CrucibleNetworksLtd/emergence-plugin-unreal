@@ -10,12 +10,24 @@
 #include "UObject/Package.h"
 #include "UObject/WeakObjectPtr.h"
 #include "EmergencePluginSettings.h"
+#include "EmergenceSettingsCustomization.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public ITargetPlatformModule
 {
+	
 	virtual void StartupModule() override
 	{
+		auto& PropertyModule = FModuleManager::LoadModuleChecked< FPropertyEditorModule >("PropertyEditor");
+
+		// Register our customization to be used by a class 'UMyClass' or 'AMyClass'. Note the prefix must be dropped.
+		PropertyModule.RegisterCustomClassLayout(
+        UEmergencePluginSettings::StaticClass()->GetFName(),
+        FOnGetDetailCustomizationInstance::CreateStatic(&FEmergenceSettingsCustomization::MakeInstance)
+        );
+
+		PropertyModule.NotifyCustomizationModuleChanged();
+		
 		RegisterSettings();
 	}
 
