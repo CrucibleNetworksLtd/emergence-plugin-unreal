@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "Chain.h"
 
 UGetBalance* UGetBalance::GetBalance(const UObject* WorldContextObject, FString Address)
 {
@@ -17,16 +18,10 @@ UGetBalance* UGetBalance::GetBalance(const UObject* WorldContextObject, FString 
 
 void UGetBalance::Activate()
 {
-	const FString defaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
-	FString NodeURL;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GGameIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
-	{
-		UE_LOG(LogEmergenceHttp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
-	}
-	else {
-		NodeURL = UEmergenceSingleton::DefaultNodeURL;
-		UE_LOG(LogEmergenceHttp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
-	}
+	FEmergenceChainStruct ChainData = UChainDataLibrary::GetEmergenceChainDataFromConfig();
+
+	FString NodeURL = ChainData.GetChainURL();
+	UE_LOG(LogEmergenceHttp, Warning, TEXT("Using Node URL: %s"), *NodeURL);
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
 		this, 

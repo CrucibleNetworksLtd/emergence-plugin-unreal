@@ -41,8 +41,6 @@ public:
 
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
-	inline static const FString DefaultNodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
-
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
 
 	UPROPERTY(BlueprintReadOnly)

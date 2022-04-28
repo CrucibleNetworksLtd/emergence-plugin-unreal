@@ -18,6 +18,8 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 
+#include "Chain.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
@@ -100,15 +102,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 
 FString UEmergenceSingleton::GetTokenSymbol()
 {
-	FString Symbol;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("TokenSymbol"), Symbol, GGameIni)) //if we can get the string from the config
-	{
-		return Symbol;
-	}
-	else
-	{
-		return "MATIC";
-	}
+	return UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainSymbol();;
 }
 
 void UEmergenceSingleton::CancelSignInRequest()
@@ -272,16 +266,11 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UEmergenceSingleton::GetHandshake()
 {
-	FString NodeURL;
-	if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("NodeURL"), NodeURL, GGameIni) && NodeURL != "") //if we can get the string from the config and successfully parse it
-	{
-		UE_LOG(LogEmergenceHttp, Warning, TEXT("NodeURL override: (%s)."), *NodeURL);
-	}
-	else {
-		NodeURL = UEmergenceSingleton::DefaultNodeURL;
-		UE_LOG(LogEmergenceHttp, Warning, TEXT("Using default NODEURL (%s)."), *NodeURL);
-	}
-
+	FEmergenceChainStruct ChainData = UChainDataLibrary::GetEmergenceChainDataFromConfig();
+	FString NodeURL = ChainData.GetChainURL();
+#if WITH_EDITOR
+	UE_LOG(LogEmergenceHttp, Display, TEXT("Using chain %s, node URL: %s"), *UEnum::GetDisplayValueAsText(ChainData.Chain).ToString(), *NodeURL);
+#endif
 	
 	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
