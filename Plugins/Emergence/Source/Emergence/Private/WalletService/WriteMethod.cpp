@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
+UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
@@ -16,6 +16,7 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FStri
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->LocalAccountName = LocalAccountName;
 	BlueprintNode->GasPrice = GasPrice;
+	BlueprintNode->Value = Value;
 	return BlueprintNode;
 }
 
@@ -44,12 +45,12 @@ void UWriteMethod::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
 		this, 
 		&UWriteMethod::WriteMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
+		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
 		"POST",
 		60.0F,
 		Headers,
 		ContentString);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started with JSON, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started on method %s with value %s, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "), *MethodName, *Value);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *ContentString);
 }
 
