@@ -24,7 +24,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBalanceCompleted, FString, Balance, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetBalanceCompleted OnGetBalanceCompleted;

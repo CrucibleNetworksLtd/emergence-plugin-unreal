@@ -58,9 +58,9 @@ const TMap <int32, TEnumAsByte<EErrorCode>> UErrorCodeFunctionLibrary::StatusCod
 };
 #pragma warning( pop )
 
-FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, TEnumAsByte<EErrorCode>& ReturnResponseCode) {
+FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
 
-	TEnumAsByte<EErrorCode> ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		ReturnResponseCode = ResponseCode;
 		return FJsonObject();
@@ -85,7 +85,7 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr H
 	return FJsonObject();
 }
 
-TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded)
+EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	//If we didn't even get a http response, give failed
 	if (!bSucceeded) return EErrorCode::EmergenceClientFailed;
@@ -100,7 +100,7 @@ TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRespon
 	return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
 }
 
-TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Status)
+EErrorCode UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Status)
 {
 	auto ErrorCode = UErrorCodeFunctionLibrary::StatusCodeIntToErrorCode.Find(Status);
 	if (ErrorCode != nullptr) {
@@ -111,7 +111,7 @@ TEnumAsByte<EErrorCode> UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Sta
 	}
 }
 
-int32 UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(TEnumAsByte<EErrorCode> ErrorCode)
+int32 UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(EErrorCode ErrorCode)
 {
 	auto Int = UErrorCodeFunctionLibrary::StatusCodeIntToErrorCode.FindKey(ErrorCode);
 	if (Int != nullptr) {
@@ -122,7 +122,7 @@ int32 UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(TEnumAsByte<EErrorCode> Err
 	}
 }
 
-bool UErrorCodeFunctionLibrary::Conv_ErrorCodeToBool(TEnumAsByte<EErrorCode> ErrorCode)
+bool UErrorCodeFunctionLibrary::Conv_ErrorCodeToBool(EErrorCode ErrorCode)
 {
 	return ErrorCode == EErrorCode::EmergenceOk;
 }

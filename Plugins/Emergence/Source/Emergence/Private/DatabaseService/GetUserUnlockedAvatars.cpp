@@ -43,7 +43,7 @@ void UGetUserUnlockedAvatars::Activate()
 
 void UGetUserUnlockedAvatars::GetUserUnlockedAvatars_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {

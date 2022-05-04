@@ -72,19 +72,19 @@ class EMERGENCE_API UErrorCodeFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	//tries to parse a response as json, calls GetResponseErrors automagically
-	static FJsonObject TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, TEnumAsByte<EErrorCode>& JsonObject);
+	static FJsonObject TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& JsonObject);
 
 	//Gets any pre-content parse errors
-	static TEnumAsByte<EErrorCode> GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded);
+	static EErrorCode GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Status Code Int To Status Code Enum", CompactNodeTitle = "->", BlueprintAutocast))
-	static TEnumAsByte<EErrorCode> Conv_IntToErrorCode(int32 HttpStatus);
+	static EErrorCode Conv_IntToErrorCode(int32 HttpStatus);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Status Code Enum to Status Code Int", CompactNodeTitle = "->", BlueprintAutocast))
-	static int32 Conv_ErrorCodeToInt(TEnumAsByte<EErrorCode> ErrorCode);
+	static int32 Conv_ErrorCodeToInt(EErrorCode ErrorCode);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Status Code Enum to Status Ok Bool", CompactNodeTitle = "->", BlueprintAutocast))
-	static bool Conv_ErrorCodeToBool(TEnumAsByte<EErrorCode> ErrorCode);
+	static bool Conv_ErrorCodeToBool(EErrorCode ErrorCode);
 
 	static const TMap<int32, TEnumAsByte<EErrorCode>> StatusCodeIntToErrorCode;
 };

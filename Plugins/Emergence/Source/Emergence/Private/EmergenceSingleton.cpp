@@ -70,7 +70,7 @@ void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCur
 	OnCachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
 }
 
-bool UEmergenceSingleton::HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode)
+bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::Denied) {
 		OnDatabaseAuthFailed.Broadcast();
@@ -179,14 +179,14 @@ void UEmergenceSingleton::GetWalletConnectURI()
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetWalletConnectURI request started, calling GetWalletConnectURI_HttpRequestComplete on request completed"));
 }
 
-void UEmergenceSingleton::CallRequestError(FString ConnectionName, TEnumAsByte<EErrorCode> StatusCode)
+void UEmergenceSingleton::CallRequestError(FString ConnectionName, EErrorCode StatusCode)
 {
 	this->OnAnyRequestError.Broadcast(ConnectionName, StatusCode);
 }
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		OnGetQRCodeCompleted.Broadcast(nullptr, ResponseCode);
 		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
@@ -245,7 +245,7 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 
 void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString Address;
@@ -281,7 +281,7 @@ void UEmergenceSingleton::GetHandshake()
 }
 
 void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
@@ -299,7 +299,7 @@ void UEmergenceSingleton::ReinitializeWalletConnect()
 
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode = EErrorCode::EmergenceClientFailed;
+	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
@@ -327,7 +327,7 @@ void UEmergenceSingleton::IsConnected()
 
 void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool Disconnected;
@@ -353,7 +353,7 @@ void UEmergenceSingleton::KillSession()
 
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Parsing %s"), *HttpResponse->GetContentAsString());
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback was error code: %s"), *StaticEnum<EErrorCode>()->GetValueAsString(StatusCode));

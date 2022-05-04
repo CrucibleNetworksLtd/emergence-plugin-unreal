@@ -23,7 +23,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetCurrentPersonaCompleted, FEmergencePersona, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetCurrentPersonaCompleted, FEmergencePersona, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetCurrentPersonaCompleted OnGetCurrentPersonaCompleted;

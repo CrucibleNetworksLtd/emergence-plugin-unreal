@@ -44,7 +44,7 @@ void UCreateKeyStoreFile::Activate()
 
 void UCreateKeyStoreFile::CreateKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk)
 	{

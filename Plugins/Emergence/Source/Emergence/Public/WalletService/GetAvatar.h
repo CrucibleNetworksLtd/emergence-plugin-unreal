@@ -24,7 +24,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetAvatarCompleted, UTexture2D*, Avatar, FString, Name, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetAvatarCompleted, UTexture2D*, Avatar, FString, Name, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAvatarCompleted OnGetAvatarCompleted;
@@ -32,7 +32,7 @@ private:
 	void GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	UFUNCTION()
-	void AvatarReturned(UTexture2D* Texture, TEnumAsByte<EErrorCode> StatusCode);
+	void AvatarReturned(UTexture2D* Texture, EErrorCode StatusCode);
 	const UObject* WorldContextObject;
 	FString ImageMetadataURI;
 	FString ERC721Name;

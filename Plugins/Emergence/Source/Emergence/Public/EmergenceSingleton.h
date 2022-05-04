@@ -65,7 +65,7 @@ private:
 	FString CurrentAddress = "";
 
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
-	bool HandleDatabaseServerAuthFail(TEnumAsByte<EErrorCode> ErrorCode);
+	bool HandleDatabaseServerAuthFail(EErrorCode ErrorCode);
 
 	void GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
@@ -124,15 +124,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void GetWalletConnectURI();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAnyRequestError OnAnyRequestError;
 
 	//This shouldn't be necessary, you should be able to call .broadcast but I couldn't get it to show up in CreatePersona for some reason
-	void CallRequestError(FString ConnectionName, TEnumAsByte<EErrorCode> StatusCode);
+	void CallRequestError(FString ConnectionName, EErrorCode StatusCode);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
@@ -146,7 +146,7 @@ public:
 
 	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
@@ -155,7 +155,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void GetHandshake();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
@@ -164,7 +164,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void ReinitializeWalletConnect();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
@@ -173,7 +173,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void IsConnected();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
@@ -182,12 +182,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
 	void KillSession();
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, EErrorCode, StatusCode);
 	
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;

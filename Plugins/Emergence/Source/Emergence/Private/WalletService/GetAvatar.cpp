@@ -27,7 +27,7 @@ void UGetAvatar::Activate()
 
 void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		ERC721Name = JsonObject.GetStringField("name");
@@ -40,7 +40,7 @@ void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHtt
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetAvatar", StatusCode);
 }
 
-void UGetAvatar::AvatarReturned(UTexture2D* Texture, TEnumAsByte<EErrorCode> StatusCode)
+void UGetAvatar::AvatarReturned(UTexture2D* Texture, EErrorCode StatusCode)
 {
 	OnGetAvatarCompleted.Broadcast(Texture, this->ERC721Name, StatusCode);
 }

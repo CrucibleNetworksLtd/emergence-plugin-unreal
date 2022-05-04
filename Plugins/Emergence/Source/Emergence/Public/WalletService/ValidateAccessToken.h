@@ -26,7 +26,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnValidateAccessTokenCompleted, bool, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnValidateAccessTokenCompleted, bool, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnValidateAccessTokenCompleted OnValidateAccessTokenCompleted;

@@ -23,7 +23,7 @@ void UValidateAccessToken::Activate()
 
 void UValidateAccessToken::ValidateAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {	
-	TEnumAsByte<EErrorCode> StatusCode = EErrorCode::EmergenceClientFailed;
+	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 
 	bool isValidToken = false;

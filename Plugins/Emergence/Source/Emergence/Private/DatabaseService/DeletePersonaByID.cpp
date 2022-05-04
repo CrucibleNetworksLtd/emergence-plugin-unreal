@@ -33,7 +33,7 @@ void UDeletePersonaByID::Activate()
 
 void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Response: %s"), *HttpResponse->GetContentAsString());

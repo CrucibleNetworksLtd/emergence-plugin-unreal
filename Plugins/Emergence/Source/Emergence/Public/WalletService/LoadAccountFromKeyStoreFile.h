@@ -31,7 +31,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLoadAccountFromKeyStoreFileCompleted, FString, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLoadAccountFromKeyStoreFileCompleted, FString, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLoadAccountFromKeyStoreFileCompleted OnLoadAccountFromKeyStoreFileCompleted;
