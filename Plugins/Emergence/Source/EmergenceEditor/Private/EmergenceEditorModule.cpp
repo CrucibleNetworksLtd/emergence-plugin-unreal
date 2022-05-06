@@ -13,7 +13,7 @@
 #include "EmergenceSettingsCustomization.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
-class FEmergenceEditorModule : public ITargetPlatformModule
+class FEmergenceEditorModule : public IModuleInterface
 {
 	
 	virtual void StartupModule() override
