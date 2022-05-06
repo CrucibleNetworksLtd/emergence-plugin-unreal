@@ -202,10 +202,6 @@
 			"Enabled": false
 		},
 		{
-			"Name": "LevelSequenceEditor",
-			"Enabled": false
-		},
-		{
 			"Name": "LightPropagationVolume",
 			"Enabled": false
 		},
