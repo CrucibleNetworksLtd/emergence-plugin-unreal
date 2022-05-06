@@ -60,7 +60,7 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnWriteMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
+		OnWriteMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("transactionHash"), EErrorCode::EmergenceOk);
 		return;
 	}
 	OnWriteMethodCompleted.Broadcast(FString(), StatusCode);

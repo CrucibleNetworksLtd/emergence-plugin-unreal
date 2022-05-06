@@ -30,7 +30,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWriteMethodCompleted, FString, Response, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWriteMethodCompleted, FString, TransactionHash, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWriteMethodCompleted OnWriteMethodCompleted;
