@@ -1,0 +1,49 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
+
+#include "InventoryService/InventoryByOwner.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
+
+UInventoryByOwner* UInventoryByOwner::InventoryByOwner(const UObject* WorldContextObject, const FString& ContractAddress, const FString& MethodName)
+{
+	UInventoryByOwner* BlueprintNode = NewObject<UInventoryByOwner>();
+	BlueprintNode->ContractAddress = FString(ContractAddress);
+	BlueprintNode->MethodName = FString(MethodName);
+	BlueprintNode->WorldContextObject = WorldContextObject;
+	return BlueprintNode;
+}
+
+void UInventoryByOwner::Activate()
+{
+	FString requestURL = "http://localhost:14391/InventoryService/byOwner?address=" + ContractAddress + "&network=" + MethodName;
+	TArray<TPair<FString, FString>> Headers;
+	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UInventoryByOwner>(
+		this,
+		&UInventoryByOwner::InventoryByOwner_HttpRequestComplete,
+		requestURL,
+		"GET",
+		60.0F,
+		Headers
+		);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("InventoryByOwner request started, calling InventoryByOwner_HttpRequestComplete on request completed"));
+}
+
+void UInventoryByOwner::InventoryByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	EErrorCode StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	StatusCode = EErrorCode::EmergenceOk; //FORCE IT, ONLY FOR TESTING
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FEmergenceInventory ResponceStruct = FEmergenceInventory(*HttpResponse->GetContentAsString());
+		OnInventoryByOwnerCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		return;
+	}
+
+	OnInventoryByOwnerCompleted.Broadcast(FEmergenceInventory(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("InventoryByOwner", StatusCode);
+}
