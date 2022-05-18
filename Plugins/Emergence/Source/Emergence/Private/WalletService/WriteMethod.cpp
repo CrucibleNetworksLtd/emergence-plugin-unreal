@@ -26,16 +26,14 @@ void UWriteMethod::Activate()
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
 	FString ContentString;
-	if (Content.Num() > 0) {
-		ContentString.Append("[");
-		for (int i = 0; i < Content.Num(); i++) {
-			ContentString.Append("\"" + Content[i] + "\"");
-			if (i != Content.Num() - 1) {
-				ContentString.Append(",");
-			}
+	ContentString.Append("[");
+	for (int i = 0; i < Content.Num(); i++) {
+		ContentString.Append("\"" + Content[i] + "\"");
+		if (i != Content.Num() - 1) {
+			ContentString.Append(",");
 		}
-		ContentString.Append("]");
 	}
+	ContentString.Append("]");
 
 	FString GasString;
 	if (GasPrice != "" && LocalAccountName != "") {
