@@ -36,7 +36,7 @@ void UWriteMethod::Activate()
 	ContentString.Append("]");
 
 	FString GasString;
-	if (GasPrice != "" && LocalAccountName != "") {
+	if (GasPrice != "") {
 		GasString = "&gasPrice=" + GasPrice;
 	}
 
