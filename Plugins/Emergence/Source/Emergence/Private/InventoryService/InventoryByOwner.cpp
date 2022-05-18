@@ -7,18 +7,18 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UInventoryByOwner* UInventoryByOwner::InventoryByOwner(const UObject* WorldContextObject, const FString& ContractAddress, const FString& MethodName)
+UInventoryByOwner* UInventoryByOwner::InventoryByOwner(const UObject* WorldContextObject, const FString& ContractAddress, const FString& Network)
 {
 	UInventoryByOwner* BlueprintNode = NewObject<UInventoryByOwner>();
 	BlueprintNode->ContractAddress = FString(ContractAddress);
-	BlueprintNode->MethodName = FString(MethodName);
+	BlueprintNode->Network = FString(Network);
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
 
 void UInventoryByOwner::Activate()
 {
-	FString requestURL = "http://localhost:14391/InventoryService/byOwner?address=" + ContractAddress + "&network=" + MethodName;
+	FString requestURL = "http://localhost:14391/InventoryService/byOwner?address=" + ContractAddress + "&network=" + Network;
 	TArray<TPair<FString, FString>> Headers;
 	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 

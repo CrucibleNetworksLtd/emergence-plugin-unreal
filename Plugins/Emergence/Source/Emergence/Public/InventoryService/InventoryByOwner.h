@@ -319,7 +319,7 @@ class EMERGENCE_API UInventoryByOwner : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Inventory Service")
-	static UInventoryByOwner* InventoryByOwner(const UObject* WorldContextObject, const FString& ContractAddress, const FString& MethodName);
+	static UInventoryByOwner* InventoryByOwner(const UObject* WorldContextObject, const FString& ContractAddress, const FString& Network);
 
 	virtual void Activate() override;
 
@@ -329,6 +329,6 @@ public:
 	FOnInventoryByOwnerCompleted OnInventoryByOwnerCompleted;
 private:
 	void InventoryByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	FString ContractAddress, MethodName;
+	FString ContractAddress, Network;
 	const UObject* WorldContextObject;
 };
