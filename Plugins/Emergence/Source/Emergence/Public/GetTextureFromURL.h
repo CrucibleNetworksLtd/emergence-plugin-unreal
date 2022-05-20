@@ -20,7 +20,13 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG)", WorldContext = "WorldContextObject"), Category = "Emergence|Helpers")
 	static UGetTextureFromUrl* TextureFromUrl(const FString& Url, const UObject* WorldContextObject, bool AllowCacheUsage = true) {
 		UGetTextureFromUrl* BlueprintNode = NewObject<UGetTextureFromUrl>(); //I don't know why, but every time I tried to put this in the cpp file it wouldn't link it properly and would fail to compile. If you think you can fix it, go ahead.
+		
 		BlueprintNode->Url = FString(Url);
+		if (BlueprintNode->Url.Contains(TEXT("ipfs://"))) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromURL found IPFS, replacing with public node..."));
+			BlueprintNode->Url = BlueprintNode->Url.Replace(TEXT("ipfs://"), TEXT("https://ipfs.io/ipfs/"));
+		}
+		
 		BlueprintNode->AllowCacheUsage = AllowCacheUsage;
 		BlueprintNode->WorldContextObject = WorldContextObject;
 		return BlueprintNode;
