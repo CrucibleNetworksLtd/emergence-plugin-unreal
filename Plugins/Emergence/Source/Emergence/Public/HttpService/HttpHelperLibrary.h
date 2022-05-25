@@ -30,7 +30,19 @@ public:
 		if (FunctionBindFunction && FunctionBindObject) {
 			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
 		}
-		HttpRequest->SetURL(URL);
+		
+		FString FinalURL;
+
+		//switch IPFS to our public node...
+		if (URL.Contains(TEXT("ipfs://"))) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("ExecuteHttpRequest found IPFS, replacing with public node..."));
+			FinalURL = URL.Replace(TEXT("ipfs://"), TEXT("https://ipfs.io/ipfs/"));
+		}
+		else {
+			FinalURL = URL;
+		}
+
+		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
 		
