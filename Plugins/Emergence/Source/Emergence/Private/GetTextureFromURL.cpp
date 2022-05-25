@@ -58,6 +58,11 @@ bool UGetTextureFromUrl::RawDataToBrush(FName ResourceName, const TArray< uint8 
 	TArray<uint8> DecodedImage;
 	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 	TSharedPtr<IImageWrapper> ImageWrapper;
+
+	if (InRawData.Num() == 0) { //if there is no raw data, fail out
+		return false;
+	}
+
 	if (InRawData[0] == 0x89) {
 		ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
 	}
