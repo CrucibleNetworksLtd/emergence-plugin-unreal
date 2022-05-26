@@ -31,5 +31,9 @@ class UInventoryHelperLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable)
 	static TArray<FEmergenceCombinedInventoryItem> OrganiseInventoryItems(TArray<FEmergenceInventoryItem> InventoryItems, TArray< FEmergenceAvatarResult> Avatars);
 
-	static FString GetBestURL(TArray<FEmergenceInventoryItemsMetaContent> Contents);
+	UFUNCTION(BlueprintPure)
+	static FString GetBestDisplayImage(TArray<FEmergenceInventoryItemsMetaContent> Contents);
+
+	UFUNCTION(BlueprintPure)
+	static FString GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents);
 };

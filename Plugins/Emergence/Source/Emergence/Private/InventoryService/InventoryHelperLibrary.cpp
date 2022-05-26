@@ -36,11 +36,11 @@ TArray<FEmergenceCombinedInventoryItem> UInventoryHelperLibrary::OrganiseInvento
            CombinedInventoryItem.InventoryItem = InventoryItems[i];
 
            //if it has both a name and an image
-           if (CombinedInventoryItem.InventoryItem.meta.name != "" && UInventoryHelperLibrary::GetBestURL(CombinedInventoryItem.InventoryItem.meta.content) != "") {
+           if (CombinedInventoryItem.InventoryItem.meta.name != "" && UInventoryHelperLibrary::GetBestDisplayImage(CombinedInventoryItem.InventoryItem.meta.content) != "") {
                ItemsWithNamesAndImages.Add(CombinedInventoryItem);
            }
            //if it has only an image
-           else if (UInventoryHelperLibrary::GetBestURL(CombinedInventoryItem.InventoryItem.meta.content) != "") {
+           else if (UInventoryHelperLibrary::GetBestDisplayImage(CombinedInventoryItem.InventoryItem.meta.content) != "") {
                ItemsWithImages.Add(CombinedInventoryItem);
            }
            // if it has only a name (ones with both names and images are filtered out earlier
@@ -58,7 +58,7 @@ TArray<FEmergenceCombinedInventoryItem> UInventoryHelperLibrary::OrganiseInvento
     return OutputArray;
 }
 
-FString UInventoryHelperLibrary::GetBestURL(TArray<FEmergenceInventoryItemsMetaContent> Contents)
+FString UInventoryHelperLibrary::GetBestDisplayImage(TArray<FEmergenceInventoryItemsMetaContent> Contents)
 {
     FString BestFoundURL = "";
     for (int i = 0; i < Contents.Num(); i++) {
@@ -69,6 +69,21 @@ FString UInventoryHelperLibrary::GetBestURL(TArray<FEmergenceInventoryItemsMetaC
         else if (Contents[i].mimeType == "image/jpeg") { //the other option
             BestFoundURL = Contents[i].url;
         }
+    }
+    return BestFoundURL;
+}
+
+FString UInventoryHelperLibrary::GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents)
+{
+    FString BestFoundURL = "";
+    for (int i = 0; i < Contents.Num(); i++) {
+
+        if (Contents[i].mimeType == "model/gltf-binary") { //the favourite
+            return Contents[i].url;
+        }
+        /*else if (Contents[i].mimeType == "image/jpeg") { //the other option
+            BestFoundURL = Contents[i].url;
+        }*/
     }
     return BestFoundURL;
 }
