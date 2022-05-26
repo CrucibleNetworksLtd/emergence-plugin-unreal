@@ -107,20 +107,20 @@ struct FEmergenceInventoryItemMeta
 
     GENERATED_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString name;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString name;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString description;
+    FString description;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        TArray<FEmergenceInventoryItemsMetaAttribute> attributes;
+    TArray<FEmergenceInventoryItemsMetaAttribute> attributes;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        TArray<FEmergenceInventoryItemsMetaContent> content;
+    TArray<FEmergenceInventoryItemsMetaContent> content;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString dynamicMetadata;
+    FString dynamicMetadata;
 
     FEmergenceInventoryItemMeta() {};
 
@@ -282,17 +282,13 @@ struct FEmergenceInventory
 
     GENERATED_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        int32 total;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        TArray<FEmergenceInventoryItem> items;
+    TArray<FEmergenceInventoryItem> items;
 
     FEmergenceInventory() {};
 
     FEmergenceInventory(int32 _total, TArray<FEmergenceInventoryItem> _items) {
 
-        total = _total;
         items = _items;
 
     }
@@ -305,7 +301,6 @@ struct FEmergenceInventory
             &_tmpEmergenceInventory,
             0, 0);
 
-        total = _tmpEmergenceInventory.total;
         items = _tmpEmergenceInventory.items;
     }
 
