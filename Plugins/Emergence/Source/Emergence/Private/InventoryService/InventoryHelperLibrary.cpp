@@ -87,3 +87,20 @@ FString UInventoryHelperLibrary::GetBestModel(TArray<FEmergenceInventoryItemsMet
     }
     return BestFoundURL;
 }
+
+TSet<FString> UInventoryHelperLibrary::GetDynamicMetadataCategories(FString DynamicMetadata)
+{
+    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+    TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*DynamicMetadata);
+
+    TSet<FString> ReturnSet;
+
+    if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid()) {
+        auto CategoryArray = JsonObject->GetArrayField("Categories");
+        for (int i = 0; i < CategoryArray.Num(); i++) {
+            ReturnSet.Add(CategoryArray[i]->AsString());
+        }
+    }
+
+    return ReturnSet;
+}

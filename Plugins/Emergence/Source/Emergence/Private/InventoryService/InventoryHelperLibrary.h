@@ -36,4 +36,7 @@ class UInventoryHelperLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure)
 	static FString GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents);
+
+	UFUNCTION(BlueprintPure)
+	static TSet<FString> GetDynamicMetadataCategories(FString DynamicMetadata);
 };
