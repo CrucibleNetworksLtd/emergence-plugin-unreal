@@ -38,7 +38,18 @@ public:
 		//switch IPFS to our public node...
 		if (URL.Contains(TEXT("ipfs://"))) {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("ExecuteHttpRequest found IPFS, replacing with public node..."));
-			FinalURL = URL.Replace(TEXT("ipfs://"), TEXT("https://ipfs.io/ipfs/"));
+
+			FString IPFSNode = TEXT("https://ipfs.io/ipfs/");
+			FString CustomIPFSNode = "";
+			if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("IPFSNode"), CustomIPFSNode, GGameIni))
+			{
+				if (CustomIPFSNode != "") {
+					UE_LOG(LogEmergenceHttp, Display, TEXT("Found custom IPFS node in game config, replacing with \"%s\""), *CustomIPFSNode);
+					IPFSNode = CustomIPFSNode;
+				}
+			}
+
+			FinalURL = URL.Replace(TEXT("ipfs://"), *IPFSNode);
 		}
 		else {
 			FinalURL = URL;
@@ -62,7 +73,7 @@ public:
 			HttpRequest->SetContentAsString(Content);
 		}
 
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Sent %s request to %s, timing out in %f %s \n%s"), *Verb, *URL, Timeout, *HeaderLogText, *Content);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Sent %s request to \"%s\", timing out in %f %s \n%s"), *Verb, *FinalURL, Timeout, *HeaderLogText, *Content);
 		HttpRequest->ProcessRequest();
 		return HttpRequest;
 	};

@@ -23,5 +23,9 @@ public:
 	
 	UPROPERTY(config, EditAnywhere, Category = "Chain", meta=(ShowOnlyInnerProperties))
 	FEmergenceChainStruct Chain;
+
+	//The IPFS node to use when getting IPFS data via HTTP. Leaving it blank will use the default "https://ipfs.io/ipfs/". The path will be added to the end (for example, using the default: "https://ipfs.io/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu")
+	UPROPERTY(config, EditAnywhere, Category = "IPFS", meta = (DisplayName = "Custom IPFS Node"))
+	FString IPFSNode;
 	
 };
