@@ -55,7 +55,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
 
-	const FString JsonArgs("\"{\\\"Name\\\":\\\"Crucibletest\\\",\\\"Description\\\":\\\"UnrealEngineWalletConnect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
+	const FString JsonArgs("\"{\\\"Name\\\":\\\"Emergence\\\",\\\"Description\\\":\\\"Unreal Engine Wallet Connect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
 
 
 	FString ServerURL = "http://localhost:" + FString::FromInt(GetNextFreePort());
