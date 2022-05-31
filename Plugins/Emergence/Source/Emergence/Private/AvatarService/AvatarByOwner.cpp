@@ -17,7 +17,7 @@ UAvatarByOwner* UAvatarByOwner::AvatarByOwner(const UObject* WorldContextObject,
 
 void UAvatarByOwner::Activate()
 {
-	FString requestURL = "http://localhost:14391/AvatarSystem/byOwner?address=" + Address;
+	FString requestURL = UHttpHelperLibrary::AvatarService + "byOwner?address=" + Address;
 	TArray<TPair<FString, FString>> Headers;
 	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 

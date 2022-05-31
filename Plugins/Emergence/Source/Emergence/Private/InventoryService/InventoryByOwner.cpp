@@ -18,7 +18,7 @@ UInventoryByOwner* UInventoryByOwner::InventoryByOwner(const UObject* WorldConte
 
 void UInventoryByOwner::Activate()
 {
-	FString requestURL = "http://localhost:14391/InventoryService/byOwner?address=" + Address + "&network=" + Network;
+	FString requestURL = UHttpHelperLibrary::InventoryService + "byOwner?address=" + Address + "&network=" + Network;
 	TArray<TPair<FString, FString>> Headers;
 	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 
