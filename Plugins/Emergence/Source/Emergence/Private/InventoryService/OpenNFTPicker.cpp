@@ -24,6 +24,11 @@ void UOpenNFTPicker::Activate()
 		return;
 	}
 
+	if (!OpeningPlayerController) {
+		this->OnSelectionCompleted.Broadcast(FEmergenceInventoryItem(), EEmergenceNFTPickerError::NoPlayerController);
+		return;
+	}
+
 	static TSubclassOf<UEmergenceUI> EmergenceUIBPClass = StaticLoadClass(UObject::StaticClass(), OpeningPlayerController, TEXT("/Emergence/EmergenceUI_BP.EmergenceUI_BP_C"));
 	check(EmergenceUIBPClass);
 	EmergenceUI = Cast<UEmergenceUI>(Emergence->OpenEmergenceUI(OpeningPlayerController, EmergenceUIBPClass));
@@ -105,6 +110,7 @@ void UOpenNFTPicker::EmergenceOverlayReady()
 	check(InventoryScreenClass);
 	InventoryScreen = CreateWidget<UInventoryScreen>(OpeningPlayerController->GetWorld(), InventoryScreenClass);
 	InventoryScreen->Filters = this->Filters;
+	InventoryScreen->Address = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress();
 	InventoryScreen->OnItemSelected.AddDynamic(this, &UOpenNFTPicker::ItemSelectionCompleted);
 
 

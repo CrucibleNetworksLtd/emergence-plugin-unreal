@@ -13,7 +13,8 @@ enum class EEmergenceNFTPickerError : uint8 {
 	Ok = 0,
 	UserNotConnected = 1,
 	UserSwitchedScreen = 2,
-	UserClosedOverlay = 3
+	UserClosedOverlay = 3,
+	NoPlayerController = 4
 };
 
 UCLASS()

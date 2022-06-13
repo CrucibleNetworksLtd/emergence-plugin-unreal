@@ -75,4 +75,7 @@ public:
 
     UPROPERTY(BlueprintCallable, BlueprintAssignable)
     FOnItemSelected OnItemSelected;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
+    FString Address = "0xc33411F5dAE18253AB23068B700B5a0c9C44DA2C";
 };
