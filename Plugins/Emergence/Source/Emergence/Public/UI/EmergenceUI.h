@@ -63,4 +63,14 @@ public:
 	//Shows an error code for the given error
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ShowServerErrorMessage(const EErrorCode& ErrorCode);
+
+	//Closes the EmergenceUI.
+	UFUNCTION(BlueprintCallable)
+	void Close();
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClosed);
+
+	//Called when the UI is closed.
+	UPROPERTY(BlueprintAssignable)
+	FOnClosed Closed;
 };

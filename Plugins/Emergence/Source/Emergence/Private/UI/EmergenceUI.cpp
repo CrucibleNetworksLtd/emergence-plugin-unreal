@@ -58,3 +58,9 @@ bool UEmergenceUI::GetMostRecentLoadingMessage(FText& Message)
 		return true;
 	}
 }
+
+void UEmergenceUI::Close()
+{
+	this->RemoveFromParent();
+	this->Closed.Broadcast();
+}
