@@ -73,4 +73,8 @@ public:
 	//Called when the UI is closed.
 	UPROPERTY(BlueprintAssignable)
 	FOnClosed Closed;
+
+	//Called when the UI reaches the home screen.
+	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	FOnClosed OpeningFinished;
 };
