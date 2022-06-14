@@ -18,15 +18,15 @@ class EMERGENCE_API URequestToSign : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	/**
-	 * Validates an access token. Usually used server-side to authenticate players.
-	 * @param AccessToken The access token to authenticate.
+	 * Sends a request to sign a message to the user's WalletConnect'd wallet.
+	 * @param MessageToSign The message that they will be presented to sign.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
 	static URequestToSign* RequestToSign(const UObject* WorldContextObject, const FString& MessageToSign);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRequestToSignCompleted, FString, Response, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRequestToSignCompleted, FString, SignedMessage, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnRequestToSignCompleted OnRequestToSignCompleted;
