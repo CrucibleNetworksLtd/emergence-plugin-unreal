@@ -39,6 +39,37 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 	}
 
 	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
+
+	//Checking for GIFs
+	if (ResponceBytes.Num() > 0) { //if its not empty
+		if (ResponceBytes[0] == 0x47 && ResponceBytes[1] == 0x49 && ResponceBytes[2] == 0x46) { //this is a GIF
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Found a GIF after GetTextureFromURL, sending for conversion..."));
+			TArray<TPair<FString, FString>> Headers;
+			Headers.Add(TPair<FString, FString>("Content-Type", "multipart/form-data"));
+			Headers.Add(TPair<FString, FString>("accept", "*/*"));
+			FHttpRequestRef Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete, UHttpHelperLibrary::APIBase + "gifTojpeg", "POST", 60.0F, Headers, "", false);
+			//FArchive GifFile;
+			//GifFile << ResponceBytes;
+			//TSharedRef<FArchive, ESPMode::ThreadSafe> SharedGifFile = MakeShared<FArchive, ESPMode::ThreadSafe>(GifFile);
+			//bool success = Request->SetContentFromStream(SharedGifFile);
+			Request->SetContent(ResponceBytes);
+			
+			//if (success) {
+				//UE_LOG(LogEmergenceHttp, Display, TEXT("Added GIF to archive successfully..."));
+				Request->ProcessRequest();
+				return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
+			//}
+			//else {
+			//	UE_LOG(LogEmergenceHttp, Display, TEXT("Failed to add GIF to archive..."));
+			//	OnGetTextureFromUrlCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientFailed);
+			//	return;
+			//}
+		}
+		else {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Has the bytes: %x %x %x"), ResponceBytes[0], ResponceBytes[1], ResponceBytes[2]);
+		}
+	}
+
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
@@ -47,6 +78,27 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 	}
 	else {
 		OnGetTextureFromUrlCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientWrongType);
+	}
+}
+
+void UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	if (!bSucceeded) {
+		OnGetTextureFromUrlCompleted.Broadcast(nullptr, UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode()));
+		return;
+	}
+	UE_LOG(LogEmergenceHttp, Display, TEXT("Convert GIF to PNG returned, turning it into a texture..."));
+	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
+	UE_LOG(LogEmergenceHttp, Display, TEXT("Content as string: %s"), *HttpResponse->GetContentAsString());
+	UTexture2D* QRCodeTexture;
+	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Add(this->Url, QRCodeTexture);
+		return;
+	}
+	else {
+		OnGetTextureFromUrlCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientFailed); //if this happens, we have no idea whats going on
 	}
 }
 

@@ -16,8 +16,8 @@ class EMERGENCE_API UGetTextureFromUrl : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	//Takes a URL string and gets the PNG from it. Not tested with anything other than a PNG.
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG)", WorldContext = "WorldContextObject"), Category = "Emergence|Helpers")
+	//Takes a URL string and gets the PNG, JPEG or GIF from it. Will not work with anything other than PNGs, JPEGs or GIFs.
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG, JPEG or GIF)", WorldContext = "WorldContextObject"), Category = "Emergence|Helpers")
 	static UGetTextureFromUrl* TextureFromUrl(const FString& Url, const UObject* WorldContextObject, bool AllowCacheUsage = true) {
 		UGetTextureFromUrl* BlueprintNode = NewObject<UGetTextureFromUrl>(); //I don't know why, but every time I tried to put this in the cpp file it wouldn't link it properly and would fail to compile. If you think you can fix it, go ahead.
 		
@@ -37,6 +37,8 @@ public:
 
 private:
 	void GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void WaitOneFrame();
 
