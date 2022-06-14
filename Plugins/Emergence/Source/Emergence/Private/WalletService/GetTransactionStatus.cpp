@@ -1,0 +1,39 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
+
+#include "WalletService/GetTransactionStatus.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
+
+UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL)
+{
+	UGetTransactionStatus* BlueprintNode = NewObject<UGetTransactionStatus>();
+	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->TransactionHash = TransactionHash;
+	BlueprintNode->NodeURL = NodeURL;
+	return BlueprintNode;
+}
+
+void UGetTransactionStatus::Activate()
+{
+	UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
+		this, 
+		&UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete, 
+		UHttpHelperLibrary::APIBase + "GetTransactionStatus?transactionHash=" + TransactionHash + "&nodeURL=" + NodeURL);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus request started with JSON, calling GetTransactionStatus_HttpRequestComplete on request completed."));
+}
+
+void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	EErrorCode StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		OnGetTransactionStatusCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
+		return;
+	}
+	OnGetTransactionStatusCompleted.Broadcast(FString(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTransactionStatus", StatusCode);
+}
