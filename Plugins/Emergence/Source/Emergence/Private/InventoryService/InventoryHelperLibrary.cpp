@@ -69,6 +69,9 @@ FString UInventoryHelperLibrary::GetBestDisplayImage(TArray<FEmergenceInventoryI
         else if (Contents[i].mimeType == "image/jpeg") { //the other option
             BestFoundURL = Contents[i].url;
         }
+        else if (Contents[i].mimeType == "image/gif" && BestFoundURL == "") { //if we don't have a jpeg yet
+            BestFoundURL = Contents[i].url;
+        }
     }
     return BestFoundURL;
 }
