@@ -45,25 +45,28 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 		if (ResponceBytes[0] == 0x47 && ResponceBytes[1] == 0x49 && ResponceBytes[2] == 0x46) { //this is a GIF
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Found a GIF after GetTextureFromURL, sending for conversion..."));
 			TArray<TPair<FString, FString>> Headers;
-			Headers.Add(TPair<FString, FString>("Content-Type", "multipart/form-data"));
+			Headers.Add(TPair<FString, FString>("Content-Type", "multipart/form-data; boundary=EmergenceBoundary"));
 			Headers.Add(TPair<FString, FString>("accept", "*/*"));
 			FHttpRequestRef Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete, UHttpHelperLibrary::APIBase + "gifTojpeg", "POST", 60.0F, Headers, "", false);
-			//FArchive GifFile;
-			//GifFile << ResponceBytes;
-			//TSharedRef<FArchive, ESPMode::ThreadSafe> SharedGifFile = MakeShared<FArchive, ESPMode::ThreadSafe>(GifFile);
-			//bool success = Request->SetContentFromStream(SharedGifFile);
-			Request->SetContent(ResponceBytes);
 			
-			//if (success) {
-				//UE_LOG(LogEmergenceHttp, Display, TEXT("Added GIF to archive successfully..."));
-				Request->ProcessRequest();
-				return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
-			//}
-			//else {
-			//	UE_LOG(LogEmergenceHttp, Display, TEXT("Failed to add GIF to archive..."));
-			//	OnGetTextureFromUrlCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientFailed);
-			//	return;
-			//}
+			FString a = "\r\n--EmergenceBoundary\r\n";
+			FString b = "Content-Disposition: form-data; name=\"file\";  filename=\"gif.gif\"\r\n";
+
+			FString c = "Content-Type: image/gif\r\n\r\n";
+			//d = UpFileRawData
+			FString e = "\r\n--EmergenceBoundary--\r\n";
+
+
+			TArray<uint8> data;
+			data.Append((uint8*)TCHAR_TO_UTF8(*a), a.Len());
+			data.Append((uint8*)TCHAR_TO_UTF8(*b), b.Len());
+			data.Append((uint8*)TCHAR_TO_UTF8(*c), c.Len());
+			data.Append(ResponceBytes);
+			data.Append((uint8*)TCHAR_TO_UTF8(*e), e.Len());
+
+			Request->SetContent(data);
+			Request->ProcessRequest();
+			return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
 		}
 		else {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Has the bytes: %x %x %x"), ResponceBytes[0], ResponceBytes[1], ResponceBytes[2]);
