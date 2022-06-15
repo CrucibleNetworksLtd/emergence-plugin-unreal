@@ -24,17 +24,17 @@ struct FEmergenceInventoryFilterSetCategories
 
     GENERATED_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool Avatars = true;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool Avatars = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool Props = true;
+    bool Props = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool Clothing = true;
+    bool Clothing = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool Weapons = true;
+    bool Weapons = true;
 };
 
 USTRUCT(BlueprintType)
@@ -43,23 +43,15 @@ struct FEmergenceInventoryFilterSet
 
     GENERATED_BODY()
 
-        UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool UseSearch = false;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "UseSearch"))
-        FString Search;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool UseCategories = false;
+    FString Search = "";
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ShowInnerProperties, EditCondition = "UseCategories"))
-        FEmergenceInventoryFilterSetCategories Categories;
+    FEmergenceInventoryFilterSetCategories Categories;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool UseBlockchain = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "UseBlockchain"))
-        EEmergenceInventoryBlockchain Blockchain;
+    EEmergenceInventoryBlockchain Blockchain;
 
 };
 
