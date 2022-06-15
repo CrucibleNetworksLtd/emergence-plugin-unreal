@@ -30,10 +30,13 @@ void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpReques
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnGetTransactionStatusCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
+	if (StatusCode == EErrorCode::EmergenceOk) {	
+		FString TransactionAsJSONString;
+		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&TransactionAsJSONString);
+		FJsonSerializer::Serialize(JsonObject.GetObjectField("message")->GetObjectField("transaction").ToSharedRef(), Writer);
+		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(TransactionAsJSONString), EErrorCode::EmergenceOk);
 		return;
 	}
-	OnGetTransactionStatusCompleted.Broadcast(FString(), StatusCode);
+	OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), StatusCode);
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTransactionStatus", StatusCode);
 }

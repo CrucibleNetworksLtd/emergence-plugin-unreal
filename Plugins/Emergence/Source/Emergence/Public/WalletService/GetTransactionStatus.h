@@ -8,6 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
+#include "Transaction.h"
 #include "GetTransactionStatus.generated.h"
 
 UCLASS()
@@ -28,7 +29,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetTransactionStatusCompleted, FString, Response, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetTransactionStatusCompleted, FEmergenceTransaction, Transaction, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
