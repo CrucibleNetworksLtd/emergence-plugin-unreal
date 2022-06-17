@@ -20,12 +20,12 @@ void UOpenNFTPicker::Activate()
 	UEmergenceSingleton* Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 
 	if (!Emergence->HasCachedAddress()) { //if the user hasn't logged in through wallet connect yet...
-		this->OnSelectionCompleted.Broadcast(FEmergenceInventoryItem(), EEmergenceNFTPickerError::UserNotConnected);
+		this->OnSelectionCompleted.Broadcast(FEmergenceCombinedInventoryItem(), EEmergenceNFTPickerError::UserNotConnected);
 		return;
 	}
 
 	if (!OpeningPlayerController) {
-		this->OnSelectionCompleted.Broadcast(FEmergenceInventoryItem(), EEmergenceNFTPickerError::NoPlayerController);
+		this->OnSelectionCompleted.Broadcast(FEmergenceCombinedInventoryItem(), EEmergenceNFTPickerError::NoPlayerController);
 		return;
 	}
 
@@ -62,7 +62,7 @@ void UOpenNFTPicker::Activate()
 	OpeningPlayerController->SetInputMode(InputMode);
 }
 
-void UOpenNFTPicker::ItemSelectionCompleted(FEmergenceInventoryItem Item)
+void UOpenNFTPicker::ItemSelectionCompleted(FEmergenceCombinedInventoryItem Item)
 {
 	this->OnSelectionCompleted.Broadcast(Item, EEmergenceNFTPickerError::Ok);
 	InventoryScreen->OnItemSelected.RemoveDynamic(this, &UOpenNFTPicker::ItemSelectionCompleted);
@@ -73,7 +73,7 @@ void UOpenNFTPicker::ItemSelectionCompleted(FEmergenceInventoryItem Item)
 
 void UOpenNFTPicker::EmergenceOverlayScreenSwitched(UUserWidget* NewScreen)
 {
-	this->OnSelectionCompleted.Broadcast(FEmergenceInventoryItem(), EEmergenceNFTPickerError::UserSwitchedScreen);
+	this->OnSelectionCompleted.Broadcast(FEmergenceCombinedInventoryItem(), EEmergenceNFTPickerError::UserSwitchedScreen);
 	InventoryScreen->OnItemSelected.RemoveDynamic(this, &UOpenNFTPicker::ItemSelectionCompleted);
 	EmergenceUI->OnScreenSwitched.RemoveDynamic(this, &UOpenNFTPicker::EmergenceOverlayScreenSwitched);
 	EmergenceUI->Closed.RemoveDynamic(this, &UOpenNFTPicker::EmergenceOverlayClosed);
@@ -81,7 +81,7 @@ void UOpenNFTPicker::EmergenceOverlayScreenSwitched(UUserWidget* NewScreen)
 
 void UOpenNFTPicker::EmergenceOverlayClosed()
 {
-	this->OnSelectionCompleted.Broadcast(FEmergenceInventoryItem(), EEmergenceNFTPickerError::UserClosedOverlay);
+	this->OnSelectionCompleted.Broadcast(FEmergenceCombinedInventoryItem(), EEmergenceNFTPickerError::UserClosedOverlay);
 	InventoryScreen->OnItemSelected.RemoveDynamic(this, &UOpenNFTPicker::ItemSelectionCompleted);
 	EmergenceUI->OnScreenSwitched.RemoveDynamic(this, &UOpenNFTPicker::EmergenceOverlayScreenSwitched);
 	EmergenceUI->Closed.RemoveDynamic(this, &UOpenNFTPicker::EmergenceOverlayClosed);

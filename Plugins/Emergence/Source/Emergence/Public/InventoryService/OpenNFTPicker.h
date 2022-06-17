@@ -27,13 +27,13 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemSelected, FEmergenceInventoryItem, SelectedItem, EEmergenceNFTPickerError, SelectionError);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemSelected, FEmergenceCombinedInventoryItem, SelectedItem, EEmergenceNFTPickerError, SelectionError);
 
 	UPROPERTY(BlueprintAssignable)
     FOnItemSelected OnSelectionCompleted;
 
 	UFUNCTION()
-	void ItemSelectionCompleted(FEmergenceInventoryItem Item);
+	void ItemSelectionCompleted(FEmergenceCombinedInventoryItem Item);
 	
 	UFUNCTION()
 	void EmergenceOverlayScreenSwitched(UUserWidget* NewScreen);

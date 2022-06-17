@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/EmergenceScreen.h"
 #include "InventoryService/EmergenceInventoryServiceStructs.h"
+#include "InventoryService/InventoryHelperLibrary.h"
 #include "InventoryScreen.generated.h"
 
 UENUM(BlueprintType)
@@ -63,7 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FEmergenceInventoryFilterSet Filters;
 
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemSelected, FEmergenceInventoryItem, Item);
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemSelected, FEmergenceCombinedInventoryItem, Item);
 
     UPROPERTY(BlueprintCallable, BlueprintAssignable)
     FOnItemSelected OnItemSelected;
