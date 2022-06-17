@@ -20,7 +20,7 @@ void UInventoryByOwner::Activate()
 {
 	FString requestURL = UHttpHelperLibrary::InventoryService + "byOwner?address=" + Address + "&network=" + Network;
 	TArray<TPair<FString, FString>> Headers;
-	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
+	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::InventoryServiceHost});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UInventoryByOwner>(
 		this,
@@ -37,10 +37,8 @@ void UInventoryByOwner::InventoryByOwner_HttpRequestComplete(FHttpRequestPtr Htt
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	StatusCode = EErrorCode::EmergenceOk; //FORCE IT, ONLY FOR TESTING
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FEmergenceInventory ResponceStruct = FEmergenceInventory(*HttpResponse->GetContentAsString());
-		OnInventoryByOwnerCompleted.Broadcast(ResponceStruct, EErrorCode::EmergenceOk);
+		OnInventoryByOwnerCompleted.Broadcast(FEmergenceInventory(JsonObject.GetStringField("message")), EErrorCode::EmergenceOk);
 		return;
 	}
 
