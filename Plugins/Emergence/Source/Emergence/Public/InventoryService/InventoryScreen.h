@@ -61,7 +61,7 @@ class UInventoryScreen : public UEmergenceScreen
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FEmergenceInventoryFilterSet Filters;
 
     DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemSelected, FEmergenceCombinedInventoryItem, Item);
@@ -69,6 +69,10 @@ public:
     UPROPERTY(BlueprintCallable, BlueprintAssignable)
     FOnItemSelected OnItemSelected;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere, Meta = (ExposeOnSpawn = true))
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Meta = (ExposeOnSpawn = true))
     FString Address = "0xc33411F5dAE18253AB23068B700B5a0c9C44DA2C";
+
+    //Shows a message on the inventory to inform the user that the inventory they are view is not theirs
+    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Meta = (ExposeOnSpawn = true))
+    bool ShowExternalInventoryMessage = false;
 };

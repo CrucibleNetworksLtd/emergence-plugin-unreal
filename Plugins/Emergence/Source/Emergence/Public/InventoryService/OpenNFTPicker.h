@@ -22,8 +22,14 @@ class EMERGENCE_API UOpenNFTPicker : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Inventory Service")
-	static UOpenNFTPicker* OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters);
+	/**
+	 * Opens the Emergence overlay to the users inventory and applies the given filters. The player must be signed into the Emergence overlay already to make use of this.
+	 * @param PlayerController The player controller to show the UI to. Should usually be the local player.
+	 * @param Filters The filters to apply when the inventory opens.
+	 * @param OverrideAddress This allows for the inventory to be opened to show the inventory of another user. Leave blank to show the currently logged-in user's inventory.
+	 */
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AdvancedDisplay = "OverrideAddress"), Category = "Emergence|Emergence Requests|Inventory Service")
+	static UOpenNFTPicker* OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress = "");
 
 	virtual void Activate() override;
 
@@ -54,6 +60,6 @@ private:
 	int PreviousGameInputMode;
 	UInventoryScreen* InventoryScreen;
 	UEmergenceUI* EmergenceUI;
-
+	FString OverrideAddress;
 	const UObject* WorldContextObject;
 };

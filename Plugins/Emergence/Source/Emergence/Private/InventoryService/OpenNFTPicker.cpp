@@ -6,11 +6,12 @@
 #include "InventoryService/InventoryScreen.h"
 #include "Blueprint/UserWidget.h"
 
-UOpenNFTPicker* UOpenNFTPicker::OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters)
+UOpenNFTPicker* UOpenNFTPicker::OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress)
 {
 	UOpenNFTPicker* BlueprintNode = NewObject<UOpenNFTPicker>();
 	BlueprintNode->Filters = Filters;
 	BlueprintNode->OpeningPlayerController = PlayerController;
+	BlueprintNode->OverrideAddress = OverrideAddress;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -110,9 +111,11 @@ void UOpenNFTPicker::EmergenceOverlayReady()
 	check(InventoryScreenClass);
 	InventoryScreen = CreateWidget<UInventoryScreen>(OpeningPlayerController->GetWorld(), InventoryScreenClass);
 	InventoryScreen->Filters = this->Filters;
-	InventoryScreen->Address = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress();
+	
+	InventoryScreen->Address = this->OverrideAddress == "" ? UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress() : this->OverrideAddress;
+	InventoryScreen->ShowExternalInventoryMessage = this->OverrideAddress != "";
+	
 	InventoryScreen->OnItemSelected.AddDynamic(this, &UOpenNFTPicker::ItemSelectionCompleted);
-
 
 	EmergenceUI->SwitchCurrentScreen(InventoryScreen);
 	EmergenceUI->OnScreenSwitched.AddDynamic(this, &UOpenNFTPicker::EmergenceOverlayScreenSwitched);
