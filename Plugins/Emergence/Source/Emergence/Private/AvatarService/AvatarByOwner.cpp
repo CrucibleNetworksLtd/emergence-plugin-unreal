@@ -19,7 +19,7 @@ void UAvatarByOwner::Activate()
 {
 	FString requestURL = UHttpHelperLibrary::AvatarService + "byOwner?address=" + Address;
 	TArray<TPair<FString, FString>> Headers;
-	//Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
+	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::AvatarServiceHost});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UAvatarByOwner>(
 		this,
