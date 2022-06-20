@@ -22,18 +22,21 @@ UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(const UObject
 void UWriteDynamicMetadata::Activate()
 {
 	FString Endpoint = OnlyUpdate ? "updateMetadata" : "putMetadata";
-	FString requestURL = UHttpHelperLibrary::InventoryService + Endpoint + "?network=" + Network + "&contract=" + Contract + "&tokenId=" + TokenID + "&metadata=" + Metadata;
+	FString Method = OnlyUpdate ? "POST" : "PUT";
+	FString requestURL = UHttpHelperLibrary::InventoryService + Endpoint + "?network=" + Network + "&contract=" + Contract + "&tokenId=" + TokenID;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization-header", AuthorizationHeader});
 	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::InventoryServiceHost});
+	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteDynamicMetadata>(
 		this,
 		&UWriteDynamicMetadata::WriteDynamicMetadata_HttpRequestComplete,
 		requestURL,
-		"POST",
+		Method,
 		60.0F,
-		Headers
+		Headers, 
+		"{\"metadata\": \"" + Metadata + "\"}"
 		);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteDynamicMetadata request started, calling WriteDynamicMetadata_HttpRequestComplete on request completed"));
 }
