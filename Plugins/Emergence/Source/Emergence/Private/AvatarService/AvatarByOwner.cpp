@@ -36,10 +36,10 @@ void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpReque
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	StatusCode = EErrorCode::EmergenceOk; //FORCE IT, ONLY FOR TESTING
+
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TArray<FEmergenceAvatarResult> Results;
-		FJsonObjectConverter::JsonArrayStringToUStruct<FEmergenceAvatarResult>(HttpResponse->GetContentAsString(), &Results, 0, 0);
+		FJsonObjectConverter::JsonArrayToUStruct<FEmergenceAvatarResult>(JsonObject.GetArrayField("message"), &Results, 0, 0);
 		OnAvatarByOwnerCompleted.Broadcast(Results, EErrorCode::EmergenceOk);
 		return;
 	}

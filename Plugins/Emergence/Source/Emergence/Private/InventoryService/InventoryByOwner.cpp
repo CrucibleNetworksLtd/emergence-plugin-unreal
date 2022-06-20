@@ -37,8 +37,14 @@ void UInventoryByOwner::InventoryByOwner_HttpRequestComplete(FHttpRequestPtr Htt
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnInventoryByOwnerCompleted.Broadcast(FEmergenceInventory(JsonObject.GetStringField("message")), EErrorCode::EmergenceOk);
+		FEmergenceInventory Inventory;
+		FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInventory>(
+			JsonObject.GetObjectField("message").ToSharedRef(),
+			&Inventory,
+			0, 0);
+		OnInventoryByOwnerCompleted.Broadcast(Inventory, EErrorCode::EmergenceOk);
 		return;
 	}
 
