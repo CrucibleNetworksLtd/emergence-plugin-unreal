@@ -1,0 +1,52 @@
+// Copyright Crucible Networks Ltd 2022. All Rights Reserved.
+
+
+#include "InventoryService/WriteDynamicMetadata.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
+
+UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(const UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata, const bool OnlyUpdate)
+{
+	UWriteDynamicMetadata* BlueprintNode = NewObject<UWriteDynamicMetadata>();
+	BlueprintNode->AuthorizationHeader = AuthorizationHeader;
+	BlueprintNode->Network = Network;
+	BlueprintNode->TokenID = TokenID;
+	BlueprintNode->Metadata = Metadata;
+	BlueprintNode->OnlyUpdate = OnlyUpdate;
+	BlueprintNode->WorldContextObject = WorldContextObject;
+	return BlueprintNode;
+}
+
+void UWriteDynamicMetadata::Activate()
+{
+	FString Endpoint = OnlyUpdate ? "updateMetadata" : "putMetadata";
+	FString requestURL = UHttpHelperLibrary::InventoryService + Endpoint + "?network=" + Network + "&contract=" + Contract + "&tokenId=" + TokenID + "&metadata=" + Metadata;
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Authorization-header", AuthorizationHeader});
+	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::InventoryServiceHost});
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UWriteDynamicMetadata>(
+		this,
+		&UWriteDynamicMetadata::WriteDynamicMetadata_HttpRequestComplete,
+		requestURL,
+		"POST",
+		60.0F,
+		Headers
+		);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteDynamicMetadata request started, calling WriteDynamicMetadata_HttpRequestComplete on request completed"));
+}
+
+void UWriteDynamicMetadata::WriteDynamicMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	EErrorCode StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		OnWriteDynamicMetadataCompleted.Broadcast(JsonObject.GetStringField("message"), EErrorCode::EmergenceOk);
+		return;
+	}
+
+	OnWriteDynamicMetadataCompleted.Broadcast(FString(), StatusCode);
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteDynamicMetadata", StatusCode);
+}
