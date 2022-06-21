@@ -71,9 +71,13 @@ struct FEmergenceTransaction
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   FString LogsBloom;
 
+  //The amount of confirmations (chain's current block number - this transaction's block number).
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  int Confirmations;
+
   FEmergenceTransaction() {};
 
-  FEmergenceTransaction( FString _To, int _Type, FString _Logs, bool _Status, FString _ContractAddress, FString _EffectiveGasPrice, FString _GasUsed, FString _CumulativeGasUsed, FString _Root, FString _From, FString _BlockNumber, FString _BlockHash, FString _TransactionIndex, FString _TransactionHash, FString _LogsBloom ){
+  FEmergenceTransaction( FString _To, int _Type, FString _Logs, bool _Status, FString _ContractAddress, FString _EffectiveGasPrice, FString _GasUsed, FString _CumulativeGasUsed, FString _Root, FString _From, FString _BlockNumber, FString _BlockHash, FString _TransactionIndex, FString _TransactionHash, FString _LogsBloom, int _Confirmations){
 
     To = _To;
     Type = _Type;
@@ -90,7 +94,7 @@ struct FEmergenceTransaction
     TransactionIndex = _TransactionIndex;
     TransactionHash = _TransactionHash;
     LogsBloom = _LogsBloom;
-  
+    Confirmations = _Confirmations;
   }
   
   FEmergenceTransaction(FString _json_){
@@ -116,6 +120,7 @@ struct FEmergenceTransaction
     TransactionIndex = _tmpEmergenceTransaction.TransactionIndex;
     TransactionHash = _tmpEmergenceTransaction.TransactionHash;
     LogsBloom = _tmpEmergenceTransaction.LogsBloom;
+    Confirmations = _tmpEmergenceTransaction.Confirmations;
   }
   
 };
