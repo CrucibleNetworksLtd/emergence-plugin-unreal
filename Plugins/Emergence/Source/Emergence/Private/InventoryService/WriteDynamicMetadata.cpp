@@ -7,14 +7,14 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(const UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata, const bool OnlyUpdate)
+UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(const UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata/*, const bool OnlyUpdate*/)
 {
 	UWriteDynamicMetadata* BlueprintNode = NewObject<UWriteDynamicMetadata>();
 	BlueprintNode->AuthorizationHeader = AuthorizationHeader;
 	BlueprintNode->Network = Network;
 	BlueprintNode->TokenID = TokenID;
 	BlueprintNode->Metadata = Metadata;
-	BlueprintNode->OnlyUpdate = OnlyUpdate;
+	BlueprintNode->OnlyUpdate = false/*OnlyUpdate*/;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }

@@ -27,7 +27,7 @@ public:
 	 * @param OnlyUpdate Should we only try to update existing metadata, or write new metadata if it doesn't exist.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Inventory Service")
-	static UWriteDynamicMetadata* WriteDynamicMetadata(const UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata, const bool OnlyUpdate = false);
+	static UWriteDynamicMetadata* WriteDynamicMetadata(const UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata/*, const bool OnlyUpdate = false*/);
 
 	virtual void Activate() override;
 
