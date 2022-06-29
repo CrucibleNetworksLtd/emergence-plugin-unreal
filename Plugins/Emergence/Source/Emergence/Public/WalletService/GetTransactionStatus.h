@@ -17,12 +17,9 @@ class EMERGENCE_API UGetTransactionStatus : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	/**
-	 * Calls a "read" method on the given contract.
-	 * @param ContractAddress Address of the contract.
-	 * @param MethodName The method to call.
-	 * @param Content The parameters to call the method with.
-	 * @param LocalAccountName The local account to call the method with. Leave blank to call with the WalletConnect'd wallet.
-	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
+	 * Gets the status of the transaction.
+	 * @param TransactionHash Hash of the transaction.
+	 * @param NodeURL NodeURL of the blockchain we're checking the transaction on.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
 	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL);
