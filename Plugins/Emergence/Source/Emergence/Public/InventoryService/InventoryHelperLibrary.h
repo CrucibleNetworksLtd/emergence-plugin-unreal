@@ -31,6 +31,7 @@ class UInventoryHelperLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable)
 	static TArray<FEmergenceCombinedInventoryItem> OrganiseInventoryItems(TArray<FEmergenceInventoryItem> InventoryItems, TArray< FEmergenceAvatarResult> Avatars);
 
+	//Given an EmergenceInventoryItemsMetaContent array, find the best image's URL. PNGs are best, then JPEGs, then GIFs. If nothing is found, returns an empty string.
 	UFUNCTION(BlueprintPure)
 	static FString GetBestDisplayImage(TArray<FEmergenceInventoryItemsMetaContent> Contents);
 
