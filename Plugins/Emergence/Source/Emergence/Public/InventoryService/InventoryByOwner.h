@@ -17,8 +17,13 @@ class EMERGENCE_API UInventoryByOwner : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Gets the inventory (owned tokens) from a given address.
+	 * @param Address Address to get the inventory from.
+	 * @param Network Comma seperated list of networks to get the inventory from. To get from all available, enter "ETHEREUM,POLYGON,FLOW,TEZOS,SOLANA,IMMUTABLEX".
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Inventory Service")
-	static UInventoryByOwner* InventoryByOwner(const UObject* WorldContextObject, const FString& Address, const FString& Network);
+	static UInventoryByOwner* InventoryByOwner(const UObject* WorldContextObject, const FString& Address, const FString& Network = "ETHEREUM,POLYGON,FLOW,TEZOS,SOLANA,IMMUTABLEX");
 
 	virtual void Activate() override;
 
