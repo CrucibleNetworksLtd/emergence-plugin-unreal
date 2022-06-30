@@ -18,7 +18,7 @@ class EMERGENCE_API UDeletePersonaByID : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Persona Methods")
 	static UDeletePersonaByID* DeletePersonaByID(const UObject* WorldContextObject, const FString& PersonaID);
 
 	virtual void Activate() override;

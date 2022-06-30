@@ -19,7 +19,7 @@ public:
 	 * Used for getting ERC721 images, such as avatars.
 	 * @param ImageMetadataURI Usually the output of a ReadMethod call.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get ERC721 Image from URI", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|ERC721 Helpers")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get ERC721 Image from URI", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Interface Helpers")
 	static UGetAvatar* GetAvatar(const UObject* WorldContextObject, FString ImageMetadataURI);
 
 	virtual void Activate() override;

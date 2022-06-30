@@ -18,7 +18,7 @@ class EMERGENCE_API UGetUserUnlockedAvatars : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Persona Server")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Persona Methods")
 	static UGetUserUnlockedAvatars* GetUserUnlockedAvatars(const UObject* WorldContextObject);
 
 	virtual void Activate() override;

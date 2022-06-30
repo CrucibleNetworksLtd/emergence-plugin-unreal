@@ -29,11 +29,11 @@ public:
 	UEmergenceSingleton();
 
 	/** Get the global Emergence service */
-	UFUNCTION(BlueprintPure, Category = "Emergence|EmergenceSingleton", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
+	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
-	UFUNCTION(BlueprintCallable, Category = "Emergence|EmergenceSingleton", meta = (WorldContext = "ContextObject"))
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods", meta = (WorldContext = "ContextObject"))
 	static UEmergenceSingleton* ForceInitialize(const UObject* ContextObject);
 
 	void Init();
@@ -121,7 +121,7 @@ public:
 	FString GetCachedAddress();
 
 	//GetWalletConnectURI stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void GetWalletConnectURI();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, EErrorCode, StatusCode);
@@ -139,7 +139,7 @@ public:
 
 
 	//GetQRCode stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void GetQRCode();
 
 	bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
@@ -152,7 +152,7 @@ public:
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
 
 	//Handshake stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void GetHandshake();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, EErrorCode, StatusCode);
@@ -161,7 +161,7 @@ public:
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
 	//ReinitializeWalletConnect stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void ReinitializeWalletConnect();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, EErrorCode, StatusCode);
@@ -170,7 +170,7 @@ public:
 	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
 	//isConnected stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void IsConnected();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, EErrorCode, StatusCode);
@@ -179,7 +179,7 @@ public:
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
 
 	//killSession stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Requests")
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void KillSession();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);

@@ -16,7 +16,7 @@ class EMERGENCE_API UGetTokenURIData : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Inventory Service")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Interface Helpers")
 	static UGetTokenURIData* GetTokenURIData(const UObject* WorldContextObject, const FString& TokenURI);
 
 	virtual void Activate() override;
