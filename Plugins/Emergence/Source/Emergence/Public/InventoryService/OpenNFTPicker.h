@@ -28,7 +28,7 @@ public:
 	 * @param Filters The filters to apply when the inventory opens.
 	 * @param OverrideAddress This allows for the inventory to be opened to show the inventory of another user. Leave blank to show the currently logged-in user's inventory.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AdvancedDisplay = "OverrideAddress"), Category = "Emergence|Emergence Requests|Inventory Service")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AdvancedDisplay = "OverrideAddress"), Category = "Emergence|Inventory Service")
 	static UOpenNFTPicker* OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress = "");
 
 	virtual void Activate() override;

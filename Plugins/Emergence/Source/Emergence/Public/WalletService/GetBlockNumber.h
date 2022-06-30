@@ -20,7 +20,7 @@ public:
 	 * Gets the current block number of given chain.
 	 * @param nodeURL nodeURL of the chain.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UGetBlockNumber* GetBlockNumber(const UObject* WorldContextObject, FString NodeURL);
 
 	virtual void Activate() override;

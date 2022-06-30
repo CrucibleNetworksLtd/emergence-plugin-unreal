@@ -28,17 +28,17 @@ class UInventoryHelperLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Emergence Internal|Interface Helpers")
 	static TArray<FEmergenceCombinedInventoryItem> OrganiseInventoryItems(TArray<FEmergenceInventoryItem> InventoryItems, TArray< FEmergenceAvatarResult> Avatars);
 
 	//Given an EmergenceInventoryItemsMetaContent array, find the best image's URL. PNGs are best, then JPEGs, then GIFs. If nothing is found, returns an empty string.
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Emergence|Inventory Service")
 	static FString GetBestDisplayImage(TArray<FEmergenceInventoryItemsMetaContent> Contents);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Interface Helpers")
 	static FString GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents);
 
 	//Gets a set of categories, given a correctly formatted DynamicMetadata.
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Emergence|Inventory Service")
 	static TSet<FString> GetDynamicMetadataCategories(FString DynamicMetadata);
 };

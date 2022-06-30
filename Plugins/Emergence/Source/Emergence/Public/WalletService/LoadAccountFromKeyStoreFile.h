@@ -26,7 +26,7 @@ public:
 	 * @param NodeURL URL of the provider.
 	 * @param ChainID The Chain ID, which must be compatible with the given NodeURL.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Keystore Local Wallet")
 	static ULoadAccountFromKeyStoreFile* LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString& Name, const FString& Password, const FString& Path, const FString& NodeURL = "https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134", const FString& ChainID = "137");
 
 	virtual void Activate() override;

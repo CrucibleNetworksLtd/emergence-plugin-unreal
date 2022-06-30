@@ -23,7 +23,7 @@ public:
 	 * @param SignedMessage The signed message that we want to check.
 	 * @param Address The address that signed the message.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Signed Message Validation")
 	static UValidateSignedMessage* ValidateSignedMessage(const UObject* WorldContextObject, const FString& Message, const FString& SignedMessage, const FString& Address);
 
 	virtual void Activate() override;

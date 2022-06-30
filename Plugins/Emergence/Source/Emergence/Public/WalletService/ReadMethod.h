@@ -23,7 +23,7 @@ public:
 	 * @param LocalAccountName The local account to call the method with. Leave blank to call with the WalletConnect'd wallet.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName);
 
 	virtual void Activate() override;

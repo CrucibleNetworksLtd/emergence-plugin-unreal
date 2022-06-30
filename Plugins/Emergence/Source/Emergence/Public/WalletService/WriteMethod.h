@@ -25,7 +25,7 @@ public:
 	 * @param GasPrice The gas price to use if we're calling with a local account.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
-	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
+	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice);
 
 	virtual void Activate() override;

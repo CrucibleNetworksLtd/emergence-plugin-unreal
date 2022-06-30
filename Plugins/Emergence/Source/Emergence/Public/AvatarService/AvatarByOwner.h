@@ -70,7 +70,7 @@ public:
 	 * Gets the all the avatars of a given address from the Avatar System.
 	 * @param Address Address to get the avatars of.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Emergence Requests|Avatar Service")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Avatar Service")
 	static UAvatarByOwner* AvatarByOwner(const UObject* WorldContextObject, const FString& Address);
 
 	virtual void Activate() override;

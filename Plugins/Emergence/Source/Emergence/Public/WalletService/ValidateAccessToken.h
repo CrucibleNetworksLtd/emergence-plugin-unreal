@@ -21,7 +21,7 @@ public:
 	 * Validates an access token. Usually used server-side to authenticate players.
 	 * @param AccessToken The access token to authenticate.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Signed Message Validation")
 	static UValidateAccessToken* ValidateAccessToken(const UObject* WorldContextObject, const FString& AccessToken);
 
 	virtual void Activate() override;

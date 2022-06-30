@@ -21,7 +21,7 @@ public:
 	 * Sends a request to sign a message to the user's WalletConnect'd wallet.
 	 * @param MessageToSign The message that they will be presented to sign.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|WalletConnect Requests")
 	static URequestToSign* RequestToSign(const UObject* WorldContextObject, const FString& MessageToSign);
 
 	virtual void Activate() override;
