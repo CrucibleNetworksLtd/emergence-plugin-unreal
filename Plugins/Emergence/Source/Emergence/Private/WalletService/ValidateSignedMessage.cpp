@@ -19,7 +19,12 @@ UValidateSignedMessage* UValidateSignedMessage::ValidateSignedMessage(const UObj
 
 void UValidateSignedMessage::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UValidateSignedMessage>(this, &UValidateSignedMessage::ValidateSignedMessage_HttpRequestComplete, UHttpHelperLibrary::APIBase + "validate-signed-message" + "?message=" + Message + "&signedMessage=" + SignedMessage + "&address=" + Address);
+	FString Content = "{\"message\": \"" + Message + "\", \"signedMessage\": \"" + SignedMessage + "\", \"address\": \"" + Address + "\"}";
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Content);
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
+	Headers.Add(TPair<FString, FString>("accept", "text/plain"));
+	UHttpHelperLibrary::ExecuteHttpRequest<UValidateSignedMessage>(this, &UValidateSignedMessage::ValidateSignedMessage_HttpRequestComplete, UHttpHelperLibrary::APIBase + "validate-signed-message" + "?signedMessage=" + SignedMessage + "&address=" + Address, "POST", 60.0F, Headers, Content);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("ValidateSignedMessage request started, calling ValidateSignedMessage_HttpRequestComplete on request completed"));
 }
 

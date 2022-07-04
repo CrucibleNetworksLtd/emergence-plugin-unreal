@@ -17,7 +17,12 @@ URequestToSign* URequestToSign::RequestToSign(const UObject* WorldContextObject,
 
 void URequestToSign::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<URequestToSign>(this, &URequestToSign::RequestToSign_HttpRequestComplete, UHttpHelperLibrary::APIBase + "request-to-sign" + "?messageToSign=" + MessageToSign);
+	FString Content = "{\"message\": \"" + MessageToSign + "\"}";
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *Content);
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
+	Headers.Add(TPair<FString, FString>("accept", "text/plain"));
+	UHttpHelperLibrary::ExecuteHttpRequest<URequestToSign>(this, &URequestToSign::RequestToSign_HttpRequestComplete, UHttpHelperLibrary::APIBase + "request-to-sign", "POST", 60.0F, Headers, Content);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("RequestToSign request started, calling RequestToSign_HttpRequestComplete on request completed"));
 }
 
@@ -25,7 +30,7 @@ void URequestToSign::RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpReque
 {	
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-
+	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 	bool isValidToken = false;
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString Message = "";
