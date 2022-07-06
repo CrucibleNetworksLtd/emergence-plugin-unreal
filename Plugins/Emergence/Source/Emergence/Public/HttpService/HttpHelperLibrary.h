@@ -30,6 +30,9 @@ public:
 	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
 	{
 		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
+
+		checkf(!URL.IsEmpty(), TEXT("Tried to ExecuteHttpRequest but URL was empty"));
+
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 		if (FunctionBindFunction && FunctionBindObject) {
 			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
