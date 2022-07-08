@@ -6,15 +6,16 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "Chain.h"
 
-UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName)
+UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
 	BlueprintNode->MethodName = MethodName;
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->LocalAccountName = LocalAccountName;
+	BlueprintNode->CustomNodeURL = CustomNodeURL;
 	return BlueprintNode;
 }
 
@@ -33,10 +34,14 @@ void UReadMethod::Activate()
 	}
 	ContentString.Append("]");
 
+	if (CustomNodeURL.IsEmpty()) {
+		CustomNodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+	}
+
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + (LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : ""),
+		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&nodeUrl=" + CustomNodeURL,
 		"POST",
 		60.0F,
 		Headers,
