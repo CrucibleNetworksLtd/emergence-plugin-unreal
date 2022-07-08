@@ -56,7 +56,10 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("ReadMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnReadMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("response"), EErrorCode::EmergenceOk);
+		TSharedPtr<FJsonObject> JsonInternalObject;
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonObject.GetObjectField("message")->GetStringField("response"));
+		FJsonSerializer::Deserialize(Reader, JsonInternalObject);
+		OnReadMethodCompleted.Broadcast(JsonInternalObject->GetStringField(""), EErrorCode::EmergenceOk);
 		return;
 	}
 	OnReadMethodCompleted.Broadcast(FString(), StatusCode);
