@@ -140,16 +140,19 @@ struct FEmergencePersona
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FEmergenceAvatar avatar;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString avatarId;
+
 	FEmergencePersona() {};
 
-	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _avatar){
+	FEmergencePersona( FString _id, FString _name, FString _bio, FEmergencePersonaSettings _settings, FEmergenceAvatar _avatar, FString _avatarId){
 
 		id = _id;
 		name = _name;
 		bio = _bio;
 		settings = _settings;
 		avatar = _avatar;
-	
+		avatarId = _avatarId;
 	}
 	
 	FEmergencePersona(FString _json_){
@@ -165,6 +168,7 @@ struct FEmergencePersona
 		bio = _tmpEmergencePersona.bio;
 		settings = _tmpEmergencePersona.settings;
 		avatar = _tmpEmergencePersona.avatar;
+		avatarId = _tmpEmergencePersona.avatarId;
 	}
 	
 };
