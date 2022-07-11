@@ -31,13 +31,17 @@ public:
 	{
 		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
 
-		checkf(!URL.IsEmpty(), TEXT("Tried to ExecuteHttpRequest but URL was empty"));
-
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 		if (FunctionBindFunction && FunctionBindObject) {
 			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
 		}
-		
+
+		if (URL.IsEmpty()) {
+			UE_LOG(LogEmergenceHttp, Warning, TEXT("Tried to ExecuteHttpRequest but URL was empty"));
+			HttpRequest->CancelRequest();
+			return HttpRequest;
+		}
+
 		FString FinalURL;
 
 		//switch IPFS to our public node...
