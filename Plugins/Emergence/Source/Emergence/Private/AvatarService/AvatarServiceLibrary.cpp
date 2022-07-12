@@ -2,7 +2,7 @@
 
 
 #include "AvatarService/AvatarServiceLibrary.h"
-
+#include "Kismet/KismetStringLibrary.h"
 
 bool UAvatarServiceLibrary::GetEmergencePreferredNodeURL(FString Blockchain, FString &URL) {
 	const TMap<FString, FString> BlockchainToURL = {
@@ -17,4 +17,24 @@ bool UAvatarServiceLibrary::GetEmergencePreferredNodeURL(FString Blockchain, FSt
 	else {
 		return false;
 	}
+}
+
+FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString)
+{
+	TArray<FString> AvatarStringParts = UKismetStringLibrary::ParseIntoArray(AvatarString, ":", true);
+	for (int i = 0; i < Avatars.Num(); i++) {
+		for (int j = 0; j < Avatars[i].Avatars.Num(); j++) {
+			if (Avatars[i].chain == AvatarStringParts[0] &&
+				Avatars[i].contractAddress == AvatarStringParts[1] &&
+				Avatars[i].tokenId == AvatarStringParts[2] &&
+				Avatars[i].Avatars[j].GUID == AvatarStringParts[3])
+			{
+				FEmergenceAvatarData ReturnValue;
+				ReturnValue.AvatarNFT = Avatars[i];
+				ReturnValue.Avatar = Avatars[i].Avatars[j];
+				return ReturnValue;
+			}
+	}
+	}
+	return FEmergenceAvatarData();
 }
