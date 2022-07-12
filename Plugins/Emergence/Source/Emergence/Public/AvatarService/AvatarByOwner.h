@@ -9,6 +9,7 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "Interfaces/IHttpRequest.h"
+#include "InventoryService/EmergenceInventoryServiceStructs.h"
 #include "AvatarByOwner.generated.h"
 
 USTRUCT(BlueprintType)
@@ -86,9 +87,12 @@ struct FEmergenceAvatarResult
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   FString chain;
 
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  FEmergenceInventoryItemMeta meta;
+
   FEmergenceAvatarResult() {};
 
-  FEmergenceAvatarResult( FString _avatarId, FString _contractAddress, FString _tokenId, FString _tokenURI, int32 _lastUpdated, FString _chain){
+  FEmergenceAvatarResult( FString _avatarId, FString _contractAddress, FString _tokenId, FString _tokenURI, int32 _lastUpdated, FString _chain, FEmergenceInventoryItemMeta _meta){
 
     avatarId = _avatarId;
     contractAddress = _contractAddress;
@@ -96,6 +100,7 @@ struct FEmergenceAvatarResult
 	FJsonObjectConverter::JsonArrayStringToUStruct<FEmergenceAvatarMetadata>(_tokenURI, &this->Avatars, 0, 0);
     lastUpdated = _lastUpdated;
 	chain = _chain;
+	meta = _meta;
   }
   
   FEmergenceAvatarResult(FString _json_){
@@ -108,6 +113,7 @@ struct FEmergenceAvatarResult
     tokenId = _tmpEmergenceAvatarsResult.tokenId;
     lastUpdated = _tmpEmergenceAvatarsResult.lastUpdated;
 	chain = _tmpEmergenceAvatarsResult.chain;
+	meta = _tmpEmergenceAvatarsResult.meta;
 
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(_json_);
