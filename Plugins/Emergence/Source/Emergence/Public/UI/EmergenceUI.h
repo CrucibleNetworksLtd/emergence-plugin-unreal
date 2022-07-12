@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/NamedSlot.h"
 #include "ErrorCodeFunctionLibrary.h"
+#include "AvatarService/AvatarByOwner.h"
 #include "EmergenceUI.generated.h"
 
 UENUM(BlueprintType)
@@ -77,4 +78,15 @@ public:
 	//Called when the UI reaches the home screen.
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnClosed OpeningFinished;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FEmergenceAvatarResult> OwnedAvatarNFTCache;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool OwnedAvatarNFTCached;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOwnedAvatarNFTCacheUpdated);
+
+	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	FOnOwnedAvatarNFTCacheUpdated OnOwnedAvatarNFTCacheUpdated;
 };
