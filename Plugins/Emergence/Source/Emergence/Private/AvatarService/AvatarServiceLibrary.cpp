@@ -21,7 +21,16 @@ bool UAvatarServiceLibrary::GetEmergencePreferredNodeURL(FString Blockchain, FSt
 
 FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString)
 {
+	if (AvatarString.IsEmpty() || Avatars.Num() == 0) { //if the data was empty
+		return FEmergenceAvatarData();
+	}
+
 	TArray<FString> AvatarStringParts = UKismetStringLibrary::ParseIntoArray(AvatarString, ":", true);
+
+	if (AvatarStringParts.Num() < 4) { //if there wasn't enough data (formatted wrong)
+		return FEmergenceAvatarData();
+	}
+
 	for (int i = 0; i < Avatars.Num(); i++) {
 		for (int j = 0; j < Avatars[i].Avatars.Num(); j++) {
 			if (Avatars[i].chain == AvatarStringParts[0] &&
@@ -34,7 +43,8 @@ FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergen
 				ReturnValue.Avatar = Avatars[i].Avatars[j];
 				return ReturnValue;
 			}
+		}
 	}
-	}
-	return FEmergenceAvatarData();
+
+	return FEmergenceAvatarData(); //if we didn't find it
 }
