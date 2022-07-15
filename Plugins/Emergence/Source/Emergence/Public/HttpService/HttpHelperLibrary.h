@@ -26,6 +26,34 @@ public:
 	inline static const FString AvatarService = TEXT("https://dysaw5zhak.us-east-1.awsapprunner.com/AvatarSystem/");
 	inline static const FString AvatarServiceHost = TEXT("dysaw5zhak.us-east-1.awsapprunner.com");
 
+	inline static FString InternalIPFSURLToHTTP(FString IPFSURL) {
+		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://"))) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Found IPFS URL, replacing with public node..."));
+
+			FString IPFSNode = TEXT("https://ipfs.io/ipfs/");
+			FString CustomIPFSNode = "";
+			if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("IPFSNode"), CustomIPFSNode, GGameIni))
+			{
+				if (CustomIPFSNode != "") {
+					UE_LOG(LogEmergenceHttp, Display, TEXT("Found custom IPFS node in game config, replacing with \"%s\""), *CustomIPFSNode);
+					IPFSNode = CustomIPFSNode;
+				}
+			}
+			FString NewURL = IPFSURL.Replace(TEXT("ipfs://"), *IPFSNode);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("New URL is \"%s\""), *NewURL);
+			return NewURL;
+		}
+		else {
+			return IPFSURL;
+		}
+	}
+
+	//Takes an IPFS URL and changes it to be a IPFS gateway link.
+	UFUNCTION(BlueprintPure)
+	static FString IPFSURLToHTTP(FString IPFSURL) {
+		return UHttpHelperLibrary::InternalIPFSURLToHTTP(IPFSURL);
+	}
+
 	template<typename T>
 	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
 	{
@@ -45,24 +73,7 @@ public:
 		FString FinalURL;
 
 		//switch IPFS to our public node...
-		if (URL.Contains(TEXT("ipfs://"))) {
-			UE_LOG(LogEmergenceHttp, Display, TEXT("ExecuteHttpRequest found IPFS, replacing with public node..."));
-
-			FString IPFSNode = TEXT("https://ipfs.io/ipfs/");
-			FString CustomIPFSNode = "";
-			if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("IPFSNode"), CustomIPFSNode, GGameIni))
-			{
-				if (CustomIPFSNode != "") {
-					UE_LOG(LogEmergenceHttp, Display, TEXT("Found custom IPFS node in game config, replacing with \"%s\""), *CustomIPFSNode);
-					IPFSNode = CustomIPFSNode;
-				}
-			}
-
-			FinalURL = URL.Replace(TEXT("ipfs://"), *IPFSNode);
-		}
-		else {
-			FinalURL = URL;
-		}
+		FinalURL = UHttpHelperLibrary::InternalIPFSURLToHTTP(URL);
 
 		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);
