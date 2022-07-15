@@ -89,4 +89,7 @@ public:
 
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnOwnedAvatarNFTCacheUpdated OnOwnedAvatarNFTCacheUpdated;
+
+	UFUNCTION(BlueprintPure)
+	bool GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar);
 };
