@@ -14,7 +14,8 @@ public class EmergenceUEExample : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"HeadMountedDisplay",
-			"Emergence"
+			"Emergence",
+			"glTFRuntime"
 		});
 	}
 }
