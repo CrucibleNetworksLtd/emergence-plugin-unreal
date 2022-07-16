@@ -1729,7 +1729,7 @@ bool FglTFRuntimeParser::TraverseJoints(FReferenceSkeletonModifier& Modifier, in
 		if (!TraverseJoints(Modifier, NewParentIndex, ChildNode, Joints, BoneMap, InverseBindMatricesMap, SkeletonConfig))
 			return false;
 	}
-
+	UE_LOG(LogTemp, Display, TEXT("Sucessfully traversed bone %s in glTFRuntimeParser"), *BoneName.ToString());
 	return true;
 }
 
