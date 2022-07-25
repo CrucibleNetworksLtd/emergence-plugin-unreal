@@ -49,7 +49,7 @@ public:
 	}
 
 	//Takes an IPFS URL and changes it to be a IPFS gateway link.
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Emergence|Helpers")
 	static FString IPFSURLToHTTP(FString IPFSURL) {
 		return UHttpHelperLibrary::InternalIPFSURLToHTTP(IPFSURL);
 	}
