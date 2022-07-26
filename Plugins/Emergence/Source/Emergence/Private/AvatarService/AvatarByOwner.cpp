@@ -39,6 +39,11 @@ void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpReque
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FJsonObjectConverter::JsonArrayToUStruct<FEmergenceAvatarResult>(JsonObject.GetArrayField("message"), &this->Results, 0, 0);
 		
+		if (JsonObject.GetArrayField("message").Num() == 0) {
+			OnAvatarByOwnerCompleted.Broadcast(TArray<FEmergenceAvatarResult>(), StatusCode);
+			return;
+		}
+
 		for (int i = 0; i < JsonObject.GetArrayField("message").Num(); i++) {
 			FString TokenURI = JsonObject.GetArrayField("message")[i].Get()->AsObject().Get()->GetStringField("tokenURI");
 			auto Request = UHttpHelperLibrary::ExecuteHttpRequest<UAvatarByOwner>(this, &UAvatarByOwner::GetMetadata_HttpRequestComplete, TokenURI);
