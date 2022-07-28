@@ -137,7 +137,7 @@ struct FEmergencePersona
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FEmergencePersonaSettings settings;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(DisplayName="(Deprecated) Avatar", DeprecationMessage="Use AvatarId, learn how in the docs.", DeprecatedProperty), AdvancedDisplay)
 	FEmergenceAvatar avatar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
