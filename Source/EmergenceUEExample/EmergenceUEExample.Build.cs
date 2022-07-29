@@ -13,8 +13,7 @@ public class EmergenceUEExample : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore", 
-			"HeadMountedDisplay",
-			"Emergence"
+			"HeadMountedDisplay"
 		});
 	}
 }

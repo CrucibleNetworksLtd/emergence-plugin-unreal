@@ -1,6 +1,5 @@
 ﻿# coding: utf-8
 from asyncio.windows_events import NULL
-from platform import java_ver
 import unreal
 
 import argparse
@@ -37,7 +36,7 @@ r_con = rig.get_controller()
 graph = r_con.get_graph()
 node = graph.get_nodes()
 
-def checkAndSwapPinBoneToContorl(pin):
+def checkAndSwapPin(pin):
     subpins = pin.get_sub_pins()
     #print(subpins)
     if (len(subpins) != 2):
@@ -89,9 +88,9 @@ for n in node:
                     controlPin = pin
                 continue
             for item in pin.get_sub_pins():
-                checkAndSwapPinBoneToContorl(item)
+                checkAndSwapPin(item)
         else:
-            checkAndSwapPinBoneToContorl(pin)
+            checkAndSwapPin(pin)
 
 
 for e in hierarchy.get_controls():
@@ -342,24 +341,15 @@ def boneOverride(pin):
     if (typePin==None):
         return
 
-    if (namePin==None):
-        return
-
     controlName = namePin.get_default_value()
-
-    if (controlName==''):
-        return
-
     if (controlName.endswith('_ctrl')):
         return
     if (controlName.endswith('_space')):
         return
 
     r_con.set_pin_default_value(typePin.get_pin_path(), 'Bone')
-
     table = [i for i in swapBoneTable if i[0]==controlName]
     if (len(table) == 0):
-        # use node  or  no control
         return
 
     if (table[0][0] == 'root'):
@@ -487,60 +477,3 @@ for e in swapBoneTable:
         # for bone name space
         namePin = bonePin.get_sub_pins()[-1].find_sub_pin('Name')
         r_con.set_pin_default_value(namePin.get_pin_path(), "{}".format(humanoidBoneToModel[e[1]]))
-
-
-# skip invalid bone, controller
-
-# disable node
-def disableNode(toNoneNode):
-    print(toNoneNode)
-    print("gfgf")
-    pins = toNoneNode.get_pins()
-    for pin in pins:
-        typePin = pin.find_sub_pin('Type')
-        namePin = pin.find_sub_pin('Name')
-
-        if (typePin==None or namePin==None):
-            continue
-        print(f'DisablePin {typePin.get_default_value()} : {namePin.get_default_value()}')
-
-        # control
-        key = unreal.RigElementKey(unreal.RigElementType.CONTROL, "{}".format(namePin.get_default_value()))
-
-        # disable node
-        r_con.set_pin_default_value(namePin.get_pin_path(), 'None')
-
-        if (typePin.get_default_value() == 'Control'):
-
-            #disable control
-            if (hierarchy.contains(key) == True):
-                settings = h_con.get_control_settings(key)
-                settings.set_editor_property('shape_enabled',  False)
-                h_con.set_control_settings(key, settings)
-
-
-for n in node:
-    pins = n.get_pins()
-    for pin in pins:
-        if (pin.is_array()):
-            continue
-        else:
-            typePin = pin.find_sub_pin('Type')
-            namePin = pin.find_sub_pin('Name')
-            if (typePin==None or namePin==None):
-                continue
-            if (typePin.get_default_value() != 'Bone'):
-                continue
-            
-            if (namePin.is_u_object() == True):
-                continue
-
-            if (len(n.get_linked_source_nodes()) > 0):
-                continue
-
-            key = unreal.RigElementKey(unreal.RigElementType.BONE, namePin.get_default_value())
-            if (hierarchy.contains(key) == True):
-                continue
-            print(f'disable linked node from {typePin.get_default_value()} : {namePin.get_default_value()}')
-            for toNoneNode in n.get_linked_target_nodes():
-                disableNode(toNoneNode)

@@ -5,7 +5,5 @@
 
 void UVRMSupportLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject* InVrmAsset, UVrmAssetListObject*& OutVrmAsset, TArray<uint8> Data, const FImportOptionData& OptionForRuntimeLoad) {
 	VRMConverter::Options::Get().SetVrmOption(&OptionForRuntimeLoad);
-	
-	bool success = ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(InVrmAsset, OutVrmAsset, "C:\\thing.vrm", Data.GetData(), Data.Num());
-	UE_LOG(LogTemp, Warning, TEXT("Was a success: %s"), success ? "True" : "False");
+	ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(InVrmAsset, OutVrmAsset, TEXT("C:\\thing.vrm"), Data.GetData(), Data.Num());
 }
