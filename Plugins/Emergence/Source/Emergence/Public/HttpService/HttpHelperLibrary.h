@@ -26,20 +26,9 @@ public:
 	inline static const FString AvatarService = TEXT("https://dysaw5zhak.us-east-1.awsapprunner.com/AvatarSystem/");
 	inline static const FString AvatarServiceHost = TEXT("dysaw5zhak.us-east-1.awsapprunner.com");
 
-	template<typename T>
-	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
-	{
-		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
-		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
-		if (FunctionBindFunction && FunctionBindObject) {
-			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
-		}
-		
-		FString FinalURL;
-
-		//switch IPFS to our public node...
-		if (URL.Contains(TEXT("ipfs://"))) {
-			UE_LOG(LogEmergenceHttp, Display, TEXT("ExecuteHttpRequest found IPFS, replacing with public node..."));
+	inline static FString InternalIPFSURLToHTTP(FString IPFSURL) {
+		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://"))) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Found IPFS URL, replacing with public node..."));
 
 			FString IPFSNode = TEXT("https://ipfs.io/ipfs/");
 			FString CustomIPFSNode = "";
@@ -50,12 +39,41 @@ public:
 					IPFSNode = CustomIPFSNode;
 				}
 			}
-
-			FinalURL = URL.Replace(TEXT("ipfs://"), *IPFSNode);
+			FString NewURL = IPFSURL.Replace(TEXT("ipfs://"), *IPFSNode);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("New URL is \"%s\""), *NewURL);
+			return NewURL;
 		}
 		else {
-			FinalURL = URL;
+			return IPFSURL;
 		}
+	}
+
+	//Takes an IPFS URL and changes it to be a IPFS gateway link.
+	UFUNCTION(BlueprintPure, Category = "Emergence|Helpers")
+	static FString IPFSURLToHTTP(FString IPFSURL) {
+		return UHttpHelperLibrary::InternalIPFSURLToHTTP(IPFSURL);
+	}
+
+	template<typename T>
+	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
+	{
+		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
+
+		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+		if (FunctionBindFunction && FunctionBindObject) {
+			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
+		}
+
+		if (URL.IsEmpty()) {
+			UE_LOG(LogEmergenceHttp, Warning, TEXT("Tried to ExecuteHttpRequest but URL was empty"));
+			HttpRequest->CancelRequest();
+			return HttpRequest;
+		}
+
+		FString FinalURL;
+
+		//switch IPFS to our public node...
+		FinalURL = UHttpHelperLibrary::InternalIPFSURLToHTTP(URL);
 
 		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);

@@ -2,7 +2,6 @@
 
 
 #include "AvatarService/AvatarByOwner.h"
-#include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
@@ -38,12 +37,39 @@ void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpReque
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		TArray<FEmergenceAvatarResult> Results;
-		FJsonObjectConverter::JsonArrayToUStruct<FEmergenceAvatarResult>(JsonObject.GetArrayField("message"), &Results, 0, 0);
-		OnAvatarByOwnerCompleted.Broadcast(Results, EErrorCode::EmergenceOk);
+		FJsonObjectConverter::JsonArrayToUStruct<FEmergenceAvatarResult>(JsonObject.GetArrayField("message"), &this->Results, 0, 0);
+		
+		if (JsonObject.GetArrayField("message").Num() == 0) {
+			OnAvatarByOwnerCompleted.Broadcast(TArray<FEmergenceAvatarResult>(), StatusCode);
+			return;
+		}
+
+		for (int i = 0; i < JsonObject.GetArrayField("message").Num(); i++) {
+			FString TokenURI = JsonObject.GetArrayField("message")[i].Get()->AsObject().Get()->GetStringField("tokenURI");
+			auto Request = UHttpHelperLibrary::ExecuteHttpRequest<UAvatarByOwner>(this, &UAvatarByOwner::GetMetadata_HttpRequestComplete, TokenURI);
+			Requests.Add(TPair<FHttpRequestRef, FEmergenceAvatarResult>(Request, Results[i]));
+		}
 		return;
 	}
 
 	OnAvatarByOwnerCompleted.Broadcast(TArray<FEmergenceAvatarResult>(), StatusCode);
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("AvatarByOwner", StatusCode);
+}
+
+void UAvatarByOwner::GetMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	auto ThisRequest = Requests.FindByPredicate([HttpRequest](TPair<FHttpRequestRef, FEmergenceAvatarResult> Request) {
+		return Request.Key.Get().GetURL() == HttpRequest.Get()->GetURL();
+	});
+
+	FJsonObjectConverter::JsonArrayStringToUStruct<FEmergenceAvatarMetadata>(*HttpResponse->GetContentAsString(), &ThisRequest->Value.Avatars, 0, 0);
+	this->Results.Add(ThisRequest->Value);
+
+
+	for (int i = 0; i < Requests.Num(); i++) {
+		if (Requests[i].Key.Get().GetStatus() == EHttpRequestStatus::Processing) {
+			return;
+		}
+	}
+	OnAvatarByOwnerCompleted.Broadcast(this->Results, EErrorCode::EmergenceOk);
 }

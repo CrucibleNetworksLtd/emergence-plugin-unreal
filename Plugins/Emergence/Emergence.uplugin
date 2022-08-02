@@ -24,11 +24,6 @@
 			"Name": "EmergenceEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "EmergenceToolbar",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
 		}
 	]
 }

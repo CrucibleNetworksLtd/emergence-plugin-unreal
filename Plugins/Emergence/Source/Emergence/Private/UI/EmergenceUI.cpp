@@ -2,6 +2,7 @@
 
 
 #include "UI/EmergenceUI.h"
+#include "EmergenceSingleton.h"
 
 void UEmergenceUI::SetUserHasLoggedInBefore(bool HasLoggedInBefore)
 {
@@ -63,4 +64,19 @@ void UEmergenceUI::Close()
 {
 	this->RemoveFromParent();
 	this->Closed.Broadcast();
+}
+
+bool UEmergenceUI::GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar)
+{
+	for (int i = 0; i < OwnedAvatarNFTCache.Num(); i++) {
+		FEmergenceAvatarMetadata* AvatarMetadata = OwnedAvatarNFTCache[i].Avatars.FindByPredicate([&](FEmergenceAvatarMetadata Avatar) {
+			return Avatar.GUID == GUID;
+		});
+		if (AvatarMetadata) {
+			FoundAvatar = *AvatarMetadata;
+			return true;
+		}
+	}
+	
+	return false;
 }
