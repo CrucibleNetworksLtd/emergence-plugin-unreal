@@ -30,7 +30,7 @@ public:
 		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://"))) {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Found IPFS URL, replacing with public node..."));
 
-			FString IPFSNode = TEXT("https://ipfs.io/ipfs/");
+			FString IPFSNode = TEXT("http://ipfs.openmeta.xyz/ipfs/");
 			FString CustomIPFSNode = "";
 			if (GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("IPFSNode"), CustomIPFSNode, GGameIni))
 			{
