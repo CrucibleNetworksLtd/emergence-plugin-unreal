@@ -19,15 +19,17 @@ bool UAvatarServiceLibrary::GetEmergencePreferredNodeURL(FString Blockchain, FSt
 	}
 }
 
-FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString)
+FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString, bool& FoundAvatar)
 {
 	if (AvatarString.IsEmpty() || Avatars.Num() == 0) { //if the data was empty
+		FoundAvatar = false;
 		return FEmergenceAvatarData();
 	}
 
 	TArray<FString> AvatarStringParts = UKismetStringLibrary::ParseIntoArray(AvatarString, ":", true);
 
 	if (AvatarStringParts.Num() < 4) { //if there wasn't enough data (formatted wrong)
+		FoundAvatar = false;
 		return FEmergenceAvatarData();
 	}
 
@@ -41,10 +43,11 @@ FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergen
 				FEmergenceAvatarData ReturnValue;
 				ReturnValue.AvatarNFT = Avatars[i];
 				ReturnValue.Avatar = Avatars[i].Avatars[j];
+				FoundAvatar = true;
 				return ReturnValue;
 			}
 		}
 	}
-
+	FoundAvatar = false;
 	return FEmergenceAvatarData(); //if we didn't find it
 }

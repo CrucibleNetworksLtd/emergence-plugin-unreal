@@ -20,9 +20,9 @@ void UGetDataFromUrl::GetDataFromUrl_HttpRequestComplete(FHttpRequestPtr HttpReq
 {
 	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
-		OnGetDataFromUrlCompleted.Broadcast(TArray<uint8>(), ResponseCode);
+		OnGetDataFromUrlCompleted.Broadcast(TArray<uint8>(), ResponseCode, false);
 		return;
 	}
 	
-	OnGetDataFromUrlCompleted.Broadcast(HttpResponse->GetContent(), ResponseCode);
+	OnGetDataFromUrlCompleted.Broadcast(HttpResponse->GetContent(), ResponseCode, true);
 }
