@@ -25,7 +25,7 @@ void USetActivePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<USetActivePersona>(
 		this, 
 		&USetActivePersona::SetActivePersona_HttpRequestComplete,
-		UHttpHelperLibrary::DatabaseAPIPrivate + "setActivePersona/" + this->PersonaID,
+		UHttpHelperLibrary::GetPersonaAPIURL() + "setActivePersona/" + this->PersonaID,
 		"PATCH",
 		60.0F,
 		Headers);

@@ -16,9 +16,9 @@ UAvatarByOwner* UAvatarByOwner::AvatarByOwner(const UObject* WorldContextObject,
 
 void UAvatarByOwner::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::AvatarService + "byOwner?address=" + Address;
+	FString requestURL = UHttpHelperLibrary::GetAvatarServiceAPIURL() + "byOwner?address=" + Address;
 	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::AvatarServiceHost});
+	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::GetAvatarServiceHostURL()});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UAvatarByOwner>(
 		this,

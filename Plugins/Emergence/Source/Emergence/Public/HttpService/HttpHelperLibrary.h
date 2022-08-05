@@ -19,12 +19,85 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 public:
 	inline static FString APIBase;
 
-	inline static const FString DatabaseAPIPublic = TEXT("https://pfy3t4mqjb.execute-api.us-east-1.amazonaws.com/staging/");
-	inline static const FString DatabaseAPIPrivate = TEXT("https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/");
-	inline static const FString InventoryService = TEXT("https://dysaw5zhak.us-east-1.awsapprunner.com/InventoryService/");
-	inline static const FString InventoryServiceHost = TEXT("dysaw5zhak.us-east-1.awsapprunner.com");
-	inline static const FString AvatarService = TEXT("https://dysaw5zhak.us-east-1.awsapprunner.com/AvatarSystem/");
-	inline static const FString AvatarServiceHost = TEXT("dysaw5zhak.us-east-1.awsapprunner.com");
+	inline static FString GetInventoryServiceAPIURL() {
+		return "https://" + GetInventoryServiceHostURL() + "/InventoryService/";
+	}
+
+	inline static FString GetAvatarServiceAPIURL() {		
+		return "https://" + GetAvatarServiceHostURL() + "/AvatarSystem/";
+	}
+
+	inline static FString GetPersonaAPIURL() {
+
+#if UE_BUILD_SHIPPING
+		FString DevelopmentEnvironmentString = "Production";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("DevelopmentEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#else
+		FString DevelopmentEnvironmentString = "Staging";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShippingEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#endif
+
+		bool IsDevelopmentMode = false;
+		GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("EnableDevelopmentEnvironment"), IsDevelopmentMode, GGameIni);
+
+		if (IsDevelopmentMode) {
+			return "https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/";
+		}
+
+		if (DevelopmentEnvironmentString == "Production") {
+			return "https://i30mnhu5vg.execute-api.us-east-1.amazonaws.com/prod/";
+		}
+
+		return "https://x8iq9e5fq1.execute-api.us-east-1.amazonaws.com/staging/";
+	}
+
+	inline static FString GetInventoryServiceHostURL() {
+
+#if UE_BUILD_SHIPPING
+		FString DevelopmentEnvironmentString = "Production";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("DevelopmentEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#else
+		FString DevelopmentEnvironmentString = "Staging";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShippingEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#endif
+
+		bool IsDevelopmentMode = false;
+		GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("EnableDevelopmentEnvironment"), IsDevelopmentMode, GGameIni);
+
+		if (IsDevelopmentMode) {
+			return "dysaw5zhak.us-east-1.awsapprunner.com"; //@hack, this is the staging URL because currently there is no dev url. This needs updating
+		}
+
+		if (DevelopmentEnvironmentString == "Production") {
+			return "7vz9y7rdpy.us-east-1.awsapprunner.com";
+		}
+
+		return "dysaw5zhak.us-east-1.awsapprunner.com";
+	}
+
+	inline static FString GetAvatarServiceHostURL() {
+
+#if UE_BUILD_SHIPPING
+		FString DevelopmentEnvironmentString = "Production";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("DevelopmentEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#else
+		FString DevelopmentEnvironmentString = "Staging";
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShippingEnvironment"), DevelopmentEnvironmentString, GGameIni);
+#endif
+
+		bool IsDevelopmentMode = false;
+		GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("EnableDevelopmentEnvironment"), IsDevelopmentMode, GGameIni);
+
+		if (IsDevelopmentMode) {
+			return "dysaw5zhak.us-east-1.awsapprunner.com"; //@hack, this is the staging URL because currently there is no dev url. This needs updating
+		}
+
+		if (DevelopmentEnvironmentString == "Production") {
+			return "7vz9y7rdpy.us-east-1.awsapprunner.com";
+		}
+
+		return "dysaw5zhak.us-east-1.awsapprunner.com";
+	}
 
 	inline static FString InternalIPFSURLToHTTP(FString IPFSURL) {
 		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://"))) {

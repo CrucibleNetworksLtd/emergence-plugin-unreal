@@ -24,7 +24,7 @@ void UUpdatePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UUpdatePersona>(
 		this,
 		&UUpdatePersona::UpdatePersona_HttpRequestComplete,
-		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
+		UHttpHelperLibrary::GetPersonaAPIURL() + "persona",
 		"PATCH",
 		60.0F,
 		Headers,

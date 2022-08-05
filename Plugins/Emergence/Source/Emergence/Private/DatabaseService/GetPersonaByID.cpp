@@ -17,7 +17,7 @@ UGetPersonaByID* UGetPersonaByID::GetPersonaByID(const UObject* WorldContextObje
 
 void UGetPersonaByID::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::DatabaseAPIPrivate + "persona/" + PersonaID;
+	FString requestURL = UHttpHelperLibrary::GetPersonaAPIURL() + "persona/" + PersonaID;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 

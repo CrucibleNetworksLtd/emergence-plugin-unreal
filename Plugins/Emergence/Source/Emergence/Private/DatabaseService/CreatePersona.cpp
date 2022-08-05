@@ -28,7 +28,7 @@ void UCreatePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreatePersona>(
 		this, 
 		&UCreatePersona::CreatePersona_HttpRequestComplete, 
-		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
+		UHttpHelperLibrary::GetPersonaAPIURL() + "persona",
 		"POST",
 		60.0F,
 		Headers,

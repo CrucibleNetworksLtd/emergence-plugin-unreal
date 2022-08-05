@@ -23,10 +23,10 @@ void UWriteDynamicMetadata::Activate()
 {
 	FString Endpoint = OnlyUpdate ? "updateMetadata" : "putMetadata";
 	FString Method = OnlyUpdate ? "POST" : "PUT";
-	FString requestURL = UHttpHelperLibrary::InventoryService + Endpoint + "?network=" + Network + "&contract=" + Contract + "&tokenId=" + TokenID;
+	FString requestURL = UHttpHelperLibrary::GetInventoryServiceAPIURL() + Endpoint + "?network=" + Network + "&contract=" + Contract + "&tokenId=" + TokenID;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization-header", AuthorizationHeader});
-	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::InventoryServiceHost});
+	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::GetInventoryServiceHostURL()});
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteDynamicMetadata>(

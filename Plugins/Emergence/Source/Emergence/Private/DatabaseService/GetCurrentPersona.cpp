@@ -21,7 +21,7 @@ void UGetCurrentPersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetCurrentPersona>(
 		this, 
 		&UGetCurrentPersona::GetCurrentPersona_HttpRequestComplete, 
-		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
+		UHttpHelperLibrary::GetPersonaAPIURL() + "persona",
 		"GET",
 		60.0F,
 		Headers

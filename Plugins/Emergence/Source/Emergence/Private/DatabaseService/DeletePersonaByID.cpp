@@ -17,7 +17,7 @@ UDeletePersonaByID* UDeletePersonaByID::DeletePersonaByID(const UObject* WorldCo
 
 void UDeletePersonaByID::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::DatabaseAPIPrivate + "persona/" + PersonaID;
+	FString requestURL = UHttpHelperLibrary::GetPersonaAPIURL() + "persona/" + PersonaID;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 	UHttpHelperLibrary::ExecuteHttpRequest<UDeletePersonaByID>(
