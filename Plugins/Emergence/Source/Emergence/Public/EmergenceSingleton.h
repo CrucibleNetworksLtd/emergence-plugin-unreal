@@ -54,6 +54,26 @@ public:
 	UPROPERTY()
 	TMap<FString, UTexture2D*> DownloadedImageCache;
 
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	void SetOwnedAvatarNFTCache(TArray<FEmergenceAvatarResult> Results);
+
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	void FlushOwnedAvatarNFTCache();
+
+	UFUNCTION(BlueprintPure)
+	bool GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar);
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FEmergenceAvatarResult> OwnedAvatarNFTCache;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOwnedAvatarNFTCacheUpdated);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnOwnedAvatarNFTCacheUpdated OnOwnedAvatarNFTCacheUpdated;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool OwnedAvatarNFTCached = false;
+
 	//HTTPService Functions
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetAccessTokenRequest, GetHandshakeRequest;

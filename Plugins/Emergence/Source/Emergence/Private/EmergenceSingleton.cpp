@@ -71,6 +71,19 @@ void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCur
 	OnCachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
 }
 
+void UEmergenceSingleton::SetOwnedAvatarNFTCache(TArray<FEmergenceAvatarResult> Results)
+{
+	this->OwnedAvatarNFTCache = Results;
+	this->OwnedAvatarNFTCached = true;
+	this->OnOwnedAvatarNFTCacheUpdated.Broadcast();
+}
+
+void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
+{
+	this->OwnedAvatarNFTCache.Empty();
+	this->OwnedAvatarNFTCached = false;
+}
+
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::Denied) {
@@ -378,4 +391,19 @@ void UEmergenceSingleton::GetAccessToken()
 {
 	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling GetAccessToken_HttpRequestComplete on request completed"));
+}
+
+bool UEmergenceSingleton::GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar)
+{
+	for (int i = 0; i < OwnedAvatarNFTCache.Num(); i++) {
+		FEmergenceAvatarMetadata* AvatarMetadata = OwnedAvatarNFTCache[i].Avatars.FindByPredicate([&](FEmergenceAvatarMetadata Avatar) {
+			return Avatar.GUID == GUID;
+			});
+		if (AvatarMetadata) {
+			FoundAvatar = *AvatarMetadata;
+			return true;
+		}
+	}
+
+	return false;
 }

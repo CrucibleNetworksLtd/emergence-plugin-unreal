@@ -78,18 +78,4 @@ public:
 	//Called when the UI reaches the home screen.
 	UPROPERTY(BlueprintCallable, BlueprintAssignable)
 	FOnClosed OpeningFinished;
-
-	UPROPERTY(BlueprintReadWrite)
-	TArray<FEmergenceAvatarResult> OwnedAvatarNFTCache;
-
-	UPROPERTY(BlueprintReadWrite)
-	bool OwnedAvatarNFTCached;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOwnedAvatarNFTCacheUpdated);
-
-	UPROPERTY(BlueprintCallable, BlueprintAssignable)
-	FOnOwnedAvatarNFTCacheUpdated OnOwnedAvatarNFTCacheUpdated;
-
-	UFUNCTION(BlueprintPure)
-	bool GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar);
 };
