@@ -199,9 +199,6 @@ struct FEmergenceInventoryItem
         FString blockchain;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString collection;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
         FString contract;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -233,11 +230,10 @@ struct FEmergenceInventoryItem
 
     FEmergenceInventoryItem() {};
 
-    FEmergenceInventoryItem(FString _id, FString _blockchain, FString _collection, FString _contract, FString _tokenId, TArray<FEmergenceInventoryItemCreator> _creators, FString _lazySupply, FString _mintedAt, FString _lastUpdatedAt, FString _supply, FEmergenceInventoryItemMeta _meta, bool _deleted, FString _totalStock) {
+    FEmergenceInventoryItem(FString _id, FString _blockchain, FString _contract, FString _tokenId, TArray<FEmergenceInventoryItemCreator> _creators, FString _lazySupply, FString _mintedAt, FString _lastUpdatedAt, FString _supply, FEmergenceInventoryItemMeta _meta, bool _deleted, FString _totalStock) {
 
         id = _id;
         blockchain = _blockchain;
-        collection = _collection;
         contract = _contract;
         tokenId = _tokenId;
         creators = _creators;
@@ -261,7 +257,6 @@ struct FEmergenceInventoryItem
 
         id = _tmpEmergenceInventoryItem.id;
         blockchain = _tmpEmergenceInventoryItem.blockchain;
-        collection = _tmpEmergenceInventoryItem.collection;
         contract = _tmpEmergenceInventoryItem.contract;
         tokenId = _tmpEmergenceInventoryItem.tokenId;
         creators = _tmpEmergenceInventoryItem.creators;
