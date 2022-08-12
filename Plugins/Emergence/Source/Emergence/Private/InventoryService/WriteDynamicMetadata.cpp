@@ -12,9 +12,10 @@ UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(const UObject
 	UWriteDynamicMetadata* BlueprintNode = NewObject<UWriteDynamicMetadata>();
 	BlueprintNode->AuthorizationHeader = AuthorizationHeader;
 	BlueprintNode->Network = Network;
+	BlueprintNode->Contract = Contract;
 	BlueprintNode->TokenID = TokenID;
 	BlueprintNode->Metadata = Metadata;
-	BlueprintNode->OnlyUpdate = false/*OnlyUpdate*/;
+	BlueprintNode->OnlyUpdate = true/*OnlyUpdate*/;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
