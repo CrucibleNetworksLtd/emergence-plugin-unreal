@@ -21,7 +21,7 @@ TArray<FEmergenceCombinedInventoryItem> UInventoryHelperLibrary::OrganiseInvento
 
        //Find the first (and hopefully only) avatar that matches the contract address of the current Inventory Item
        FEmergenceAvatarResult* MatchingAvatar = Avatars.FindByPredicate([&](FEmergenceAvatarResult Avatar) {
-           return (Avatar.chain.ToUpper() + ":" + Avatar.contractAddress) == InventoryItems[i].contract;
+           return (Avatar.chain.ToUpper() + ":" + Avatar.contractAddress) == (InventoryItems[i].blockchain.ToUpper() + ":" + InventoryItems[i].contract);
        });
 
        if (MatchingAvatar) { //if we found one
