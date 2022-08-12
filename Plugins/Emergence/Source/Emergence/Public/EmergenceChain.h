@@ -3,7 +3,7 @@
 #pragma once
 #include "Engine/EngineTypes.h"
 #include "Emergence.h"
-#include "Chain.generated.h"
+#include "EmergenceChain.generated.h"
 
 UENUM(BlueprintType)
 enum class EEmergenceChain : uint8

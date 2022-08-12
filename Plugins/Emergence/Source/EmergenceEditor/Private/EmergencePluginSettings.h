@@ -2,7 +2,7 @@
 
 #pragma once
 #include "Engine/EngineTypes.h"
-#include "Chain.h"
+#include "EmergenceChain.h"
 #include "Environment.h"
 #include "EmergencePluginSettings.generated.h"
 

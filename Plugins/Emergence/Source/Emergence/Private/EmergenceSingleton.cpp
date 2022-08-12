@@ -19,7 +19,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 
-#include "Chain.h"
+#include "EmergenceChain.h"
 
 UEmergenceSingleton::UEmergenceSingleton() {
 }

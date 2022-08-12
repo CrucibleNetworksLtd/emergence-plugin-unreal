@@ -6,7 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "Chain.h"
+#include "EmergenceChain.h"
 
 UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL)
 {

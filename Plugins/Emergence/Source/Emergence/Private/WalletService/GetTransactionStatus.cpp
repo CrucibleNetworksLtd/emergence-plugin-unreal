@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "EmergenceChain.h"
 
 UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL)
 {

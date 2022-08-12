@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "EmergenceChain.h"
 
 UGetBlockNumber* UGetBlockNumber::GetBlockNumber(const UObject* WorldContextObject, FString NodeURL)
 {

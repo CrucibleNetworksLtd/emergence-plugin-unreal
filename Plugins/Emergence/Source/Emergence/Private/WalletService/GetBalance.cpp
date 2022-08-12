@@ -6,7 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "Chain.h"
+#include "EmergenceChain.h"
 
 UGetBalance* UGetBalance::GetBalance(const UObject* WorldContextObject, FString Address)
 {
