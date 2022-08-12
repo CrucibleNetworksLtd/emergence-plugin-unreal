@@ -18,6 +18,9 @@ UGetBlockNumber* UGetBlockNumber::GetBlockNumber(const UObject* WorldContextObje
 
 void UGetBlockNumber::Activate()
 {
+	if (NodeURL.IsEmpty()) {
+		NodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+	}
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
 		this, 
 		&UGetBlockNumber::GetBlockNumber_HttpRequestComplete, 

@@ -19,6 +19,9 @@ UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject
 
 void UGetTransactionStatus::Activate()
 {
+	if (NodeURL.IsEmpty()) {
+		NodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+	}
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
 		this, 
 		&UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete, 

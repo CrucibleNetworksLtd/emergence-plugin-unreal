@@ -18,7 +18,7 @@ class EMERGENCE_API UGetBlockNumber : public UBlueprintAsyncActionBase
 public:
 	/**
 	 * Gets the current block number of given chain.
-	 * @param nodeURL nodeURL of the chain.
+	 * @param nodeURL nodeURL of the chain. Leave blank for nodeURL from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UGetBlockNumber* GetBlockNumber(const UObject* WorldContextObject, FString NodeURL);

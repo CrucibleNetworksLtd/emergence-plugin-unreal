@@ -19,7 +19,7 @@ public:
 	/**
 	 * Gets the status of the transaction.
 	 * @param TransactionHash Hash of the transaction.
-	 * @param NodeURL NodeURL of the blockchain we're checking the transaction on.
+	 * @param NodeURL NodeURL of the blockchain we're checking the transaction on. Leave blank for nodeURL from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL);
