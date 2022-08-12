@@ -68,9 +68,6 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 			Request->ProcessRequest();
 			return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
 		}
-		else {
-			UE_LOG(LogEmergenceHttp, Display, TEXT("Has the bytes: %x %x %x"), ResponceBytes[0], ResponceBytes[1], ResponceBytes[2]);
-		}
 	}
 
 	UTexture2D* QRCodeTexture;
