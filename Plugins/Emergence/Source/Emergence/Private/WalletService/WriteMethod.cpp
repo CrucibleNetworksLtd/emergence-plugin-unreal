@@ -45,7 +45,7 @@ void UWriteMethod::Activate()
 		&UWriteMethod::WriteMethod_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
 		"POST",
-		60.0F,
+		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
 		ContentString);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started on method %s with value %s, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "), *MethodName, *Value);
