@@ -7,14 +7,14 @@
 	"Category": "Metaverse",
 	"CreatedBy": "Crucible",
 	"CreatedByURL": "https://crucible.network/",
-	"DocsURL": "",
+	"DocsURL": "https://docs.openmetadao.com/",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://discord.gg/openmeta",
+	"EnabledByDefault": false,
 	"CanContainContent": false,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
 	"Installed": false,
-	"EnabledByDefault" : false,
 	"Modules": [
 		{
 			"Name": "EmergenceVRMSupport",
@@ -24,12 +24,12 @@
 	],
 	"Plugins": [
 		{
-		  "Name": "Emergence",
-		  "Enabled": true
+			"Name": "Emergence",
+			"Enabled": true
 		},
 		{
-		  "Name": "VRM4U",
-		  "Enabled": true
+			"Name": "VRM4U",
+			"Enabled": true
 		}
 	]
 }
