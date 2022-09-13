@@ -37,4 +37,8 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "IPFS", meta = (DisplayName = "Custom IPFS Node"))
 	FString IPFSNode;
 	
+	//For Crucible use only! Shows the EVM server output window.
+	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Launch EVM server hidden"))
+	bool LaunchServerHidden = true;
+	
 };
