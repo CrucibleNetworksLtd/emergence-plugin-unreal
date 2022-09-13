@@ -23,12 +23,12 @@ public:
 	 * @param PrivateKey The private key to use to create the KeyStore.
 	 * @warning The directory that will contain the file does need to already exist, as only a file will be created.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Keystore Local Wallet")
 	static UCreateKeyStoreFile *CreateKeyStoreFile(const UObject *WorldContextObject, const FString &PrivateKey, const FString &Password, const FString &PublicKey, const FString &Path);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCreateKeyStoreFileCompleted, FString, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCreateKeyStoreFileCompleted, FString, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnCreateKeyStoreFileCompleted OnCreateKeyStoreFileCompleted;

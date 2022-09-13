@@ -7,7 +7,10 @@
 		{
 			"Name": "EmergenceUEExample",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
@@ -405,6 +408,23 @@
 		},
 		{
 			"Name": "XGEController",
+			"Enabled": false
+		},
+		{
+			"Name": "EmergenceVRMSupport",
+			"Enabled": true
+		},
+		{
+			"Name": "BlueprintGraphScreenshot",
+			"Enabled": false,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/6221f79da85d4ea083b92382daa28e14"
+		},
+		{
+			"Name": "CLionSourceCodeAccess",
+			"Enabled": false
+		},
+		{
+			"Name": "JsonBlueprint",
 			"Enabled": false
 		}
 	]

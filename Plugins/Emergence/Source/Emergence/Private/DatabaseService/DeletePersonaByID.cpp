@@ -17,7 +17,7 @@ UDeletePersonaByID* UDeletePersonaByID::DeletePersonaByID(const UObject* WorldCo
 
 void UDeletePersonaByID::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::DatabaseAPIPrivate + "persona/" + PersonaID;
+	FString requestURL = UHttpHelperLibrary::GetPersonaAPIURL() + "persona/" + PersonaID;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCurrentAccessToken()});
 	UHttpHelperLibrary::ExecuteHttpRequest<UDeletePersonaByID>(
@@ -33,7 +33,7 @@ void UDeletePersonaByID::Activate()
 
 void UDeletePersonaByID::DeletePersonaByID_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Response: %s"), *HttpResponse->GetContentAsString());

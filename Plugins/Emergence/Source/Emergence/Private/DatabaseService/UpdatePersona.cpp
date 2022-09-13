@@ -24,7 +24,7 @@ void UUpdatePersona::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UUpdatePersona>(
 		this,
 		&UUpdatePersona::UpdatePersona_HttpRequestComplete,
-		UHttpHelperLibrary::DatabaseAPIPrivate + "persona",
+		UHttpHelperLibrary::GetPersonaAPIURL() + "persona",
 		"PATCH",
 		60.0F,
 		Headers,
@@ -35,7 +35,7 @@ void UUpdatePersona::Activate()
 
 void UUpdatePersona::UpdatePersona_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FEmergencePersona ResponceStruct = FEmergencePersona(*HttpResponse->GetContentAsString());

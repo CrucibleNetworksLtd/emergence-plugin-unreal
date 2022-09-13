@@ -16,11 +16,13 @@ class EMERGENCE_API UGetTextureFromUrl : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 public:
-	//Takes a URL string and gets the PNG from it. Not tested with anything other than a PNG.
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG)", WorldContext = "WorldContextObject"), Category = "Emergence|Helpers")
+	//Takes a URL string and gets the PNG, JPEG or GIF from it. Will not work with anything other than PNGs, JPEGs or GIFs.
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG, JPEG or GIF)", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Interface Helpers")
 	static UGetTextureFromUrl* TextureFromUrl(const FString& Url, const UObject* WorldContextObject, bool AllowCacheUsage = true) {
 		UGetTextureFromUrl* BlueprintNode = NewObject<UGetTextureFromUrl>(); //I don't know why, but every time I tried to put this in the cpp file it wouldn't link it properly and would fail to compile. If you think you can fix it, go ahead.
+		
 		BlueprintNode->Url = FString(Url);
+		
 		BlueprintNode->AllowCacheUsage = AllowCacheUsage;
 		BlueprintNode->WorldContextObject = WorldContextObject;
 		return BlueprintNode;
@@ -28,13 +30,15 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetTextureFromUrlCompleted, UTexture2D*, Texture, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetTextureFromUrlCompleted, UTexture2D*, Texture, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTextureFromUrlCompleted OnGetTextureFromUrlCompleted;
 
 private:
 	void GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void WaitOneFrame();
 

@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/NamedSlot.h"
-#include <ErrorCodeFunctionLibrary.h>
+#include "ErrorCodeFunctionLibrary.h"
+#include "AvatarService/AvatarByOwner.h"
 #include "EmergenceUI.generated.h"
 
 UENUM(BlueprintType)
@@ -24,15 +25,17 @@ private:
 
 public:
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScreenSwitched, UUserWidget*, NewScreen);
+
+	//Called whenever the screen is changed
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence UI")
+	FOnScreenSwitched OnScreenSwitched;
+
 	UFUNCTION(BlueprintCallable)
 	void SetUserHasLoggedInBefore(bool HasLoggedInBefore);
 
 	UFUNCTION(BlueprintPure)
 	bool GetUserHasLoggedInBefore();
-
-	//Called whenever the screen is changed
-	UFUNCTION(BlueprintImplementableEvent)
-	void CurrentScreenSwitched(UUserWidget* NewScreen);
 
 	//Switches the active screen to a new widget object
 	UFUNCTION(BlueprintCallable)
@@ -61,4 +64,18 @@ public:
 	//Shows an error code for the given error
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void ShowServerErrorMessage(const EErrorCode& ErrorCode);
+
+	//Closes the EmergenceUI.
+	UFUNCTION(BlueprintCallable)
+	void Close();
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClosed);
+
+	//Called when the UI is closed.
+	UPROPERTY(BlueprintAssignable)
+	FOnClosed Closed;
+
+	//Called when the UI reaches the home screen.
+	UPROPERTY(BlueprintCallable, BlueprintAssignable)
+	FOnClosed OpeningFinished;
 };

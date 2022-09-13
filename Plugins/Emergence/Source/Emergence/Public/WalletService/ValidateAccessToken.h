@@ -21,12 +21,12 @@ public:
 	 * Validates an access token. Usually used server-side to authenticate players.
 	 * @param AccessToken The access token to authenticate.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Wallet Requests")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Signed Message Validation")
 	static UValidateAccessToken* ValidateAccessToken(const UObject* WorldContextObject, const FString& AccessToken);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnValidateAccessTokenCompleted, bool, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnValidateAccessTokenCompleted, bool, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnValidateAccessTokenCompleted OnValidateAccessTokenCompleted;

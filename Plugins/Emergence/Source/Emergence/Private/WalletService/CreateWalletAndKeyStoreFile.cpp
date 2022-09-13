@@ -18,15 +18,16 @@ UCreateWalletAndKeyStoreFile *UCreateWalletAndKeyStoreFile::CreateWalletAndKeySt
 
 void UCreateWalletAndKeyStoreFile::Activate()
 {
+	Path = Path.Replace(TEXT(" "), TEXT("%20"));
+
 	auto Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	FString AccessToken = Emergence->GetCurrentAccessToken();
-
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Authorization", AccessToken});
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreateWalletAndKeyStoreFile>(
 		this,
 		&UCreateWalletAndKeyStoreFile::CreateWalletAndKeyStoreFile_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "CreateWalletAndKeyStoreFile?path=" + Path + "&password=" + Password,
+		UHttpHelperLibrary::APIBase + "createWallet?path=" + Path + "&password=" + Password,
 		"POST",
 		60.0F,
 		Headers);
@@ -35,7 +36,7 @@ void UCreateWalletAndKeyStoreFile::Activate()
 
 void UCreateWalletAndKeyStoreFile::CreateWalletAndKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk)
 	{

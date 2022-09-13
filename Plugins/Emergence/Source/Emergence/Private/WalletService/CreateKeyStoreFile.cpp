@@ -25,6 +25,8 @@ UCreateKeyStoreFile *UCreateKeyStoreFile::CreateKeyStoreFile(
 
 void UCreateKeyStoreFile::Activate()
 {
+	Path = Path.Replace(TEXT(" "), TEXT("%20"));
+
 	auto Emergence = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	FString AccessToken = Emergence->GetCurrentAccessToken();
 
@@ -33,7 +35,7 @@ void UCreateKeyStoreFile::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UCreateKeyStoreFile>(
 		this,
 		&UCreateKeyStoreFile::CreateKeyStoreFile_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase + "CreateKeyStoreFile" + "?privateKey=" + PrivateKey + "&password=" + Password + "&publicKey=" + PublicKey + "&path=" + Path,
+		UHttpHelperLibrary::APIBase + "createKeyStore" + "?privateKey=" + PrivateKey + "&password=" + Password + "&publicKey=" + PublicKey + "&path=" + Path,
 		"POST",
 		60.0F,
 		Headers);
@@ -42,7 +44,7 @@ void UCreateKeyStoreFile::Activate()
 
 void UCreateKeyStoreFile::CreateKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	TEnumAsByte<EErrorCode> StatusCode;
+	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk)
 	{

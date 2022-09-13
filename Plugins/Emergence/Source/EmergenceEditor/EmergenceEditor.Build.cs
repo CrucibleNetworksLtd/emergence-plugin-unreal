@@ -13,7 +13,10 @@ public class EmergenceEditor : ModuleRules
                 "Core",
 				"CoreUObject",
 				"Engine", 
-				"RHI"
+				"RHI",
+				"Slate",
+				"SlateCore",
+				"EditorStyle"
             }
 		);
 

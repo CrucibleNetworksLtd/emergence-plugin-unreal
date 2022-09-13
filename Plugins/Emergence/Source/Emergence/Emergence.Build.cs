@@ -44,7 +44,7 @@ public class Emergence : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"SlateCore",
-				"Http",
+				"HTTP",
 				"Json",
 				// ... add private dependencies that you statically link with here ...	
 			}

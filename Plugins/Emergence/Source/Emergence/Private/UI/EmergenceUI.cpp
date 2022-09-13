@@ -2,6 +2,7 @@
 
 
 #include "UI/EmergenceUI.h"
+#include "EmergenceSingleton.h"
 
 void UEmergenceUI::SetUserHasLoggedInBefore(bool HasLoggedInBefore)
 {
@@ -25,7 +26,7 @@ void UEmergenceUI::SwitchCurrentScreen(UUserWidget* NewScreen) {
 		UUserWidget* TempNewScreen = NewScreen; //keep this around in-case doing the next method deletes whats holding it
 		CurrentScreenSlotBoundWidget->RemoveChildAt(0); //can only have one child, this is fine
 		CurrentScreenSlotBoundWidget->AddChild(TempNewScreen);
-		this->CurrentScreenSwitched(TempNewScreen);
+		this->OnScreenSwitched.Broadcast(TempNewScreen);
 	}
 }
 
@@ -57,4 +58,10 @@ bool UEmergenceUI::GetMostRecentLoadingMessage(FText& Message)
 		Message = Texts[NumberInMap - 1];
 		return true;
 	}
+}
+
+void UEmergenceUI::Close()
+{
+	this->RemoveFromParent();
+	this->Closed.Broadcast();
 }

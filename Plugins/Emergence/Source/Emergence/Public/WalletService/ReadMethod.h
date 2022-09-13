@@ -20,23 +20,21 @@ public:
 	 * @param ContractAddress Address of the contract.
 	 * @param MethodName The method to call.
 	 * @param Content The parameters to call the method with.
-	 * @param LocalAccountName The local account to call the method with. Leave blank to call with the WalletConnect'd wallet.
+	 * @param CustomNodeURL A custom node URL to call the method on. Leave blank for the relevent one from the project settings.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Contract Requests")
-	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString LocalAccountName);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
+	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadMethodCompleted, FString, Response, TEnumAsByte<EErrorCode>, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadMethodCompleted, FString, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnReadMethodCompleted OnReadMethodCompleted;
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	const UObject* WorldContextObject;
-	FString ContractAddress;
-	FString MethodName;
+	FString ContractAddress, CustomNodeURL, MethodName;
 	TArray<FString> Content;
-	FString LocalAccountName;
 };

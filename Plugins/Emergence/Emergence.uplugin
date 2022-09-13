@@ -1,15 +1,15 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.1",
+	"VersionName": "0.2",
 	"FriendlyName": "Emergence",
 	"Description": "",
 	"Category": "Metaverse",
 	"CreatedBy": "Crucible",
 	"CreatedByURL": "https://crucible.network/",
-	"DocsURL": "",
+	"DocsURL": "https://docs.openmetadao.com/",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://discord.gg/openmeta",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
@@ -22,11 +22,6 @@
 		},
 		{
 			"Name": "EmergenceEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "EmergenceToolbar",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}

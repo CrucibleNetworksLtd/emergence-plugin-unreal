@@ -6,6 +6,9 @@
 #include "Windows/WindowsSystemIncludes.h"
 
 //Stuff for the windows api stuff, probably should be incapsulated so it doesn't build when we start working on none-windows stuff
+#include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/prewindowsapi.h"
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -14,6 +17,9 @@
 #pragma warning(disable : 4996)
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
+
+#include "Windows/PostWindowsApi.h"
+#include "Windows/HideWindowsPlatformTypes.h"
 
 void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
@@ -49,7 +55,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Loading Emergence Server from path: %s"), *LoadPath);
 
-	const FString JsonArgs("\"{\\\"Name\\\":\\\"Crucibletest\\\",\\\"Description\\\":\\\"UnrealEngineWalletConnect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
+	const FString JsonArgs("\"{\\\"Name\\\":\\\"Emergence\\\",\\\"Description\\\":\\\"Unreal Engine Wallet Connect\\\",\\\"Icons\\\":\\\"https:\\/\\/crucible.network\\/wp-content\\/uploads\\/2020\\/10\\/cropped-crucible_favicon-32x32.png\\\",\\\"URL\\\":\\\"https:\\/\\/crucible.network\\\"}\"");
 
 
 	FString ServerURL = "http://localhost:" + FString::FromInt(GetNextFreePort());
@@ -100,7 +106,7 @@ bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
 
 	ulSize = sizeof(MIB_TCPTABLE);
 	// Make an initial call to GetTcpTable2 to get the necessary size into the ulSize variable
-	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) ==
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, true)) ==
 		ERROR_INSUFFICIENT_BUFFER) {
 		FREE(pTcpTable);
 		pTcpTable = (MIB_TCPTABLE2*)MALLOC(ulSize);
@@ -110,7 +116,7 @@ bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
 		}
 	}
 	// Make a second call to GetTcpTable2 to get the actual data we require
-	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, TRUE)) == NO_ERROR) {
+	if ((dwRetVal = GetTcpTable2(pTcpTable, &ulSize, true)) == NO_ERROR) {
 		for (i = 0; i < (int)pTcpTable->dwNumEntries; i++) {
 			UsedPorts.AddUnique(ntohs((u_short)pTcpTable->table[i].dwLocalPort));
 		}
