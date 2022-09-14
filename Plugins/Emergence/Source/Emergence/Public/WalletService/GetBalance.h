@@ -20,7 +20,7 @@ public:
 	 * @param Address Address to get the balance of.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Overlay Methods")
-	static UGetBalance* GetBalance(const UObject* WorldContextObject, FString Address);
+	static UGetBalance* GetBalance(UObject* WorldContextObject, FString Address);
 
 	virtual void Activate() override;
 
@@ -30,6 +30,6 @@ public:
 	FOnGetBalanceCompleted OnGetBalanceCompleted;
 private:
 	void GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString Address;
 };

@@ -19,7 +19,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 
-#include "EmergenceChain.h"
+#include "EmergenceChainObject.h"
 
 UEmergenceSingleton::UEmergenceSingleton() {
 }
@@ -116,7 +116,7 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 
 FString UEmergenceSingleton::GetTokenSymbol()
 {
-	return UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainSymbol();;
+	return UEmergenceChain::GetEmergenceChainDataFromConfig(this)->Symbol;
 }
 
 void UEmergenceSingleton::CancelSignInRequest()
@@ -280,10 +280,10 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UEmergenceSingleton::GetHandshake()
 {
-	FEmergenceChainStruct ChainData = UChainDataLibrary::GetEmergenceChainDataFromConfig();
-	FString NodeURL = ChainData.GetChainURL();
+	auto ChainData = UEmergenceChain::GetEmergenceChainDataFromConfig(this);
+	FString NodeURL = ChainData->NodeURL;
 #if WITH_EDITOR
-	UE_LOG(LogEmergenceHttp, Display, TEXT("Using chain %s, node URL: %s"), *UEnum::GetDisplayValueAsText(ChainData.Chain).ToString(), *NodeURL);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("Using chain %s, node URL: %s"), *ChainData->Name.ToString(), *NodeURL);
 #endif
 	
 	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(

@@ -6,9 +6,9 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "EmergenceChain.h"
+#include "EmergenceChainObject.h"
 
-UGetBlockNumber* UGetBlockNumber::GetBlockNumber(const UObject* WorldContextObject, FString NodeURL)
+UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, FString NodeURL)
 {
 	UGetBlockNumber* BlueprintNode = NewObject<UGetBlockNumber>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
@@ -19,7 +19,7 @@ UGetBlockNumber* UGetBlockNumber::GetBlockNumber(const UObject* WorldContextObje
 void UGetBlockNumber::Activate()
 {
 	if (NodeURL.IsEmpty()) {
-		NodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+		NodeURL = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 	}
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
 		this, 

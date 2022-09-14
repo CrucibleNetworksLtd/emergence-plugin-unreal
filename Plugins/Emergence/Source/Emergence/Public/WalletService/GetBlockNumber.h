@@ -21,7 +21,7 @@ public:
 	 * @param nodeURL nodeURL of the chain. Leave blank for nodeURL from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetBlockNumber* GetBlockNumber(const UObject* WorldContextObject, FString NodeURL);
+	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, FString NodeURL);
 
 	virtual void Activate() override;
 
@@ -31,6 +31,6 @@ public:
 	FOnGetBlockNumberCompleted OnGetBlockNumberCompleted;
 private:
 	void GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString NodeURL;
 };

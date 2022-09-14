@@ -6,9 +6,9 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "EmergenceChain.h"
+#include "EmergenceChainObject.h"
 
-UReadMethod* UReadMethod::ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL)
+UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
@@ -35,7 +35,7 @@ void UReadMethod::Activate()
 	ContentString.Append("]");
 
 	if (CustomNodeURL.IsEmpty()) {
-		CustomNodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+		CustomNodeURL = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 	}
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(

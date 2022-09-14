@@ -11,6 +11,10 @@
 #include "UObject/WeakObjectPtr.h"
 #include "EmergencePluginSettings.h"
 #include "EmergenceSettingsCustomization.h"
+#include "EmergenceChainAssetTypeActions.h"
+#include "Styling/SlateStyle.h"
+#include "Interfaces/IPluginManager.h"
+#include "Styling/SlateStyleRegistry.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public IModuleInterface
@@ -18,21 +22,38 @@ class FEmergenceEditorModule : public IModuleInterface
 	
 	virtual void StartupModule() override
 	{
-		auto& PropertyModule = FModuleManager::LoadModuleChecked< FPropertyEditorModule >("PropertyEditor");
+		//Create class icons
+		StyleSet = MakeShareable(new FSlateStyleSet("EmergenceAssetStyle"));
+		FString ContentDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
+		StyleSet->SetContentRoot(ContentDir);
+		FSlateImageBrush* ThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Blockchain128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
+		if (ThumbnailBrush) {
+			StyleSet->Set("ClassThumbnail.EmergenceChain", ThumbnailBrush);
+			FSlateStyleRegistry::RegisterSlateStyle(*StyleSet);
+		}
 
+		//Create web3 category
+		EAssetTypeCategories::Type EmergenceCategory = FAssetToolsModule::GetModule().Get().RegisterAdvancedAssetCategory(FName(TEXT("Web3")), FText::FromString("Web3"));
+		EmergenceChainAssetTypeActions = MakeShareable(new FEmergenceChainAssetTypeActions(EmergenceCategory));
+		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(EmergenceChainAssetTypeActions.ToSharedRef());
+		
+		auto& PropertyModule = FModuleManager::LoadModuleChecked< FPropertyEditorModule >("PropertyEditor");
 		// Register our customization to be used by a class 'UMyClass' or 'AMyClass'. Note the prefix must be dropped.
 		PropertyModule.RegisterCustomClassLayout(
         UEmergencePluginSettings::StaticClass()->GetFName(),
         FOnGetDetailCustomizationInstance::CreateStatic(&FEmergenceSettingsCustomization::MakeInstance)
         );
-
 		PropertyModule.NotifyCustomizationModuleChanged();
-		
 		RegisterSettings();
 	}
 
 	virtual void ShutdownModule() override
 	{
+		FSlateStyleRegistry::UnRegisterSlateStyle(StyleSet->GetStyleSetName());
+
+		if (!FModuleManager::Get().IsModuleLoaded("AssetTools")) return;
+		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceChainAssetTypeActions.ToSharedRef());
+
 		if (UObjectInitialized())
 		{
 			UnregisterSettings();
@@ -45,7 +66,8 @@ class FEmergenceEditorModule : public IModuleInterface
 	}
 
 private:
-
+	TSharedPtr<FSlateStyleSet> StyleSet;
+	TSharedPtr<FEmergenceChainAssetTypeActions> EmergenceChainAssetTypeActions;
 	bool HandleSettingsSaved()
 	{
 		UEmergencePluginSettings* Settings = GetMutableDefault<UEmergencePluginSettings>();

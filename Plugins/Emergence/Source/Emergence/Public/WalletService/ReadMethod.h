@@ -24,7 +24,7 @@ public:
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL);
+	static UReadMethod* ReadMethod(UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL);
 
 	virtual void Activate() override;
 
@@ -34,7 +34,7 @@ public:
 	FOnReadMethodCompleted OnReadMethodCompleted;
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString ContractAddress, CustomNodeURL, MethodName;
 	TArray<FString> Content;
 };

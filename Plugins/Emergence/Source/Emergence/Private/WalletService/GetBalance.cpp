@@ -6,9 +6,9 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "EmergenceChain.h"
+#include "EmergenceChainObject.h"
 
-UGetBalance* UGetBalance::GetBalance(const UObject* WorldContextObject, FString Address)
+UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Address)
 {
 	UGetBalance* BlueprintNode = NewObject<UGetBalance>();
 	BlueprintNode->Address = Address;
@@ -18,9 +18,8 @@ UGetBalance* UGetBalance::GetBalance(const UObject* WorldContextObject, FString 
 
 void UGetBalance::Activate()
 {
-	FEmergenceChainStruct ChainData = UChainDataLibrary::GetEmergenceChainDataFromConfig();
-
-	FString NodeURL = ChainData.GetChainURL();
+	UEmergenceChain* ChainData = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject);
+	FString NodeURL = ChainData->NodeURL;
 	UE_LOG(LogEmergenceHttp, Warning, TEXT("Using Node URL: %s"), *NodeURL);
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(

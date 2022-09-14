@@ -2,8 +2,8 @@
 
 #pragma once
 #include "Engine/EngineTypes.h"
-#include "EmergenceChain.h"
 #include "Environment.h"
+#include "EmergenceChainObject.h"
 #include "EmergencePluginSettings.generated.h"
 
 UCLASS(config = Game, defaultconfig)
@@ -30,8 +30,8 @@ public:
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Custom Emergence Server Location", FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
 	
-	UPROPERTY(config, EditAnywhere, Category = "Chain", meta=(ShowOnlyInnerProperties))
-	FEmergenceChainStruct Chain;
+	UPROPERTY(config, NoClear, EditAnywhere, Category = "Chain")
+	TSoftObjectPtr<UEmergenceChain> Chain = Cast<UEmergenceChain>(StaticLoadObject(UEmergenceChain::StaticClass(), this, TEXT("/Emergence/Chains/Polygon.Polygon")));
 
 	//The IPFS node to use when getting IPFS data via HTTP. Leaving it blank will use the default "http://ipfs.openmeta.xyz/ipfs/". The IPFS hash will be added to the end (for example, using the default: "http://ipfs.openmeta.xyz/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu")
 	UPROPERTY(config, EditAnywhere, Category = "IPFS", meta = (DisplayName = "Custom IPFS Node"))

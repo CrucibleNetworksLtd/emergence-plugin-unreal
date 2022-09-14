@@ -6,9 +6,9 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "EmergenceChain.h"
+#include "EmergenceChainObject.h"
 
-UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL)
+UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, FString NodeURL)
 {
 	UGetTransactionStatus* BlueprintNode = NewObject<UGetTransactionStatus>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
@@ -20,7 +20,7 @@ UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject
 void UGetTransactionStatus::Activate()
 {
 	if (NodeURL.IsEmpty()) {
-		NodeURL = UChainDataLibrary::GetEmergenceChainDataFromConfig().GetChainURL();
+		NodeURL = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 	}
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
 		this, 

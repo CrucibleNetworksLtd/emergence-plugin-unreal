@@ -22,7 +22,7 @@ public:
 	 * @param NodeURL NodeURL of the blockchain we're checking the transaction on. Leave blank for nodeURL from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, FString NodeURL);
+	static UGetTransactionStatus* GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, FString NodeURL);
 
 	virtual void Activate() override;
 
@@ -32,7 +32,7 @@ public:
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
 private:
 	void GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString TransactionHash;
 	FString NodeURL;
 };
