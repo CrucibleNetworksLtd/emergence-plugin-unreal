@@ -3,6 +3,11 @@
 
 #include "EmergenceChainObject.h"
 
+UEmergenceChain::UEmergenceChain(FString _NodeURL)
+{
+	this->NodeURL = _NodeURL;
+}
+
 UEmergenceChain* UEmergenceChain::GetEmergenceChainDataFromConfig(UObject* Outer)
 {
 	FString FEmergenceChainStructText;
@@ -14,4 +19,13 @@ UEmergenceChain* UEmergenceChain::GetEmergenceChainDataFromConfig(UObject* Outer
 		}
 	}
     return Cast<UEmergenceChain>(StaticLoadObject(UEmergenceChain::StaticClass(), Outer, TEXT("/Emergence/Chains/Polygon.Polygon")));
+}
+
+UEmergenceChain* UEmergenceChain::CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol)
+{
+	UEmergenceChain* EmergenceChain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
+	EmergenceChain->Name = _Name;
+	EmergenceChain->NodeURL = _NodeURL;
+	EmergenceChain->Symbol = _Symbol;
+	return EmergenceChain;
 }

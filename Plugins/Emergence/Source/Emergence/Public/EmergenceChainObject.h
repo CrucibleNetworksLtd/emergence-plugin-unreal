@@ -15,6 +15,12 @@ class EMERGENCE_API UEmergenceChain : public UObject
 	GENERATED_BODY()
 	
 public:
+	UEmergenceChain() {};
+
+	UEmergenceChain(FString _NodeURL);
+
+	UEmergenceChain(FText Name, FString _NodeURL, FString Symbol);
+
 	UPROPERTY(EditAnywhere)
 	FText Name;
 
@@ -26,4 +32,7 @@ public:
 
 	UFUNCTION()
 	static UEmergenceChain* GetEmergenceChainDataFromConfig(UObject* Outer);
+
+	UFUNCTION(BlueprintPure)
+	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol);
 };

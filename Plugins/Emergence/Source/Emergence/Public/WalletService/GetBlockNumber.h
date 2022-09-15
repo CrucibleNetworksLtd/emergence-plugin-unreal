@@ -9,6 +9,7 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
 #include "Transaction.h"
+#include "EmergenceChainObject.h"
 #include "GetBlockNumber.generated.h"
 
 UCLASS()
@@ -18,10 +19,10 @@ class EMERGENCE_API UGetBlockNumber : public UBlueprintAsyncActionBase
 public:
 	/**
 	 * Gets the current block number of given chain.
-	 * @param nodeURL nodeURL of the chain. Leave blank for nodeURL from Emergence project settings.
+	 * @param BlockchainOverride Blockchain to get the block number of. Leave blank for blockchain from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, FString NodeURL);
+	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* BlockchainOverride);
 
 	virtual void Activate() override;
 
@@ -32,5 +33,5 @@ public:
 private:
 	void GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	UObject* WorldContextObject;
-	FString NodeURL;
+	UEmergenceChain* Blockchain;
 };

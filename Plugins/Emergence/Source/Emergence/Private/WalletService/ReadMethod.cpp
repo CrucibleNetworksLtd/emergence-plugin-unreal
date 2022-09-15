@@ -8,14 +8,14 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL)
+UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, UEmergenceChain* BlockchainOverride)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
 	BlueprintNode->MethodName = MethodName;
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->CustomNodeURL = CustomNodeURL;
+	BlueprintNode->Blockchain = BlockchainOverride;
 	return BlueprintNode;
 }
 
@@ -34,14 +34,12 @@ void UReadMethod::Activate()
 	}
 	ContentString.Append("]");
 
-	if (CustomNodeURL.IsEmpty()) {
-		CustomNodeURL = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
-	}
+	FString NodeURL = Blockchain ? Blockchain->NodeURL : UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&nodeUrl=" + CustomNodeURL,
+		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&nodeUrl=" + NodeURL,
 		"POST",
 		60.0F,
 		Headers,
