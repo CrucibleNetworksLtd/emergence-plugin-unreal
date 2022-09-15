@@ -15,6 +15,7 @@
 #include "Styling/SlateStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
+#include "EmergenceContractAssetTypeActions.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public IModuleInterface
@@ -34,9 +35,15 @@ class FEmergenceEditorModule : public IModuleInterface
 
 		//Create web3 category
 		EAssetTypeCategories::Type EmergenceCategory = FAssetToolsModule::GetModule().Get().RegisterAdvancedAssetCategory(FName(TEXT("Web3")), FText::FromString("Web3"));
+		
+		//Register asset types
 		EmergenceChainAssetTypeActions = MakeShareable(new FEmergenceChainAssetTypeActions(EmergenceCategory));
 		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(EmergenceChainAssetTypeActions.ToSharedRef());
+
+		EmergenceContractAssetTypeActions = MakeShareable(new FEmergenceContractAssetTypeActions(EmergenceCategory));
+		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(EmergenceContractAssetTypeActions.ToSharedRef());
 		
+
 		auto& PropertyModule = FModuleManager::LoadModuleChecked< FPropertyEditorModule >("PropertyEditor");
 		// Register our customization to be used by a class 'UMyClass' or 'AMyClass'. Note the prefix must be dropped.
 		PropertyModule.RegisterCustomClassLayout(
@@ -53,6 +60,7 @@ class FEmergenceEditorModule : public IModuleInterface
 
 		if (!FModuleManager::Get().IsModuleLoaded("AssetTools")) return;
 		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceChainAssetTypeActions.ToSharedRef());
+		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceContractAssetTypeActions.ToSharedRef());
 
 		if (UObjectInitialized())
 		{
@@ -68,6 +76,7 @@ class FEmergenceEditorModule : public IModuleInterface
 private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 	TSharedPtr<FEmergenceChainAssetTypeActions> EmergenceChainAssetTypeActions;
+	TSharedPtr<FEmergenceContractAssetTypeActions> EmergenceContractAssetTypeActions;
 	bool HandleSettingsSaved()
 	{
 		UEmergencePluginSettings* Settings = GetMutableDefault<UEmergencePluginSettings>();
