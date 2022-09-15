@@ -23,8 +23,9 @@ public:
 	 * @param BlockchainOverride Blockchain that the contract lives on. Leave blank for blockchain from Emergence project settings.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, UEmergenceChain* BlockchainOverride);
+
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
+	static UReadMethod* ReadMethod(UObject * WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, UEmergenceChain * BlockchainOverride);
 
 	virtual void Activate() override;
 
