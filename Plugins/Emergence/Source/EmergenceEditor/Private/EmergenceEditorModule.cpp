@@ -16,6 +16,7 @@
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
 #include "EmergenceContractAssetTypeActions.h"
+#include "EmergenceDeploymentAssetTypeActions.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public IModuleInterface
@@ -27,9 +28,11 @@ class FEmergenceEditorModule : public IModuleInterface
 		StyleSet = MakeShareable(new FSlateStyleSet("EmergenceAssetStyle"));
 		FString ContentDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
 		StyleSet->SetContentRoot(ContentDir);
-		FSlateImageBrush* ThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Blockchain128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
-		if (ThumbnailBrush) {
-			StyleSet->Set("ClassThumbnail.EmergenceChain", ThumbnailBrush);
+		FSlateImageBrush* BlockchainThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Blockchain128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
+		FSlateImageBrush* ContractThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Contract128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
+		if (BlockchainThumbnailBrush) {
+			StyleSet->Set("ClassThumbnail.EmergenceChain", BlockchainThumbnailBrush);
+			StyleSet->Set("ClassThumbnail.EmergenceContract", ContractThumbnailBrush);
 			FSlateStyleRegistry::RegisterSlateStyle(*StyleSet);
 		}
 
@@ -43,6 +46,8 @@ class FEmergenceEditorModule : public IModuleInterface
 		EmergenceContractAssetTypeActions = MakeShareable(new FEmergenceContractAssetTypeActions(EmergenceCategory));
 		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(EmergenceContractAssetTypeActions.ToSharedRef());
 		
+		EmergenceDeploymentAssetTypeActions = MakeShareable(new FEmergenceDeploymentAssetTypeActions(EmergenceCategory));
+		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(EmergenceDeploymentAssetTypeActions.ToSharedRef());
 
 		auto& PropertyModule = FModuleManager::LoadModuleChecked< FPropertyEditorModule >("PropertyEditor");
 		// Register our customization to be used by a class 'UMyClass' or 'AMyClass'. Note the prefix must be dropped.
@@ -61,6 +66,7 @@ class FEmergenceEditorModule : public IModuleInterface
 		if (!FModuleManager::Get().IsModuleLoaded("AssetTools")) return;
 		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceChainAssetTypeActions.ToSharedRef());
 		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceContractAssetTypeActions.ToSharedRef());
+		FAssetToolsModule::GetModule().Get().UnregisterAssetTypeActions(EmergenceDeploymentAssetTypeActions.ToSharedRef());
 
 		if (UObjectInitialized())
 		{
@@ -77,6 +83,7 @@ private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 	TSharedPtr<FEmergenceChainAssetTypeActions> EmergenceChainAssetTypeActions;
 	TSharedPtr<FEmergenceContractAssetTypeActions> EmergenceContractAssetTypeActions;
+	TSharedPtr<FEmergenceDeploymentAssetTypeActions> EmergenceDeploymentAssetTypeActions;
 	bool HandleSettingsSaved()
 	{
 		UEmergencePluginSettings* Settings = GetMutableDefault<UEmergencePluginSettings>();

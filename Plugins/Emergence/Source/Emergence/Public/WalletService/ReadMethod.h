@@ -8,6 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
+#include "EmergenceDeployment.h"
 #include "ReadMethod.generated.h"
 
 UCLASS()
@@ -24,8 +25,8 @@ public:
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
 
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(UObject * WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, UEmergenceChain * BlockchainOverride);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content,DeployedContract"), Category = "Emergence|Blockchain Interactions")
+	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FString MethodName, TArray<FString> Content);
 
 	virtual void Activate() override;
 
@@ -36,7 +37,7 @@ public:
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	UObject* WorldContextObject;
-	FString ContractAddress, MethodName;
-	UEmergenceChain* Blockchain;
+	FString MethodName;
+	UEmergenceDeployment* DeployedContract;
 	TArray<FString> Content;
 };
