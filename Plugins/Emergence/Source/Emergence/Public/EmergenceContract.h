@@ -6,9 +6,21 @@
 #include "UObject/NoExportTypes.h"
 #include "EmergenceContract.generated.h"
 
-/**
- * 
- */
+USTRUCT(BlueprintType)
+struct FEmergenceContractMethod
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FString MethodName;
+
+	FEmergenceContractMethod() {};
+
+	FEmergenceContractMethod(FString _MethodName) {
+		MethodName = _MethodName;
+	};
+};
+
 UCLASS(BlueprintType, CollapseCategories)
 class EMERGENCE_API UEmergenceContract : public UObject
 {
@@ -24,4 +36,10 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	FString ABI;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FEmergenceContractMethod> Methods;
+
+	UFUNCTION(CallInEditor)
+	void FindMethods();
 };
