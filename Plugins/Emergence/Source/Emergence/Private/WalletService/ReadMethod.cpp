@@ -8,7 +8,7 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString MethodName, TArray<FString> Content)
+UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
@@ -36,7 +36,7 @@ void UReadMethod::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + DeployedContract->Address + "&methodName=" + MethodName + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL,
+		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + DeployedContract->Address + "&methodName=" + MethodName.MethodName + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL,
 		"POST",
 		60.0F,
 		Headers,

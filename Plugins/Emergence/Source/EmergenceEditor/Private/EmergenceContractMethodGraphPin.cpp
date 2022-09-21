@@ -1,0 +1,153 @@
+#include "EmergenceContractMethodGraphPin.h"
+
+#include "EmergenceContract.h"
+#include "EmergenceDeployment.h"
+#include "EdGraph/EdGraphPin.h"
+#include "EdGraph/EdGraphSchema.h"
+#include "SNameComboBox.h"
+#include "ScopedTransaction.h"
+#include "SlateCore/Public/Widgets/SBoxPanel.h"
+#include "SGraphPin.h"
+#include "Templates/SharedPointer.h"
+
+#define LOCTEXT_NAMESPACE "NestedNamesFromConfigPin"
+
+void SEmergenceContractMethodGraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
+{
+	SGraphPin::Construct(SGraphPin::FArguments(), InGraphPinObj);
+
+}
+
+TSharedRef<SWidget> SEmergenceContractMethodGraphPin::GetDefaultValueWidget()
+{
+	UpdateOptions();
+
+	TSharedPtr<FName> InitialSelectedName = GetSelectedName();
+	if (InitialSelectedName.IsValid())
+	{
+		SetPropertyWithName(*InitialSelectedName.Get());
+	}
+	
+	return SNew(SVerticalBox)
+		+SVerticalBox::Slot().AutoHeight()
+		[
+			SAssignNew(NameComboBox, SNameComboBox)
+			.ContentPadding(FMargin(6.0f, 2.0f))
+			.OptionsSource(&Options)
+			.InitiallySelectedItem(InitialSelectedName)
+			.OnComboBoxOpening(this, &SEmergenceContractMethodGraphPin::OnNameComboBoxOpening)
+			.OnSelectionChanged(this, &SEmergenceContractMethodGraphPin::OnNameSelected)
+		];
+}
+
+void SEmergenceContractMethodGraphPin::OnNameSelected(TSharedPtr<FName> ItemSelected, ESelectInfo::Type SelectInfo)
+{
+	if (ItemSelected.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Name selected: %s"), *ItemSelected->ToString());
+		SetPropertyWithName(*ItemSelected);
+	}
+}
+
+void SEmergenceContractMethodGraphPin::OnNameComboBoxOpening()
+{
+	UpdateOptions();
+	TSharedPtr<FName> SelectedName = GetSelectedName();
+	if (SelectedName.IsValid())
+	{
+		check(NameComboBox.IsValid());
+		NameComboBox->SetSelectedItem(SelectedName);
+	}
+}
+
+void SEmergenceContractMethodGraphPin::UpdateOptions()
+{
+	this->Options.Empty();
+	auto OwnerNode = OwnerNodePtr.Pin().Get();
+	//if the node is valid
+	if (OwnerNode && OwnerNode->GetNodeObj()) {
+		TArray<UEdGraphPin*> Pins = OwnerNode->GetNodeObj()->GetAllPins();
+		//for each pin
+		for (int i = 0; i < Pins.Num(); i++) {
+			//if pin is valid, and is of class deplyoment
+			if (Pins[i]->PinType.PinSubCategoryObject.IsValid() && Pins[i]->PinType.PinSubCategoryObject.Get() == UEmergenceDeployment::StaticClass()) {
+				if (Pins[i]->DefaultObject) { //if it actually has something set or plugged into it
+					UEmergenceDeployment* Deployment = Cast<UEmergenceDeployment>(Pins[i]->DefaultObject); //cast to a deployment object
+					UE_LOG(LogTemp, Display, TEXT("pin %d (%s): %s (default object)"), i, *Pins[i]->PinType.PinSubCategoryObject.Get()->GetName(), *Deployment->Address);
+					if (Deployment->Contract) { //if the contract is valid
+						for (int j = 0; j < Deployment->Contract->Methods.Num(); j++) { //for each method in the contract
+							UE_LOG(LogTemp, Display, TEXT("%s"), *Deployment->Contract->Methods[j].MethodName);
+							this->Options.Add(MakeShared<FName>(FName(Deployment->Contract->Methods[j].MethodName)));
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void SEmergenceContractMethodGraphPin::SetPropertyWithName(const FName& Name)
+{
+	check(GraphPinObj);
+
+	FString PinString = FString::Format(TEXT("(MethodName=\"{0}\")"), { Name.ToString() });
+
+	FString CurrentDefaultValue = GraphPinObj->GetDefaultAsString();
+
+	if (CurrentDefaultValue != PinString)
+	{
+		const FScopedTransaction Transaction(
+			NSLOCTEXT("GraphEditor", "ChangeNestedNamesFromConfigPinValue", "Change Nested Names From Config Value"));
+		GraphPinObj->Modify();
+
+		UE_LOG(LogTemp, Warning, TEXT("Verify values old: \"%s\" chosen: \"%s\""), *CurrentDefaultValue, *PinString);
+
+		if (PinString != GraphPinObj->GetDefaultAsString())
+		{
+			GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, PinString);
+		}
+	}
+}
+
+TSharedPtr<FName> SEmergenceContractMethodGraphPin::GetSelectedName() const
+{
+	if (Options.Num() <= 0)
+	{
+		return NULL;
+	}
+
+	FName Name;
+	GetPropertyAsName(Name);
+
+	for (int32 NameIndex = 0; NameIndex < Options.Num(); ++NameIndex)
+	{
+		if (Name == *Options[NameIndex].Get())
+		{
+			return Options[NameIndex];
+		}
+	}
+	// no value has been found, return a default value
+	return Options[0];
+}
+
+void SEmergenceContractMethodGraphPin::GetPropertyAsName(FName& OutName) const
+{
+	check(GraphPinObj);
+	//check(GraphPinObj->PinType.PinSubCategoryObject == FNestedNameAttribute::StaticStruct());
+
+	FString PinString = GraphPinObj->GetDefaultAsString();
+	UE_LOG(LogTemp, Display, TEXT("Get default as string: %s"), *GraphPinObj->GetDefaultAsString());
+	if (PinString.StartsWith(TEXT("(")) && PinString.EndsWith(TEXT(")")))
+	{
+		PinString = PinString.LeftChop(1);
+		PinString = PinString.RightChop(1);
+		PinString.Split(TEXT("="), NULL, &PinString);
+		PinString = PinString.TrimQuotes();
+	}
+
+	if (!PinString.IsEmpty())
+	{
+		OutName = *PinString;
+	}
+}
+#undef LOCTEXT_NAMESPACE

@@ -17,6 +17,8 @@
 #include "Styling/SlateStyleRegistry.h"
 #include "EmergenceContractAssetTypeActions.h"
 #include "EmergenceDeploymentAssetTypeActions.h"
+#include "EdGraphUtilities.h"
+#include "EmergenceContractMethodGraphPanelPinFactory.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public IModuleInterface
@@ -24,6 +26,9 @@ class FEmergenceEditorModule : public IModuleInterface
 	
 	virtual void StartupModule() override
 	{
+		TSharedPtr<FEmergenceContractMethodGraphPanelPinFactory> EmergenceContractMethodGraphPanelPinFactory = MakeShareable(new FEmergenceContractMethodGraphPanelPinFactory());
+		FEdGraphUtilities::RegisterVisualPinFactory(EmergenceContractMethodGraphPanelPinFactory);
+
 		//Create class icons
 		StyleSet = MakeShareable(new FSlateStyleSet("EmergenceAssetStyle"));
 		FString ContentDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();

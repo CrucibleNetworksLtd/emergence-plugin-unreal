@@ -26,7 +26,7 @@ public:
 	 */
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content,DeployedContract"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FString MethodName, TArray<FString> Content);
+	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content);
 
 	virtual void Activate() override;
 
@@ -37,7 +37,7 @@ public:
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	UObject* WorldContextObject;
-	FString MethodName;
+	FEmergenceContractMethod MethodName;
 	UEmergenceDeployment* DeployedContract;
 	TArray<FString> Content;
 };
