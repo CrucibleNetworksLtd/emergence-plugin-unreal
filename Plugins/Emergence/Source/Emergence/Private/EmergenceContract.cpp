@@ -18,6 +18,7 @@ UEmergenceContract* UEmergenceContract::CreateEmergenceContract(FString _ABI)
 
 void UEmergenceContract::FindMethods()
 {
+	this->Methods.Empty();
 	if (!this->ABI.IsEmpty()) {
 		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(this->ABI);
 		TSharedPtr<FJsonValue> JsonObject;

@@ -11,7 +11,7 @@ struct FEmergenceContractMethod
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FString MethodName;
 
 	FEmergenceContractMethod() {};
@@ -37,7 +37,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	FString ABI;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	TArray<FEmergenceContractMethod> Methods;
 
 	UFUNCTION(CallInEditor)
