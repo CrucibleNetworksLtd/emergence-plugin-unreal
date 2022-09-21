@@ -5,6 +5,7 @@
 #include "SlateBasics.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SWidget.h"
+#include "EmergenceContract.h"
 
 class SNameComboBox;
 
@@ -32,5 +33,6 @@ protected:
 	void GetPropertyAsName(FName& OutName) const;
 private:
 	TArray<TSharedPtr<FName>> Options;
+	TArray<FEmergenceContractMethod> OptionStructs;
 	TSharedPtr<SNameComboBox> NameComboBox;
 };

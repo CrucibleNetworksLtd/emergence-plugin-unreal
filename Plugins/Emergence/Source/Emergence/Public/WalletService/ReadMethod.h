@@ -7,7 +7,6 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
 #include "EmergenceDeployment.h"
 #include "ReadMethod.generated.h"
 

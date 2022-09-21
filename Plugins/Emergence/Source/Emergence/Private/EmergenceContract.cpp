@@ -18,7 +18,8 @@ UEmergenceContract* UEmergenceContract::CreateEmergenceContract(FString _ABI)
 
 void UEmergenceContract::FindMethods()
 {
-	this->Methods.Empty();
+	this->ReadMethods.Empty();
+	this->WriteMethods.Empty();
 	if (!this->ABI.IsEmpty()) {
 		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(this->ABI);
 		TSharedPtr<FJsonValue> JsonObject;
@@ -27,7 +28,12 @@ void UEmergenceContract::FindMethods()
 			for (int i = 0; i < ABIArray.Num(); i++) {
 				TSharedPtr<FJsonObject> InterfaceObject = ABIArray[i].Get()->AsObject();
 				if (InterfaceObject->GetStringField("type") == "function") {
-					this->Methods.Add(FEmergenceContractMethod(InterfaceObject->GetStringField("name")));
+					if (InterfaceObject->GetStringField("stateMutability") == "view" || InterfaceObject->GetStringField("stateMutability") == "pure") {
+						this->ReadMethods.Add(FEmergenceContractMethod(InterfaceObject->GetStringField("name")));
+					}
+					else {
+						this->WriteMethods.Add(FEmergenceContractMethod(InterfaceObject->GetStringField("name")));
+					}
 				}
 			}
 		}

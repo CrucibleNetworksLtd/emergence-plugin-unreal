@@ -38,7 +38,10 @@ public:
 	FString ABI;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FEmergenceContractMethod> Methods;
+	TArray<FEmergenceContractMethod> ReadMethods;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FEmergenceContractMethod> WriteMethods;
 
 	UFUNCTION(CallInEditor)
 	void FindMethods();
