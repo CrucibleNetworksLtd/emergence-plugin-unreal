@@ -7,10 +7,10 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
+UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
-	BlueprintNode->ContractAddress = ContractAddress;
+	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->MethodName = MethodName;
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
@@ -43,12 +43,12 @@ void UWriteMethod::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
 		this, 
 		&UWriteMethod::WriteMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
+		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + DeployedContract->Address + "&methodName=" + MethodName.MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
 		ContentString);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started on method %s with value %s, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "), *MethodName, *Value);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod request started on method %s with value %s, calling WriteMethod_HttpRequestComplete on request completed. Json sent as part of the request: "), *MethodName.MethodName, *Value);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *ContentString);
 }
 

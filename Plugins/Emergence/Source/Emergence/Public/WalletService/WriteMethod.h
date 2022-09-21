@@ -7,7 +7,7 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
+#include "EmergenceDeployment.h"
 #include "WriteMethod.generated.h"
 
 UCLASS()
@@ -26,7 +26,7 @@ public:
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
 	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
-	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice);
+	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice);
 
 	virtual void Activate() override;
 
@@ -37,8 +37,8 @@ public:
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	const UObject* WorldContextObject;
-	FString ContractAddress;
-	FString MethodName;
+	UEmergenceDeployment* DeployedContract;
+	FEmergenceContractMethod MethodName;
 	TArray<FString> Content;
 	FString LocalAccountName;
 	FString GasPrice;
