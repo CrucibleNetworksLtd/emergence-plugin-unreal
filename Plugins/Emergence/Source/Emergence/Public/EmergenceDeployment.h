@@ -7,7 +7,7 @@
 #include "EmergenceContract.h"
 #include "EmergenceDeployment.generated.h"
 
-UCLASS(BlueprintType, CollapseCategories)
+UCLASS(BlueprintType, CollapseCategories, meta=(DisplayName="Emergence Deployed Contract"))
 class EMERGENCE_API UEmergenceDeployment : public UObject
 {
 

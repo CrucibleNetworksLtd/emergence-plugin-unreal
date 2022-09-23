@@ -15,7 +15,6 @@
 void SEmergenceContractMethodGraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 {
 	SGraphPin::Construct(SGraphPin::FArguments(), InGraphPinObj);
-
 }
 
 TSharedRef<SWidget> SEmergenceContractMethodGraphPin::GetDefaultValueWidget()
@@ -26,17 +25,28 @@ TSharedRef<SWidget> SEmergenceContractMethodGraphPin::GetDefaultValueWidget()
 	GetPropertyAsName(InitialSelectedName);
 	SetPropertyWithName(InitialSelectedName);
 	
+	if (!GraphPinObj->HasAnyConnections()) {
 
-	return SNew(SVerticalBox)
-		+SVerticalBox::Slot().AutoHeight()
-		[
-			SAssignNew(NameComboBox, SNameComboBox)
-			.ContentPadding(FMargin(6.0f, 2.0f))
+		return SNew(SVerticalBox)
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SAssignNew(NameComboBox, SNameComboBox)
+				.ContentPadding(FMargin(6.0f, 2.0f))
 			.OptionsSource(&Options)
 			.InitiallySelectedItem(MakeShared<FName>(InitialSelectedName))
 			.OnComboBoxOpening(this, &SEmergenceContractMethodGraphPin::OnNameComboBoxOpening)
 			.OnSelectionChanged(this, &SEmergenceContractMethodGraphPin::OnNameSelected)
-		];
+			];
+	}
+	else {
+		return SNew(SVerticalBox)
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SAssignNew(NameComboBox, SNameComboBox)
+				.ContentPadding(FMargin(6.0f, 2.0f))
+				.IsEnabled(false)
+			];
+	}
 }
 
 void SEmergenceContractMethodGraphPin::OnNameSelected(TSharedPtr<FName> ItemSelected, ESelectInfo::Type SelectInfo)

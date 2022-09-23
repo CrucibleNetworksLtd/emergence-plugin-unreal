@@ -24,6 +24,11 @@
 			"Name": "EmergenceEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "EmergenceEditorMethodGraphPin",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

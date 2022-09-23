@@ -17,8 +17,6 @@
 #include "Styling/SlateStyleRegistry.h"
 #include "EmergenceContractAssetTypeActions.h"
 #include "EmergenceDeploymentAssetTypeActions.h"
-#include "EdGraphUtilities.h"
-#include "EmergenceContractMethodGraphPanelPinFactory.h"
 #define LOCTEXT_NAMESPACE "EmergenceEditorModule"
 
 class FEmergenceEditorModule : public IModuleInterface
@@ -26,8 +24,6 @@ class FEmergenceEditorModule : public IModuleInterface
 	
 	virtual void StartupModule() override
 	{
-		TSharedPtr<FEmergenceContractMethodGraphPanelPinFactory> EmergenceContractMethodGraphPanelPinFactory = MakeShareable(new FEmergenceContractMethodGraphPanelPinFactory());
-		FEdGraphUtilities::RegisterVisualPinFactory(EmergenceContractMethodGraphPanelPinFactory);
 
 		//Create class icons
 		StyleSet = MakeShareable(new FSlateStyleSet("EmergenceAssetStyle"));
@@ -35,9 +31,11 @@ class FEmergenceEditorModule : public IModuleInterface
 		StyleSet->SetContentRoot(ContentDir);
 		FSlateImageBrush* BlockchainThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Blockchain128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
 		FSlateImageBrush* ContractThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Contract128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
-		if (BlockchainThumbnailBrush) {
+		FSlateImageBrush* DeploymentThumbnailBrush = new FSlateImageBrush(StyleSet->RootToContentDir(TEXT("Resources/Deployment128"), TEXT(".png")), FVector2D(128.0f, 128.0f));
+		if (BlockchainThumbnailBrush && ContractThumbnailBrush && DeploymentThumbnailBrush) {
 			StyleSet->Set("ClassThumbnail.EmergenceChain", BlockchainThumbnailBrush);
 			StyleSet->Set("ClassThumbnail.EmergenceContract", ContractThumbnailBrush);
+			StyleSet->Set("ClassThumbnail.EmergenceDeployment", DeploymentThumbnailBrush);
 			FSlateStyleRegistry::RegisterSlateStyle(*StyleSet);
 		}
 

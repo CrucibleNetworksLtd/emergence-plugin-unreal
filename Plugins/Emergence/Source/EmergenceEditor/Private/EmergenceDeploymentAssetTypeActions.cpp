@@ -17,7 +17,7 @@ UClass* FEmergenceDeploymentAssetTypeActions::GetSupportedClass() const
 
 FText FEmergenceDeploymentAssetTypeActions::GetName() const
 {
-    return INVTEXT("Deployment");
+    return INVTEXT("Deployed Contract");
 }
 
 FColor FEmergenceDeploymentAssetTypeActions::GetTypeColor() const

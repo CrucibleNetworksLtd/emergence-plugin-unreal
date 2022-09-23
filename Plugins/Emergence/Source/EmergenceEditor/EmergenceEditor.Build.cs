@@ -18,9 +18,7 @@ public class EmergenceEditor : ModuleRules
 				"SlateCore",
 				"EditorStyle",
 				"UnrealEd",
-				"Projects",
-				"BlueprintGraph",
-				"GraphEditor"
+				"Projects"
 			}
 		);
 
