@@ -7,11 +7,10 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI)
+ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract)
 {
 	ULoadContract* BlueprintNode = NewObject<ULoadContract>();
-	BlueprintNode->ContractAddress = ContractAddress;
-	BlueprintNode->ABI = ABI;
+	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -19,8 +18,8 @@ ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, FS
 void ULoadContract::Activate()
 {
 	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject);
-	Json->SetStringField("contractAddress", this->ContractAddress);
-	Json->SetStringField("ABI", this->ABI);
+	Json->SetStringField("contractAddress", this->DeployedContract->Address);
+	Json->SetStringField("ABI", this->DeployedContract->Contract->ABI);
 	
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
@@ -47,6 +46,9 @@ void ULoadContract::LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
+		UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+		Singleton->ContractsWithLoadedABIs.AddUnique(DeployedContract->Address);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Added %s to ContractsWithLoadedABIs array"), *DeployedContract->Address);
 		OnLoadContractCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
 	}
 	else {

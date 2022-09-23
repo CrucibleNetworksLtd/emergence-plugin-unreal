@@ -7,6 +7,8 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
+#include "WalletService/LoadContract.h"
+#include "EmergenceSingleton.h"
 
 UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content)
 {
@@ -18,8 +20,27 @@ UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDepl
 	return BlueprintNode;
 }
 
+void UReadMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode)
+{
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		this->Activate();
+	}
+	else {
+		OnReadMethodCompleted.Broadcast(FString(), StatusCode);
+	}
+}
+
 void UReadMethod::Activate()
 {
+	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	//if this contract has never had its ABI loaded...
+	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Address)) {
+		ULoadContract* LoadContract = ULoadContract::LoadContract(WorldContextObject, DeployedContract);
+		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UReadMethod::LoadContractCompleted);
+		LoadContract->Activate();
+		return;
+	}
+
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 

@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "WalletService/LoadContract.h"
 
 UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
 {
@@ -20,8 +21,27 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmer
 	return BlueprintNode;
 }
 
+void UWriteMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode)
+{
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		this->Activate();
+	}
+	else {
+		OnWriteMethodCompleted.Broadcast(FString(), StatusCode);
+	}
+}
+
 void UWriteMethod::Activate()
 {
+	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	//if this contract has never had its ABI loaded...
+	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Address)) {
+		ULoadContract* LoadContract = ULoadContract::LoadContract(WorldContextObject, DeployedContract);
+		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
+		LoadContract->Activate();
+		return;
+	}
+
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 

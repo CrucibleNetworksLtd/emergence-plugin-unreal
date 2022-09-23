@@ -52,6 +52,9 @@ public:
 	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
 
 	UPROPERTY()
+	TArray<FString> ContractsWithLoadedABIs;
+
+	UPROPERTY()
 	TMap<FString, UTexture2D*> DownloadedImageCache;
 
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")

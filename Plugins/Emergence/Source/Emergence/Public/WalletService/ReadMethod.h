@@ -29,6 +29,9 @@ public:
 
 	virtual void Activate() override;
 
+	UFUNCTION()
+	void LoadContractCompleted(FString Response, EErrorCode StatusCode);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadMethodCompleted, FString, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)

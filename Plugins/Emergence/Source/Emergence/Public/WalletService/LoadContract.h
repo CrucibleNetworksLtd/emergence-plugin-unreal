@@ -7,7 +7,7 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
+#include "EmergenceDeployment.h"
 #include "LoadContract.generated.h"
 
 UCLASS()
@@ -21,7 +21,7 @@ public:
 	 * @param ABI The Application Binary Interface of the given contract.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static ULoadContract* LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI);
+	static ULoadContract* LoadContract(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract);
 
 	virtual void Activate() override;
 
@@ -32,6 +32,5 @@ public:
 private:
 	void LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	const UObject* WorldContextObject;
-	FString ContractAddress;
-	FString ABI;
+	UEmergenceDeployment* DeployedContract;
 };
