@@ -122,7 +122,7 @@ public:
 
 	//Opens the Emergence UI, returns the widget to focus
 	UFUNCTION(BlueprintCallable)
-	UWidget* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
+	UEmergenceUI* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
 
 	//Gets the Emergence UI
 	UFUNCTION(BlueprintPure)
@@ -212,8 +212,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
+	UFUNCTION()
+	void OnOverlayClosed();
+
 private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
 	TWeakObjectPtr<UGameInstance> OwningGameInstance;
+
+	bool PreviousMouseShowState;
+	int PreviousGameInputMode;
 };
 #pragma warning( pop )
