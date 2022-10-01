@@ -8,7 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "Emergence.h"
-#include "GetDataFromUrl.generated.h"
+#include "GetDataFromURL.generated.h"
 /**
  */
 UCLASS()
