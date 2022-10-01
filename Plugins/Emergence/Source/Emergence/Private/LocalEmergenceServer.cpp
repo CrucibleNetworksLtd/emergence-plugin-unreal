@@ -3,6 +3,7 @@
 
 #include "LocalEmergenceServer.h"
 #include "HttpService/HttpHelperLibrary.h"
+#if PLATFORM_WINDOWS
 #include "Windows/WindowsSystemIncludes.h"
 
 //Stuff for the windows api stuff, probably should be incapsulated so it doesn't build when we start working on none-windows stuff
@@ -20,15 +21,18 @@
 
 #include "Windows/PostWindowsApi.h"
 #include "Windows/HideWindowsPlatformTypes.h"
-
+#endif
 void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
 	if (!UHttpHelperLibrary::APIBase.IsEmpty()) { //if we think we may already have a server
 		UE_LOG(LogEmergenceHttp, Error, TEXT("The server has already been started or was closed without calling KillLocalServerProcess. This causes Emergence's internal state to get messed up, don't do this."));
 		return;
 	}
-
+#if PLATFORM_WINDOWS
 	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
+#else
+	FString EmergenceServerBinariesPath = FString(FLinuxPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
+#endif
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
@@ -66,7 +70,11 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 	TArray<FString> Args = {
 		"--urls=\"" + ServerURL + "\"",
 		"--walletconnect=" + JsonArgs,
+#if PLATFORM_WINDOWS
 		"--processid=" + FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
+#else
+		"--processid=" + FString::FromInt(FLinuxPlatformProcess::GetCurrentProcessId())
+#endif
 	};
 
 	//combine the args
@@ -90,7 +98,7 @@ void ULocalEmergenceServer::KillLocalServerProcess()
 	UE_LOG(LogEmergenceHttp, Display, TEXT("KillLocalServerProcess request started..."));
 	UHttpHelperLibrary::APIBase.Empty();
 }
-
+#if PLATFORM_WINDOWS
 bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
 	PMIB_TCPTABLE2 pTcpTable;
 	ULONG ulSize = 0;
@@ -155,3 +163,13 @@ int ULocalEmergenceServer::GetNextFreePort()
 	UE_LOG(LogEmergenceHttp, Error, TEXT("Couldn't find a free port!"));
 	return -1;
 }
+#else
+bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
+	return false;
+}
+
+int ULocalEmergenceServer::GetNextFreePort()
+{
+	return 57000;
+}
+#endif
