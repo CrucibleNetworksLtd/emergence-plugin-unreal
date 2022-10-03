@@ -30,10 +30,12 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 	}
 #if PLATFORM_WINDOWS
 	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/Windows/EmergenceEVMLocalServer.exe");
 #else
-	FString EmergenceServerBinariesPath = FString(FLinuxPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
+	FString EmergenceServerBinariesPath = FString(FLinuxPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer";
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/Linux/EmergenceEVMLocalServer");
 #endif
-	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
+	
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
 		LoadPath = EmergenceServerBinariesPath;
