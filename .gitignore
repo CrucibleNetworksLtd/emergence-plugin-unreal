@@ -79,4 +79,5 @@ DerivedDataCache/*
 UXDesign/Exported Assets/RawMipMaps/EMRG_Icon_PersonaEditData＿Colours.png
 
 Plugins/Emergence/EmergenceServer/
-!Plugins/Emergence/EmergenceServer/.gitkeep
+!Plugins/Emergence/EmergenceServer/Linux/.gitkeep
+!Plugins/Emergence/EmergenceServer/Windows/.gitkeep
