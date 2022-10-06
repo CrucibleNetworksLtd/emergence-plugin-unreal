@@ -24,9 +24,10 @@ public:
 	 * @param LocalAccountName The local account to call the method with. Leave blank to call with the WalletConnect'd wallet.
 	 * @param GasPrice The gas price to use if we're calling with a local account.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
+	 * @param Blockchain The blockchain this contract is on. Leaving this blank will set it to the "default" blockchain. You only need to worry about using this if you are making use of multiple blockchains, as it is specifically designed to avoid the situation that two blockchains have a contract with the same address.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice);
+	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, FString Blockchain = "");
 
 	virtual void Activate() override;
 
@@ -43,4 +44,5 @@ private:
 	FString LocalAccountName;
 	FString GasPrice;
 	FString Value;
+	FString Blockchain;
 };

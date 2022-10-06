@@ -22,9 +22,10 @@ public:
 	 * @param Content The parameters to call the method with.
 	 * @param CustomNodeURL A custom node URL to call the method on. Leave blank for the relevent one from the project settings.
 	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
+	 * @param Blockchain The blockchain this contract is on. Leaving this blank will set it to the "default" blockchain. You only need to worry about using this if you are making use of multiple blockchains, as it is specifically designed to avoid the situation that two blockchains have a contract with the same address.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL);
+	static UReadMethod* ReadMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, TArray<FString> Content, FString CustomNodeURL, FString Blockchain = "");
 
 	virtual void Activate() override;
 
@@ -35,6 +36,6 @@ public:
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	const UObject* WorldContextObject;
-	FString ContractAddress, CustomNodeURL, MethodName;
+	FString ContractAddress, CustomNodeURL, MethodName, Blockchain;
 	TArray<FString> Content;
 };

@@ -7,11 +7,12 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI)
+ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI, FString Blockchain)
 {
 	ULoadContract* BlueprintNode = NewObject<ULoadContract>();
 	BlueprintNode->ContractAddress = ContractAddress;
 	BlueprintNode->ABI = ABI;
+	BlueprintNode->Blockchain = (Blockchain == "") ? "DEFAULT" : Blockchain;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -21,6 +22,7 @@ void ULoadContract::Activate()
 	TSharedPtr<FJsonObject> Json = MakeShareable(new FJsonObject);
 	Json->SetStringField("contractAddress", this->ContractAddress);
 	Json->SetStringField("ABI", this->ABI);
+	Json->SetStringField("network", this->Blockchain);
 	
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);

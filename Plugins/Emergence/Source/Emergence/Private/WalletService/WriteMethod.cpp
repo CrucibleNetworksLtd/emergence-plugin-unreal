@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
+UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FString ContractAddress, FString MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, FString Blockchain)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->ContractAddress = ContractAddress;
@@ -17,6 +17,7 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, FStri
 	BlueprintNode->LocalAccountName = LocalAccountName;
 	BlueprintNode->GasPrice = GasPrice;
 	BlueprintNode->Value = Value;
+	BlueprintNode->Blockchain = (Blockchain == "") ? "DEFAULT" : Blockchain;
 	return BlueprintNode;
 }
 
@@ -43,7 +44,7 @@ void UWriteMethod::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
 		this, 
 		&UWriteMethod::WriteMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&methodName=" + MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
+		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + ContractAddress + "&network=" + Blockchain + "&methodName=" + MethodName + "&value=" + Value + ( LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "" ) + GasString,
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
