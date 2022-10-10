@@ -15,7 +15,6 @@
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
 
-#include "Windows/WindowsSystemIncludes.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 

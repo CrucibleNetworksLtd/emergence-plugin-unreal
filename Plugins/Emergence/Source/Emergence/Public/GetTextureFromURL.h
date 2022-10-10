@@ -8,7 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "Emergence.h"
-#include "GetTextureFromUrl.generated.h"
+#include "GetTextureFromURL.generated.h"
 /**
  */
 UCLASS()
