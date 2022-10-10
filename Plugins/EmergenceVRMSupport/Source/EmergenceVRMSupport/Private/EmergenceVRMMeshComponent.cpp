@@ -5,7 +5,7 @@
 #include "UObject/UObjectGlobals.h"
 #include "LoaderBPFunctionLibrary.h"
 #include "VRMSupportLibrary.h"
-#include "VRMAnimInstanceCopy.h"
+#include "VrmAnimInstanceCopy.h"
 #include "UObject/ConstructorHelpers.h"
 
 UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
