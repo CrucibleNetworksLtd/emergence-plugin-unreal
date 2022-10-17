@@ -35,12 +35,12 @@ void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpReques
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {	
-		FString TransactionAsJSONString;
-		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&TransactionAsJSONString);
-		if (!JsonObject.HasField("message") && !JsonObject.GetObjectField("message")->HasTypedField<EJson::Object>("transaction")) {
-			OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceClientJsonParseFailed);
+		if (!JsonObject.GetObjectField("message")->HasTypedField<EJson::Object>("transaction")) {
+			OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceOk);
 			return;
 		}
+		FString TransactionAsJSONString;
+		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&TransactionAsJSONString);
 		FJsonSerializer::Serialize(JsonObject.GetObjectField("message")->GetObjectField("transaction").ToSharedRef(), Writer);
 		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(TransactionAsJSONString), EErrorCode::EmergenceOk);
 		return;
