@@ -485,11 +485,22 @@ namespace {
 			{
 #if WITH_EDITORONLY_DATA
 				UMaterialExpressionTextureSampleParameter2D* UnrealTextureExpression = NewObject<UMaterialExpressionTextureSampleParameter2D>(UnrealMaterial);
+
+#if	UE_VERSION_OLDER_THAN(5,1,0)
 				UnrealMaterial->Expressions.Add(UnrealTextureExpression);
+#else
+				UnrealMaterial->GetEditorOnlyData()->ExpressionCollection.Expressions.Add(UnrealTextureExpression);
+#endif
+				
 				UnrealTextureExpression->SamplerType = SAMPLERTYPE_Color;
 				UnrealTextureExpression->ParameterName = TEXT("gltf_tex_diffuse");
 
+#if	UE_VERSION_OLDER_THAN(5,1,0)
 				UnrealMaterial->BaseColor.Expression = UnrealTextureExpression;
+#else
+				UnrealMaterial->GetEditorOnlyData()->BaseColor.Expression = UnrealTextureExpression;
+#endif
+
 #endif
 			}
 
@@ -916,9 +927,9 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 				continue;
 			}
 
-			aiString texName;
-			int index = -1;
+			int indexDiffuse = -1;
 			{
+				aiString texName;
 				for (uint32_t t = 0; t < AI_TEXTURE_TYPE_MAX; ++t) {
 					uint32_t n = aiMat.GetTextureCount((aiTextureType)t);
 					for (uint32_t y = 0; y < n; ++y) {
@@ -929,7 +940,7 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 
 				for (uint32_t i = 0; i < aiData->mNumTextures; ++i) {
 					if (aiData->mTextures[i]->mFilename == texName) {
-						index = i;
+						indexDiffuse = i;
 						break;
 					}
 				}
@@ -940,12 +951,12 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 				if (r == AI_SUCCESS) {
 					std::string s = path.C_Str();
 					s = s.substr(s.find_last_of('*') + 1);
-					index = atoi(s.c_str());
+					indexDiffuse = atoi(s.c_str());
 
 					if (Options::Get().IsPMXModel()) {
 						for (int i = 0; i < pmxTexNameList.Num(); ++i) {
 							if (pmxTexNameList[i] == UTF8_TO_TCHAR(path.C_Str())) {
-								index = i;
+								indexDiffuse = i;
 								break;
 							}
 						}
@@ -963,8 +974,8 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 			//MyComponent2->SetMaterial(0, DynMaterial);
 
 			// ALL!! no texture material.
-			//if (index >= 0 && index < vrmAssetList->Textures.Num()) {
-			//if (index >= 0) {
+			//if (indexDiffuse >= 0 && indexDiffuse < vrmAssetList->Textures.Num()) {
+			//if (indexDiffuse >= 0) {
 			{
 				UMaterialInstanceConstant* dm = nullptr;
 				{
@@ -1033,8 +1044,8 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 							v->ParameterValue = FLinearColor(f[0], f[1], 0, 0);
 						}
 					}
-					if (index >= 0 && index < vrmAssetList->Textures.Num()) {
-						LocalTextureSet(dm, TEXT("gltf_tex_diffuse"), vrmAssetList->Textures[index]);
+					if (indexDiffuse >= 0 && indexDiffuse < vrmAssetList->Textures.Num()) {
+						LocalTextureSet(dm, TEXT("gltf_tex_diffuse"), vrmAssetList->Textures[indexDiffuse]);
 						{
 							FString str = TEXT("mtoon_tex_ShadeTexture");
 							bool bFindShadeTex = false;
@@ -1042,11 +1053,22 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 								if (str.Compare(t.ParameterInfo.Name.ToString(), ESearchCase::IgnoreCase) == 0) {
 									if (t.ParameterValue) {
 										bFindShadeTex = true;
+
+										if (IsValid(vrmAssetList->Textures[indexDiffuse]) == false) {
+#if UE_VERSION_OLDER_THAN(5,0,0)
+											UTexture2D *tmp = Cast<UTexture2D>(t.ParameterValue);
+#else
+											UTexture2D* tmp = Cast<UTexture2D>(t.ParameterValue.Get());
+#endif
+											if (tmp) {
+												LocalTextureSet(dm, TEXT("gltf_tex_diffuse"), tmp);
+											}
+										}
 									}
 								}
 							}
 							if (bFindShadeTex == false) {
-								LocalTextureSet(dm, *str, vrmAssetList->Textures[index]);
+								LocalTextureSet(dm, *str, vrmAssetList->Textures[indexDiffuse]);
 							}
 						}
 					} else {

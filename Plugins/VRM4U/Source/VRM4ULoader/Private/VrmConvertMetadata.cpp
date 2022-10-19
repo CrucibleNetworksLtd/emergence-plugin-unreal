@@ -255,22 +255,57 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 	if (VRMConverter::Options::Get().IsVRM10Model()) {
 		// collider
 		{
-			auto& collider = jsonData.doc["extensions"]["VRMC_springBone"]["colliders"];
+			{
+				auto& collider = jsonData.doc["extensions"]["VRMC_springBone"]["colliders"];
 
-			auto& colliderGroup = jsonData.doc["extensions"]["VRMC_springBone"]["colliderGroups"]["colliderGroups"];
+				m->VRMColliderMeta.SetNum(collider.Size());
+				for (int colliderNo = 0; colliderNo < (int)collider.Size(); ++colliderNo) {
+					auto& dstCollider = m->VRMColliderMeta[colliderNo];
+					dstCollider.bone = collider.GetArray()[colliderNo]["node"].GetInt();
+					//dstCollider.boneName
 
-			m->VRMColliderMeta.SetNum(collider.Size());
-			for (int colliderNo = 0; colliderNo < (int)collider.Size(); ++colliderNo) {
-				auto& dstCollider = m->VRMColliderMeta[colliderNo];
-				dstCollider.bone = collider.GetArray()[colliderNo]["node"].GetInt();
-				//dstCollider.boneName
+					if (collider.GetArray()[colliderNo]["shape"].HasMember("sphere")) {
+						dstCollider.collider.SetNum(1);
+						dstCollider.collider[0].offset.Set(
+							collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][0].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][1].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][2].GetFloat());
+						dstCollider.collider[0].radius = collider.GetArray()[colliderNo]["shape"]["sphere"]["radius"].GetFloat();
+						dstCollider.collider[0].shapeType = TEXT("sphere");
 
-				dstCollider.collider.SetNum(1);
-				dstCollider.collider[0].offset.Set(
-					collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][0].GetFloat(),
-					collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][1].GetFloat(),
-					collider.GetArray()[colliderNo]["shape"]["sphere"]["offset"][2].GetFloat());
-				dstCollider.collider[0].radius = collider.GetArray()[colliderNo]["shape"]["sphere"]["radius"].GetFloat();
+					}
+
+					if (collider.GetArray()[colliderNo]["shape"].HasMember("capsule")) {
+						dstCollider.collider.SetNum(1);
+						dstCollider.collider[0].offset.Set(
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["offset"][0].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["offset"][1].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["offset"][2].GetFloat());
+						dstCollider.collider[0].radius = collider.GetArray()[colliderNo]["shape"]["capsule"]["radius"].GetFloat();
+						dstCollider.collider[0].tail.Set(
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["tail"][0].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["tail"][1].GetFloat(),
+							collider.GetArray()[colliderNo]["shape"]["capsule"]["tail"][2].GetFloat());
+						dstCollider.collider[0].shapeType = TEXT("capsule");
+					}
+				}
+			}
+			{
+				auto& colliderGroup = jsonData.doc["extensions"]["VRMC_springBone"]["colliderGroups"]["colliderGroups"];
+				auto& dstCollider = m->VRMColliderGroupMeta;
+
+				dstCollider.SetNum(colliderGroup.Size());
+				for (int i = 0; i < dstCollider.Num(); ++i) {
+					auto c = colliderGroup.GetArray();
+					dstCollider[i].groupName = c[i]["name"].GetString();
+
+					for (uint32_t g = 0; g < c[i]["colliders"].Size(); ++g) {
+						dstCollider[i].colliderGroup.Add(c[i]["colliders"].GetArray()[g].GetInt());
+					}
+				
+				}
+
+
 			}
 		}
 

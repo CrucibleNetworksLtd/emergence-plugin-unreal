@@ -25,7 +25,9 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 
 	c(ModelScale);
 
-	c(bVrm10Normalize);
+	c(bVrm10RemoveLocalRotation);
+
+	c(bVrm10Bindpose);
 
 	c(bGenerateHumanoidRenamedMesh);
 

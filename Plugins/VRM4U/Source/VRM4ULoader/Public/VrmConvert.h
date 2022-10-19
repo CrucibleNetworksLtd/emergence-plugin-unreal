@@ -93,7 +93,9 @@ public:
 
 		bool IsStrictMorphTargetNameMode() const;
 
-		bool IsVRM10Normalize() const;
+		bool IsVRM10RemoveLocalRotation() const;
+		bool IsVRM10Bindpose() const;
+
 		bool IsGenerateHumanoidRenamedMesh() const;
 
 		bool IsGenerateIKBone() const;

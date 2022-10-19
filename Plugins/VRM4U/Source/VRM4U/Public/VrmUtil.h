@@ -15,7 +15,7 @@ class UMorphTarget;
 class UPhysicsAsset;
 struct FSkeletalMaterial;
 
-// skeleton
+// skeleton begin
 
 template<typename T>
 USkeleton* VRMGetSkeleton(T* t){
@@ -60,8 +60,9 @@ void VRMSetSkeleton(TObjectPtr<T> t, USkeleton* sk) {
 }
 #endif
 
+//skeleton end
 
-// refskeleton
+// refskeleton begin
 
 template<typename T>
 FReferenceSkeleton& VRMGetRefSkeleton(T* t) {
@@ -105,6 +106,8 @@ void VRMSetRefSkeleton(TObjectPtr<T> t, const FReferenceSkeleton& refsk) {
 	t->SetRefSkeleton(refsk);
 }
 #endif
+
+//refskeleton end
 
 // morph targets
 template<typename T>
@@ -220,6 +223,11 @@ void VRMSetUseLegacyMeshDerivedDataKey(T* t, bool b) {
 }
 
 
+#if	UE_VERSION_OLDER_THAN(5,0,0)
+#else
+VRM4U_API void VRMAddRetargetChain(class UIKRigController* con, FName name, FName begin, FName end);
+#endif
+
 // 
 //
 
@@ -270,7 +278,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	float ModelScale = 1.0f;
 
-	bool bVrm10Normalize = true;
+	bool bVrm10RemoveLocalRotation = false;
+
+	bool bVrm10Bindpose = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bGenerateHumanoidRenamedMesh = false;

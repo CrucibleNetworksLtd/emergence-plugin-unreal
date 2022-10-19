@@ -42,9 +42,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Model scale"))
 	float ModelScale = 1.0f;
 
-	/** Normalize axis for VRM10 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "NormalizeForVRM10"))
-	bool bVrm10Normalize = true;
+	/** Remove Local Rotation for VRM10 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM10 Remove Local Rotation"))
+	bool bVrm10RemoveLocalRotation = false;
+
+	/** Use Bindpose for VRM10 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM10 Bindpose"))
+	bool bVrm10Bindpose = false;
 
 	/** Duplicate mesh and renamed humanoid bone */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName="Generate renamed humanoid mesh"))

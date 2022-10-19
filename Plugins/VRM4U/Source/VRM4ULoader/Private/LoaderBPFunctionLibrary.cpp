@@ -84,18 +84,24 @@ namespace {
 		bool tmp = false;
 	public:
 		RenderControl() {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
 			tmp = GUseThreadedRendering;
 
 			if (tmp) {
 				StopRenderingThread();
 				GUseThreadedRendering = false;
 			}
+#else
+#endif
 		}
 		~RenderControl() {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
 			if (tmp) {
 				GUseThreadedRendering = true;
 				StartRenderingThread();
 			}
+#else
+#endif
 		}
 	};
 
@@ -165,8 +171,12 @@ static bool RenewPkgAndSaveObject(UObject *u, bool bSave) {
 			FAssetRegistryModule::AssetCreated(u);
 #if	UE_VERSION_OLDER_THAN(5,0,0)
 			bool bSaved = UPackage::SavePackage(s_vrm_package, u, EObjectFlags::RF_Standalone, *(s_vrm_package->GetName()), GError, nullptr, true, true, SAVE_NoError);
-#else
+#elif UE_VERSION_OLDER_THAN(5,1,0)
 			FSavePackageArgs SaveArgs = { nullptr, EObjectFlags::RF_Standalone, SAVE_NoError, true,
+					true, true, FDateTime::MinValue(), GError };
+			bool bSaved = UPackage::SavePackage(s_vrm_package, u, *(s_vrm_package->GetName()), SaveArgs);
+#else
+			FSavePackageArgs SaveArgs = { nullptr, nullptr, EObjectFlags::RF_Standalone, SAVE_NoError, true,
 					true, true, FDateTime::MinValue(), GError };
 			bool bSaved = UPackage::SavePackage(s_vrm_package, u, *(s_vrm_package->GetName()), SaveArgs);
 #endif
@@ -552,7 +562,6 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 	RenderControl _dummy_control;
 
 	if (InVrmAsset == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("nullptr found"));
 		return false;
 	}
 
@@ -565,7 +574,7 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 
 	double StartTime = FPlatformTime::Seconds();
 	auto LogAndUpdate = [&](FString logname) {
-		UE_LOG(LogTemp, Warning, TEXT("VRM:(%02.2lf secs) %s"), FPlatformTime::Seconds() - StartTime, *logname);
+		UE_LOG(LogVRM4ULoader, Log, TEXT("VRM:(%02.2lf secs) %s"), FPlatformTime::Seconds() - StartTime, *logname);
 		StartTime = FPlatformTime::Seconds();
 	};
 
@@ -611,14 +620,14 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 			mScenePtr = mImporter.ReadFile(file, aiProcess_Triangulate | aiProcess_MakeLeftHanded | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_OptimizeMeshes);
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("VRM:(%3.3lf secs) ReadFileFromMemory"), FPlatformTime::Seconds() - StartTime);
+		UE_LOG(LogVRM4ULoader, Log, TEXT("VRM:(%3.3lf secs) ReadFileFromMemory"), FPlatformTime::Seconds() - StartTime);
 		StartTime = FPlatformTime::Seconds();
 	}
 
 	UpdateProgress(20);
 	if (mScenePtr == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("VRM4U: read failure.\n"));
+		UE_LOG(LogVRM4ULoader, Warning, TEXT("VRM4U: read failure.\n"));
 		return false;
 	}
 
@@ -646,7 +655,7 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 	}
 
 	if (out == nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("VRM4U: no UVrmAssetListObject.\n"));
+		UE_LOG(LogVRM4ULoader, Warning, TEXT("VRM4U: no UVrmAssetListObject.\n"));
 		return false;
 	}
 
@@ -1194,7 +1203,7 @@ static void LocalEpicSkeletonSetup(UIKRigController *rigcon) {
 	while (rigcon->GetRetargetChains().Num()) {
 		rigcon->RemoveRetargetChain(rigcon->GetRetargetChains()[0].ChainName);
 	}
-	rigcon->AddRetargetChain(TEXT("root"), TEXT("root"), TEXT("root"));
+	VRMAddRetargetChain(rigcon, TEXT("root"), TEXT("root"), TEXT("root"));
 
 
 	int sol_index = 0;
@@ -1273,21 +1282,21 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 
 				switch (type) {
 				case 0:
-					rigcon->AddRetargetChain(*modelName.BoneVRM, *modelName.BoneUE4, *modelName.BoneUE4);
+					VRMAddRetargetChain(rigcon, *modelName.BoneVRM, *modelName.BoneUE4, *modelName.BoneUE4);
 						break;
 				case 1:
 					if (sk->GetRefSkeleton().FindBoneIndex(TEXT("spine_05")) != INDEX_NONE) {
-						rigcon->AddRetargetChain(TEXT("spine"), TEXT("spine_01"), TEXT("spine_05"));
+						VRMAddRetargetChain(rigcon, TEXT("spine"), TEXT("spine_01"), TEXT("spine_05"));
 					} else {
-						rigcon->AddRetargetChain(TEXT("spine"), TEXT("spine_01"), TEXT("spine_03"));
+						VRMAddRetargetChain(rigcon, TEXT("spine"), TEXT("spine_01"), TEXT("spine_03"));
 					}
 					break;
 				default:
 					break;
 				}
 			}
-			rigcon->AddRetargetChain(TEXT("leftEye"), TEXT(""), TEXT(""));
-			rigcon->AddRetargetChain(TEXT("rightEye"), TEXT(""), TEXT(""));
+			VRMAddRetargetChain(rigcon, TEXT("leftEye"), TEXT(""), TEXT(""));
+			VRMAddRetargetChain(rigcon, TEXT("rightEye"), TEXT(""), TEXT(""));
 		}
 
 		{
@@ -1314,7 +1323,7 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 			for (auto& modelName : VRMUtil::table_ue4_vrm) {
 				if (modelName.BoneVRM == "") continue;
 				if (modelName.BoneUE4 == "") continue;
-				rigcon->AddRetargetChain(*modelName.BoneUE4, *modelName.BoneUE4, *modelName.BoneUE4);
+				VRMAddRetargetChain(rigcon, *modelName.BoneUE4, *modelName.BoneUE4, *modelName.BoneUE4);
 			}
 		}
 
@@ -1419,6 +1428,7 @@ void ULoaderBPFunctionLibrary::VRMGenerateIKRetargeterPose(UObject* IKRetargeter
 	UIKRetargeterController* c = UIKRetargeterController::GetController(ikr);
 	if (c == nullptr) return;
 
+#if UE_VERSION_OLDER_THAN(5,1,0)
 	// setup A-Pose
 	if (targetRigIK) {
 		c->SetTargetIKRig(Cast<UIKRigDefinition>(targetRigIK));
@@ -1457,6 +1467,9 @@ void ULoaderBPFunctionLibrary::VRMGenerateIKRetargeterPose(UObject* IKRetargeter
 		FName poseName_A = pose->GetPoseNameByIndex(1);
 		c->SetCurrentRetargetPose(poseName_A);
 	}
+#else
+#endif
+
 #endif
 #endif // editor
 
