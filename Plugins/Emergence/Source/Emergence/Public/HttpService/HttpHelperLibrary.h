@@ -169,7 +169,6 @@ public:
 
 		//switch IPFS to our public node...
 		FinalURL = UHttpHelperLibrary::InternalIPFSURLToHTTP(URL);
-
 		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
@@ -177,7 +176,7 @@ public:
 		//Handle headers and logging of the headers
 		FString HeaderLogText;
 		if (Headers.Num() > 0) {
-			HeaderLogText = "\nHeaders:\n";
+			HeaderLogText = "\nAdditional headers:\n";
 			for (int i = 0; i < Headers.Num(); i++) {
 				HttpRequest->SetHeader(Headers[i].Key, Headers[i].Value);
 				HeaderLogText.Append(Headers[i].Key + ": " + Headers[i].Value + "\n");
