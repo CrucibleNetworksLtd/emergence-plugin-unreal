@@ -6,6 +6,7 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/SWidget.h"
 #include "EmergenceContract.h"
+#include "EmergenceDeployment.h"
 
 class SNameComboBox;
 
@@ -32,7 +33,12 @@ protected:
 	void SetPropertyWithName(const FName& Name);
 	void GetPropertyAsName(FName& OutName) const;
 private:
-	TArray<TSharedPtr<FName>> Options;
-	TArray<FEmergenceContractMethod> OptionStructs;
+	TArray<TSharedPtr<FName>> Options = {
+		MakeShared<FName>(FName("Select..."))
+	};
+	TArray<FEmergenceContractMethod> OptionStructs = {
+		FEmergenceContractMethod("")
+	};
 	TSharedPtr<SNameComboBox> NameComboBox;
+	UEmergenceDeployment* PreviouslyAssociatedDeployment;
 };

@@ -1,7 +1,6 @@
 #include "EmergenceContractMethodGraphPin.h"
 
 
-#include "EmergenceDeployment.h"
 #include "EdGraph/EdGraphPin.h"
 #include "EdGraph/EdGraphSchema.h"
 #include "SNameComboBox.h"
@@ -15,6 +14,7 @@
 void SEmergenceContractMethodGraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 {
 	SGraphPin::Construct(SGraphPin::FArguments(), InGraphPinObj);
+	UpdateOptions();
 }
 
 TSharedRef<SWidget> SEmergenceContractMethodGraphPin::GetDefaultValueWidget()
@@ -71,28 +71,39 @@ void SEmergenceContractMethodGraphPin::OnNameComboBoxOpening()
 
 void SEmergenceContractMethodGraphPin::UpdateOptions()
 {
-	this->Options.Empty();
-	this->OptionStructs.Empty();
 	auto OwnerNode = OwnerNodePtr.Pin().Get();
 	//if the node is valid
 	if (OwnerNode && OwnerNode->GetNodeObj()) {
+		//is this node a ReadMethod node or a WriteMethod node?
 		bool ReadMethod = OwnerNode->GetNodeObj()->GetNodeTitle(ENodeTitleType::ListView).ToString().Contains("Read");
 		TArray<UEdGraphPin*> Pins = OwnerNode->GetNodeObj()->GetAllPins();
+		UEmergenceDeployment* FoundDeployment = nullptr;
 		//for each pin
 		for (int i = 0; i < Pins.Num(); i++) {
-			//if pin is valid, and is of class deplyoment
-			if (Pins[i]->PinType.PinSubCategoryObject.IsValid() && Pins[i]->PinType.PinSubCategoryObject.Get() == UEmergenceDeployment::StaticClass()) {
-				if (Pins[i]->DefaultObject) { //if it actually has something set or plugged into it
-					UEmergenceDeployment* Deployment = Cast<UEmergenceDeployment>(Pins[i]->DefaultObject); //cast to a deployment object
-					UE_LOG(LogTemp, Display, TEXT("pin %d (%s): %s (default object)"), i, *Pins[i]->PinType.PinSubCategoryObject.Get()->GetName(), *Deployment->Address);
-					if (Deployment->Contract) { //if the contract is valid
-						auto MethodArray = ReadMethod ? Deployment->Contract->ReadMethods : Deployment->Contract->WriteMethods;
-						for (int j = 0; j < MethodArray.Num(); j++) { //for each method in the contract
-							UE_LOG(LogTemp, Display, TEXT("%s"), *MethodArray[j].MethodName);
-							this->Options.Add(MakeShared<FName>(FName(MethodArray[j].MethodName)));
-							this->OptionStructs.Add(MethodArray[j]);
-						}
-					}
+			//if pin is valid, and is of class deplyoment, and if it actually has something set or plugged into it
+			if (Pins[i]->PinType.PinSubCategoryObject.IsValid() && Pins[i]->PinType.PinSubCategoryObject.Get() == UEmergenceDeployment::StaticClass() && Pins[i]->DefaultObject) {
+				FoundDeployment = Cast<UEmergenceDeployment>(Pins[i]->DefaultObject); //cast to a deployment object
+				UE_LOG(LogTemp, Display, TEXT("pin %d (%s): %s (default object)"), i, *Pins[i]->PinType.PinSubCategoryObject.Get()->GetName(), *FoundDeployment->Address);
+				if (FoundDeployment == PreviouslyAssociatedDeployment)
+				{
+					return;
+				}
+			}
+		}
+
+		if(FoundDeployment){
+			this->Options.Empty();
+			this->Options.Add(MakeShared<FName>(FName("Select...")));
+			this->OptionStructs.Empty();
+			this->OptionStructs.Add(FEmergenceContractMethod(""));
+			PreviouslyAssociatedDeployment = FoundDeployment;
+			
+			if (FoundDeployment->Contract) { //if the contract is valid
+				auto MethodArray = ReadMethod ? FoundDeployment->Contract->ReadMethods : FoundDeployment->Contract->WriteMethods;
+				for (int j = 0; j < MethodArray.Num(); j++) { //for each method in the contract
+					//UE_LOG(LogTemp, Display, TEXT("%s"), *MethodArray[j].MethodName);
+					this->Options.Add(MakeShared<FName>(FName(MethodArray[j].MethodName)));
+					this->OptionStructs.Add(MethodArray[j]);
 				}
 			}
 		}
@@ -102,18 +113,18 @@ void SEmergenceContractMethodGraphPin::UpdateOptions()
 void SEmergenceContractMethodGraphPin::SetPropertyWithName(const FName& Name)
 {
 	
-	UE_LOG(LogTemp, Display, TEXT("SetPropertyWithName: %s"), *Name.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("SetPropertyWithName: %s"), *Name.ToString());
 	check(GraphPinObj);
 	int ListIndex = Options.IndexOfByPredicate([Name](TSharedPtr<FName> option){
 		return option.Get()->ToString() == Name.ToString();
 	});
-	UE_LOG(LogTemp, Display, TEXT("ListIndex: %d"), ListIndex);
+	//UE_LOG(LogTemp, Display, TEXT("ListIndex: %d"), ListIndex);
 	if (ListIndex > 0) {
 		auto ReleventStruct = OptionStructs[ListIndex];
 		UScriptStruct* Struct = ReleventStruct.StaticStruct();
 		FString Output = TEXT("");
 		Struct->ExportText(Output, &ReleventStruct, nullptr, Struct, (PPF_ExportsNotFullyQualified | PPF_Copy | PPF_Delimited | PPF_IncludeTransient), nullptr);
-		UE_LOG(LogTemp, Display, TEXT("OUTPUT TEXT: %s"), *Output);
+		//UE_LOG(LogTemp, Display, TEXT("OUTPUT TEXT: %s"), *Output);
 
 
 		FString CurrentDefaultValue = GraphPinObj->GetDefaultAsString();
@@ -124,7 +135,7 @@ void SEmergenceContractMethodGraphPin::SetPropertyWithName(const FName& Name)
 				NSLOCTEXT("GraphEditor", "ChangeNestedNamesFromConfigPinValue", "Change Nested Names From Config Value"));
 			GraphPinObj->Modify();
 
-			UE_LOG(LogTemp, Warning, TEXT("Verify values old: \"%s\" chosen: \"%s\""), *CurrentDefaultValue, *Output);
+			//UE_LOG(LogTemp, Warning, TEXT("Verify values old: \"%s\" chosen: \"%s\""), *CurrentDefaultValue, *Output);
 
 			if (Output != GraphPinObj->GetDefaultAsString())
 			{
@@ -174,6 +185,9 @@ void SEmergenceContractMethodGraphPin::GetPropertyAsName(FName& OutName) const
 	if (!PinString.IsEmpty())
 	{
 		OutName = *PinString;
+	}
+	else {
+		OutName = FName("Select...");
 	}
 }
 #undef LOCTEXT_NAMESPACE
