@@ -57,7 +57,7 @@ void UReadMethod::Activate()
 	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + DeployedContract->Address + "&network=" + DeployedContract->Blockchain->Name.ToString()+ "&methodName=" + MethodName.MethodName + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL,
+		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + DeployedContract->Address + "&network=" + DeployedContract->Blockchain->Name.ToString().Replace(TEXT(" "), TEXT("")) + "&methodName=" + MethodName.MethodName + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL,
 		"POST",
 		60.0F,
 		Headers,

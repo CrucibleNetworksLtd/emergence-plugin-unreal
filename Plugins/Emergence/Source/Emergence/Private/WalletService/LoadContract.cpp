@@ -21,7 +21,7 @@ void ULoadContract::Activate()
 	Json->SetStringField("contractAddress", this->DeployedContract->Address);
 	Json->SetStringField("ABI", this->DeployedContract->Contract->ABI);
 	
-	Json->SetStringField("network", this->DeployedContract->Blockchain->Name.ToString());
+	Json->SetStringField("network", this->DeployedContract->Blockchain->Name.ToString().Replace(TEXT(" "), TEXT("")));
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(Json.ToSharedRef(), Writer);
