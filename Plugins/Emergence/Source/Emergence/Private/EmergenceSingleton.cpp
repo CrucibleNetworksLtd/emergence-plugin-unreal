@@ -413,10 +413,8 @@ void UEmergenceSingleton::OnOverlayClosed()
 
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	EErrorCode StatusCode;
-	UE_LOG(LogEmergenceHttp, Display, TEXT("Parsing %s"), *HttpResponse->GetContentAsString());
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback was error code: %s"), *StaticEnum<EErrorCode>()->GetValueAsString(StatusCode));
+	EErrorCode StatusCode;	
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString OutputString;
 		TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutputString);
@@ -428,6 +426,10 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token! It is: %s"), *this->CurrentAccessToken);
 		OnGetAccessTokenCompleted.Broadcast(StatusCode);
 		return;
+	}
+	else {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback error parsing %s"), *HttpResponse->GetContentAsString());
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback was error code: %s"), *StaticEnum<EErrorCode>()->GetValueAsString(StatusCode));
 	}
 	OnGetAccessTokenCompleted.Broadcast(StatusCode);
 	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
