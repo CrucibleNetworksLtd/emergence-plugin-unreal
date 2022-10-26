@@ -35,7 +35,7 @@ void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpReques
 	if (StatusCode == EErrorCode::EmergenceOk) {	
 		FString TransactionAsJSONString;
 		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&TransactionAsJSONString);
-		if (!JsonObject.HasField("message") && !JsonObject.GetObjectField("message")->HasTypedField<EJson::Object>("transaction")) {
+		if (!JsonObject.HasField("message") || JsonObject.GetObjectField("message")->HasTypedField<EJson::Null>("transaction")) {
 			OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceClientJsonParseFailed);
 			return;
 		}
