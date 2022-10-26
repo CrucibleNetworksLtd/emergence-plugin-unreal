@@ -48,8 +48,8 @@ void ULoadContract::LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest
 	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
-		Singleton->ContractsWithLoadedABIs.AddUnique(DeployedContract->Address);
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Added %s to ContractsWithLoadedABIs array"), *DeployedContract->Address);
+		Singleton->ContractsWithLoadedABIs.AddUnique(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Added %s to ContractsWithLoadedABIs array"), *(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address));
 		OnLoadContractCompleted.Broadcast(HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);
 	}
 	else {

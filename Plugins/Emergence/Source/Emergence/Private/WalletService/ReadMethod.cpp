@@ -34,7 +34,7 @@ void UReadMethod::Activate()
 {
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	//if this contract has never had its ABI loaded...
-	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Address)) {
+	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
 		ULoadContract* LoadContract = ULoadContract::LoadContract(WorldContextObject, DeployedContract);
 		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UReadMethod::LoadContractCompleted);
 		LoadContract->Activate();
