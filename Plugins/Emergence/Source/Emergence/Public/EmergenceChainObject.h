@@ -30,9 +30,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	FString Symbol;
 
+	UPROPERTY(EditAnywhere)
+	int ChainID;
+
+
 	UFUNCTION()
 	static UEmergenceChain* GetEmergenceChainDataFromConfig(UObject* Outer);
 
 	UFUNCTION(BlueprintPure)
-	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol);
+	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol, int _ChainID);
 };
