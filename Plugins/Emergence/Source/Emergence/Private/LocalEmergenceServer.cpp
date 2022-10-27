@@ -5,7 +5,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Windows/WindowsSystemIncludes.h"
 
-//Stuff for the windows api stuff, probably should be incapsulated so it doesn't build when we start working on none-windows stuff
+#if PLATFORM_WINDOWS
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include "Windows/prewindowsapi.h"
 
@@ -20,7 +20,7 @@
 
 #include "Windows/PostWindowsApi.h"
 #include "Windows/HideWindowsPlatformTypes.h"
-
+#endif
 void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 {
 	if (!UHttpHelperLibrary::APIBase.IsEmpty()) { //if we think we may already have a server
@@ -28,7 +28,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 		return;
 	}
 
-	FString EmergenceServerBinariesPath = FString(FWindowsPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
+	FString EmergenceServerBinariesPath = FString(FPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
 	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
@@ -66,7 +66,7 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 	TArray<FString> Args = {
 		"--urls=\"" + ServerURL + "\"",
 		"--walletconnect=" + JsonArgs,
-		"--processid=" + FString::FromInt(FWindowsPlatformProcess::GetCurrentProcessId())
+		"--processid=" + FString::FromInt(FPlatformProcess::GetCurrentProcessId())
 	};
 
 	//combine the args
@@ -91,6 +91,7 @@ void ULocalEmergenceServer::KillLocalServerProcess()
 	UHttpHelperLibrary::APIBase.Empty();
 }
 
+#if PLATFORM_WINDOWS
 bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
 	PMIB_TCPTABLE2 pTcpTable;
 	ULONG ulSize = 0;
@@ -155,3 +156,13 @@ int ULocalEmergenceServer::GetNextFreePort()
 	UE_LOG(LogEmergenceHttp, Error, TEXT("Couldn't find a free port!"));
 	return -1;
 }
+#else
+bool ULocalEmergenceServer::GetUsedTCPPorts(TArray<int>& UsedPorts) {
+	return false;
+}
+
+int ULocalEmergenceServer::GetNextFreePort()
+{
+	return 57000;
+}
+#endif
