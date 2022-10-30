@@ -3,9 +3,10 @@
 
 #include "LocalEmergenceServer.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "Windows/WindowsSystemIncludes.h"
+
 
 #if PLATFORM_WINDOWS
+#include "Windows/WindowsSystemIncludes.h"
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include "Windows/prewindowsapi.h"
 
