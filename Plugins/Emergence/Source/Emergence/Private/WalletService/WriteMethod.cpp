@@ -6,7 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
-#include "WalletService/LoadContract.h"
+#include "WalletService/LoadContractInternal.h"
 
 UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
 {
@@ -36,7 +36,7 @@ void UWriteMethod::Activate()
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	//if this contract has never had its ABI loaded...
 	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
-		ULoadContract* LoadContract = ULoadContract::LoadContract(WorldContextObject, DeployedContract);
+		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
 		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
 		LoadContract->Activate();
 		return;
