@@ -21,7 +21,6 @@ public:
 	 * @param MethodName The method to call.
 	 * @param Content The parameters to call the method with.
 	 * @param BlockchainOverride Blockchain that the contract lives on. Leave blank for blockchain from Emergence project settings.
-	 * @warning Make sure the local server already knows about the contract by calling LoadContract first!
 	 */
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content,DeployedContract"), Category = "Emergence|Blockchain Interactions")
