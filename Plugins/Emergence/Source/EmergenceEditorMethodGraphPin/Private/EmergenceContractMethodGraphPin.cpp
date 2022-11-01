@@ -53,7 +53,7 @@ void SEmergenceContractMethodGraphPin::OnNameSelected(TSharedPtr<FName> ItemSele
 {
 	if (ItemSelected.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Name selected: %s"), *ItemSelected->ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Name selected: %s"), *ItemSelected->ToString());
 		SetPropertyWithName(*ItemSelected.Get());
 	}
 }
@@ -83,7 +83,7 @@ void SEmergenceContractMethodGraphPin::UpdateOptions()
 			//if pin is valid, and is of class deplyoment, and if it actually has something set or plugged into it
 			if (Pins[i]->PinType.PinSubCategoryObject.IsValid() && Pins[i]->PinType.PinSubCategoryObject.Get() == UEmergenceDeployment::StaticClass() && Pins[i]->DefaultObject) {
 				FoundDeployment = Cast<UEmergenceDeployment>(Pins[i]->DefaultObject); //cast to a deployment object
-				UE_LOG(LogTemp, Display, TEXT("pin %d (%s): %s (default object)"), i, *Pins[i]->PinType.PinSubCategoryObject.Get()->GetName(), *FoundDeployment->Address);
+				//UE_LOG(LogTemp, Display, TEXT("pin %d (%s): %s (default object)"), i, *Pins[i]->PinType.PinSubCategoryObject.Get()->GetName(), *FoundDeployment->Address);
 				if (FoundDeployment == PreviouslyAssociatedDeployment)
 				{
 					return;
@@ -154,7 +154,7 @@ TSharedPtr<FName> SEmergenceContractMethodGraphPin::GetSelectedName() const
 
 	FName Name;
 	GetPropertyAsName(Name);
-	UE_LOG(LogTemp, Display, TEXT("GetPropertyAsName: %s"), *Name.ToString());
+	//UE_LOG(LogTemp, Display, TEXT("GetPropertyAsName: %s"), *Name.ToString());
 
 	for (int32 NameIndex = 0; NameIndex < Options.Num(); ++NameIndex)
 	{
@@ -173,7 +173,7 @@ void SEmergenceContractMethodGraphPin::GetPropertyAsName(FName& OutName) const
 	//check(GraphPinObj->PinType.PinSubCategoryObject == FNestedNameAttribute::StaticStruct());
 
 	FString PinString = GraphPinObj->GetDefaultAsString();
-	UE_LOG(LogTemp, Display, TEXT("Get default as string: %s"), *GraphPinObj->GetDefaultAsString());
+	//UE_LOG(LogTemp, Display, TEXT("Get default as string: %s"), *GraphPinObj->GetDefaultAsString());
 	if (PinString.StartsWith(TEXT("(")) && PinString.EndsWith(TEXT(")")))
 	{
 		PinString = PinString.LeftChop(1);
