@@ -8,7 +8,7 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride)
+UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride)
 {
 	UGetTransactionStatus* BlueprintNode = NewObject<UGetTransactionStatus>();
 	BlueprintNode->WorldContextObject = WorldContextObject;

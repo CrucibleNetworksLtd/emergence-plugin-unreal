@@ -7,8 +7,9 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 #include "WalletService/LoadContractInternal.h"
+#include "..\..\Public\WalletService\WriteMethod.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice)
+UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
@@ -18,6 +19,8 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmer
 	BlueprintNode->LocalAccountName = LocalAccountName;
 	BlueprintNode->GasPrice = GasPrice;
 	BlueprintNode->Value = Value;
+	BlueprintNode->NumberOfConfirmations = NumberOfConfirmations;
+	BlueprintNode->TimeBetweenChecks = TimeBetweenChecks;
 	return BlueprintNode;
 }
 
@@ -27,7 +30,7 @@ void UWriteMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode
 		this->Activate();
 	}
 	else {
-		OnWriteMethodCompleted.Broadcast(FString(), StatusCode);
+		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 	}
 }
 
@@ -78,9 +81,46 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		OnWriteMethodCompleted.Broadcast(JsonObject.GetObjectField("message")->GetStringField("transactionHash"), EErrorCode::EmergenceOk);
+		this->TransactionHash = JsonObject.GetObjectField("message")->GetStringField("transactionHash");
+		GetTransactionStatus();
+		OnTransactionSent.Broadcast();
 		return;
 	}
-	OnWriteMethodCompleted.Broadcast(FString(), StatusCode);
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
+	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+}
+
+void UWriteMethod::GetTransactionStatus()
+{
+	UGetTransactionStatus* TransactionStatusCall = UGetTransactionStatus::GetTransactionStatus(this->WorldContextObject, this->TransactionHash, this->DeployedContract->Blockchain);
+	TransactionStatusCall->OnGetTransactionStatusCompleted.AddDynamic(this, &UWriteMethod::TransactionStatusReturns);
+	TransactionStatusCall->Activate();
+}
+
+void UWriteMethod::TransactionStatusReturns(FEmergenceTransaction Transaction, EErrorCode StatusCode)
+{
+	if (StatusCode == EErrorCode::EmergenceClientJsonParseFailed) {
+		//probably hasn't been picked up by the node yet
+		WaitThenGetStatus(); //wait for some seconds and then try to get the transaction status again
+	}
+	else if (StatusCode == EErrorCode::EmergenceOk) {
+		//probably good to read
+		if (Transaction.Confirmations > this->NumberOfConfirmations) { //if we have a good amount of confirmations
+			//send this transaction
+			this->OnTransactionConfirmed.Broadcast(Transaction, StatusCode);
+		}
+		else {
+			WaitThenGetStatus(); //wait for some seconds and then try to get the transaction status again
+		}
+	}
+	else {
+		//any other error
+		//send the error and a blank struct
+		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+	}
+}
+
+void UWriteMethod::WaitThenGetStatus()
+{
+	this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &UWriteMethod::GetTransactionStatus, 5.0F, false);
 }

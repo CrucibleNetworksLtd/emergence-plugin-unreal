@@ -35,7 +35,7 @@ public:
 
 
 	UFUNCTION()
-	static UEmergenceChain* GetEmergenceChainDataFromConfig(UObject* Outer);
+	static UEmergenceChain* GetEmergenceChainDataFromConfig(const UObject* Outer);
 
 	UFUNCTION(BlueprintPure)
 	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol, int _ChainID);

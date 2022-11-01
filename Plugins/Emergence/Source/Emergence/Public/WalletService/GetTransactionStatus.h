@@ -23,7 +23,7 @@ public:
 	 * @param BlockchainOverride Blockchain to get the transaction status from. Leave blank for blockchain from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetTransactionStatus* GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride);
+	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride);
 
 	virtual void Activate() override;
 
@@ -33,7 +33,7 @@ public:
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
 private:
 	void GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	UObject* WorldContextObject;
+	const UObject* WorldContextObject;
 	FString TransactionHash;
 	UEmergenceChain* Blockchain;
 };

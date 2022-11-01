@@ -7,7 +7,13 @@
 class FEmergenceWriteMethodGraphPanelNodeFactory: public FGraphPanelNodeFactory
 {
 	virtual TSharedPtr<class SGraphNode> CreateNode(UEdGraphNode* Node) const override {
-		
+		if ("Write Method" == Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString()) {
+			int32 OnTransactionSentPinIndex = Node->Pins.IndexOfByPredicate([](UEdGraphPin* Pin) {
+				return "OnTransactionSent" == Pin->GetName();
+			});
+			Node->Pins.Swap(OnTransactionSentPinIndex, Node->Pins.Num() - 1);
+			return nullptr;
+		}
 
 		if ("Load Contract" == Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString()) {
 			Node->SetEnabledState(ENodeEnabledState::Disabled, false);
