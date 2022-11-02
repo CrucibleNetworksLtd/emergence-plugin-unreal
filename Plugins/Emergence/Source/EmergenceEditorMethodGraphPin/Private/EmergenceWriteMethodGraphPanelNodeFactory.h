@@ -8,10 +8,12 @@ class FEmergenceWriteMethodGraphPanelNodeFactory: public FGraphPanelNodeFactory
 {
 	virtual TSharedPtr<class SGraphNode> CreateNode(UEdGraphNode* Node) const override {
 		if ("Write Method" == Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString()) {
-			int32 OnTransactionSentPinIndex = Node->Pins.IndexOfByPredicate([](UEdGraphPin* Pin) {
+			UEdGraphPin* OnTransactionSentPin = *Node->Pins.FindByPredicate([](UEdGraphPin* Pin) {
 				return "OnTransactionSent" == Pin->GetName();
 			});
-			Node->Pins.Swap(OnTransactionSentPinIndex, Node->Pins.Num() - 1);
+			Node->Pins.Remove(OnTransactionSentPin);
+			Node->Pins.Add(OnTransactionSentPin);
+
 			return nullptr;
 		}
 
