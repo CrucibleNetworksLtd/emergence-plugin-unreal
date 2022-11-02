@@ -25,7 +25,9 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 
 	c(ModelScale);
 
-	c(bVrm10Normalize);
+	c(bVrm10RemoveLocalRotation);
+
+	c(bVrm10Bindpose);
 
 	c(bGenerateHumanoidRenamedMesh);
 
@@ -52,6 +54,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 	c(bBC7Mode);
 
 	c(bMipmapGenerateMode);
+
+	c(bGenerateOutlineMaterial);
 
 	c(bMergeMaterial);
 
