@@ -8,24 +8,20 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Address)
+UGetBalance* UGetBalance::GetBalance(FString Address, UEmergenceChain* Blockchain)
 {
 	UGetBalance* BlueprintNode = NewObject<UGetBalance>();
 	BlueprintNode->Address = Address;
-	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->Blockchain = Blockchain;
 	return BlueprintNode;
 }
 
 void UGetBalance::Activate()
 {
-	UEmergenceChain* ChainData = UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject);
-	FString NodeURL = ChainData->NodeURL;
-	UE_LOG(LogEmergenceHttp, Warning, TEXT("Using Node URL: %s"), *NodeURL);
-
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
 		this, 
 		&UGetBalance::GetBalance_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + NodeURL + "&address=" + this->Address);
+		UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + Blockchain->NodeURL + "&address=" + this->Address);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
 }
 

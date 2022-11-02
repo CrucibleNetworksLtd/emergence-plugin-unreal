@@ -113,11 +113,6 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
 }
 
-FString UEmergenceSingleton::GetTokenSymbol()
-{
-	return UEmergenceChain::GetEmergenceChainDataFromConfig(this)->Symbol;
-}
-
 void UEmergenceSingleton::CancelSignInRequest()
 {
 	if (GetAccessTokenRequest && GetAccessTokenRequest->GetStatus() == EHttpRequestStatus::Processing) {

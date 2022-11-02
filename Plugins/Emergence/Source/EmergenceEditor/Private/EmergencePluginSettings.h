@@ -30,7 +30,12 @@ public:
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Custom Emergence Server Location", FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
 	
-	UPROPERTY(config, NoClear, EditAnywhere, Category = "Chain")
+	//Should the overlay UI show the user's balance?
+	UPROPERTY(config, EditAnywhere, Category = "UI Overlay")
+	bool ShowBalance = true;
+
+	//The blockchain used in the overlay UI to show the user's balance.
+	UPROPERTY(config, NoClear, EditAnywhere, Category = "UI Overlay", meta = (EditCondition = "ShowBalance", DisplayName = "Blockchain used in UI for balance"))
 	TSoftObjectPtr<UEmergenceChain> Chain = Cast<UEmergenceChain>(StaticLoadObject(UEmergenceChain::StaticClass(), this, TEXT("/Emergence/Chains/Polygon.Polygon")));
 
 	//The IPFS node to use when getting IPFS data via HTTP. Leaving it blank will use the default "http://ipfs.openmeta.xyz/ipfs/". The IPFS hash will be added to the end (for example, using the default: "http://ipfs.openmeta.xyz/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu")
