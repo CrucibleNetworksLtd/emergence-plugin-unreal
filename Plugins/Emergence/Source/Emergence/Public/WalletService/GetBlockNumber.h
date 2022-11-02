@@ -7,7 +7,6 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
 #include "Transaction.h"
 #include "EmergenceChainObject.h"
 #include "GetBlockNumber.generated.h"
@@ -19,7 +18,7 @@ class EMERGENCE_API UGetBlockNumber : public UBlueprintAsyncActionBase
 public:
 	/**
 	 * Gets the current block number of given chain.
-	 * @param BlockchainOverride Blockchain to get the block number of. Leave blank for blockchain from Emergence project settings.
+	 * @param Blockchain Blockchain to get the block number of.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* BlockchainOverride);

@@ -8,22 +8,21 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride)
+UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain)
 {
 	UGetTransactionStatus* BlueprintNode = NewObject<UGetTransactionStatus>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->TransactionHash = TransactionHash;
-	BlueprintNode->Blockchain = BlockchainOverride;
+	BlueprintNode->Blockchain = Blockchain;
 	return BlueprintNode;
 }
 
 void UGetTransactionStatus::Activate()
 {
-	FString NodeURL = Blockchain ? Blockchain->NodeURL : UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
 		this, 
 		&UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "GetTransactionStatus?transactionHash=" + TransactionHash + "&nodeURL=" + NodeURL);
+		UHttpHelperLibrary::APIBase + "GetTransactionStatus?transactionHash=" + TransactionHash + "&nodeURL=" + Blockchain->NodeURL);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus request started with JSON, calling GetTransactionStatus_HttpRequestComplete on request completed."));
 }
 

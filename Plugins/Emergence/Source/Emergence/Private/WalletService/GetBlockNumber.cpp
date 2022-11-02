@@ -8,21 +8,20 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* BlockchainOverride)
+UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* Blockchain)
 {
 	UGetBlockNumber* BlueprintNode = NewObject<UGetBlockNumber>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->Blockchain = BlockchainOverride;
+	BlueprintNode->Blockchain = Blockchain;
 	return BlueprintNode;
 }
 
 void UGetBlockNumber::Activate()
 {
-	FString NodeURL = Blockchain ? Blockchain->NodeURL : UEmergenceChain::GetEmergenceChainDataFromConfig(WorldContextObject)->NodeURL;
 	UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
 		this, 
 		&UGetBlockNumber::GetBlockNumber_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "getBlockNumber?nodeURL=" + NodeURL);
+		UHttpHelperLibrary::APIBase + "getBlockNumber?nodeURL=" + Blockchain->NodeURL);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetBlockNumber request started with JSON, calling GetBlockNumber_HttpRequestComplete on request completed."));
 }
 

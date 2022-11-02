@@ -7,7 +7,6 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
 #include "Transaction.h"
 #include "EmergenceChainObject.h"
 #include "GetTransactionStatus.generated.h"
@@ -20,10 +19,10 @@ public:
 	/**
 	 * Gets the status of the transaction.
 	 * @param TransactionHash Hash of the transaction.
-	 * @param BlockchainOverride Blockchain to get the transaction status from. Leave blank for blockchain from Emergence project settings.
+	 * @param Blockchain Blockchain to get the transaction status from.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* BlockchainOverride);
+	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain);
 
 	virtual void Activate() override;
 
