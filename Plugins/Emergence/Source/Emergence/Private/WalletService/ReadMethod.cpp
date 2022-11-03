@@ -75,7 +75,15 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 		TSharedPtr<FJsonObject> JsonInternalObject;
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonObject.GetObjectField("message")->GetStringField("response"));
 		FJsonSerializer::Deserialize(Reader, JsonInternalObject);
-		OnReadMethodCompleted.Broadcast(JsonInternalObject->GetStringField(""), EErrorCode::EmergenceOk);
+		if (JsonInternalObject->HasTypedField<EJson::String>("")) { //if it will cleanly turn into a string
+			OnReadMethodCompleted.Broadcast(JsonInternalObject->GetStringField(""), EErrorCode::EmergenceOk);
+		}
+		else { //if its a mess
+			FString OutputString;
+			TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+			FJsonSerializer::Serialize(JsonInternalObject.ToSharedRef(), Writer);
+			OnReadMethodCompleted.Broadcast(OutputString, EErrorCode::EmergenceOk);
+		}
 		return;
 	}
 	OnReadMethodCompleted.Broadcast(FString(), StatusCode);

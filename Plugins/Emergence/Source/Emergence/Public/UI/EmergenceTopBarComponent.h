@@ -26,6 +26,18 @@ public:
 	UFUNCTION()
 	void GetBalanceResponseHandler(FString Balance, EErrorCode StatusCode);
 
+	UFUNCTION()
+	void BalanceOfResponseHandler(FString Response, EErrorCode StatusCode);
+
+	UFUNCTION()
+	void SymbolResponseHandler(FString Response, EErrorCode StatusCode);
+
+	UFUNCTION(BlueprintPure)
+	FString GetBalanceText();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BalanceTextUpdated();
+
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	FString CurrencyDisplayText = "";
@@ -33,4 +45,10 @@ protected:
 private:
 	UPROPERTY()
 	UEmergenceChain* CurrencyDisplayChainData;
+
+	UPROPERTY()
+	FString ReturnedBalance = "";
+
+	UPROPERTY()
+	FString ReturnedSymbol = "NOSYM";
 };
