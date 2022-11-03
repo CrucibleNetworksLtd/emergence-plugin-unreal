@@ -22,8 +22,7 @@ public:
 	 * @param Content The parameters to call the method with.
 	 * @param BlockchainOverride Blockchain that the contract lives on. Leave blank for blockchain from Emergence project settings.
 	 */
-
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content,DeployedContract"), Category = "Emergence|Blockchain Interactions")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
 	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content);
 
 	virtual void Activate() override;
