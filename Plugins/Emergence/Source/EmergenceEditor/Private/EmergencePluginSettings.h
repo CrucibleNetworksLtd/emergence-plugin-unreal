@@ -30,6 +30,10 @@ public:
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Custom Emergence Server Location", FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
 	
+	//The avatar icon to display if a persona doesn't have an avatar associated to it.
+	UPROPERTY(config, EditAnywhere, Category = "General")
+	TSoftObjectPtr<UTexture2D> DefaultAvatarIcon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath("Texture2D'/Emergence/Components/UE.UE'"));
+	
 	//Should the overlay UI show the user's balance?
 	UPROPERTY(config, EditAnywhere, Category = "UI Overlay")
 	bool ShowBalance = true;
