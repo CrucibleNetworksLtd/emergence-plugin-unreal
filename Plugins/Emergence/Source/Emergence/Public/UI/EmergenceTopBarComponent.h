@@ -50,5 +50,5 @@ private:
 	FString ReturnedBalance = "";
 
 	UPROPERTY()
-	FString ReturnedSymbol = "NOSYM";
+	FString ReturnedSymbol = "";
 };

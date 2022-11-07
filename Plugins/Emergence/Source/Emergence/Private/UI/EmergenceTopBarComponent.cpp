@@ -105,6 +105,10 @@ void UEmergenceTopBarComponent::SymbolResponseHandler(FString Response, EErrorCo
 
 FString UEmergenceTopBarComponent::GetBalanceText()
 {
+	if (this->ReturnedSymbol.IsEmpty()) {
+		return "";
+	}
+
 	if (this->ReturnedBalance == "0") {
 		return "0 " + this->ReturnedSymbol;
 	}
