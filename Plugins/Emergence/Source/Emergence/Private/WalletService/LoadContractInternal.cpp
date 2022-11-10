@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadContractInternal* ULoadContractInternal::LoadContract(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract)
+ULoadContractInternal* ULoadContractInternal::LoadContract(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract)
 {
 	ULoadContractInternal* BlueprintNode = NewObject<ULoadContractInternal>();
 	BlueprintNode->DeployedContract = DeployedContract;

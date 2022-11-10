@@ -4,7 +4,7 @@
 #include "WalletService/LoadContract.h"
 #include "EmergenceSingleton.h"
 
-ULoadContract* ULoadContract::LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI)
+ULoadContract* ULoadContract::LoadContract(UObject* WorldContextObject, FString ContractAddress, FString ABI)
 {
 	ULoadContract* BlueprintNode = NewObject<ULoadContract>();
 	return BlueprintNode;

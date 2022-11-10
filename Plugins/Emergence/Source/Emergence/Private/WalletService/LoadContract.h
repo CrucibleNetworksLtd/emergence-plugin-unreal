@@ -18,7 +18,7 @@ public:
 	 * @param ABI The Application Binary Interface of the given contract.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage="This is now handled internally by ReadMethod and WriteMethod. You no longer need to call this. Please remove this node from your code ASAP.", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"))
-	static ULoadContract* LoadContract(const UObject* WorldContextObject, FString ContractAddress, FString ABI);
+	static ULoadContract* LoadContract(UObject* WorldContextObject, FString ContractAddress, FString ABI);
 
 	virtual void Activate() override;
 

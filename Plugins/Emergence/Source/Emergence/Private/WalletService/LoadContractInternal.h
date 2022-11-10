@@ -20,7 +20,7 @@ public:
 	 * @param ABI The Application Binary Interface of the given contract.
 	 */
 	UFUNCTION()
-	static ULoadContractInternal* LoadContract(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract);
+	static ULoadContractInternal* LoadContract(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract);
 
 	void Activate();
 
@@ -30,6 +30,6 @@ public:
 	FOnLoadContractCompleted OnLoadContractCompleted;
 private:
 	void LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	UEmergenceDeployment* DeployedContract;
 };

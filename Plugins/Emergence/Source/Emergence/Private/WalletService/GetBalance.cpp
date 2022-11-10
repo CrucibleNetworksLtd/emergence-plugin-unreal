@@ -8,11 +8,12 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetBalance* UGetBalance::GetBalance(FString Address, UEmergenceChain* Blockchain)
+UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Address, UEmergenceChain* Blockchain)
 {
 	UGetBalance* BlueprintNode = NewObject<UGetBalance>();
 	BlueprintNode->Address = Address;
 	BlueprintNode->Blockchain = Blockchain;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -37,7 +38,9 @@ void UGetBalance::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 		else {
 			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientWrongType);
 		}
-		return;
 	}
-	OnGetBalanceCompleted.Broadcast(FString(), StatusCode);
+	else {
+		OnGetBalanceCompleted.Broadcast(FString(), StatusCode);
+	}
+	SetReadyToDestroy();
 }

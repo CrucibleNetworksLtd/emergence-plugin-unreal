@@ -8,12 +8,13 @@
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
-UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain)
+UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain)
 {
 	UGetTransactionStatus* BlueprintNode = NewObject<UGetTransactionStatus>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->TransactionHash = TransactionHash;
 	BlueprintNode->Blockchain = Blockchain;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -36,12 +37,15 @@ void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpReques
 		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&TransactionAsJSONString);
 		if (!JsonObject.HasField("message") || JsonObject.GetObjectField("message")->HasTypedField<EJson::Null>("transaction")) {
 			OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceClientJsonParseFailed);
-			return;
 		}
-		FJsonSerializer::Serialize(JsonObject.GetObjectField("message")->GetObjectField("transaction").ToSharedRef(), Writer);
-		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(TransactionAsJSONString), EErrorCode::EmergenceOk);
-		return;
+		else {
+			FJsonSerializer::Serialize(JsonObject.GetObjectField("message")->GetObjectField("transaction").ToSharedRef(), Writer);
+			OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(TransactionAsJSONString), EErrorCode::EmergenceOk);
+		}
 	}
-	OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), StatusCode);
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTransactionStatus", StatusCode);
+	else {
+		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), StatusCode);
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTransactionStatus", StatusCode);
+	}
+	SetReadyToDestroy();
 }

@@ -25,7 +25,7 @@ public:
 	 * @param AvatarIdString AvatarIdString of the avatar we want to get the details of.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Avatar Service")
-	static UAvatarById* AvatarById(const UObject* WorldContextObject, const FString& AvatarIdString);
+	static UAvatarById* AvatarById(UObject* WorldContextObject, const FString& AvatarIdString);
 
 	virtual void Activate() override;
 
@@ -37,5 +37,5 @@ private:
 	void AvatarById_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	FString AvatarIdString;
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 };

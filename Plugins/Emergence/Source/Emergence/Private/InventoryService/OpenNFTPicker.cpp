@@ -6,7 +6,7 @@
 #include "InventoryService/InventoryScreen.h"
 #include "Blueprint/UserWidget.h"
 
-UOpenNFTPicker* UOpenNFTPicker::OpenNFTPicker(const UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress)
+UOpenNFTPicker* UOpenNFTPicker::OpenNFTPicker(UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress)
 {
 	UOpenNFTPicker* BlueprintNode = NewObject<UOpenNFTPicker>();
 	BlueprintNode->Filters = Filters;

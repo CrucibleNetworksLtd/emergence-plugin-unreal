@@ -13,6 +13,7 @@ UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, UE
 	UGetBlockNumber* BlueprintNode = NewObject<UGetBlockNumber>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->Blockchain = Blockchain;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -31,8 +32,10 @@ void UGetBlockNumber::GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpReq
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {	
 		OnGetBlockNumberCompleted.Broadcast(JsonObject.GetObjectField("message")->GetIntegerField("blockNumber"), EErrorCode::EmergenceOk);
-		return;
 	}
-	OnGetBlockNumberCompleted.Broadcast(-1, StatusCode);
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetBlockNumber", StatusCode);
+	else {
+		OnGetBlockNumberCompleted.Broadcast(-1, StatusCode);
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetBlockNumber", StatusCode);
+	}
+	SetReadyToDestroy();
 }

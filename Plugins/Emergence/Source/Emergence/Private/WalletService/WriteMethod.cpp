@@ -9,7 +9,7 @@
 #include "WalletService/LoadContractInternal.h"
 #include "..\..\Public\WalletService\WriteMethod.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
+UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
@@ -21,6 +21,7 @@ UWriteMethod* UWriteMethod::WriteMethod(const UObject* WorldContextObject, UEmer
 	BlueprintNode->Value = Value;
 	BlueprintNode->NumberOfConfirmations = NumberOfConfirmations;
 	BlueprintNode->TimeBetweenChecks = TimeBetweenChecks;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -108,6 +109,7 @@ void UWriteMethod::TransactionStatusReturns(FEmergenceTransaction Transaction, E
 		if (Transaction.Confirmations > this->NumberOfConfirmations) { //if we have a good amount of confirmations
 			//send this transaction
 			this->OnTransactionConfirmed.Broadcast(Transaction, StatusCode);
+			SetReadyToDestroy();
 		}
 		else {
 			WaitThenGetStatus(); //wait for some seconds and then try to get the transaction status again
@@ -117,6 +119,7 @@ void UWriteMethod::TransactionStatusReturns(FEmergenceTransaction Transaction, E
 		//any other error
 		//send the error and a blank struct
 		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+		SetReadyToDestroy();
 	}
 }
 

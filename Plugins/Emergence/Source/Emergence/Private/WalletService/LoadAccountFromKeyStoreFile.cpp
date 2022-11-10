@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const UEmergenceChain* Blockchain)
+ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile(UObject* WorldContextObject, const FString &Name, const FString &Password, const FString &Path, const UEmergenceChain* Blockchain)
 {
 	ULoadAccountFromKeyStoreFile* BlueprintNode = NewObject<ULoadAccountFromKeyStoreFile>();
 	BlueprintNode->Name = Name;
@@ -15,6 +15,7 @@ ULoadAccountFromKeyStoreFile* ULoadAccountFromKeyStoreFile::LoadAccountFromKeySt
 	BlueprintNode->Path = Path;
 	BlueprintNode->Blockchain = Blockchain;
 	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -63,4 +64,5 @@ void ULoadAccountFromKeyStoreFile::LoadAccountFromKeyStoreFile_HttpRequestComple
 		OnLoadAccountFromKeyStoreFileCompleted.Broadcast(FString(), StatusCode);
 		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("LoadAccountFromKeyStoreFile", StatusCode);
 	}
+	SetReadyToDestroy();
 }

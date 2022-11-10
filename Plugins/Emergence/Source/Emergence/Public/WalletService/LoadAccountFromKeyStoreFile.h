@@ -28,7 +28,7 @@ public:
 	 * @param ChainID The Chain ID, which must be compatible with the given NodeURL.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Keystore Local Wallet")
-	static ULoadAccountFromKeyStoreFile* LoadAccountFromKeyStoreFile(const UObject* WorldContextObject, const FString& Name, const FString& Password, const FString& Path, const UEmergenceChain* Blockchain);
+	static ULoadAccountFromKeyStoreFile* LoadAccountFromKeyStoreFile(UObject* WorldContextObject, const FString& Name, const FString& Password, const FString& Path, const UEmergenceChain* Blockchain);
 
 	virtual void Activate() override;
 
@@ -38,7 +38,7 @@ public:
 	FOnLoadAccountFromKeyStoreFileCompleted OnLoadAccountFromKeyStoreFileCompleted;
 private:
 	void LoadAccountFromKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString Name;
 	FString Password;
 	FString Path;

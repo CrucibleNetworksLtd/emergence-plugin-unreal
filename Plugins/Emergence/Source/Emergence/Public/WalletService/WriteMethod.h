@@ -28,7 +28,7 @@ public:
 	 * @param TimeBetweenChecks The amount of time between checks in seconds.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
-	static UWriteMethod* WriteMethod(const UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations = 5, float TimeBetweenChecks = 5.0F);
+	static UWriteMethod* WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations = 5, float TimeBetweenChecks = 5.0F);
 
 	virtual void Activate() override;
 
@@ -48,7 +48,7 @@ public:
 	
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	UEmergenceDeployment* DeployedContract;
 	FEmergenceContractMethod MethodName;
 	TArray<FString> Content;

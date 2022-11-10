@@ -22,7 +22,7 @@ public:
 	 * @param Blockchain Blockchain to get the transaction status from.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetTransactionStatus* GetTransactionStatus(const UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain);
+	static UGetTransactionStatus* GetTransactionStatus(UObject* WorldContextObject, FString TransactionHash, UEmergenceChain* Blockchain);
 
 	virtual void Activate() override;
 
@@ -32,7 +32,7 @@ public:
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
 private:
 	void GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-	const UObject* WorldContextObject;
+	UObject* WorldContextObject;
 	FString TransactionHash;
 	UEmergenceChain* Blockchain;
 };

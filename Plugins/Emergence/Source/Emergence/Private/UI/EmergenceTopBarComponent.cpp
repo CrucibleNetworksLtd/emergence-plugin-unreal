@@ -30,7 +30,7 @@ void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 	}
 
 	if (!UseERC20AsBalance || ERC20Address.IsEmpty()) { //if we aren't using an ERC20 as the balance, just do a GetBalance request
-		UGetBalance* GetBalanceRequest = UGetBalance::GetBalance(Singleton->GetCachedAddress(), CurrencyDisplayChainData);
+		UGetBalance* GetBalanceRequest = UGetBalance::GetBalance(this, Singleton->GetCachedAddress(), CurrencyDisplayChainData);
 		GetBalanceRequest->OnGetBalanceCompleted.AddDynamic(this, &UEmergenceTopBarComponent::GetBalanceResponseHandler);
 		GetBalanceRequest->Activate();
 	}

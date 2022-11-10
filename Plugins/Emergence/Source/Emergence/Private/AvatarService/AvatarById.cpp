@@ -6,11 +6,12 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UAvatarById* UAvatarById::AvatarById(const UObject* WorldContextObject, const FString& AvatarIdString)
+UAvatarById* UAvatarById::AvatarById(UObject* WorldContextObject, const FString& AvatarIdString)
 {
 	UAvatarById* BlueprintNode = NewObject<UAvatarById>();
 	BlueprintNode->AvatarIdString = FString(AvatarIdString);
 	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -54,4 +55,5 @@ void UAvatarById::AvatarById_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	else {
 		OnAvatarByIdCompleted.Broadcast(FEmergenceAvatarData(), StatusCode);
 	}
+	SetReadyToDestroy();
 }

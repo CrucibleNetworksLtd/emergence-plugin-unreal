@@ -17,6 +17,7 @@ UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDepl
 	BlueprintNode->MethodName = MethodName;
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
@@ -84,8 +85,10 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 			FJsonSerializer::Serialize(JsonInternalObject.ToSharedRef(), Writer);
 			OnReadMethodCompleted.Broadcast(OutputString, EErrorCode::EmergenceOk);
 		}
-		return;
 	}
-	OnReadMethodCompleted.Broadcast(FString(), StatusCode);
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ReadMethod", StatusCode);
+	else {
+		OnReadMethodCompleted.Broadcast(FString(), StatusCode);
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ReadMethod", StatusCode);
+	}
+	SetReadyToDestroy();
 }
