@@ -19,11 +19,17 @@ UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, UE
 
 void UGetBlockNumber::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
-		this, 
-		&UGetBlockNumber::GetBlockNumber_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "getBlockNumber?nodeURL=" + Blockchain->NodeURL);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("GetBlockNumber request started with JSON, calling GetBlockNumber_HttpRequestComplete on request completed."));
+	if (Blockchain) {
+		UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
+			this,
+			&UGetBlockNumber::GetBlockNumber_HttpRequestComplete,
+			UHttpHelperLibrary::APIBase + "getBlockNumber?nodeURL=" + Blockchain->NodeURL);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBlockNumber request started with JSON, calling GetBlockNumber_HttpRequestComplete on request completed."));
+	}
+	else {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("GetBlockNumber' blockchain input was null."));
+		OnGetBlockNumberCompleted.Broadcast(-1, EErrorCode::EmergenceClientFailed);
+	}
 }
 
 void UGetBlockNumber::GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

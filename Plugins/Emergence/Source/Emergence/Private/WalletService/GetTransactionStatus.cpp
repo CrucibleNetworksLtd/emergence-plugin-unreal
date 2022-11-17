@@ -20,11 +20,17 @@ UGetTransactionStatus* UGetTransactionStatus::GetTransactionStatus(UObject* Worl
 
 void UGetTransactionStatus::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
-		this, 
-		&UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "GetTransactionStatus?transactionHash=" + TransactionHash + "&nodeURL=" + Blockchain->NodeURL);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus request started with JSON, calling GetTransactionStatus_HttpRequestComplete on request completed."));
+	if (Blockchain) {
+		UHttpHelperLibrary::ExecuteHttpRequest<UGetTransactionStatus>(
+			this,
+			&UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete,
+			UHttpHelperLibrary::APIBase + "GetTransactionStatus?transactionHash=" + TransactionHash + "&nodeURL=" + Blockchain->NodeURL);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("GetTransactionStatus request started with JSON, calling GetTransactionStatus_HttpRequestComplete on request completed."));
+	}
+	else {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("GetTransactionStatus' blockchain input was null."));
+		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceClientFailed);
+	}
 }
 
 void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

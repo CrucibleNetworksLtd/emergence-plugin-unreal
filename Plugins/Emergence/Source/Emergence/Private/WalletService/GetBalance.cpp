@@ -19,11 +19,17 @@ UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Addres
 
 void UGetBalance::Activate()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
-		this, 
-		&UGetBalance::GetBalance_HttpRequestComplete, 
-		UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + Blockchain->NodeURL + "&address=" + this->Address);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	if (Blockchain) {
+		UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
+			this,
+			&UGetBalance::GetBalance_HttpRequestComplete,
+			UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + Blockchain->NodeURL + "&address=" + this->Address);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
+	}
+	else {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("GetBalance's blockchain input was null."));
+		OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
+	}
 }
 
 void UGetBalance::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
