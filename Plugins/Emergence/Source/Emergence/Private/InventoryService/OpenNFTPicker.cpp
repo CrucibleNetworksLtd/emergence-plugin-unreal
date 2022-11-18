@@ -107,7 +107,7 @@ void UOpenNFTPicker::AfterOverlayCloseCleanup()
 
 void UOpenNFTPicker::EmergenceOverlayReady()
 {
-	static TSubclassOf<UInventoryScreen> InventoryScreenClass = StaticLoadClass(UObject::StaticClass(), OpeningPlayerController, TEXT("/Emergence/Screens/InventoryScreen.InventoryScreen_C"));
+	static TSubclassOf<UInventoryScreen> InventoryScreenClass = StaticLoadClass(UObject::StaticClass(), OpeningPlayerController, TEXT("/Emergence/Screens/InventoryScreenBP.InventoryScreenBP_C"));
 	check(InventoryScreenClass);
 	InventoryScreen = CreateWidget<UInventoryScreen>(OpeningPlayerController->GetWorld(), InventoryScreenClass);
 	InventoryScreen->Filters = this->Filters;
