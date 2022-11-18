@@ -29,7 +29,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetDataFromUrlCompleted, const TArray<uint8>&, Data, EErrorCode, StatusCode, bool, Success);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnGetDataFromUrlCompleted, const TArray<uint8>&, Data, FString, String, EErrorCode, StatusCode, bool, Success);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetDataFromUrlCompleted OnGetDataFromUrlCompleted;
