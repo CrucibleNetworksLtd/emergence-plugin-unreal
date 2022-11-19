@@ -27,6 +27,10 @@ TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmerge
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
+	if (!GEngine) {
+		return nullptr;
+	}
+
 	UWorld* World = GEngine->GetWorldFromContextObject(ContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
 	if (GameInstance)
