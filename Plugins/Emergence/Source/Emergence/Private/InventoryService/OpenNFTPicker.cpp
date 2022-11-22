@@ -57,13 +57,11 @@ void UOpenNFTPicker::Activate()
 	//Open the UI
 	EmergenceUI = Cast<UEmergenceUI>(Emergence->OpenEmergenceUI(OpeningPlayerController, EmergenceUIBPClass));
 	EmergenceUI->OpeningFinished.AddDynamic(this, &UOpenNFTPicker::EmergenceOverlayReady);
-	if (AutomagicallyHandlePlayerInput) {
-		OpeningPlayerController->SetShowMouseCursor(true);
-		FInputModeUIOnly InputMode = FInputModeUIOnly();
-		InputMode.SetWidgetToFocus(EmergenceUI->GetCachedWidget());
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		OpeningPlayerController->SetInputMode(InputMode);
-	}
+	OpeningPlayerController->SetShowMouseCursor(true);
+	FInputModeUIOnly InputMode = FInputModeUIOnly();
+	InputMode.SetWidgetToFocus(EmergenceUI->GetCachedWidget());
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	OpeningPlayerController->SetInputMode(InputMode);
 }
 
 void UOpenNFTPicker::ItemSelectionCompleted(FEmergenceCombinedInventoryItem Item)
@@ -93,21 +91,19 @@ void UOpenNFTPicker::EmergenceOverlayClosed()
 
 void UOpenNFTPicker::AfterOverlayCloseCleanup()
 {
-	if (AutomagicallyHandlePlayerInput) {
-		OpeningPlayerController->SetShowMouseCursor(this->PreviousMouseShowState);
-		switch (this->PreviousGameInputMode) {
-		case 0:
-			OpeningPlayerController->SetInputMode(FInputModeGameAndUI());
-			break;
-		case 1:
-			OpeningPlayerController->SetInputMode(FInputModeUIOnly());
-			break;
-		case 2:
-			OpeningPlayerController->SetInputMode(FInputModeGameOnly());
-			break;
-		}
-		EmergenceUI->Closed.RemoveDynamic(this, &UOpenNFTPicker::AfterOverlayCloseCleanup);
+	OpeningPlayerController->SetShowMouseCursor(this->PreviousMouseShowState);
+	switch (this->PreviousGameInputMode) {
+	case 0:
+		OpeningPlayerController->SetInputMode(FInputModeGameAndUI());
+		break;
+	case 1:
+		OpeningPlayerController->SetInputMode(FInputModeUIOnly());
+		break;
+	case 2:
+		OpeningPlayerController->SetInputMode(FInputModeGameOnly());
+		break;
 	}
+	EmergenceUI->Closed.RemoveDynamic(this, &UOpenNFTPicker::AfterOverlayCloseCleanup);
 }
 
 void UOpenNFTPicker::EmergenceOverlayReady()
