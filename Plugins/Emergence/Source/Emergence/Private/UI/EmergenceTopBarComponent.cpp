@@ -81,11 +81,19 @@ void UEmergenceTopBarComponent::BalanceOfResponseHandler(FString Response, EErro
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TSharedPtr<FJsonObject> JsonInternalObject;
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response);
-		FJsonSerializer::Deserialize(Reader, JsonInternalObject);
-		UE_LOG(LogTemp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *JsonInternalObject->GetStringField("balance"));
-		this->ReturnedBalance = JsonInternalObject->GetStringField("balance");
-		CurrencyDisplayText = GetBalanceText();
-		BalanceTextUpdated();
+		bool Success = FJsonSerializer::Deserialize(Reader, JsonInternalObject);
+		if(Success && JsonInternalObject->HasField("balance")){
+			UE_LOG(LogTemp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *JsonInternalObject->GetStringField("balance"));
+			this->ReturnedBalance = JsonInternalObject->GetStringField("balance");
+			CurrencyDisplayText = GetBalanceText();
+			BalanceTextUpdated();
+		}
+		else if (!Success) {
+			CurrencyDisplayText = "DSRLZ ERROR";
+		}
+		else{
+			CurrencyDisplayText = "FIELD ERROR";
+		}
 	}
 	else {
 		CurrencyDisplayText = "ERM ERROR";
