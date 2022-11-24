@@ -75,8 +75,7 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TSharedPtr<FJsonObject> JsonInternalObject;
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonObject.GetObjectField("message")->GetStringField("response"));
-		FJsonSerializer::Deserialize(Reader, JsonInternalObject);
-		if (JsonInternalObject->HasTypedField<EJson::String>("")) { //if it will cleanly turn into a string
+		if (FJsonSerializer::Deserialize(Reader, JsonInternalObject) && JsonInternalObject->HasTypedField<EJson::String>("")) { //if it will cleanly turn into a string
 			OnReadMethodCompleted.Broadcast(JsonInternalObject->GetStringField(""), EErrorCode::EmergenceOk);
 		}
 		else { //if its a mess
