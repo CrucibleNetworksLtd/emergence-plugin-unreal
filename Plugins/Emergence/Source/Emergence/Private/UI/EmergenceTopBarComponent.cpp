@@ -29,7 +29,10 @@ void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 		}
 	}
 
-	if (!UseERC20AsBalance || ERC20Address.IsEmpty()) { //if we aren't using an ERC20 as the balance, just do a GetBalance request
+	//if we don't want to use ERC20 as the balance or it isn't set up correctly
+	if (!UseERC20AsBalance || ERC20Address.IsEmpty()) {
+		this->ReturnedSymbol = CurrencyDisplayChainData->Symbol; //set the symbol from the CurrencyDisplayChainData
+		//and call GetBalance
 		UGetBalance* GetBalanceRequest = UGetBalance::GetBalance(this, Singleton->GetCachedAddress(), CurrencyDisplayChainData);
 		GetBalanceRequest->OnGetBalanceCompleted.AddDynamic(this, &UEmergenceTopBarComponent::GetBalanceResponseHandler);
 		GetBalanceRequest->Activate();
@@ -61,7 +64,6 @@ bool UEmergenceTopBarComponent::ShouldDisplayBalanceText()
 void UEmergenceTopBarComponent::GetBalanceResponseHandler(FString Balance, EErrorCode StatusCode)
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		UE_LOG(LogTemp, Display, TEXT("GetBalanceResponseHandler came back with %s"), *Balance);
 		if (FCString::Atoi(*Balance) != 0) {
 			this->ReturnedBalance = Balance;
 			CurrencyDisplayText = GetBalanceText();
