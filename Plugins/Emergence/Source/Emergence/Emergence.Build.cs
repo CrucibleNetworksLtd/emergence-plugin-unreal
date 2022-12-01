@@ -6,7 +6,16 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
-		RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/...");
+		if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
+		{
+			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Windows/...");
+		}
+		
+		if(Target.Platform == UnrealTargetPlatform.Mac)
+		{
+			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Mac/...");
+		}
+		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 			

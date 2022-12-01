@@ -28,9 +28,13 @@ void ULocalEmergenceServer::LaunchLocalServerProcess(bool LaunchHidden)
 		UE_LOG(LogEmergenceHttp, Error, TEXT("The server has already been started or was closed without calling KillLocalServerProcess. This causes Emergence's internal state to get messed up, don't do this."));
 		return;
 	}
-
+#if PLATFORM_WINDOWS
 	FString EmergenceServerBinariesPath = FString(FPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer.exe";
-	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/EmergenceEVMLocalServer.exe");
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/Windows/EmergenceEVMLocalServer.exe");
+#else
+	FString EmergenceServerBinariesPath = FString(FPlatformProcess::BaseDir()) + "/EmergenceEVMLocalServer";
+	FString EmergenceServerPluginPath = FString(FPaths::ProjectPluginsDir() + "Emergence/EmergenceServer/Mac/EmergenceEVMLocalServer");
+#endif	
 	FString LoadPath;
 	if (FPaths::FileExists(EmergenceServerBinariesPath)) {
 		LoadPath = EmergenceServerBinariesPath;
