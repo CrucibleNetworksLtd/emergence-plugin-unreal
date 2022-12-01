@@ -76,6 +76,7 @@ void SEmergenceContractMethodGraphPin::UpdateOptions()
 	if (OwnerNode && OwnerNode->GetNodeObj()) {
 		//is this node a ReadMethod node or a WriteMethod node?
 		bool ReadMethod = OwnerNode->GetNodeObj()->GetNodeTitle(ENodeTitleType::ListView).ToString().Contains("Read");
+		bool WriteMethod = OwnerNode->GetNodeObj()->GetNodeTitle(ENodeTitleType::ListView).ToString().Contains("Write");
 		TArray<UEdGraphPin*> Pins = OwnerNode->GetNodeObj()->GetAllPins();
 		UEmergenceDeployment* FoundDeployment = nullptr;
 		//for each pin
@@ -99,7 +100,18 @@ void SEmergenceContractMethodGraphPin::UpdateOptions()
 			PreviouslyAssociatedDeployment = FoundDeployment;
 			
 			if (FoundDeployment->Contract) { //if the contract is valid
-				auto MethodArray = ReadMethod ? FoundDeployment->Contract->ReadMethods : FoundDeployment->Contract->WriteMethods;
+				TArray<FEmergenceContractMethod> MethodArray;
+				//if it is a ReadMethod or a WriteMethod
+				if (ReadMethod || WriteMethod) {
+					//only include the relevent methods
+					MethodArray = ReadMethod ? FoundDeployment->Contract->ReadMethods : FoundDeployment->Contract->WriteMethods;
+				}
+				else {
+					//if this is being used outside of a read method or write method
+					MethodArray.Append(FoundDeployment->Contract->ReadMethods);
+					MethodArray.Append(FoundDeployment->Contract->WriteMethods);
+					//let us use either
+				}
 				for (int j = 0; j < MethodArray.Num(); j++) { //for each method in the contract
 					//UE_LOG(LogTemp, Display, TEXT("%s"), *MethodArray[j].MethodName);
 					this->Options.Add(MakeShared<FName>(FName(MethodArray[j].MethodName)));
