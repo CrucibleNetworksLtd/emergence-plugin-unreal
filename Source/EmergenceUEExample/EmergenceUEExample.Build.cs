@@ -16,7 +16,8 @@ public class EmergenceUEExample : ModuleRules
 			"HeadMountedDisplay",
 			"Emergence",
 			"JsonUtilities",
-			"Json"
+			"Json",
+			"BlueprintGraph"
 		});
 	}
 }
