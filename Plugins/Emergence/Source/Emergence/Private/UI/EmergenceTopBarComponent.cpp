@@ -7,6 +7,7 @@
 #include "UnitConverterFunctionLibrary.h"
 #include "WalletService/ReadMethod.h"
 #include "WalletService/ContractInterfaces/ERC20Contract.h"
+#include "WalletService/EmergenceJSONHelpers.h"
 
 void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 
@@ -64,6 +65,7 @@ bool UEmergenceTopBarComponent::ShouldDisplayBalanceText()
 void UEmergenceTopBarComponent::GetBalanceResponseHandler(FString Balance, EErrorCode StatusCode)
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
+		UE_LOG(LogTemp, Display, TEXT("GetBalanceResponseHandler came back with %s"), *Balance);
 		if (FCString::Atoi(*Balance) != 0) {
 			this->ReturnedBalance = Balance;
 			CurrencyDisplayText = GetBalanceText();
@@ -78,23 +80,18 @@ void UEmergenceTopBarComponent::GetBalanceResponseHandler(FString Balance, EErro
 	}
 }
 
-void UEmergenceTopBarComponent::BalanceOfResponseHandler(FString Response, EErrorCode StatusCode)
+void UEmergenceTopBarComponent::BalanceOfResponseHandler(FJsonObjectWrapper Response, EErrorCode StatusCode)
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		TSharedPtr<FJsonObject> JsonInternalObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response);
-		bool Success = FJsonSerializer::Deserialize(Reader, JsonInternalObject);
-		if(Success && JsonInternalObject->HasField("balance")){
-			UE_LOG(LogTemp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *JsonInternalObject->GetStringField("balance"));
-			this->ReturnedBalance = JsonInternalObject->GetStringField("balance");
+		TArray<FString> StringArray;
+		if (UEmergenceJSONHelpers::ReadMethodJSONToStringArray(Response, StringArray)) {
+			UE_LOG(LogTemp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *StringArray[0]);
+			this->ReturnedBalance = StringArray[0];
 			CurrencyDisplayText = GetBalanceText();
 			BalanceTextUpdated();
 		}
-		else if (!Success) {
-			CurrencyDisplayText = "DSRLZ ERROR";
-		}
-		else{
-			CurrencyDisplayText = "FIELD ERROR";
+		else {
+			CurrencyDisplayText = "JASTS ERROR";
 		}
 	}
 	else {
@@ -102,10 +99,14 @@ void UEmergenceTopBarComponent::BalanceOfResponseHandler(FString Response, EErro
 	}
 }
 
-void UEmergenceTopBarComponent::SymbolResponseHandler(FString Response, EErrorCode StatusCode)
+void UEmergenceTopBarComponent::SymbolResponseHandler(FJsonObjectWrapper Response, EErrorCode StatusCode)
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		this->ReturnedSymbol = Response;
+		TArray<FString> StringArray;
+		if (UEmergenceJSONHelpers::ReadMethodJSONToStringArray(Response, StringArray)) {
+			UE_LOG(LogTemp, Display, TEXT("SymbolResponseHandler StringArray[0] %s"), *StringArray[0]);
+			this->ReturnedSymbol = StringArray[0];
+		}
 		BalanceTextUpdated();
 	}
 	else {

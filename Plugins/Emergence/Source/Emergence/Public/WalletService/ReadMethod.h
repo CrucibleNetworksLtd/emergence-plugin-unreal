@@ -8,6 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceDeployment.h"
+#include "JsonObjectWrapper.h"
 #include "ReadMethod.generated.h"
 
 UCLASS()
@@ -30,7 +31,7 @@ public:
 	UFUNCTION()
 	void LoadContractCompleted(FString Response, EErrorCode StatusCode);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadMethodCompleted, FString, Response, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadMethodCompleted, FJsonObjectWrapper, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnReadMethodCompleted OnReadMethodCompleted;

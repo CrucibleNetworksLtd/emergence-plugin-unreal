@@ -27,7 +27,7 @@ void UReadMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode)
 		this->Activate();
 	}
 	else {
-		OnReadMethodCompleted.Broadcast(FString(), StatusCode);
+		OnReadMethodCompleted.Broadcast(FJsonObjectWrapper(), StatusCode);
 	}
 }
 
@@ -73,20 +73,28 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("ReadMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		TSharedPtr<FJsonObject> JsonInternalObject;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonObject.GetObjectField("message")->GetStringField("response"));
-		if (FJsonSerializer::Deserialize(Reader, JsonInternalObject) && JsonInternalObject->HasTypedField<EJson::String>("")) { //if it will cleanly turn into a string
-			OnReadMethodCompleted.Broadcast(JsonInternalObject->GetStringField(""), EErrorCode::EmergenceOk);
-		}
-		else { //if its a mess
-			FString OutputString;
-			TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-			FJsonSerializer::Serialize(JsonInternalObject.ToSharedRef(), Writer);
-			OnReadMethodCompleted.Broadcast(OutputString, EErrorCode::EmergenceOk);
-		}
+		//The data from "response" is a JSON array inside of a string, so first we need to turn that string into a JSON Object
+		//Then, write it into the form of a object again otherwise FJsonSerializer::Deserialize won't like it
+		
+		FString OutputString;
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+		
+		//If it will turn cleanly into an array
+		//if (FJsonSerializer::Serialize(JsonObject.GetObjectField("message")->GetArrayField("response"), Writer)) {
+			//UE_LOG(LogEmergenceHttp, Display, TEXT("ReadMethod Output: %s"), *OutputString);
+			FJsonObjectWrapper OutJsonObject;
+			OutJsonObject.JsonObject = JsonObject.GetObjectField("message");
+			OnReadMethodCompleted.Broadcast(OutJsonObject, EErrorCode::EmergenceOk);
+		//}
+		//if it we can't get anything useful out of response, just don't bother
+		//else {
+		//	UE_LOG(LogEmergenceHttp, Error, TEXT("ReadMethod couldn't parse the response at all."));
+		//	OnReadMethodCompleted.Broadcast(FJsonObjectWrapper(), StatusCode);
+		//	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ReadMethod", EErrorCode::EmergenceClientJsonParseFailed);
+		//}
 	}
 	else {
-		OnReadMethodCompleted.Broadcast(FString(), StatusCode);
+		OnReadMethodCompleted.Broadcast(FJsonObjectWrapper(), StatusCode);
 		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ReadMethod", StatusCode);
 	}
 	SetReadyToDestroy();

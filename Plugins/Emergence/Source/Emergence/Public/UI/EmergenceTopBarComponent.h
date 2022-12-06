@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceChainObject.h"
+#include "JsonObjectWrapper.h"
 #include "EmergenceTopBarComponent.generated.h"
 
 /**
@@ -27,10 +28,10 @@ public:
 	void GetBalanceResponseHandler(FString Balance, EErrorCode StatusCode);
 
 	UFUNCTION()
-	void BalanceOfResponseHandler(FString Response, EErrorCode StatusCode);
+	void BalanceOfResponseHandler(FJsonObjectWrapper Response, EErrorCode StatusCode);
 
 	UFUNCTION()
-	void SymbolResponseHandler(FString Response, EErrorCode StatusCode);
+	void SymbolResponseHandler(FJsonObjectWrapper Response, EErrorCode StatusCode);
 
 	UFUNCTION(BlueprintPure)
 	FString GetBalanceText();
