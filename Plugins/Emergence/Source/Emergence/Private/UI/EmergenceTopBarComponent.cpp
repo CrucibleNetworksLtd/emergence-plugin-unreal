@@ -9,6 +9,8 @@
 #include "WalletService/ContractInterfaces/ERC20Contract.h"
 #include "WalletService/EmergenceJSONHelpers.h"
 
+#define LOCTEXT_NAMESPACE "TopBarNamespace"
+
 void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 
 	CurrencyDisplayText = ""; //Clear the currency display text
@@ -41,7 +43,12 @@ void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 	else { //if we are using an ERC20 as the balance
 		//Create deployed contract for this
 		UEmergenceDeployment* ERC20Deployment = NewObject<UEmergenceDeployment>();
-		ERC20Deployment->Blockchain = this->CurrencyDisplayChainData;
+		FText CustomBlockchainName = FText::FromString(this->CurrencyDisplayChainData->Symbol + "FOR_UI");
+		ERC20Deployment->Blockchain = UEmergenceChain::CreateEmergenceChain(
+			CustomBlockchainName,
+			this->CurrencyDisplayChainData->NodeURL,
+			this->CurrencyDisplayChainData->Symbol,
+			this->CurrencyDisplayChainData->ChainID);
 		ERC20Deployment->Address = ERC20Address;
 		ERC20Deployment->Contract = NewObject<UERC20Contract>();
 		UReadMethod* BalanceOfRequest =  UReadMethod::ReadMethod(this, ERC20Deployment, FEmergenceContractMethod("balanceOf"), { Singleton->GetCachedAddress() });
@@ -133,3 +140,5 @@ FString UEmergenceTopBarComponent::GetBalanceText()
 		return AsEther + " " + this->ReturnedSymbol;
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
