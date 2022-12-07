@@ -38,7 +38,6 @@ void ULoadContractInternal::Activate()
 		Headers,
 		OutputString);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("LoadContract request started with JSON, calling LoadContract_HttpRequestComplete on request completed. Json sent as part of the request: "));
-	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *OutputString);
 }
 
 void ULoadContractInternal::LoadContract_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
