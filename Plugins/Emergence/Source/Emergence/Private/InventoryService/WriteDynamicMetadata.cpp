@@ -38,7 +38,7 @@ void UWriteDynamicMetadata::Activate()
 		Method,
 		60.0F,
 		Headers, 
-		"{\"metadata\": \"" + Metadata + "\"}"
+		"{\"metadata\": " + Metadata + "}"
 		);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteDynamicMetadata request started, calling WriteDynamicMetadata_HttpRequestComplete on request completed"));
 }
