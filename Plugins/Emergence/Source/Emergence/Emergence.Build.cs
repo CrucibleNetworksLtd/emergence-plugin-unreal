@@ -6,7 +6,7 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
-		if(Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.Win32)
+		if(Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Windows/...");
 		}
