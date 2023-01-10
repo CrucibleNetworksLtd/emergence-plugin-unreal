@@ -21,6 +21,9 @@ struct FEmergenceContractMethod
 	};
 };
 
+/**
+ * Emergence Contract assets are used by various methods and objects as a descriptor of a contract's programming interface. Much of its data comes from the contract's ABI.
+ */
 UCLASS(BlueprintType, CollapseCategories)
 class EMERGENCE_API UEmergenceContract : public UObject
 {
@@ -37,12 +40,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	FString ABI;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Methods")
 	TArray<FEmergenceContractMethod> ReadMethods;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Methods")
 	TArray<FEmergenceContractMethod> WriteMethods;
 
-	UFUNCTION(CallInEditor)
+	UFUNCTION(CallInEditor, Category="Methods")
 	void FindMethods();
 };

@@ -7,7 +7,7 @@
 #include "EmergenceChainObject.generated.h"
 
 /**
- * 
+ * Emergence Blockchain assets are used by various methods and objects as a reference to a blockchain, including data about the blockchain and the node that connects to it.
  */
 UCLASS(BlueprintType, CollapseCategories)
 class EMERGENCE_API UEmergenceChain : public UObject

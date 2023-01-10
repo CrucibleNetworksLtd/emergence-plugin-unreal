@@ -7,6 +7,9 @@
 #include "EmergenceContract.h"
 #include "EmergenceDeployment.generated.h"
 
+/**
+ * Emergence Deployed Contract assets are used by various methods and objects as a reference to a specific contract deployed on-chain. It is made from a Blockchain asset, a Contract asset and an address.
+ */
 UCLASS(BlueprintType, CollapseCategories, meta=(DisplayName="Emergence Deployed Contract"))
 class EMERGENCE_API UEmergenceDeployment : public UObject
 {
