@@ -14,11 +14,11 @@ class UEmergencePluginSettings : public UObject
 public:
 	UEmergencePluginSettings(const FObjectInitializer& ObjectInitializer);
 
-	//Which cloud environment should be communicated with when the game is built as "Debug", "Development" or "Test".
+	//Which cloud environment should be communicated with when the game is built as "Debug", "Development" or "Test". Default is "Staging".
 	UPROPERTY(config, EditAnywhere, Category = "General", meta = (EditCondition = "!EnableDevelopmentEnvironment", DisplayName = "Debug/Development/Test build cloud environment"))
 	EEmergenceEnvironment DevelopmentEnvironment = EEmergenceEnvironment::Staging;
 	
-	//Which cloud environment should be communicated with when the game is built as "Shipping".
+	//Which cloud environment should be communicated with when the game is built as "Shipping". Default is "Production".
 	UPROPERTY(config, EditAnywhere, Category = "General", meta = (EditCondition = "!EnableDevelopmentEnvironment", DisplayName = "Shipping build cloud environment"))
 	EEmergenceEnvironment ShippingEnvironment = EEmergenceEnvironment::Production;
 	
@@ -30,7 +30,7 @@ public:
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Custom Emergence Server Location", FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
 	FFilePath CustomEmergenceServerLocation;
 	
-	//The avatar icon to display if a persona doesn't have an avatar associated to it.
+	//The avatar icon to display if a persona doesn't have an avatar associated to it. You may want to alter this if you don't want to use the default Unreal Editor mannequin to represent players without their own avatar, such as one that better contextually fits with your game.
 	UPROPERTY(config, EditAnywhere, Category = "General")
 	TSoftObjectPtr<UTexture2D> DefaultAvatarIcon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath("Texture2D'/Emergence/Components/UE.UE'"));
 	
