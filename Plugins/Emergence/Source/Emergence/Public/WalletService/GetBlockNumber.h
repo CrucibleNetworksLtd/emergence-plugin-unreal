@@ -21,7 +21,7 @@ public:
 	 * @param Blockchain Blockchain to get the block number of.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* BlockchainOverride);
+	static UGetBlockNumber* GetBlockNumber(UObject* WorldContextObject, UEmergenceChain* Blockchain);
 
 	virtual void Activate() override;
 
