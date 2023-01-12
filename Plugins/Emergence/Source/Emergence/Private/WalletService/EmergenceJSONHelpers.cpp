@@ -8,7 +8,7 @@
 bool UEmergenceJSONHelpers::ReadMethodJSONToString(FJsonObjectWrapper JSONObject, FString& OutputString)
 {
 	FString Result;
-	if (JSONObject.JsonObjectToString(Result)) {
+	if (JSONObject && JSONObject.JsonObjectToString(Result)) {
 		OutputString = Result;
 		return true;
 	}
@@ -21,7 +21,7 @@ bool UEmergenceJSONHelpers::ReadMethodJSONToStringArray(FJsonObjectWrapper JSONO
 {
 	OutputStringArray.Empty();
 	TArray<TSharedPtr<FJsonValue>> JsonValueArray;
-	if (JSONObject.JsonObject->HasTypedField<EJson::Array>("response")) {
+	if (JSONObject && JSONObject.JsonObject->HasTypedField<EJson::Array>("response")) {
 		TArray<TSharedPtr<FJsonValue>> ArrayField = JSONObject.JsonObject->GetArrayField("response");
 		for (int i = 0; i < ArrayField.Num(); i++) {
 			FString Result;
