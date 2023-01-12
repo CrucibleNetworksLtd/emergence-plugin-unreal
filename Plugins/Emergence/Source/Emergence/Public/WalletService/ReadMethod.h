@@ -18,10 +18,9 @@ class EMERGENCE_API UReadMethod : public UBlueprintAsyncActionBase
 public:
 	/**
 	 * Calls a "read" method on the given contract.
-	 * @param ContractAddress Address of the contract.
+	 * @param DeployedContract The deployed contract.
 	 * @param MethodName The method to call.
 	 * @param Content The parameters to call the method with.
-	 * @param BlockchainOverride Blockchain that the contract lives on. Leave blank for blockchain from Emergence project settings.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
 	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content);
