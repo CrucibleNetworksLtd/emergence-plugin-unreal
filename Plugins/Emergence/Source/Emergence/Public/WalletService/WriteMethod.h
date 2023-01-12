@@ -18,7 +18,7 @@ class EMERGENCE_API UWriteMethod : public UBlueprintAsyncActionBase
 public:
 	/**
 	 * Calls a "write" method on the given contract. OnTransactionSent is executed when the transaction is sent by the connected wallet sucessfully; you must wait for OnTransactionConfirmed to return to use ConfirmedTransaction or FinalStatusCode (all error handling should be done after OnTransactionConfirmed).
-	 * @param ContractAddress Address of the contract.
+	 * @param DeployedContract The deployed contract.
 	 * @param MethodName The method to call.
 	 * @param Value The amount to transfer from sender to recipient (in Wei, or equivelent).
 	 * @param Content The parameters to call the method with.
