@@ -238,6 +238,9 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
+#if UNREAL_MARKETPLACE_BUILD
+		UEmergenceSingleton::DeviceID = HttpResponse->GetHeader("device-id");
+#endif
 		return;
 	}
 	else {
