@@ -33,7 +33,7 @@ public class Emergence : ModuleRules
 				"Projects"
 				// ... add other public dependencies that you statically link with here ...
 			}
-			);
+		);
 			
 		
 		PrivateDependencyModuleNames.AddRange(
@@ -46,6 +46,8 @@ public class Emergence : ModuleRules
 				"Json",
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+		);
+
+		PublicDefinitions.Add("UNREAL_MARKETPLACE_BUILD=1");
 	}
 }
