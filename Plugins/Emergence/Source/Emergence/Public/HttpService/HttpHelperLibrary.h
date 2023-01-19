@@ -8,6 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Misc/EngineVersion.h"
 #include "Interfaces/IPluginManager.h"
+#include "EmergenceSingleton.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**
@@ -181,6 +182,10 @@ public:
 				HttpRequest->SetHeader(Headers[i].Key, Headers[i].Value);
 				HeaderLogText.Append(Headers[i].Key + ": " + Headers[i].Value + "\n");
 			}
+		}
+
+		if (!UEmergenceSingleton::DeviceID.IsEmpty()) {
+			HttpRequest->SetHeader("device-id", UEmergenceSingleton::DeviceID);
 		}
 
 		FString Version = FEngineVersion::Current().ToString() + " Emergence " + GetEmergenceVersionNumber();
