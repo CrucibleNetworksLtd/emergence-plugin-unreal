@@ -365,6 +365,12 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::IsConnected()
 {
+#if UNREAL_MARKETPLACE_BUILD
+	if (UEmergenceSingleton::DeviceID.IsEmpty()) {
+		OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceOk);
+		return;
+	}
+#endif
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, UHttpHelperLibrary::APIBase + "isConnected");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("IsConnected request started, calling IsConnected_HttpRequestComplete on request completed"));
 }
