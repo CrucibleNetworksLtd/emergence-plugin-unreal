@@ -184,7 +184,7 @@ public:
 			}
 		}
 
-		if (!UEmergenceSingleton::DeviceID.IsEmpty()) {
+		if (Headers.Num() == 0 && !UEmergenceSingleton::DeviceID.IsEmpty()) {
 			HttpRequest->SetHeader("deviceId", UEmergenceSingleton::DeviceID);
 			HeaderLogText.Append("deviceId: " + UEmergenceSingleton::DeviceID + "\n");
 		}
