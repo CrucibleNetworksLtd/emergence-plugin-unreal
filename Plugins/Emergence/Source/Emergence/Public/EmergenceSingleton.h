@@ -140,7 +140,7 @@ public:
 	FString GetCachedAddress();
 
 	//GetWalletConnectURI stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction), Category = "Emergence Internal|Overlay Methods")
 	void GetWalletConnectURI();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, EErrorCode, StatusCode);
