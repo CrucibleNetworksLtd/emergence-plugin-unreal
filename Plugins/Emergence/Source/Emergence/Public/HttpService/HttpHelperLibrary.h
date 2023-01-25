@@ -185,7 +185,8 @@ public:
 		}
 
 		if (!UEmergenceSingleton::DeviceID.IsEmpty()) {
-			HttpRequest->SetHeader("device-id", UEmergenceSingleton::DeviceID);
+			HttpRequest->SetHeader("deviceId", UEmergenceSingleton::DeviceID);
+			HeaderLogText.Append("deviceId: " + UEmergenceSingleton::DeviceID + "\n");
 		}
 
 		FString Version = FEngineVersion::Current().ToString() + " Emergence " + GetEmergenceVersionNumber();
