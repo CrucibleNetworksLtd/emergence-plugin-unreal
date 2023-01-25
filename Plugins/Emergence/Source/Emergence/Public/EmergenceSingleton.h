@@ -43,6 +43,8 @@ public:
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
 
+	inline static FString DeviceID;
+
 	UPROPERTY(BlueprintReadOnly)
 	FEmergencePersona CachedCurrentPersona;
 

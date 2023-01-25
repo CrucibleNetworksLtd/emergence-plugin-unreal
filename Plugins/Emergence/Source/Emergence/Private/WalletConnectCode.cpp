@@ -16,6 +16,7 @@ void UWalletConnectCode::QRCodeCompleted(UTexture2D* Icon, EErrorCode StatusCode
 	Singleton->OnGetQRCodeCompleted.RemoveDynamic(this, &UWalletConnectCode::QRCodeCompleted);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		this->SetBrushFromTexture(Icon, false);
+		Singleton->GetHandshake();
 	}
 	else {
 		this->OnSignInFailure.Broadcast(EEmergenceWalletConnectStepError::QRCodeFail);
@@ -65,7 +66,6 @@ void UWalletConnectCode::StartAttempt()
 	Singleton->GetQRCode();
 	Singleton->OnGetAccessTokenCompleted.AddDynamic(this, &UWalletConnectCode::AccessTokenCompleted);	
 	Singleton->OnGetHandshakeCompleted.AddDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
-	Singleton->GetHandshake();
 }
 
 void UWalletConnectCode::UpdateTimeRemaining()
