@@ -1,7 +1,9 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 #include "EmergenceSingleton.h"
-#include "Engine.h"
+#include "Engine/Engine.h"
+#include "Serialization/JsonWriter.h"
+#include "Policies/CondensedJsonPrintPolicy.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ObjectMacros.h"

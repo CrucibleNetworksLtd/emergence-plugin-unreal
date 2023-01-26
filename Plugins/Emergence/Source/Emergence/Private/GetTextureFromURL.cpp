@@ -9,6 +9,7 @@
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
 #include "EmergenceSingleton.h"
+#include "TimerManager.h"
 
 void UGetTextureFromUrl::Activate()
 {

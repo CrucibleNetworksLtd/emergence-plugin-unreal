@@ -2,7 +2,6 @@
 
 
 #include "WalletService/EmergenceJSONHelpers.h"
-#include "Json.h"
 #include "JsonObjectConverter.h"
 
 bool UEmergenceJSONHelpers::ReadMethodJSONToString(FJsonObjectWrapper JSONObject, FString& OutputString)
