@@ -11,16 +11,16 @@ struct FEmergencePersona
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona")
 	FString id;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona")
 	FString name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona")
 	FString bio;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona")
 	FString avatarId;
 
 	FEmergencePersona() {};
@@ -55,10 +55,10 @@ struct FEmergencePersonaListResponse
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona List")
 	TArray<FEmergencePersona> personas;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Persona List")
 	FString selected;
 
 	FEmergencePersonaListResponse() {};

@@ -21,22 +21,22 @@ public:
 
 	UEmergenceChain(FText Name, FString _NodeURL, FString Symbol);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Emergence|Blockchain")
 	FText Name;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Emergence|Blockchain")
 	FString NodeURL;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Emergence|Blockchain")
 	FString Symbol;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Emergence|Blockchain")
 	int ChainID;
 
 
 	UFUNCTION()
 	static UEmergenceChain* GetEmergenceChainDataFromConfig(const UObject* Outer);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category="Emergence|Blockchain")
 	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol, int _ChainID);
 };

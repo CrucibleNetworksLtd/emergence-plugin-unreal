@@ -61,7 +61,7 @@ public:
 	FOnSignInFailure OnSignInFailure;
 
 	//This is the seconds remaining until the QR code is refreshed. Use this to display to the user how long they have. In future version, the amount of time the user gets might be customisable.
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category="Time")
 	int TimeRemaining = -1;
 
 	virtual TSharedRef<SWidget> RebuildWidget() override;

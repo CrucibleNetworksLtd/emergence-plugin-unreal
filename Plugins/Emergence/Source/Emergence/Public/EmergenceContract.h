@@ -11,7 +11,7 @@ struct FEmergenceContractMethod
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Emergence|Contract|Method")
 	FString MethodName;
 
 	FEmergenceContractMethod() {};
@@ -34,18 +34,18 @@ public:
 
 	UEmergenceContract(FString _ABI);
 
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category="Emergence|Contract")
 	static UEmergenceContract* CreateEmergenceContract(FString _ABI);
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Emergence|Contract")
 	FString ABI;
 
-	UPROPERTY(VisibleAnywhere, Category="Methods")
+	UPROPERTY(VisibleAnywhere, Category="Emergence|Contract|Methods")
 	TArray<FEmergenceContractMethod> ReadMethods;
 
-	UPROPERTY(VisibleAnywhere, Category="Methods")
+	UPROPERTY(VisibleAnywhere, Category="Emergence|Contract|Methods")
 	TArray<FEmergenceContractMethod> WriteMethods;
 
-	UFUNCTION(CallInEditor, Category="Methods")
+	UFUNCTION(CallInEditor, Category="Emergence|Contract|Methods")
 	void FindMethods();
 };
