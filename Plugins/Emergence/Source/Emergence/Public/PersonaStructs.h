@@ -4,40 +4,6 @@
 #include "CoreMinimal.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "PersonaStructs.generated.h"
-USTRUCT(BlueprintType)
-struct FEmergenceGame
-{
-
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString id;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString name;
-
-	FEmergenceGame() {};
-
-	FEmergenceGame( FString _id, FString _name ){
-
-		id = _id;
-		name = _name;
-	
-	}
-	
-	FEmergenceGame(FString _json_){
-		FEmergenceGame _tmpEmergenceGame;
-		
-		FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceGame>(
-		_json_,
-		&_tmpEmergenceGame,
-		0, 0);
-		
-		id = _tmpEmergenceGame.id;
-		name = _tmpEmergenceGame.name;
-	}
-	
-};
 
 USTRUCT(BlueprintType)
 struct FEmergencePersonaSettings
@@ -91,16 +57,12 @@ struct FEmergenceAvatar
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString url;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//FEmergenceGame game;
-
 	FEmergenceAvatar() {};
 
-	FEmergenceAvatar( FString _id, FString _url/*, FEmergenceGame _game*/ ){
+	FEmergenceAvatar( FString _id, FString _url ){
 
 		id = _id;
 		url = _url;
-		//game = _game;
 	
 	}
 	
@@ -114,7 +76,6 @@ struct FEmergenceAvatar
 		
 		id = _tmpEmergencePersonaAvatar.id;
 		url = _tmpEmergencePersonaAvatar.url;
-		//game = _tmpEmergencePersonaAvatar.game;
 	}
 	
 };
