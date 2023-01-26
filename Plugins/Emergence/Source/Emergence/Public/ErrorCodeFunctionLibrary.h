@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Emergence.h"
+#include "Dom/JsonObject.h"
+#include "Runtime/Core/Public/Misc/ConfigCacheIni.h"
 #include "ErrorCodeFunctionLibrary.generated.h"
 
 UENUM(BlueprintType)

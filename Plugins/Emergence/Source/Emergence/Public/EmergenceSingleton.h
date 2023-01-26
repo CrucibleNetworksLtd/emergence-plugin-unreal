@@ -15,6 +15,7 @@
 #include "UI/EmergenceUI.h"
 #include "GameFramework/PlayerController.h"
 #include "Emergence.h"
+#include "Brushes/SlateDynamicImageBrush.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
