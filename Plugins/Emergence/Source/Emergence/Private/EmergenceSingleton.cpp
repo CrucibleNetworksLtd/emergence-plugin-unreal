@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ObjectMacros.h"
 #include "GameDelegates.h"
+#include "Engine/Texture2D.h"
 
 //for HTTP services
 #include "Interfaces/IHttpRequest.h"
