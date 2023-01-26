@@ -6,19 +6,26 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
-		if(Target.Platform == UnrealTargetPlatform.Win64)
-		{
-			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Windows/...");
-		}
+		bool MarketplaceBuild = true;
 		
-		if(Target.Platform == UnrealTargetPlatform.Mac)
-		{
-			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Mac/...");
+		if(MarketplaceBuild){
+			PublicDefinitions.Add("UNREAL_MARKETPLACE_BUILD=1");
+		}
+		else{
+			PublicDefinitions.Add("UNREAL_MARKETPLACE_BUILD=0");
+			if(Target.Platform == UnrealTargetPlatform.Win64)
+			{
+				RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Windows/...");
+			}
+			
+			if(Target.Platform == UnrealTargetPlatform.Mac)
+			{
+				RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Mac/...");
+			}
 		}
 		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
-			
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -30,7 +37,8 @@ public class Emergence : ModuleRules
 				"JsonUtilities",
 				"Slate",
 				"SlateCore",
-				"Projects"
+				"Projects",
+				"HTTP"
 				// ... add other public dependencies that you statically link with here ...
 			}
 		);
@@ -42,12 +50,9 @@ public class Emergence : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"SlateCore",
-				"HTTP",
-				"Json",
+				"Json"
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);
-
-		PublicDefinitions.Add("UNREAL_MARKETPLACE_BUILD=1");
 	}
 }
