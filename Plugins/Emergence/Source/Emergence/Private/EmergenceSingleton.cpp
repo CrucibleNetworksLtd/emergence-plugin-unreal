@@ -404,7 +404,10 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::KillSession()
 {
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession");
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
+	Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 }
 
