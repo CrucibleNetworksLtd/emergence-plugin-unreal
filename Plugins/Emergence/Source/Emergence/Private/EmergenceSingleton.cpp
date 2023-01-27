@@ -322,11 +322,16 @@ void UEmergenceSingleton::GetHandshake()
 #if WITH_EDITOR
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Using chain %s, node URL: %s"), *ChainData->Name.ToString(), *NodeURL);
 #endif
+
+	TArray<TPair<FString, FString>> Headers;
+	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	}
 	
 	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
-		"GET", 60.F);  //extra time because they might be fiddling with their phones
+		"GET", 60.F, Headers);  //extra time because they might be fiddling with their phones
 	
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
@@ -378,7 +383,13 @@ void UEmergenceSingleton::IsConnected()
 		return;
 	}
 #endif
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, UHttpHelperLibrary::APIBase + "isConnected");
+
+	TArray<TPair<FString, FString>> Headers;
+	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	}
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::IsConnected_HttpRequestComplete, UHttpHelperLibrary::APIBase + "isConnected", "GET", 60.0F, Headers);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("IsConnected request started, calling IsConnected_HttpRequestComplete on request completed"));
 }
 
@@ -406,7 +417,9 @@ void UEmergenceSingleton::KillSession()
 {
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
-	Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	}
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 }
@@ -455,7 +468,11 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 
 void UEmergenceSingleton::GetAccessToken()
 {
-	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token");
+	TArray<TPair<FString, FString>> Headers;
+	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	}
+	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token", "GET", 60.0F, Headers);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling GetAccessToken_HttpRequestComplete on request completed"));
 }
 

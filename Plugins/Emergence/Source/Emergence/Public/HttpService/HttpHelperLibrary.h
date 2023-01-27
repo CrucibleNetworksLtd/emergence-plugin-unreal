@@ -184,11 +184,6 @@ public:
 			}
 		}
 
-		if (Headers.Num() == 0 && !UEmergenceSingleton::DeviceID.IsEmpty()) {
-			HttpRequest->SetHeader("deviceId", UEmergenceSingleton::DeviceID);
-			HeaderLogText.Append("deviceId: " + UEmergenceSingleton::DeviceID + "\n");
-		}
-
 		FString Version = FEngineVersion::Current().ToString() + " Emergence " + GetEmergenceVersionNumber();
 		HttpRequest->SetHeader("User-Agent", Version);
 

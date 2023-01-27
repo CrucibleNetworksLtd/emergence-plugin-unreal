@@ -19,10 +19,14 @@ URequestToSign* URequestToSign::RequestToSign(UObject* WorldContextObject, const
 void URequestToSign::Activate()
 {
 	FString Content = "{\"message\": \"" + MessageToSign + "\"}";
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Content);
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
 	Headers.Add(TPair<FString, FString>("accept", "text/plain"));
+
+	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId",UEmergenceSingleton::DeviceID));
+	}
+
 	UHttpHelperLibrary::ExecuteHttpRequest<URequestToSign>(this, &URequestToSign::RequestToSign_HttpRequestComplete, UHttpHelperLibrary::APIBase + "request-to-sign", "POST", 60.0F, Headers, Content);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("RequestToSign request started, calling RequestToSign_HttpRequestComplete on request completed"));
 }
