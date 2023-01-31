@@ -7,7 +7,7 @@
 
 void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 #if UNREAL_MARKETPLACE_BUILD
-	UHttpHelperLibrary::APIBase = "http://evm.openmeta.xyz/api/";
+	UHttpHelperLibrary::APIBase = "https://evm.openmeta.xyz/api/";
 #else
 	bool LaunchHidden = true;
 	if (GConfig) {
