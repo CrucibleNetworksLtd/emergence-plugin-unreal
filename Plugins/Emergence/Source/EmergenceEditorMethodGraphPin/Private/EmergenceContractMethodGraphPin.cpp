@@ -1,6 +1,6 @@
+// Copyright Crucible Networks Ltd 2023. All Rights Reserved.
+
 #include "EmergenceContractMethodGraphPin.h"
-
-
 #include "EdGraph/EdGraphPin.h"
 #include "EdGraph/EdGraphSchema.h"
 #include "SNameComboBox.h"
