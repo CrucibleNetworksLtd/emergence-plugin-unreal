@@ -458,10 +458,6 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		OnGetAccessTokenCompleted.Broadcast(StatusCode);
 		return;
 	}
-	else {
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback error parsing %s"), *HttpResponse->GetContentAsString());
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Access token callback was error code: %s"), *StaticEnum<EErrorCode>()->GetValueAsString(StatusCode));
-	}
 	OnGetAccessTokenCompleted.Broadcast(StatusCode);
 	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
 }
