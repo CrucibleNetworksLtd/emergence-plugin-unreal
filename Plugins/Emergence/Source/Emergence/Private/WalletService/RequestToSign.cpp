@@ -35,7 +35,6 @@ void URequestToSign::RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpReque
 {	
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 	bool isValidToken = false;
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString Message = "";

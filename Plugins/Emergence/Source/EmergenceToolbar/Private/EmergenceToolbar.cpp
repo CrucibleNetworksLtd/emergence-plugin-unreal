@@ -142,27 +142,18 @@ void FEmergenceToolbarModule::PluginButtonClicked()
 	FMessageDialog::Open(EAppMsgType::Ok, DialogText);
 }
 
-/*void FEmergenceToolbarModule::CheckStatusButtonClicked()
-{
-	UE_LOG(LogTemp, Warning, TEXT("CheckStatusButtonClicked"));
-}*/
-
 void FEmergenceToolbarModule::StartServerButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("StartServerButtonClicked"));
 	ULocalEmergenceServer::LaunchLocalServerProcess();
 }
 
 void FEmergenceToolbarModule::StopServerButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("StopServerButtonClicked"));
-	
 	ULocalEmergenceServer::KillLocalServerProcess();
 }
 
 void FEmergenceToolbarModule::RestartServerButtonClicked()
 {
-	UE_LOG(LogTemp, Warning, TEXT("RestartServerButtonClicked"));
 	ULocalEmergenceServer::KillLocalServerProcess();
 	ULocalEmergenceServer::LaunchLocalServerProcess();
 }

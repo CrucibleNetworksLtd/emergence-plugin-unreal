@@ -21,7 +21,6 @@ UValidateSignedMessage* UValidateSignedMessage::ValidateSignedMessage(UObject* W
 void UValidateSignedMessage::Activate()
 {
 	FString Content = "{\"message\": \"" + Message + "\", \"signedMessage\": \"" + SignedMessage + "\", \"address\": \"" + Address + "\"}";
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Content);
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
 	Headers.Add(TPair<FString, FString>("accept", "text/plain"));
