@@ -72,7 +72,7 @@ bool UEmergenceTopBarComponent::ShouldDisplayBalanceText()
 void UEmergenceTopBarComponent::GetBalanceResponseHandler(FString Balance, EErrorCode StatusCode)
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		UE_LOG(LogTemp, Display, TEXT("GetBalanceResponseHandler came back with %s"), *Balance);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalanceResponseHandler came back with %s"), *Balance);
 		if (FCString::Atoi(*Balance) != 0) {
 			this->ReturnedBalance = Balance;
 			CurrencyDisplayText = GetBalanceText();
@@ -92,7 +92,7 @@ void UEmergenceTopBarComponent::BalanceOfResponseHandler(FJsonObjectWrapper Resp
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TArray<FString> StringArray;
 		if (UEmergenceJSONHelpers::ReadMethodJSONToStringArray(Response, StringArray)) {
-			UE_LOG(LogTemp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *StringArray[0]);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("BalanceOfResponseHandler came back with %s"), *StringArray[0]);
 			this->ReturnedBalance = StringArray[0];
 			CurrencyDisplayText = GetBalanceText();
 			BalanceTextUpdated();
@@ -111,7 +111,7 @@ void UEmergenceTopBarComponent::SymbolResponseHandler(FJsonObjectWrapper Respons
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TArray<FString> StringArray;
 		if (UEmergenceJSONHelpers::ReadMethodJSONToStringArray(Response, StringArray)) {
-			UE_LOG(LogTemp, Display, TEXT("SymbolResponseHandler StringArray[0] %s"), *StringArray[0]);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("SymbolResponseHandler StringArray[0] %s"), *StringArray[0]);
 			this->ReturnedSymbol = StringArray[0];
 		}
 		BalanceTextUpdated();
