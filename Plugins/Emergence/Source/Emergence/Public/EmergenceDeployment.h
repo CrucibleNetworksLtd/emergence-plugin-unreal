@@ -24,13 +24,13 @@ public:
 	UFUNCTION(BlueprintPure, Category="Emergence|Deployed Contract")
 	static UEmergenceDeployment* CreateEmergenceDeployment(FString Address, UEmergenceChain* Blockchain, UEmergenceContract* Contract);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Deployed Contract")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Deployed Contract")
 	UEmergenceChain* Blockchain;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Deployed Contract")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Deployed Contract")
 	UEmergenceContract* Contract;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Deployed Contract")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Deployed Contract")
 	FString Address;
   
 };
