@@ -73,7 +73,8 @@ void UEmergenceTopBarComponent::GetBalanceResponseHandler(FString Balance, EErro
 {
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalanceResponseHandler came back with %s"), *Balance);
-		if (FCString::Atoi(*Balance) != 0) {
+		if (Balance.IsNumeric()) {
+			FCString::Atoi(*Balance); //this will come back 0 if it fails, like if its all text
 			this->ReturnedBalance = Balance;
 			CurrencyDisplayText = GetBalanceText();
 			BalanceTextUpdated();
