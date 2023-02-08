@@ -10,6 +10,7 @@
 	"DocsURL": "https://docs.openmetadao.com/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/2a2ac549e90440b59cc331c53de19e88",
 	"SupportURL": "https://discord.gg/openmeta",
+	"EngineVersion": "5.1",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
