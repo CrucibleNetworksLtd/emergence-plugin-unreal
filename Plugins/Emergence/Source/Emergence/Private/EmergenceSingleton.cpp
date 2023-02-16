@@ -362,8 +362,13 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 		bool IsConnected;
 		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("isConnected", IsConnected)) {
-			Address = JsonObject.GetObjectField("message")->GetStringField("address");
-			OnIsConnectedCompleted.Broadcast(IsConnected, Address, StatusCode);
+			if (IsConnected) {
+				Address = JsonObject.GetObjectField("message")->GetStringField("address");
+				OnIsConnectedCompleted.Broadcast(IsConnected, Address, StatusCode);
+			}
+			else {
+				OnIsConnectedCompleted.Broadcast(IsConnected, "", StatusCode);
+			}
 		}
 		else {
 			OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceClientWrongType);
