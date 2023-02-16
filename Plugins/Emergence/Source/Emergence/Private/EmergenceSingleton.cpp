@@ -144,7 +144,7 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 
 UEmergenceUI* UEmergenceSingleton::OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass)
 {
-	if (EmergenceUIClass) {
+	if (EmergenceUIClass && OwnerPlayerController) {
 		CurrentEmergenceUI = CreateWidget<UEmergenceUI>(OwnerPlayerController, EmergenceUIClass);
 		CurrentEmergenceUI->AddToViewport(9999);
 
