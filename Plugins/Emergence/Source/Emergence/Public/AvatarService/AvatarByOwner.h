@@ -31,10 +31,10 @@ struct FEmergenceAvatarMetadata
 	FString UriBase;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Metadata")
-	int32 MaxTotalSize;
+	int32 MaxTotalSize = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Metadata")
-	int32 MaxTotalVertices;
+	int32 MaxTotalVertices = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Metadata")
 	FString GUID;
@@ -82,7 +82,7 @@ struct FEmergenceAvatarResult
   TArray<FEmergenceAvatarMetadata> Avatars;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Result")
-  int32 lastUpdated;
+  int32 lastUpdated = -1;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Result")
   FString chain;
