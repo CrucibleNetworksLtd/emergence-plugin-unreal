@@ -20,10 +20,16 @@ UGetBlockNumber* UGetBlockNumber::GetBlockNumber(UObject* WorldContextObject, UE
 void UGetBlockNumber::Activate()
 {
 	if (Blockchain) {
+		TArray<TPair<FString, FString>> Headers;
+		Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
 		UHttpHelperLibrary::ExecuteHttpRequest<UGetBlockNumber>(
 			this,
 			&UGetBlockNumber::GetBlockNumber_HttpRequestComplete,
-			UHttpHelperLibrary::APIBase + "getBlockNumber?nodeURL=" + Blockchain->NodeURL);
+			this->Blockchain->NodeURL,
+			"POST",
+			60.0F,
+			Headers,
+			R"({"jsonrpc":"2.0", "method":"eth_blockNumber", "params":[] , "id":1})");
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBlockNumber request started with JSON, calling GetBlockNumber_HttpRequestComplete on request completed."));
 	}
 	else {
@@ -36,8 +42,15 @@ void UGetBlockNumber::GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpReq
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	if (StatusCode == EErrorCode::EmergenceOk) {	
-		OnGetBlockNumberCompleted.Broadcast(JsonObject.GetObjectField("message")->GetIntegerField("blockNumber"), EErrorCode::EmergenceOk);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString BlockNumberAsHex;
+		if (JsonObject.TryGetStringField("result", BlockNumberAsHex)) {
+			OnGetBlockNumberCompleted.Broadcast(FParse::HexNumber(*BlockNumberAsHex), EErrorCode::EmergenceOk);
+		}
+		else {
+			OnGetBlockNumberCompleted.Broadcast(-1, StatusCode);
+			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetBlockNumber", StatusCode);
+		}
 	}
 	else {
 		OnGetBlockNumberCompleted.Broadcast(-1, StatusCode);
