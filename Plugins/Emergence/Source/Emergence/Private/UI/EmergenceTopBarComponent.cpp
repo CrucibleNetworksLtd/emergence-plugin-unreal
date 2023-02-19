@@ -132,7 +132,9 @@ FString UEmergenceTopBarComponent::GetBalanceText()
 		return "0 " + this->ReturnedSymbol;
 	}
 	FString IntergerSide, DecimalSide;
-	FString AsEther = UUnitConverterFunctionLibrary::Convert(this->ReturnedBalance, EEtherUnitType::WEI, EEtherUnitType::ETHER, ".");
+	
+	//its sent over as finnys aka PWei
+	FString AsEther = UUnitConverterFunctionLibrary::Convert(this->ReturnedBalance, EEtherUnitType::PWEI, EEtherUnitType::ETHER, ".");
 	if (AsEther.Contains(".")) {
 		AsEther.Split(".", &IntergerSide, &DecimalSide);
 		return IntergerSide + "." + DecimalSide.Left(3) + " " + this->ReturnedSymbol;

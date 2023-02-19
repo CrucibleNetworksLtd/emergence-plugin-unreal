@@ -16,7 +16,7 @@ class EMERGENCE_API UGetBalance : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 public:
 	/**
-	 * Gets the balance of the given address.
+	 * Gets the balance of the given address in finnys.
 	 * @param Address Address to get the balance of.
 	 * @param Blockchain Blockchain to get the balance on.
 	 */

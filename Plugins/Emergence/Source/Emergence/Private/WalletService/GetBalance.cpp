@@ -7,6 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
+#include "WalletService/BigIntFunctionLibrary.h"
 
 UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Address, UEmergenceChain* Blockchain)
 {
@@ -20,10 +21,16 @@ UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Addres
 void UGetBalance::Activate()
 {
 	if (Blockchain) {
+		TArray<TPair<FString, FString>> Headers;
+		Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
 		UHttpHelperLibrary::ExecuteHttpRequest<UGetBalance>(
 			this,
 			&UGetBalance::GetBalance_HttpRequestComplete,
-			UHttpHelperLibrary::APIBase + "getbalance" + "?nodeUrl=" + Blockchain->NodeURL + "&address=" + this->Address);
+			this->Blockchain->NodeURL,
+			"POST",
+			60.0F,
+			Headers,
+			R"({"jsonrpc":"2.0", "method":"eth_getBalance", "params":[")" + this->Address + R"(", "latest"] , "id":1})");
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetBalance request started with JSON, calling GetBalance_HttpRequestComplete on request completed. Json sent as part of the request: "));
 	}
 	else {
@@ -37,12 +44,13 @@ void UGetBalance::GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString Balance;
-		if (JsonObject.GetObjectField("message")->TryGetStringField("balance", Balance)) {
-			OnGetBalanceCompleted.Broadcast(Balance, StatusCode);
+		UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+		FString BlockNumberAsHex;
+		if (JsonObject.TryGetStringField("result", BlockNumberAsHex)) {
+			OnGetBalanceCompleted.Broadcast(UBigIntFunctionLibrary::HexToDec(*BlockNumberAsHex), EErrorCode::EmergenceOk);
 		}
 		else {
-			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceClientWrongType);
+			OnGetBalanceCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 		}
 	}
 	else {
