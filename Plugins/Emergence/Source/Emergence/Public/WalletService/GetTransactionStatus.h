@@ -30,9 +30,14 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
+
+	UFUNCTION()
+	void GetBlockNumberCompleted(int64 BlockNumber, EErrorCode StatusCode);
 private:
 	void GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	UObject* WorldContextObject;
 	FString TransactionHash;
 	UEmergenceChain* Blockchain;
+	int64 BlockNumber;
+	
 };

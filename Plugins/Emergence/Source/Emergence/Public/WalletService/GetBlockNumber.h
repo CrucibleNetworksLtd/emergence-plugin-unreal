@@ -25,7 +25,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBlockNumberCompleted, int, BlockNumber, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetBlockNumberCompleted, int64, BlockNumber, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetBlockNumberCompleted OnGetBlockNumberCompleted;
