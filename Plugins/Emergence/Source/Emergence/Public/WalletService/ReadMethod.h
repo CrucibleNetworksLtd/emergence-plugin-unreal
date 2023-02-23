@@ -40,4 +40,6 @@ private:
 	FEmergenceContractMethod MethodName;
 	UEmergenceDeployment* DeployedContract;
 	TArray<FString> Content;
+	
+	FString EncodeArgument(FString Type, FString Content);
 };
