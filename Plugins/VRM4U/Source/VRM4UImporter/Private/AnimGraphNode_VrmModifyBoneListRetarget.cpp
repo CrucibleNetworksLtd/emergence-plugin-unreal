@@ -1,6 +1,6 @@
 // VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
 
-#include "AnimGraphNode_VrmVMC.h"
+#include "AnimGraphNode_VrmModifyBoneListRetarget.h"
 #include "Misc/EngineVersionComparison.h"
 #include "UnrealWidget.h"
 #include "AnimNodeEditModes.h"
@@ -18,7 +18,7 @@
 ////////////////////
 
 
-UAnimGraphNode_VrmVMC::UAnimGraphNode_VrmVMC(const FObjectInitializer& ObjectInitializer)
+UAnimGraphNode_VrmModifyBoneListRetarget::UAnimGraphNode_VrmModifyBoneListRetarget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 #if	UE_VERSION_OLDER_THAN(5,0,0)
@@ -28,7 +28,7 @@ UAnimGraphNode_VrmVMC::UAnimGraphNode_VrmVMC(const FObjectInitializer& ObjectIni
 #endif
 }
 
-void UAnimGraphNode_VrmVMC::ValidateAnimNodePostCompile(FCompilerResultsLog& MessageLog, UAnimBlueprintGeneratedClass* CompiledClass, int32 CompiledNodeIndex) {
+void UAnimGraphNode_VrmModifyBoneListRetarget::ValidateAnimNodePostCompile(FCompilerResultsLog& MessageLog, UAnimBlueprintGeneratedClass* CompiledClass, int32 CompiledNodeIndex) {
 
 	if (Node.VrmMetaObject == nullptr) {
 		//MessageLog.Warning(*LOCTEXT("VrmNoMetaObject", "@@ - You must set VrmMetaObject").ToString(), this);
@@ -46,7 +46,7 @@ void UAnimGraphNode_VrmVMC::ValidateAnimNodePostCompile(FCompilerResultsLog& Mes
 	Super::ValidateAnimNodePostCompile(MessageLog, CompiledClass, CompiledNodeIndex);
 }
 
-void UAnimGraphNode_VrmVMC::ValidateAnimNodeDuringCompilation(USkeleton* ForSkeleton, FCompilerResultsLog& MessageLog)
+void UAnimGraphNode_VrmModifyBoneListRetarget::ValidateAnimNodeDuringCompilation(USkeleton* ForSkeleton, FCompilerResultsLog& MessageLog)
 {
 	// Temporary fix where skeleton is not fully loaded during AnimBP compilation and thus virtual bone name check is invalid UE-39499 (NEED FIX) 
 	if (ForSkeleton && !ForSkeleton->HasAnyFlags(RF_NeedPostLoad))
@@ -96,17 +96,17 @@ void UAnimGraphNode_VrmVMC::ValidateAnimNodeDuringCompilation(USkeleton* ForSkel
 	Super::ValidateAnimNodeDuringCompilation(ForSkeleton, MessageLog);
 }
 
-FText UAnimGraphNode_VrmVMC::GetControllerDescription() const
+FText UAnimGraphNode_VrmModifyBoneListRetarget::GetControllerDescription() const
 {
-	return LOCTEXT("VrmVMC", "VrmVMC");
+	return LOCTEXT("VrmModifyBoneListRetarget", "VrmModifyBoneListRetarget");
 }
 
-FText UAnimGraphNode_VrmVMC::GetTooltipText() const
+FText UAnimGraphNode_VrmModifyBoneListRetarget::GetTooltipText() const
 {
-	return LOCTEXT("AnimGraphNode_VrmVMC_Tooltip", "VrmVMC");
+	return LOCTEXT("AnimGraphNode_VrmModifyBoneListRetarget_Tooltip", "VrmModifyBoneListRetarget");
 }
 
-FText UAnimGraphNode_VrmVMC::GetNodeTitle(ENodeTitleType::Type TitleType) const
+FText UAnimGraphNode_VrmModifyBoneListRetarget::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	//if ((TitleType == ENodeTitleType::ListView || TitleType == ENodeTitleType::MenuTitle) && (Node.BoneToModify.BoneName == NAME_None))
 	//if ((TitleType == ENodeTitleType::ListView || TitleType == ENodeTitleType::MenuTitle) && (Node.BoneNameToModify == NAME_None))
@@ -137,20 +137,20 @@ FText UAnimGraphNode_VrmVMC::GetNodeTitle(ENodeTitleType::Type TitleType) const
 	*/
 }
 
-//void UAnimGraphNode_VrmVMC::CopyNodeDataToPreviewNode(FAnimNode_Base* InPreviewNode)
+//void UAnimGraphNode_VrmModifyBoneListRetarget::CopyNodeDataToPreviewNode(FAnimNode_Base* InPreviewNode)
 //{
 //}
 
-FEditorModeID UAnimGraphNode_VrmVMC::GetEditorMode() const
+FEditorModeID UAnimGraphNode_VrmModifyBoneListRetarget::GetEditorMode() const
 {
 	return Super::GetEditorMode();
 }
 
-void UAnimGraphNode_VrmVMC::Draw(FPrimitiveDrawInterface* PDI, USkeletalMeshComponent * PreviewSkelMeshComp) const
+void UAnimGraphNode_VrmModifyBoneListRetarget::Draw(FPrimitiveDrawInterface* PDI, USkeletalMeshComponent * PreviewSkelMeshComp) const
 {
 	if (PreviewSkelMeshComp)
 	{
-		if (FAnimNode_VrmVMC* ActiveNode = GetActiveInstanceNode<FAnimNode_VrmVMC>(PreviewSkelMeshComp->GetAnimInstance()))
+		if (FAnimNode_VrmModifyBoneListRetarget* ActiveNode = GetActiveInstanceNode<FAnimNode_VrmModifyBoneListRetarget>(PreviewSkelMeshComp->GetAnimInstance()))
 		{
 			if (bPreviewLive) {
 				//ActiveNode->ConditionalDebugDraw(PDI, PreviewSkelMeshComp, bPreviewForeground);

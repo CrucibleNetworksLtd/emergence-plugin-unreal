@@ -15,6 +15,13 @@ class VRM4U_API UVrmCineCameraComponent : public UCineCameraComponent
 	
 public:
 
+	virtual void OnRegister() override;
+#if WITH_EDITORONLY_DATA
+	// Refreshes the visual components to match the component state
+	virtual void RefreshVisualRepresentation() override;
+#endif
+
+
 	virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
 
 	UPROPERTY(Interp, EditAnywhere, BlueprintReadWrite, Category = "Vrm Camera Settings")

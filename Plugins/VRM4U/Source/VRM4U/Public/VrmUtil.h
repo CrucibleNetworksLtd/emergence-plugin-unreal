@@ -284,6 +284,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	float ModelScale = 1.0f;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	float FrameRate = 60.0f;
+
 	bool bVrm10RemoveLocalRotation = false;
 
 	bool bVrm10Bindpose = false;
@@ -303,6 +306,10 @@ public:
 	bool bEnableMorphTargetNormal = false;
 	
 	bool bStrictMorphTargetNameMode = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bRemoveBlendShapeGroupPrefix = false;
+	
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bForceOpaque= false;
@@ -331,6 +338,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bOptimizeVertex = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bRemoveDegenerateTriangles = false;
 
 	bool bSimpleRoot = true;
 

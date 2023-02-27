@@ -8,6 +8,7 @@
 
 #include "VrmConvert.h"
 #include "VrmUtil.h"
+#include "VRM4ULoaderLog.h"
 
 #include <assimp/scene.h>       // Output data structure
 #include <assimp/mesh.h>       // Output data structure
@@ -57,17 +58,24 @@ TArray<FString> makeActiveBone(const aiScene *scene) {
 	return boneNameTable;
 }
 
-TArray<aiBone*> makeAiBoneTable(const aiScene* scene) {
-	TArray <aiBone*> t;
+TMap<const aiNode*, const aiBone* > makeAiBoneTable(const aiScene* scene, TArray<const aiNode*> &nodeArray) {
+	TMap<const aiNode*, const aiBone*> table;
+
 	for (uint32 m = 0; m < scene->mNumMeshes; ++m) {
 		const auto& aiM = *scene->mMeshes[m];
 
 		for (uint32 b = 0; b < aiM.mNumBones; ++b) {
-			const auto& aiB = *aiM.mBones[b];
-			t.AddUnique(aiM.mBones[b]);
+			const auto& aiB = aiM.mBones[b];
+			for (auto a : nodeArray) {
+				if (a->mName == aiB->mName) {
+					table.Add(a, aiB);
+					break;
+				}
+			}
 		}
 	}
-	return t;
+
+	return table;
 }
 
 FMatrix convertAiMatToFMatrix(aiMatrix4x4 t) {
@@ -82,6 +90,11 @@ FMatrix convertAiMatToFMatrix(aiMatrix4x4 t) {
 		m.M[0][0] = t.a1; m.M[1][0] = t.a2; m.M[2][0] = t.a3; m.M[3][0] = t.a4 * 100.f;
 		m.M[0][1] = -t.c1; m.M[1][1] = -t.c2; m.M[2][1] = -t.c3; m.M[3][1] = -t.c4 * 100.f;//t.b4*100.f;
 		m.M[0][2] = t.b1; m.M[1][2] = t.b2; m.M[2][2] = t.b3; m.M[3][2] = t.b4 * 100.f;//t.c4*100.f;
+		m.M[0][3] = t.d1; m.M[1][3] = t.d2; m.M[2][3] = t.d3; m.M[3][3] = t.d4;
+
+		m.M[0][0] = t.a1; m.M[1][0] = t.a2; m.M[2][0] = t.a3; m.M[3][0] = t.a4 * 100.f;
+		m.M[0][1] = t.b1; m.M[1][1] = t.b2; m.M[2][1] = t.b3; m.M[3][1] = t.b4 * 100.f;//t.b4*100.f;
+		m.M[0][2] = t.c1; m.M[1][2] = t.c2; m.M[2][2] = t.c3; m.M[3][2] = t.c4 * 100.f;//t.c4*100.f;
 		m.M[0][3] = t.d1; m.M[1][3] = t.d2; m.M[2][3] = t.d3; m.M[3][3] = t.d4;
 
 		// rot after
@@ -193,13 +206,6 @@ static void rr(const aiNode *node, TArray<const aiNode*> &t, bool &bHasMesh, con
 
 void VRMSkeleton::readVrmBone(aiScene* scene, int& boneOffset, FReferenceSkeleton &RefSkeleton, UVrmAssetListObject* vrmAssetList) {
 	boneOffset = 0;
-	//FBoneNode n;
-
-	//n.Name_DEPRECATED = TEXT("aaaaa");
-	//n.ParentIndex_DEPRECATED = 1;
-	//n.TranslationRetargetingMode
-
-	//this->BoneTree.Push(n);
 
 
 	FReferenceSkeletonModifier RefSkelModifier(RefSkeleton, nullptr);
@@ -213,24 +219,19 @@ void VRMSkeleton::readVrmBone(aiScene* scene, int& boneOffset, FReferenceSkeleto
 		}
 	}
 
-	auto aiBoneTable = makeAiBoneTable(scene);
+
+	TArray<const aiNode*> nodeArray;
+	{
+		bool dummy = false;
+		bool bSimpleRootBone = false;
+		bSimpleRootBone = VRMConverter::Options::Get().IsSimpleRootBone();
+		rr(scene->mRootNode, nodeArray, dummy, bSimpleRootBone, scene);
+	}
+
+	TMap<const aiNode*, const aiBone*> aiBoneTable = makeAiBoneTable(scene, nodeArray);
 
 
 	{
-		//const int offset = GetBoneTree().Num();
-		//if (offset > 30) {
-		//	return;
-		//}
-		//boneOffset = offset-1;
-
-		TArray<const aiNode*> nodeArray;
-		{
-			bool dummy = false;
-			bool bSimpleRootBone = false;
-			bSimpleRootBone = VRMConverter::Options::Get().IsSimpleRootBone();
-			rr(scene->mRootNode, nodeArray, dummy, bSimpleRootBone, scene);
-		}
-
 		{
 
 			TArray<FString> rec_low;
@@ -350,142 +351,157 @@ void VRMSkeleton::readVrmBone(aiScene* scene, int& boneOffset, FReferenceSkeleto
 
 
 		int totalBoneCount = 0;
-		FVector RootTransOffset(0.f);
 
 		TArray<FTransform> poseGlobal_bindpose;	// bone
 		TArray<FTransform> poseGlobal_tpose;	// node
 
+		TArray<FTransform> poseLocal_bindpose;	// bone
+		TArray<FTransform> poseLocal_tpose;		// node
+
 		poseGlobal_bindpose.SetNum(nodeArray.Num());
 		poseGlobal_tpose.SetNum(nodeArray.Num());
 
-		for (auto& node : nodeArray) {
+		poseLocal_bindpose.SetNum(nodeArray.Num());
+		poseLocal_tpose.SetNum(nodeArray.Num());
+
+		// generate transform
+		for (int nodeNo = 0; nodeNo < nodeArray.Num(); ++nodeNo) {
+			auto node = nodeArray[nodeNo];
+			FString nodeName = UTF8_TO_TCHAR(node->mName.C_Str());
+
+			int32 ParentIndex = INDEX_NONE;
+			if (nodeArray.Find(node->mParent, ParentIndex) == false) {
+				ParentIndex = INDEX_NONE;
+			}
+
+			// t-pose (node pose)
+			{
+				FMatrix m = convertAiMatToFMatrix(node->mTransformation);
+
+				if (ParentIndex == INDEX_NONE) {
+					if (VRMConverter::Options::Get().IsVRM10Model()) {
+						FTransform f;
+						f.SetRotation(FRotator(0, 0, -90).Quaternion());
+						m *= f.ToMatrixNoScale();
+					}
+				} else {
+				}
+				FTransform localpose;
+				localpose.SetFromMatrix(m);
+
+				if (ParentIndex >= 0) {
+					poseGlobal_tpose[nodeNo] = localpose * poseGlobal_tpose[ParentIndex];
+				}
+				else {
+					poseGlobal_tpose[nodeNo] = localpose;
+				}
+				poseLocal_tpose[nodeNo] = localpose;
+			}
+		}// tpose
+
+		for (int nodeNo = 0; nodeNo < nodeArray.Num(); ++nodeNo) {
+			auto node = nodeArray[nodeNo];
+			FString nodeName = UTF8_TO_TCHAR(node->mName.C_Str());
+
+			int32 ParentIndex = INDEX_NONE;
+			if (nodeArray.Find(node->mParent, ParentIndex) == false) {
+				ParentIndex = INDEX_NONE;
+			}
+
+			// bind-pose
+			{
+				auto pBone = aiBoneTable.Find(node);
+
+				if (pBone == nullptr) {
+					// generate from tpose matrix
+					if (ParentIndex == INDEX_NONE) {
+						poseLocal_bindpose[nodeNo] = poseLocal_tpose[nodeNo];
+						poseGlobal_bindpose[nodeNo] = poseLocal_bindpose[nodeNo];
+					} else {
+						poseLocal_bindpose[nodeNo] = poseLocal_tpose[nodeNo];
+						poseGlobal_bindpose[nodeNo] = poseLocal_bindpose[nodeNo] * poseGlobal_bindpose[ParentIndex];
+					}
+				}else{
+					auto bone = *pBone;
+
+					FMatrix m = convertAiMatToFMatrix(bone->mOffsetMatrix);
+					if (ParentIndex == INDEX_NONE) {
+					} else {
+						if (VRMConverter::Options::Get().IsVRM10Model()) {
+							//FTransform f;
+							//f.SetRotation(FRotator(0, 0, 90).Quaternion());
+							//m *= f.ToMatrixNoScale();
+						}
+					}
+
+
+					FTransform globalpose;
+
+					globalpose.SetFromMatrix(m.Inverse());
+					poseGlobal_bindpose[nodeNo] = globalpose;
+
+					if (ParentIndex == INDEX_NONE) {
+						poseLocal_bindpose[nodeNo] = globalpose;
+					}else{
+						poseLocal_bindpose[nodeNo] = globalpose * poseGlobal_bindpose[ParentIndex].Inverse();
+					}
+				}
+			}
+		} // bind pose
+
+
+		for (int nodeNo = 0; nodeNo < nodeArray.Num(); ++nodeNo) {
+			auto node = nodeArray[nodeNo];
 			FMeshBoneInfo info;
 			info.Name = UTF8_TO_TCHAR(node->mName.C_Str());
 #if WITH_EDITORONLY_DATA
 			info.ExportName = UTF8_TO_TCHAR(node->mName.C_Str());
 #endif
 
+			int32 ParentIndex = INDEX_NONE;
+			if (nodeArray.Find(node->mParent, ParentIndex) == false) {
+				ParentIndex = INDEX_NONE;
+			}
+			info.ParentIndex = ParentIndex;
+
 			FMatrix m = convertAiMatToFMatrix(node->mTransformation);
 
-			int32 ParentIndex = 0;
-			FTransform globalTrans_bindpose;
-			FTransform globalTrans_tpose;
-
-			if (nodeArray.Find(node->mParent, ParentIndex) == false) {
-				//continue;
-				// root
-				info.ParentIndex = INDEX_NONE;
-
-				RootTransOffset.Set(m.M[3][0], m.M[3][1], m.M[3][2]);
-
-				m.SetIdentity();
-			} else {
-				if (ParentIndex != 0) {
-					//index += offset - 1;
-				}
-				info.ParentIndex = ParentIndex;
-
-				// parent == root
-				if (ParentIndex == 0) {
-					m.M[3][0] += RootTransOffset.X;
-					m.M[3][1] += RootTransOffset.Y;
-					m.M[3][2] += RootTransOffset.Z;
-				} else {
-					if (VRMConverter::Options::Get().IsVRM10Model()) {
-						FTransform f;
-						f.SetRotation(FRotator(0, 0, 90).Quaternion());
-						m *= f.ToMatrixNoScale();
-					}
-				}
-
-				if (node == scene->mRootNode) {
-					//pose.SetScale3D(FVector(100));
-				}
-			}
-
-
 			FTransform pose;
-
-			// by node transform
-			if (1) {
-				pose.SetFromMatrix(m);
-
-				if (ParentIndex >= 0) {
-					globalTrans_tpose = pose * poseGlobal_tpose[ParentIndex];
-				}
-				else {
-					globalTrans_tpose = pose;
-				}
+			
+			if (VRMConverter::Options::Get().IsVRM10Bindpose()) {
+				pose = poseLocal_bindpose[nodeNo];
+			}else{
+				pose = poseLocal_tpose[nodeNo];
 			}
-
-			// by bone transform
-			{
-				bool bb = false;
-				for (auto& t : aiBoneTable) {
-					if (strcmp(t->mName.C_Str(), node->mName.C_Str()) == 0) {
-
-						if (info.ParentIndex == INDEX_NONE) {
-							globalTrans_bindpose.SetIdentity();
-						} else {
-							globalTrans_bindpose = poseGlobal_bindpose[ParentIndex];
-						}
-
-						FMatrix m2 = convertAiMatToFMatrix(t->mOffsetMatrix);
-
-						FTransform t2;
-						t2.SetFromMatrix(m2.Inverse());
-
-						if (VRMConverter::Options::Get().IsVRM10Model()) {
-							FTransform f;
-							f.SetRotation(FRotator(0, 0, -90).Quaternion());
-							t2 *= f;
-						}
-
-						globalTrans_bindpose = t2;
-
-						if (VRMConverter::Options::Get().IsVRM10Bindpose()) {
-							if (info.ParentIndex == INDEX_NONE) {
-								pose = globalTrans_bindpose;
-							} else {
-								pose = globalTrans_bindpose * poseGlobal_bindpose[ParentIndex].Inverse();
-							}
-						}
-						bb = true;
-						break;
+			// remove local axis
+			if (VRMConverter::Options::Get().IsVRM10Model()) {
+				if (VRMConverter::Options::Get().IsVRM10RemoveLocalRotation()) {
+					pose.SetRotation(FQuat::Identity);
+					if (ParentIndex >= 0) {
+						pose.SetTranslation(poseGlobal_tpose[nodeNo].GetLocation() - poseGlobal_tpose[ParentIndex].GetLocation());
 					}
-					if (bb) break;
 				}
 			}
 
+			// bone name check
 			for (int c = 0; c < 100; ++c) {
 				if (RefSkeleton.FindRawBoneIndex(info.Name) == INDEX_NONE) {
 					break;
 				}
 				info.Name = *(info.Name.ToString() + FString(TEXT("_DUP")));
 			}
-			if (totalBoneCount > 0 && info.ParentIndex == INDEX_NONE) {
+			if (totalBoneCount > 0 && ParentIndex == INDEX_NONE) {
 				// bad bone. root?
 				continue;
-			}
-			poseGlobal_bindpose[totalBoneCount] = globalTrans_bindpose;
-			poseGlobal_tpose[totalBoneCount] = globalTrans_tpose;
-
-			if (vrmAssetList) {
-				vrmAssetList->Pose_bind.Add(UTF8_TO_TCHAR(node->mName.C_Str()), globalTrans_bindpose);
-				vrmAssetList->Pose_tpose.Add(UTF8_TO_TCHAR(node->mName.C_Str()), globalTrans_tpose);
-			}
-
-			if (VRMConverter::Options::Get().IsVRM10Model()) {
-				if (VRMConverter::Options::Get().IsVRM10RemoveLocalRotation()) {
-					if (ParentIndex >= 0) {
-						pose.SetIdentity();
-						pose.SetTranslation(globalTrans_tpose.GetLocation() - poseGlobal_tpose[ParentIndex].GetLocation());
-					}
-				}
 			}
 
 			RefSkelModifier.Add(info, pose);
 			totalBoneCount++;
+
+			if (vrmAssetList) {
+				vrmAssetList->Pose_bind.Add(UTF8_TO_TCHAR(node->mName.C_Str()), poseGlobal_bindpose[nodeNo]);
+				vrmAssetList->Pose_tpose.Add(UTF8_TO_TCHAR(node->mName.C_Str()), poseGlobal_tpose[nodeNo]);
+			}
 
 			if (totalBoneCount == 1) {
 				if (VRMConverter::Options::Get().IsDebugOneBone()) {

@@ -5,8 +5,13 @@
 #include "Engine/Engine.h"
 #include "Logging/MessageLog.h"
 #include "Engine/Canvas.h"
+#if	UE_VERSION_OLDER_THAN(4,26,0)
 #include "AssetRegistryModule.h"
+#else
+#include "AssetRegistry/AssetRegistryModule.h"
+#endif
 
+#include "MovieScene.h"
 #include "MovieSceneSequence.h"
 #include "Sections/MovieSceneFloatSection.h"
 

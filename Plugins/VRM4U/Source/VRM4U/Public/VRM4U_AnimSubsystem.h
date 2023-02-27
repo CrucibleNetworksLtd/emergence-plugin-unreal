@@ -5,19 +5,19 @@
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
 #include "Misc/EngineVersionComparison.h"
-#include "VRM4U_VMCSubsystem.generated.h"
+#include "VRM4U_AnimSubsystem.generated.h"
 
 
 #if	UE_VERSION_OLDER_THAN(4,22,0)
 
-//Couldn't find parent type for 'VRM4U_VMCSubsystem' named 'UEngineSubsystem'
-#error "please remove VRM4U_VMCSubsystem.h/cpp  for <=UE4.21"
+//Couldn't find parent type for 'VRM4U_AnimSubsystem' named 'UEngineSubsystem'
+#error "please remove VRM4U_AnimSubsystem.h/cpp  for <=UE4.21"
 
 #endif
 
 
 USTRUCT()
-struct FVrmVMC_Data {
+struct FVrmTransformData {
 	GENERATED_USTRUCT_BODY()
 
 public:
@@ -33,15 +33,17 @@ public:
 };
 
 UCLASS()
-class VRM4U_API UVRM4U_VMCSubsystem : public UEngineSubsystem
+class VRM4U_API UVRM4U_AnimSubsystem : public UEngineSubsystem
 {
 	GENERATED_BODY()
+
+	FCriticalSection cs;
 
 public:
 
 //	TMap<FString, FTransform>;
 
-	TArray<FVrmVMC_Data> baseData;
+	TArray<FVrmTransformData> baseData;
 
 	UFUNCTION(BlueprintCallable, Category = VRM4U)
 	void Clear();

@@ -589,7 +589,7 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 	{
 		TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AssImpLoader"))
 
-		const FString ext = FPaths::GetExtension(filepath);
+		const FString ext = FPaths::GetExtension(filepath).ToLower();
 #if PLATFORM_WINDOWS
 		std::string e = utf_16_to_shift_jis(*ext);
 #else
@@ -1312,8 +1312,8 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 					break;
 				}
 			}
-			VRMAddRetargetChain(rigcon, TEXT("leftEye"), TEXT(""), TEXT(""));
-			VRMAddRetargetChain(rigcon, TEXT("rightEye"), TEXT(""), TEXT(""));
+			//VRMAddRetargetChain(rigcon, TEXT("leftEye"), NAME_None, NAME_None);
+			//VRMAddRetargetChain(rigcon, TEXT("rightEye"), NAME_None, NAME_None);
 		}
 
 		{

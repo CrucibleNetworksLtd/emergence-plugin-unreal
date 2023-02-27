@@ -1,7 +1,7 @@
 ﻿// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 
-#include "AnimNode_VrmVMC.h"
+#include "AnimNode_VrmModifyBoneListRetarget.h"
 #include "AnimationRuntime.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,29 +15,29 @@
 // FAnimNode_ModifyBone
 
 
-FAnimNode_VrmVMC::FAnimNode_VrmVMC()
+FAnimNode_VrmModifyBoneListRetarget::FAnimNode_VrmModifyBoneListRetarget()
 {
 }
 
-//void FAnimNode_VrmVMC::Update_AnyThread(const FAnimationUpdateContext& Context) {
+//void FAnimNode_VrmModifyBoneListRetarget::Update_AnyThread(const FAnimationUpdateContext& Context) {
 //	Super::Update_AnyThread(Context);
 //	//Context.GetDeltaTime();
 //}
 
-void FAnimNode_VrmVMC::Initialize_AnyThread(const FAnimationInitializeContext& Context) {
+void FAnimNode_VrmModifyBoneListRetarget::Initialize_AnyThread(const FAnimationInitializeContext& Context) {
 	Super::Initialize_AnyThread(Context);
 }
-void FAnimNode_VrmVMC::CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) {
+void FAnimNode_VrmModifyBoneListRetarget::CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) {
 	Super::CacheBones_AnyThread(Context);
 }
 
 
-void FAnimNode_VrmVMC::UpdateInternal(const FAnimationUpdateContext& Context){
+void FAnimNode_VrmModifyBoneListRetarget::UpdateInternal(const FAnimationUpdateContext& Context){
 	Super::UpdateInternal(Context);
 }
 
 
-void FAnimNode_VrmVMC::GatherDebugData(FNodeDebugData& DebugData)
+void FAnimNode_VrmModifyBoneListRetarget::GatherDebugData(FNodeDebugData& DebugData)
 {
 	FString DebugLine = DebugData.GetNodeName(this);
 
@@ -50,11 +50,11 @@ void FAnimNode_VrmVMC::GatherDebugData(FNodeDebugData& DebugData)
 	ComponentPose.GatherDebugData(DebugData);
 }
 
-void FAnimNode_VrmVMC::EvaluateComponentPose_AnyThread(FComponentSpacePoseContext& Output) {
+void FAnimNode_VrmModifyBoneListRetarget::EvaluateComponentPose_AnyThread(FComponentSpacePoseContext& Output) {
 	Super::EvaluateComponentPose_AnyThread(Output);
 }
 
-void FAnimNode_VrmVMC::EvaluateSkeletalControl_AnyThread(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms)
+void FAnimNode_VrmModifyBoneListRetarget::EvaluateSkeletalControl_AnyThread(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms)
 {
 	check(OutBoneTransforms.Num() == 0);
 
@@ -163,19 +163,19 @@ void FAnimNode_VrmVMC::EvaluateSkeletalControl_AnyThread(FComponentSpacePoseCont
 
 }
 
-bool FAnimNode_VrmVMC::IsValidToEvaluate(const USkeleton* Skeleton, const FBoneContainer& RequiredBones) 
+bool FAnimNode_VrmModifyBoneListRetarget::IsValidToEvaluate(const USkeleton* Skeleton, const FBoneContainer& RequiredBones) 
 {
 	// if both bones are valid
 	//return (BoneToModify.IsValidToEvaluate(RequiredBones));
 	return true;
 }
 
-void FAnimNode_VrmVMC::InitializeBoneReferences(const FBoneContainer& RequiredBones) 
+void FAnimNode_VrmModifyBoneListRetarget::InitializeBoneReferences(const FBoneContainer& RequiredBones) 
 {
 	//BoneToModify.Initialize(RequiredBones);
 }
 
-void FAnimNode_VrmVMC::ConditionalDebugDraw(FPrimitiveDrawInterface* PDI, USkeletalMeshComponent* PreviewSkelMeshComp, bool bPreviewForeground) const
+void FAnimNode_VrmModifyBoneListRetarget::ConditionalDebugDraw(FPrimitiveDrawInterface* PDI, USkeletalMeshComponent* PreviewSkelMeshComp, bool bPreviewForeground) const
 {
 #if WITH_EDITOR
 

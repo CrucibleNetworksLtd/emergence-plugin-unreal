@@ -17,7 +17,6 @@ public class VRM4UEditor : ModuleRules
 				"UnrealEd",
                 "Slate",
                 "SlateCore",
-				"Settings",
 
                 "MovieSceneCapture",
 

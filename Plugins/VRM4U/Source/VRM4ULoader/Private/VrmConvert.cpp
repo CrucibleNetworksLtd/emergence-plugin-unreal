@@ -237,6 +237,16 @@ bool VRMConverter::Options::IsStrictMorphTargetNameMode() const {
 #endif
 }
 
+bool VRMConverter::Options::IsRemoveBlendShapeGroupPrefix() const {
+#if WITH_EDITOR
+	if (ImportOption == nullptr) return false;
+
+	return ImportOption->bRemoveBlendShapeGroupPrefix;
+#else
+	return false;
+#endif
+}
+
 bool VRMConverter::Options::IsGenerateHumanoidRenamedMesh() const {
 	if (ImportOption == nullptr) return false;
 	return ImportOption->bGenerateHumanoidRenamedMesh;
@@ -388,6 +398,11 @@ bool VRMConverter::Options::IsOptimizeVertex() const {
 	return ImportOption->bOptimizeVertex;
 }
 
+bool VRMConverter::Options::IsRemoveDegenerateTriangles() const {
+	if (ImportOption == nullptr) return true;
+	return ImportOption->bRemoveDegenerateTriangles;
+}
+
 static bool bbVRM0 = false;
 static bool bbVRM10 = false;
 void VRMConverter::Options::SetVRM0Model(bool bVRM) {
@@ -470,6 +485,11 @@ bool VRMConverter::Options::IsForceOverride() const {
 float VRMConverter::Options::GetModelScale() const {
 	if (ImportOption == nullptr) return 1.f;
 	return ImportOption->ModelScale;
+}
+
+float VRMConverter::Options::GetAnimationFrameRate() const {
+	if (ImportOption == nullptr) return 1.f;
+	return ImportOption->FrameRate;
 }
 
 bool VRMConverter::Options::IsAPoseRetarget() const {

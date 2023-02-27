@@ -9,7 +9,7 @@
 #include "BoneControllers/AnimNode_ModifyBone.h"
 #include "Misc/EngineVersionComparison.h"
 
-#include "AnimNode_VrmVMC.generated.h"
+#include "AnimNode_VrmModifyBoneListRetarget.generated.h"
 
 class USkeletalMeshComponent;
 class UVrmMetaObject;
@@ -18,7 +18,7 @@ class UVrmMetaObject;
 *	Simple controller that replaces or adds to the translation/rotation of a single bone.
 */
 USTRUCT(BlueprintInternalUseOnly)
-struct VRM4U_API FAnimNode_VrmVMC : public FAnimNode_SkeletalControlBase
+struct VRM4U_API FAnimNode_VrmModifyBoneListRetarget : public FAnimNode_SkeletalControlBase
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -34,7 +34,7 @@ struct VRM4U_API FAnimNode_VrmVMC : public FAnimNode_SkeletalControlBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skeleton, meta = (PinShownByDefault))
 	float ModelRelativeScale = 1.f;
 
-	FAnimNode_VrmVMC();
+	FAnimNode_VrmModifyBoneListRetarget();
 
 	// FAnimNode_Base interface
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;

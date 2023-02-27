@@ -46,6 +46,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Model scale"))
 	float ModelScale = 1.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Animation Frame Rate"))
+	float FrameRate = 60.0f;
+
 	/** Remove Local Rotation for VRM10 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM10 Remove Local Rotation"))
 	bool bVrm10RemoveLocalRotation = false;
@@ -91,6 +94,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE5EA** controlrig work around: Eable MorphTarget Name Check"))
 	bool bStrictMorphTargetNameMode = VRM4U_MorphStrictMode;
 
+	/** Use Strict MorphTarget Name Mode */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Remove BlendShapeGroup prefix for old VRM file"))
+	bool bRemoveBlendShapeGroupPrefix = false;
+
 	/** Use Opaque insted of translucent */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Force Opaque"))
 	bool bForceOpaque = false;
@@ -128,8 +135,12 @@ public:
 	bool bOptimizeMaterial = true;
 
 	/** Remove unused vertex */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] vertex"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] remove unused vertex"))
 	bool bOptimizeVertex = true;
+
+	/** Remove degenerate triangles */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] remove degenerate triangles"))
+	bool bRemoveDegenerateTriangles = false;
 
 	/** BoneWeight influence */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] Bone Weight Influence Num"))

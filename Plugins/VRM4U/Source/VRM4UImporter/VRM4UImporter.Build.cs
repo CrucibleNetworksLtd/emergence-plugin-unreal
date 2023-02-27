@@ -22,7 +22,6 @@ public class VRM4UImporter : ModuleRules
                 "MainFrame",
                 "VRM4U",
                 "VRM4ULoader",
-				"Settings",
 
                 "AnimGraphRuntime",
                 "AnimGraph",

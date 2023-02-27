@@ -72,10 +72,9 @@ void FAnimNode_VrmModifyBoneList::EvaluateSkeletalControl_AnyThread(FComponentSp
 			if (index < 0) continue;
 
 			FBoneTransform f(FCompactPoseBoneIndex(index), t.Value);
-			//f.Transform.SetRotation(FQuat::Identity);
 
 			FVector v = RefSkeletonTransform[index].GetLocation();
-			f.Transform.SetTranslation(v);
+			//f.Transform.SetTranslation(v);
 
 			//f.Transform.SetTranslation(RefSkeletonTransform[index].GetLocation());
 			tmpOutTransform.Add(f);

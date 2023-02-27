@@ -2,8 +2,11 @@
 from asyncio.windows_events import NULL
 from platform import java_ver
 import unreal
-
 import argparse
+
+print("VRM4U python begin")
+print (__file__)
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-vrm")
 parser.add_argument("-rig")
@@ -529,6 +532,11 @@ def disableNode(toNoneNode):
                     settings.set_editor_property('shape_visible',  False)
                 else:
                     settings.set_editor_property('shape_enabled',  False)
+            
+                ttt = hierarchy.get_global_control_shape_transform(key, True)
+                ttt.scale3d.set(0.001, 0.001, 0.001)
+                hierarchy.set_control_shape_transform(key, ttt, True)
+
                 h_con.set_control_settings(key, settings)
 
 

@@ -150,11 +150,13 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 				targetShape.shapeIndex = bind["index"].GetInt();
 
 				{
-					int tmpMeshID = bind["node"].GetInt(); // adjust offset
+					int tmpNodeID = bind["node"].GetInt(); // adjust offset
+					int tmpMeshID = jsonData.doc["nodes"].GetArray()[tmpNodeID]["mesh"].GetInt();
 
 					//meshID offset
 					int offset = 0;
 					for (int meshNo = 0; meshNo < tmpMeshID; ++meshNo) {
+						if (jsonData.doc["meshes"].GetArray()[meshNo].HasMember("primitives") == false) continue;
 						offset += jsonData.doc["meshes"].GetArray()[meshNo]["primitives"].Size() - 1;
 					}
 					targetShape.meshID = tmpMeshID + offset;
@@ -180,9 +182,6 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 					}
 					targetShape.meshName = UTF8_TO_TCHAR(jsonData.doc["meshes"].GetArray()[targetShape.meshID]["name"].GetString());
 				}
-
-				//targetShape.nodeName = UTF8_TO_TCHAR(jsonData.doc["nodes"].GetArray()[].GetString());
-
 			}
 		}
 	} else {
@@ -190,7 +189,16 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 		for (int i = 0; i < meta->blensShapeGroupNum; ++i) {
 			auto& aiGroup = meta->blensShapeGourp[i];
 
-			m->BlendShapeGroup[i].name = UTF8_TO_TCHAR(aiGroup.groupName.C_Str());
+			FString s = UTF8_TO_TCHAR(aiGroup.groupName.C_Str());
+			if (VRMConverter::Options::Get().IsRemoveBlendShapeGroupPrefix()) {
+				int32 ind = 0;
+				if (s.FindLastChar('.', ind)) {
+					if (ind < s.Len() - 1) {
+						s = s.RightChop(ind+1);
+					}
+				}
+			}
+			m->BlendShapeGroup[i].name = s;
 
 			m->BlendShapeGroup[i].BlendShape.SetNum(aiGroup.bindNum);
 			for (int b = 0; b < aiGroup.bindNum; ++b) {
@@ -389,6 +397,66 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			}
 		}
 	}
+
+	//constraint
+	if (VRMConverter::Options::Get().IsVRM10Model()) {
+		// VRM10
+		auto& nodes = jsonData.doc["nodes"];
+		for (auto& node : nodes.GetArray()) {
+			if (node.HasMember("extensions") == false) continue;
+			if (node["extensions"].HasMember("VRMC_node_constraint") == false) continue;
+			if (node["extensions"]["VRMC_node_constraint"].HasMember("constraint") == false) continue;
+
+
+			auto& constraint = node["extensions"]["VRMC_node_constraint"]["constraint"];
+			if (constraint.HasMember("roll")) {
+				FVRMConstraintRoll c;
+
+				c.source = constraint["roll"]["source"].GetInt();
+				if (c.source < (int)nodes.Size()) {
+					c.rollAxis = nodes.GetArray()[c.source]["roll"].GetString();
+				}
+				c.weight = constraint["roll"]["weight"].GetFloat();
+
+				FVRMConstraint cc;
+				cc.constraintRoll = c;
+				cc.type = EVRMConstraintType::Roll;
+
+				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+			}
+			if (constraint.HasMember("aim")) {
+				FVRMConstraintAim c;
+
+				c.source = constraint["aim"]["source"].GetInt();
+				if (c.source < (int)nodes.Size()) {
+					c.aimAxis = nodes.GetArray()[c.source]["aim"].GetString();
+				}
+				c.weight = constraint["aim"]["weight"].GetFloat();
+
+				FVRMConstraint cc;
+				cc.constraintAim = c;
+				cc.type = EVRMConstraintType::Aim;
+
+				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+			}
+			if (constraint.HasMember("rotation")) {
+				FVRMConstraintRotation c;
+
+				c.source = constraint["rotation"]["source"].GetInt();
+				if (c.source < (int)nodes.Size()) {
+					c.sourceName = nodes.GetArray()[c.source]["name"].GetString();
+				}
+				c.weight = constraint["rotation"]["weight"].GetFloat();
+
+				FVRMConstraint cc;
+				cc.constraintRotation = c;
+				cc.type = EVRMConstraintType::Rotation;
+
+				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+			}
+		}
+	}
+
 
 	// license
 	{

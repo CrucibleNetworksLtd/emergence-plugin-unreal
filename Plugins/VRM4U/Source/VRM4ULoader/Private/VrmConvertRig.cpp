@@ -439,7 +439,6 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 					existTable.Add(t);
 					func(t, b);
 
-					int p = boneIndex;
 
 					const TArray<FString> cc = {
 						TEXT("spine_03"),
@@ -452,13 +451,18 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 					TArray<FName> targetBone;
 					targetBone.SetNum(5);
 
-					for (int i = 0; i < 5; ++i) {
-						auto& a = cc[i];
-						int p2 = rSk.GetParentIndex(p);
-						if (p2 >= 0) {
-							p = p2;
+					// map
+					const int neckBoneIndex = boneIndex;
+					{
+						int p = neckBoneIndex;
+
+						for (int i = 0; i < 5; ++i) {
+							int p2 = rSk.GetParentIndex(p);
+							if (p2 >= 0) {
+								p = p2;
+							}
+							targetBone[i] = rSk.GetBoneName(p);
 						}
-						targetBone[i] = rSk.GetBoneName(p);
 					}
 
 					// upper chest skip
@@ -466,6 +470,28 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 						if (targetBone[2] == targetBone[3]) {
 							targetBone[2] = targetBone[1];
 							targetBone[1] = targetBone[0];
+						}
+					}
+
+					// root
+					targetBone[cc.Num() - 1] = rSk.GetBoneName(0);
+
+					// pelvis, spine
+					{
+						int p = neckBoneIndex;
+
+						for (int i = 0; i < 100; ++i) {
+							p = rSk.GetParentIndex(p);
+							if (p <= 0) break;
+
+							int p2 = rSk.GetParentIndex(p);
+							if (p2 <= 0) break;
+
+							// pelvis
+							targetBone[cc.Num() - 2] = rSk.GetBoneName(p2);
+
+							// spine
+							targetBone[cc.Num() - 3] = rSk.GetBoneName(p);
 						}
 					}
 
@@ -980,9 +1006,8 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 			}
 		}
 
+		UIKRigDefinition* rig_ik = nullptr;
 		{
-			UIKRigDefinition* rig_ik = nullptr;
-
 			FString name = FString(TEXT("IK_")) + vrmAssetList->BaseFileName + TEXT("_Mannequin");
 			rig_ik = VRM4U_NewObject<UIKRigDefinition>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
@@ -1080,7 +1105,13 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 			ikr = VRM4U_NewObject<UIKRetargeter>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
 			UIKRetargeterController* c = UIKRetargeterController::GetController(ikr);
-			c->SetSourceIKRig(rig);
+
+			if (VRMConverter::Options::Get().IsVRMModel() || VRMConverter::Options::Get().IsBVHModel()) {
+				c->SetSourceIKRig(rig_ik);
+			}
+			else {
+				c->SetSourceIKRig(rig);
+			}
 		}
 #endif
 #endif // editor

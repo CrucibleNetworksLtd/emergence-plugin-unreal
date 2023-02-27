@@ -25,6 +25,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 
 	c(ModelScale);
 
+	c(FrameRate);
+
 	c(bVrm10RemoveLocalRotation);
 
 	c(bVrm10Bindpose);
@@ -42,6 +44,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 	c(bEnableMorphTargetNormal);
 
 	c(bStrictMorphTargetNameMode);
+
+	c(bRemoveBlendShapeGroupPrefix);
 
 	c(bForceOpaque);
 
@@ -62,6 +66,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 	c(bMergePrimitive);
 
 	c(bOptimizeVertex);
+
+	c(bRemoveDegenerateTriangles);
 
 	c(BoneWeightInfluenceNum);
 

@@ -108,7 +108,7 @@ public:
 	int weight=100;
 };
 
-// BlendShape
+// BlendShape Material
 USTRUCT(Blueprintable, BlueprintType)
 struct VRM4U_API FVrmBlendShapeMaterialList {
 	GENERATED_BODY()
@@ -150,6 +150,73 @@ public:
 //	TArray<FVrmBlendShape> 
 //};
 
+UENUM(BlueprintType)
+enum class EVRMConstraintType : uint8 {
+	None, Roll, Aim, Rotation,
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct VRM4U_API FVRMConstraintRoll {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FString rollAxis;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	int source = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	float weight = 1.f;
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct VRM4U_API FVRMConstraintAim {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FString aimAxis;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	int source = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	float weight = 1.f;
+};
+
+USTRUCT(Blueprintable, BlueprintType)
+struct VRM4U_API FVRMConstraintRotation {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FString sourceName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	int source = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	float weight = 1.f;
+};
+
+
+USTRUCT(Blueprintable, BlueprintType)
+struct VRM4U_API FVRMConstraint {
+	GENERATED_BODY()
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	EVRMConstraintType type = EVRMConstraintType::None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FVRMConstraintRoll constraintRoll;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FVRMConstraintAim constraintAim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FVRMConstraintRotation constraintRotation;
+};
+
+
 UCLASS(Blueprintable, BlueprintType)
 class VRM4U_API UVrmMetaObject : public UObject
 {
@@ -171,6 +238,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	TArray<FVRMColliderGroupMeta> VRMColliderGroupMeta;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	TMap<FString, FVRMConstraint> VRMConstraintMeta;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	class USkeletalMesh *SkeletalMesh;

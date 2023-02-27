@@ -11,6 +11,8 @@
 
 #define LOCTEXT_NAMESPACE "FVRM4UModule"
 
+DEFINE_LOG_CATEGORY(LogVRM4U);
+
 
 void FVRM4UModule::StartupModule()
 {

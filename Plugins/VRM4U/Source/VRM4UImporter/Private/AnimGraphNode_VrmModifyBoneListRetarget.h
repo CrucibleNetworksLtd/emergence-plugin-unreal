@@ -5,26 +5,26 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 //#include "BoneControllers/AnimNode_ModifyBone.h"
-#include "AnimNode_VrmVMC.h"
+#include "AnimNode_VrmModifyBoneListRetarget.h"
 #include "EdGraph/EdGraphNodeUtils.h"
 #include "AnimGraphNode_SkeletalControlBase.h"
 
 #include "UnrealWidget.h"
 #include "AnimNodeEditMode.h"
 
-#include "AnimGraphNode_VrmVMC.generated.h" 
+#include "AnimGraphNode_VrmModifyBoneListRetarget.generated.h" 
 
 class FCompilerResultsLog;
 class FPrimitiveDrawInterface;
 class USkeletalMeshComponent;
 
 UCLASS(meta=(Keywords = "Modify Transform"))
-class UAnimGraphNode_VrmVMC : public UAnimGraphNode_SkeletalControlBase
+class UAnimGraphNode_VrmModifyBoneListRetarget : public UAnimGraphNode_SkeletalControlBase
 {
 	GENERATED_UCLASS_BODY()
 
-	UPROPERTY(EditAnywhere, Category=Settings)
-	FAnimNode_VrmVMC Node;
+	UPROPERTY(EditAnywhere, Category = Settings)
+	FAnimNode_VrmModifyBoneListRetarget Node;
 
 public:
 	UPROPERTY(EditAnywhere, Category = Preview)

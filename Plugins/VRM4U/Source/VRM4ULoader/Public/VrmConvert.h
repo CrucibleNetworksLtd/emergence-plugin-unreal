@@ -93,6 +93,8 @@ public:
 
 		bool IsStrictMorphTargetNameMode() const;
 
+		bool IsRemoveBlendShapeGroupPrefix() const;
+
 		bool IsVRM10RemoveLocalRotation() const;
 		bool IsVRM10Bindpose() const;
 
@@ -125,6 +127,8 @@ public:
 
 		bool IsOptimizeVertex() const;
 
+		bool IsRemoveDegenerateTriangles() const;
+
 		void ClearModelType();
 
 		bool IsVRMModel() const;
@@ -142,6 +146,8 @@ public:
 
 		bool IsForceOverride() const;
 		float GetModelScale() const;
+
+		float GetAnimationFrameRate() const;
 
 		bool IsAPoseRetarget() const;
 
