@@ -20,7 +20,24 @@ class EMERGENCEVRMSUPPORT_API UEmergenceVRMMeshComponent : public USkeletalMeshC
 public:
 	UFUNCTION(BlueprintCallable)
 	void ActivateVRMMeshFromData(const TArray<uint8>& Data);
-private:
+	
+	
+	UFUNCTION(BlueprintCallable)
+	void Test(int Linkage);
+
+	UPROPERTY()
+	UVrmAssetListObject* VrmAssetListObject;
+
+	UPROPERTY()
+	UVrmAssetListObject* OutVrmAsset;
+
+	UPROPERTY()
 	TSubclassOf<UVrmAssetListObject> VrmAssetListObjectBPClass;
+
+	UPROPERTY()
 	UVrmAssetListObject* VRoidSimpleAssetList;
+private:
+	
+	
+	
 };
