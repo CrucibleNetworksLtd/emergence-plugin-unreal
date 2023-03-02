@@ -4,6 +4,7 @@
 #include "EmergenceEVMServerSubsystem.h"
 #include "LocalEmergenceServer.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
 
 void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 #if UNREAL_MARKETPLACE_BUILD
@@ -20,5 +21,7 @@ void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 void UEmergenceEVMServerSubsystem::Deinitialize() {
 #if !UNREAL_MARKETPLACE_BUILD
 	ULocalEmergenceServer::KillLocalServerProcess();
+#else
+	UEmergenceSingleton::GetEmergenceManager(GetGameInstance())->KillSession();
 #endif
 }
