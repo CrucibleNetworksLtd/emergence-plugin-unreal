@@ -85,13 +85,13 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 void UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
-	if (!bSucceeded) {
+	if (!bSucceeded || (ResponseCode != EErrorCode::Ok)) {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Failed to get converted GIF, reason number: %d"), (int)ResponseCode);
 		OnGetTextureFromUrlCompleted.Broadcast(nullptr, UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode()));
 		return;
 	}
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Convert GIF to PNG returned, turning it into a texture..."));
 	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
-	UE_LOG(LogEmergenceHttp, Display, TEXT("Content as string: %s"), *HttpResponse->GetContentAsString());
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
