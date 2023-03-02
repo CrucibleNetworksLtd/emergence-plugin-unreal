@@ -22,8 +22,8 @@ public:
 	void ActivateVRMMeshFromData(const TArray<uint8>& Data);
 	
 	
-	UFUNCTION(BlueprintCallable)
-	void Test(int Linkage);
+	UFUNCTION()
+	void VRMLoadCompleted(int Linkage);
 
 	UPROPERTY()
 	UVrmAssetListObject* VrmAssetListObject;

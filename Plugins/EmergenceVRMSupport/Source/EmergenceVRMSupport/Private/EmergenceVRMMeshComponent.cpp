@@ -38,15 +38,14 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 	VrmAssetListObject = VrmAssetListObjectBPClass.GetDefaultObject();
 	
 	LatentInfo.CallbackTarget = this;
-	LatentInfo.ExecutionFunction = FName(TEXT("Test"));
+	LatentInfo.ExecutionFunction = FName(TEXT("VRMLoadCompleted"));
 	LatentInfo.UUID = FGuid::NewGuid().A;
 	LatentInfo.Linkage = 1;
 	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo);
 }
 
-void UEmergenceVRMMeshComponent::Test(int Linkage)
+void UEmergenceVRMMeshComponent::VRMLoadCompleted(int Linkage)
 {
-	UE_LOG(LogTemp, Display, TEXT("Linkage: %d"), Linkage);
 	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
 	ParentSkeletalMesh->SetSkeletalMesh(OutVrmAsset->SkeletalMesh, false);
 	ParentSkeletalMesh->SetAnimClass(UVrmAnimInstanceCopy::StaticClass());
