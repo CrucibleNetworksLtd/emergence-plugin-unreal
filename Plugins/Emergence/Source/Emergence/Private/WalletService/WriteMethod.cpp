@@ -47,8 +47,8 @@ void UWriteMethod::Activate()
 
 	TArray<TPair<FString, FString>> Headers;
 
-	if (!UEmergenceSingleton::DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
-		Headers.Add(TPair<FString, FString>("deviceId", UEmergenceSingleton::DeviceID));
+	if (!Singleton->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", Singleton->DeviceID));
 	}
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
