@@ -36,6 +36,12 @@ public:
 
 	UPROPERTY()
 	UVrmAssetListObject* VRoidSimpleAssetList;
+
+	UPROPERTY()
+	FLatentActionInfo LatentInfo;
+
+	UPROPERTY()
+	FImportOptionData OptionForRuntimeLoad;
 private:
 	
 	

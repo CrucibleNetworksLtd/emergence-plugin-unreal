@@ -37,21 +37,19 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 
 	VrmAssetListObject = VrmAssetListObjectBPClass.GetDefaultObject();
 	
-	FImportOptionData OptionForRuntimeLoad;
-	TSharedRef<FLatentActionInfo> LatentInfo = MakeShared<FLatentActionInfo>();
-	LatentInfo->CallbackTarget = this;
-	LatentInfo->ExecutionFunction = FName(TEXT("Test"));
-	LatentInfo->UUID = FGuid::NewGuid().A;
-	LatentInfo->Linkage = 1;
-	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo.Get());
+	LatentInfo.CallbackTarget = this;
+	LatentInfo.ExecutionFunction = FName(TEXT("Test"));
+	LatentInfo.UUID = FGuid::NewGuid().A;
+	LatentInfo.Linkage = 1;
+	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo);
 }
 
 void UEmergenceVRMMeshComponent::Test(int Linkage)
 {
 	UE_LOG(LogTemp, Display, TEXT("Linkage: %d"), Linkage);
 	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
-	ParentSkeletalMesh->USkinnedMeshComponent::SetSkeletalMesh(OutVrmAsset->SkeletalMesh, true);
-	ParentSkeletalMesh->SetAnimInstanceClass(UVrmAnimInstanceCopy::StaticClass());
+	ParentSkeletalMesh->SetSkeletalMesh(OutVrmAsset->SkeletalMesh, false);
+	ParentSkeletalMesh->SetAnimClass(UVrmAnimInstanceCopy::StaticClass());
 	if (ParentSkeletalMesh->GetAnimInstance()) {
 		Cast<UVrmAnimInstanceCopy>(ParentSkeletalMesh->GetAnimInstance())->SetSkeletalMeshCopyData(OutVrmAsset, this, nullptr, VRoidSimpleAssetList, nullptr);
 	}
