@@ -4,9 +4,11 @@
 #include "EmergenceVRMMeshComponent.h"
 #include "UObject/UObjectGlobals.h"
 #include "LoaderBPFunctionLibrary.h"
-#include "VRMSupportLibrary.h"
 #include "VRMAnimInstanceCopy.h"
 #include "UObject/ConstructorHelpers.h"
+#include "LoaderBPFunctionLibrary.h"
+#include "Engine/LatentActionManager.h"
+#include "Animation/Skeleton.h"
 
 UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
 {
@@ -18,12 +20,6 @@ UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
 }
 
 void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Data) {
-	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
-	if (!ParentSkeletalMesh) {
-		UE_LOG(LogTemp, Error, TEXT("Attach Parent of a EmergenceVRMMeshComponent must be a SkeletalMesh"));
-		return;
-	}
-	
 	if (!VrmAssetListObjectBPClass) {
 		UE_LOG(LogTemp, Error, TEXT("Couldn't find /VRM4U/VrmAssetListObjectBP.VrmAssetListObjectBP"));
 		return;
@@ -39,19 +35,21 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 		return;
 	}
 
-	UVrmAssetListObject* VrmAssetListObject = NewObject<UVrmAssetListObject>(this, VrmAssetListObjectBPClass);
+	VrmAssetListObject = VrmAssetListObjectBPClass.GetDefaultObject();
+	
+	LatentInfo.CallbackTarget = this;
+	LatentInfo.ExecutionFunction = FName(TEXT("VRMLoadCompleted"));
+	LatentInfo.UUID = FGuid::NewGuid().A;
+	LatentInfo.Linkage = 1;
+	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo);
+}
 
-	FImportOptionData OptionForRuntimeLoad;
-	UVrmAssetListObject* OutVrmAsset = NewObject<UVrmAssetListObject>(this, VrmAssetListObjectBPClass);
-	UVRMSupportLibrary::LoadVRMFileFromMemory(VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad);
-
-	ParentSkeletalMesh->SetSkeletalMesh(OutVrmAsset->SkeletalMesh, true);
+void UEmergenceVRMMeshComponent::VRMLoadCompleted(int Linkage)
+{
+	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
+	ParentSkeletalMesh->SetSkeletalMesh(OutVrmAsset->SkeletalMesh, false);
 	ParentSkeletalMesh->SetAnimClass(UVrmAnimInstanceCopy::StaticClass());
 	if (ParentSkeletalMesh->GetAnimInstance()) {
 		Cast<UVrmAnimInstanceCopy>(ParentSkeletalMesh->GetAnimInstance())->SetSkeletalMeshCopyData(OutVrmAsset, this, nullptr, VRoidSimpleAssetList, nullptr);
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("Couldn't GetAnimInstance, the VRM probably failed to load"));
-		return;
 	}
 }
