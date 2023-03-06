@@ -520,7 +520,7 @@ void ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(const UObject* WorldContex
 		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
 		if (LatentActionManager.FindExistingAction<FVrmAsyncLoadAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == NULL)
 		{
-			FVrmAsyncLoadActionParam p = { InVrmAsset, OutVrmAsset, OptionForRuntimeLoad, FString("a.vrm"), Data.GetData(), Data.Num()};
+			FVrmAsyncLoadActionParam p = { InVrmAsset, OutVrmAsset, OptionForRuntimeLoad, FString("a.vrm"), Data.GetData(), (size_t)Data.Num()};
 			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, new FVrmAsyncLoadAction(LatentInfo, p));
 		}
 	}
