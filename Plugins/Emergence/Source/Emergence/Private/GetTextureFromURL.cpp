@@ -44,6 +44,7 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 	//Checking for GIFs
 	if (ResponceBytes.Num() > 0) { //if its not empty
 		if (ResponceBytes[0] == 0x47 && ResponceBytes[1] == 0x49 && ResponceBytes[2] == 0x46) { //this is a GIF
+#if PLATFORM_WINDOWS
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Found a GIF after GetTextureFromURL, sending for conversion..."));
 			TArray<TPair<FString, FString>> Headers;
 			Headers.Add(TPair<FString, FString>("Content-Type", "multipart/form-data; boundary=EmergenceBoundary"));
@@ -68,6 +69,9 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 			Request->SetContent(data);
 			Request->ProcessRequest();
 			return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
+#else
+			return;
+#endif
 		}
 	}
 
