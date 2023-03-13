@@ -36,6 +36,16 @@ void UWriteMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode
 
 void UWriteMethod::Activate()
 {
+	if (!DeployedContract) {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("You need a Deployed Contract to use WriteMethod!"));
+		return;
+	}
+
+	if (!WorldContextObject) {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("You need a WorldContextObject to use WriteMethod!"));
+		return;
+	}
+
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	//if this contract has never had its ABI loaded...
 	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
