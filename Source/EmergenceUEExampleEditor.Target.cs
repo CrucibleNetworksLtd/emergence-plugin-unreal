@@ -10,5 +10,6 @@ public class EmergenceUEExampleEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		ExtraModuleNames.Add("EmergenceUEExample");
+		ExtraModuleNames.Add("EmergenceTestEditor");
 	}
 }

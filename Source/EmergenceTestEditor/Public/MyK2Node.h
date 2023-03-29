@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class EMERGENCEUEEXAMPLE_API UMyK2Node : public UK2Node
+class EMERGENCETESTEDITOR_API UMyK2Node : public UK2Node
 {
 	GENERATED_BODY()
 public:

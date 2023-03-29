@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class EmergenceUEExample : ModuleRules
+public class EmergenceTestEditor : ModuleRules
 {
-	public EmergenceUEExample(ReadOnlyTargetRules Target) : base(Target)
+	public EmergenceTestEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
@@ -12,9 +12,11 @@ public class EmergenceUEExample : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"InputCore", 
-			"HeadMountedDisplay",
-			"Emergence"
+			"Emergence",
+			"JsonUtilities",
+			"Json",
+			"UnrealEd",
+			"BlueprintGraph"
 		});
 	}
 }

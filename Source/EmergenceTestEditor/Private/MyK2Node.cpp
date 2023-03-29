@@ -7,7 +7,10 @@
 #include "EdGraph/EdGraphNode.h"
 #include "EmergenceDeployment.h"
 #include "EdGraphSchema_K2.h"
-
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "Dom/JsonValue.h"
+#include "Serialization/JsonTypes.h"
 
 FText UMyK2Node::GetNodeTitle(ENodeTitleType::Type TitleType) const {
 	return FText::FromString("Test");
