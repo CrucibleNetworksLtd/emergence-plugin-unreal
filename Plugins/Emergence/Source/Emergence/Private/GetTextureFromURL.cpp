@@ -78,7 +78,10 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Add(this->Url, QRCodeTexture);
+		//if we still have a world context object
+		if (WorldContextObject) {
+			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Add(this->Url, QRCodeTexture);
+		}
 		return;
 	}
 	else {
