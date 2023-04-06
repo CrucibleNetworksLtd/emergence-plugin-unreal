@@ -31,7 +31,7 @@
                 }
             </remarks>
         </member>
-        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.writeMethod(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String[])">
+        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.writeMethod(System.String,System.String,System.String,System.String,System.String,System.String,System.String[])">
             <summary>
             Invoke a write method of a given contract address
             </summary>
@@ -61,20 +61,6 @@
                 {        
                   "contractAddress": "0x6641c25C4E9c81f8bF76AC5375c8Cb07DB6345ba",
                   "methodName": "tokenURI",
-                }
-            </remarks>
-        </member>
-        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.CreateWalletAndKeyStoreFile(System.String,System.String)">
-            <summary>
-            Creates a new wallet and a keystore file. Stores the keystore file in the given location
-            </summary>
-            <remarks>
-            Sample request:
-            
-                POST api/createWallet
-                {        
-                  "path": "c:\\wallets\\wallet1.json",
-                  "password": "*****",
                 }
             </remarks>
         </member>
