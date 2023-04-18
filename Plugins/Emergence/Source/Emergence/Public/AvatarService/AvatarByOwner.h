@@ -39,6 +39,9 @@ struct FEmergenceAvatarMetadata
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Avatar Service|Avatar Metadata")
 	FString GUID;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Avatar Service|Avatar Metadata")
+	FString MaterialType;
+
 	FEmergenceAvatarMetadata() {};
 
 	FEmergenceAvatarMetadata(FString _json_) {
@@ -56,6 +59,7 @@ struct FEmergenceAvatarMetadata
 		MaxTotalSize = _tmpEmergenceAvatarMetadata.MaxTotalSize;
 		MaxTotalVertices = _tmpEmergenceAvatarMetadata.MaxTotalVertices;
 		GUID = _tmpEmergenceAvatarMetadata.GUID;
+		MaterialType = _tmpEmergenceAvatarMetadata.MaterialType;
 	};
 
 };
