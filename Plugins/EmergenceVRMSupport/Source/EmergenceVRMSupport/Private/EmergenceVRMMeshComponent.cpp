@@ -19,7 +19,7 @@ UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
 	VRoidSimpleAssetList = VRoidSimpleAssetListBP.Object;
 }
 
-void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Data) {
+void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Data, const EVRMImportMaterialType MaterialType) {
 	if (!VrmAssetListObjectBPClass) {
 		UE_LOG(LogTemp, Error, TEXT("Couldn't find /VRM4U/VrmAssetListObjectBP.VrmAssetListObjectBP"));
 		return;
@@ -41,7 +41,47 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 	LatentInfo.ExecutionFunction = FName(TEXT("VRMLoadCompleted"));
 	LatentInfo.UUID = FGuid::NewGuid().A;
 	LatentInfo.Linkage = 1;
+
+	OptionForRuntimeLoad.MaterialType = MaterialType;
+
 	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo);
+}
+
+const EVRMImportMaterialType UEmergenceVRMMeshComponent::MaterialTypeFromString(const FString MaterialString)
+{
+	FString SanitizedMaterialString = MaterialString.ToLower();
+
+	//MToonUnlit
+	if (MaterialString == "mtoonunlit") {
+		return EVRMImportMaterialType::VRMIMT_MToonUnlit;
+	}
+
+	//MToonLit
+	if (MaterialString == "mtoonlit") {
+		return EVRMImportMaterialType::VRMIMT_MToon;
+	}
+
+	//PBR
+	if (MaterialString == "pbr") {
+		return EVRMImportMaterialType::VRMIMT_glTF;
+	}
+
+	//Subsurface
+	if (MaterialString == "subsurface") {
+		return EVRMImportMaterialType::VRMIMT_SSS;
+	}
+
+	//Subsurface Profile
+	if (MaterialString == "subsurfaceprofile") {
+		return EVRMImportMaterialType::VRMIMT_SSSProfile;
+	}
+
+	//Unlit
+	if (MaterialString == "unlit") {
+		return EVRMImportMaterialType::VRMIMT_Unlit;
+	}
+
+	return EVRMImportMaterialType::VRMIMT_MToonUnlit;
 }
 
 void UEmergenceVRMMeshComponent::VRMLoadCompleted(int Linkage)
