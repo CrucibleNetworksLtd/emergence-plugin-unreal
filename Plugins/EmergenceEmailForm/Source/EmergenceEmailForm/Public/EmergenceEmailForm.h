@@ -18,13 +18,24 @@ public:
 	virtual void ShutdownModule() override;
 	
 	/** This function will be bound to Command (by default it will bring up plugin window) */
-	void PluginButtonClicked();
+	void OpenFormFromButtonPress();
+
+	void ActivateFormChecked(bool Force = false);
 
 	UFUNCTION()
 	FReply OnSendButtonClicked();
 
 	UFUNCTION()
 	void OnEmailBoxTextChanged(const FText &Text);
+
+	UFUNCTION()
+	void OnCheckboxChanged(ECheckBoxState NewState);
+
+	UFUNCTION()
+	void OnMapChanged(const FString& MapName, bool MapChangeFlags);
+
+	UPROPERTY()
+	bool DefaultActivationOccuredThisSession = false;
 private:
 	
 	void RegisterMenus();
@@ -39,4 +50,5 @@ private:
 	static TSharedPtr< class FSlateStyleSet > StyleInstance;
 	FString Email;
 	TSharedPtr<SEditableTextBox> MyEditableTextBox;
+
 };

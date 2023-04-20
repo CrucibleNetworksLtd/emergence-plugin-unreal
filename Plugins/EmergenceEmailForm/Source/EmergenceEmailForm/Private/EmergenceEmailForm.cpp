@@ -16,6 +16,7 @@
 #include "Widgets/Input/SHyperlink.h"
 #include "Widgets/Text/SRichTextBlock.h"
 #include "SHyperlinkLaunchURL.h"
+#include "Misc/CoreDelegates.h"
 static const FName EmergenceEmailFormTabName("EmergenceEmailForm");
 
 #define LOCTEXT_NAMESPACE "FEmergenceEmailFormModule"
@@ -33,15 +34,10 @@ void FEmergenceEmailFormModule::StartupModule()
 
 	PluginCommands->MapAction(
 		FEmergenceEmailFormCommands::Get().OpenPluginWindow,
-		FExecuteAction::CreateRaw(this, &FEmergenceEmailFormModule::PluginButtonClicked),
+		FExecuteAction::CreateRaw(this, &FEmergenceEmailFormModule::OpenFormFromButtonPress),
 		FCanExecuteAction());
-
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FEmergenceEmailFormModule::RegisterMenus));
 	
-	//FGlobalTabmanager::Get()->RegisterNomadTabSpawner(EmergenceEmailFormTabName, FOnSpawnTab::CreateRaw(this, &FEmergenceEmailFormModule::OnSpawnPluginTab))
-	//	.SetDisplayName(LOCTEXT("FEmergenceEmailFormTabTitle", "EmergenceEmailForm"))
-	//	.SetMenuType(ETabSpawnerMenuType::Hidden);
-
+	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FEmergenceEmailFormModule::RegisterMenus));
 }
 
 void FEmergenceEmailFormModule::ShutdownModule()
@@ -64,6 +60,8 @@ void FEmergenceEmailFormModule::ShutdownModule()
 
 TSharedRef<SWindow> FEmergenceEmailFormModule::OnSpawnPluginTab()
 {
+	GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), false, GEditorIni);
+
 	auto SlateStyle = FSlateStyleRegistry::FindSlateStyle("EmergenceEmailFormStyle");
 	FSlateFontInfo WindowFont = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 12);
 	const FTextBlockStyle LinkStyle = FTextBlockStyle()
@@ -139,7 +137,9 @@ TSharedRef<SWindow> FEmergenceEmailFormModule::OnSpawnPluginTab()
 				]
 				+ SHorizontalBox::Slot().AutoWidth()
 				[
-					SNew(SCheckBox).IsChecked(true)
+					SNew(SCheckBox)
+					.IsChecked(true)
+					.OnCheckStateChanged_Raw(this, &FEmergenceEmailFormModule::OnCheckboxChanged)
 				].Padding(8.0F, 0.0F)
 			]
 			+ SVerticalBox::Slot().FillHeight(1.0f)
@@ -158,10 +158,27 @@ TSharedRef<SWindow> FEmergenceEmailFormModule::OnSpawnPluginTab()
 		];
 }
 
-void FEmergenceEmailFormModule::PluginButtonClicked()
+void FEmergenceEmailFormModule::OpenFormFromButtonPress()
 {
-	//FGlobalTabmanager::Get()->TryInvokeTab(EmergenceEmailFormTabName);
-	FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+	ActivateFormChecked(true);
+}
+
+void FEmergenceEmailFormModule::ActivateFormChecked(bool Force)
+{
+	if (Force) {
+		FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		return;
+	}
+
+	bool ShowEmailBox = true;
+	if (!GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), ShowEmailBox, GEditorIni)) {
+		ShowEmailBox = true;
+	}
+
+	if (!DefaultActivationOccuredThisSession && ShowEmailBox) {
+		FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		DefaultActivationOccuredThisSession = true;
+	}
 }
 
 FReply FEmergenceEmailFormModule::OnSendButtonClicked()
@@ -173,6 +190,22 @@ FReply FEmergenceEmailFormModule::OnSendButtonClicked()
 void FEmergenceEmailFormModule::OnEmailBoxTextChanged(const FText& Text)
 {
 	this->Email = Text.ToString();
+}
+
+void FEmergenceEmailFormModule::OnCheckboxChanged(ECheckBoxState NewState)
+{
+	if (NewState == ECheckBoxState::Checked) {
+		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), false, GEditorIni);
+	}
+	else {
+		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), true, GEditorIni);
+	}
+}
+
+void FEmergenceEmailFormModule::OnMapChanged(const FString& MapName, bool MapChangeFlags)
+{
+	FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+	UE_LOG(LogTemp, Warning, TEXT("---------------OnMapChanged: %d"), MapChangeFlags);
 }
 
 
@@ -199,6 +232,10 @@ void FEmergenceEmailFormModule::RegisterMenus()
 			}
 		}
 	}
+	FModuleManager::GetModuleChecked<FLevelEditorModule>(FName("LevelEditor")).OnRegisterTabs().AddLambda([&](TSharedPtr<FTabManager> TabManager)
+		{
+			ActivateFormChecked(false);
+		});
 }
 
 #undef LOCTEXT_NAMESPACE
