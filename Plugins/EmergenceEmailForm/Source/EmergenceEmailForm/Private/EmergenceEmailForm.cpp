@@ -12,7 +12,10 @@
 #include "Interfaces/IPluginManager.h"
 #include "Templates/SharedPointer.h"
 #include "Styling/SlateStyleRegistry.h"
-
+#include "Widgets/Input/SRichTextHyperlink.h"
+#include "Widgets/Input/SHyperlink.h"
+#include "Widgets/Text/SRichTextBlock.h"
+#include "SHyperlinkLaunchURL.h"
 static const FName EmergenceEmailFormTabName("EmergenceEmailForm");
 
 #define LOCTEXT_NAMESPACE "FEmergenceEmailFormModule"
@@ -62,73 +65,96 @@ void FEmergenceEmailFormModule::ShutdownModule()
 TSharedRef<SWindow> FEmergenceEmailFormModule::OnSpawnPluginTab()
 {
 	auto SlateStyle = FSlateStyleRegistry::FindSlateStyle("EmergenceEmailFormStyle");
-	
+	FSlateFontInfo WindowFont = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 12);
+	const FTextBlockStyle LinkStyle = FTextBlockStyle()
+		.SetFont(WindowFont)
+		.SetColorAndOpacity(FSlateColor(FLinearColor::Blue))
+		.SetUnderlineBrush(FSlateColorBrush(FLinearColor::Blue));
+
 	return SNew(SWindow)
 		.Title(FText::FromString(TEXT("Welcome to Emergence!")))
 		.ClientSize(FVector2D(600, 400))
 		.SupportsMaximize(false)
 		.SupportsMinimize(false)
-		.SizingRule(ESizingRule::UserSized)
+		.SizingRule(ESizingRule::FixedSize)
 		[
-			SNew(SBorder).BorderImage(new FSlateColorBrush(FLinearColor::FromSRGBColor(FColor(62, 62, 62, 255))))
+			SNew(SBorder)
+			.BorderImage(new FSlateColorBrush(FLinearColor::FromSRGBColor(FColor(62, 62, 62, 255))))
 			[
 			// Put your tab content here!
 			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
+			+ SVerticalBox::Slot().AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SImage).Image(SlateStyle->GetBrush("EmergenceEmailForm.Logo"))
 			]
-			+ SVerticalBox::Slot()
+			+ SVerticalBox::Slot().AutoHeight()
 			[
 				SNew(SSpacer).Size(FVector2D(1, 10))
 			]
-			+ SVerticalBox::Slot()
+			+ SVerticalBox::Slot().AutoHeight()
 			[
-				SNew(STextBlock).Text(FText::FromString("Optionally, if you would like to keep up date with all the latest developments on Emergence and also the Open Meta DAO, please enter your email here:")).AutoWrapText(true)
+				SNew(STextBlock)
+				.Text(FText::FromString("Optionally, if you would like to keep up date with all the latest developments on Emergence and also the Open Meta DAO, please enter your email here:"))
+				.AutoWrapText(true)
+				.Font(WindowFont)
 			].Padding(8.0F, 0.0F)
-			+ SVerticalBox::Slot()
+			+ SVerticalBox::Slot().AutoHeight()
 			[
 				SNew(SSpacer).Size(FVector2D(1, 10))
 			]
-			+ SVerticalBox::Slot()
-			[
+			+ SVerticalBox::Slot().AutoHeight()
+				[
 				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
+				+ SHorizontalBox::Slot().AutoWidth().Padding(0, 2.0f, 0, 0)
 				[
-					SNew(STextBlock).Text(FText::FromString("Email:"))
+					SNew(STextBlock)
+					.Text(FText::FromString("Email:"))
+					.Font(WindowFont)
 				]
-				+ SHorizontalBox::Slot().FillWidth(1.0F).Padding(10.0F, 0.0F)
+				+ SHorizontalBox::Slot().Padding(10.0F, 0.0F)
 				[
-					SNew(SEditableTextBox)
+					SNew(SEditableTextBox).OnTextChanged_Raw(this, &FEmergenceEmailFormModule::OnEmailBoxTextChanged)
 				]
-				+ SHorizontalBox::Slot()
+				+ SHorizontalBox::Slot().AutoWidth()
 				[
-					SNew(SButton).Text(FText::FromString("Send"))
+					SNew(SButton).Content()[
+						SNew(STextBlock).Text(FText::FromString("Send"))
+						.Font(WindowFont)
+						
+					].OnClicked_Raw(this, &FEmergenceEmailFormModule::OnSendButtonClicked)
 				].Padding(8.0F,0.0F)
 			]
-			+ SVerticalBox::Slot()
+			+ SVerticalBox::Slot().AutoHeight()
+				[
+					SNew(SSpacer).Size(FVector2D(1, 10))
+				]
+			+ SVerticalBox::Slot().AutoHeight()
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(STextBlock).Text(FText::FromString("Don't show this again:")).Font(WindowFont)
+				]
+				+ SHorizontalBox::Slot().AutoWidth()
+				[
+					SNew(SCheckBox).IsChecked(true)
+				].Padding(8.0F, 0.0F)
+			]
+			+ SVerticalBox::Slot().FillHeight(1.0f)
 				[
 					SNew(SSpacer).Size(FVector2D(1, 10))
 				]
 			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(EHorizontalAlignment::HAlign_Center)
+			.Padding(0.0f, 8.0f, 0.0f, 0.0f)
 			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				[
-					SNew(STextBlock).Text(FText::FromString("Don't show this again:"))
-				]
-				+ SHorizontalBox::Slot()
-				[
-					SNew(SCheckBox)
-				].Padding(8.0F, 0.0F)
+			SNew(SHyperlinkLaunchURL, TEXT("https://www.emergence.site/assets/documents/Emergence_Privacy%20Policy_FINAL%20(25%20Nov%2021).pdf"))
+			.Text((FText::FromString("Privacy & Terms")))
 			]
-			+ SVerticalBox::Slot()
-			[
-				SNew(STextBlock).Text(FText::FromString("Privacy & Terms"))
-			]
-			]
+		]
 		];
 }
 
@@ -136,6 +162,17 @@ void FEmergenceEmailFormModule::PluginButtonClicked()
 {
 	//FGlobalTabmanager::Get()->TryInvokeTab(EmergenceEmailFormTabName);
 	FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+}
+
+FReply FEmergenceEmailFormModule::OnSendButtonClicked()
+{
+	UE_LOG(LogTemp, Display, TEXT("Sending an email to: %s"), *this->Email);
+	return FReply::Handled();
+}
+
+void FEmergenceEmailFormModule::OnEmailBoxTextChanged(const FText& Text)
+{
+	this->Email = Text.ToString();
 }
 
 

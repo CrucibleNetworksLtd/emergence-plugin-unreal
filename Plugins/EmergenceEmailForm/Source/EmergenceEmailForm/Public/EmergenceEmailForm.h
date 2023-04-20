@@ -19,6 +19,12 @@ public:
 	
 	/** This function will be bound to Command (by default it will bring up plugin window) */
 	void PluginButtonClicked();
+
+	UFUNCTION()
+	FReply OnSendButtonClicked();
+
+	UFUNCTION()
+	void OnEmailBoxTextChanged(const FText &Text);
 private:
 	
 	void RegisterMenus();
@@ -31,4 +37,6 @@ private:
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
 	static TSharedPtr< class FSlateStyleSet > StyleInstance;
+	FString Email;
+	TSharedPtr<SEditableTextBox> MyEditableTextBox;
 };
