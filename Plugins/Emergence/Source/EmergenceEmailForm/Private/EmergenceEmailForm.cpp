@@ -17,7 +17,13 @@
 #include "Widgets/Text/SRichTextBlock.h"
 #include "SHyperlinkLaunchURL.h"
 #include "Misc/CoreDelegates.h"
-static const FName EmergenceEmailFormTabName("EmergenceEmailForm");
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IPluginManager.h"
+#include "PlatformHttp.h"
+
+static const FName EmergenceEmailFormTabName("Emergence Email Form");
+static const TCHAR* ShowAgainConfigName = TEXT("ShowEmailBox");
 
 #define LOCTEXT_NAMESPACE "FEmergenceEmailFormModule"
 
@@ -60,7 +66,7 @@ void FEmergenceEmailFormModule::ShutdownModule()
 
 TSharedRef<SWindow> FEmergenceEmailFormModule::OnSpawnPluginTab()
 {
-	GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), false, GEditorIni);
+	GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), ShowAgainConfigName, false, GEditorIni);
 
 	auto SlateStyle = FSlateStyleRegistry::FindSlateStyle("EmergenceEmailFormStyle");
 	FSlateFontInfo WindowFont = FSlateFontInfo(FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf"), 12);
@@ -165,25 +171,53 @@ void FEmergenceEmailFormModule::OpenFormFromButtonPress()
 
 void FEmergenceEmailFormModule::ActivateFormChecked(bool Force)
 {
+	if (CurrentWindow && CurrentWindow->IsVisible()) {
+		return;
+	}
+
 	if (Force) {
-		FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		CurrentWindow = FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		CurrentWindow->GetOnWindowClosedEvent().AddLambda([&](const TSharedRef<SWindow>& Window) {
+			CurrentWindow = nullptr;
+		});
 		return;
 	}
 
 	bool ShowEmailBox = true;
-	if (!GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), ShowEmailBox, GEditorIni)) {
+	if (!GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), ShowAgainConfigName, ShowEmailBox, GEditorIni)) {
 		ShowEmailBox = true;
 	}
 
 	if (!DefaultActivationOccuredThisSession && ShowEmailBox) {
-		FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		CurrentWindow = FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+		CurrentWindow->GetOnWindowClosedEvent().AddLambda([&](const TSharedRef<SWindow>& Window) {
+			CurrentWindow = nullptr;
+		});
 		DefaultActivationOccuredThisSession = true;
 	}
 }
 
 FReply FEmergenceEmailFormModule::OnSendButtonClicked()
 {
-	UE_LOG(LogTemp, Display, TEXT("Sending an email to: %s"), *this->Email);
+	TArray<TPair<FString, FString>> Headers;
+
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+	HttpRequest->SetURL("https://example.com/");
+	HttpRequest->SetVerb("GET");
+	HttpRequest->SetTimeout(20.0F);
+	HttpRequest->SetHeader("bruh", "bruh");
+	HttpRequest->SetContentAsString("");
+	HttpRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
+		if (bSucceeded) {
+			UE_LOG(LogTemp, Display, TEXT("Request complete!"));
+			if (CurrentWindow && CurrentWindow->IsVisible()) {
+				CurrentWindow->RequestDestroyWindow();
+			}
+		}
+	});
+	HttpRequest->ProcessRequest();
+	UE_LOG(LogTemp, Display, TEXT("SendEmail request started with email %s, calling SendEmail_HttpRequestComplete on request completed"), *this->Email);
+	
 	return FReply::Handled();
 }
 
@@ -195,19 +229,24 @@ void FEmergenceEmailFormModule::OnEmailBoxTextChanged(const FText& Text)
 void FEmergenceEmailFormModule::OnCheckboxChanged(ECheckBoxState NewState)
 {
 	if (NewState == ECheckBoxState::Checked) {
-		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), false, GEditorIni);
+		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), ShowAgainConfigName, false, GEditorIni);
 	}
 	else {
-		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowEmailBoxAgain"), true, GEditorIni);
+		GConfig->SetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), ShowAgainConfigName, true, GEditorIni);
 	}
 }
 
 void FEmergenceEmailFormModule::OnMapChanged(const FString& MapName, bool MapChangeFlags)
 {
-	FSlateApplication::Get().AddWindowAsNativeChild(FEmergenceEmailFormModule::OnSpawnPluginTab(), FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
+	ActivateFormChecked(false);
 	UE_LOG(LogTemp, Warning, TEXT("---------------OnMapChanged: %d"), MapChangeFlags);
 }
 
+
+void FEmergenceEmailFormModule::SendEmail_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+
+}
 
 void FEmergenceEmailFormModule::RegisterMenus()
 {
@@ -215,22 +254,22 @@ void FEmergenceEmailFormModule::RegisterMenus()
 	FToolMenuOwnerScoped OwnerScoped(this);
 
 	{
-		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Window");
+		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Help");
 		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("WindowLayout");
-			Section.AddMenuEntryWithCommandList(FEmergenceEmailFormCommands::Get().OpenPluginWindow, PluginCommands);
+			FToolMenuSection& Section = Menu->FindOrAddSection("Emergence");
+			Section.AddMenuEntryWithCommandList(FEmergenceEmailFormCommands::Get().OpenPluginWindow, PluginCommands, FText::FromString("Emergence Email Form"));
 		}
 	}
 
 	{
-		UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
+		/*UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
 		{
 			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
 			{
 				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FEmergenceEmailFormCommands::Get().OpenPluginWindow));
 				Entry.SetCommandList(PluginCommands);
 			}
-		}
+		}*/
 	}
 	FModuleManager::GetModuleChecked<FLevelEditorModule>(FName("LevelEditor")).OnRegisterTabs().AddLambda([&](TSharedPtr<FTabManager> TabManager)
 		{

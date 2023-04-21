@@ -51,6 +51,11 @@
 				"Win32",
 				"Mac"
 			]
+		},
+		{
+			"Name": "EmergenceEmailForm",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

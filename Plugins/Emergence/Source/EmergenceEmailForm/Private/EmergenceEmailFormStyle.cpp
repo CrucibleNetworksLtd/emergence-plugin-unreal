@@ -43,7 +43,7 @@ const FVector2D Icon40x40(40.0f, 40.0f);
 TSharedRef< FSlateStyleSet > FEmergenceEmailFormStyle::Create()
 {
 	TSharedRef< FSlateStyleSet > Style = MakeShareable(new FSlateStyleSet("EmergenceEmailFormStyle"));
-	Style->SetContentRoot(IPluginManager::Get().FindPlugin("EmergenceEmailForm")->GetBaseDir() / TEXT("Resources"));
+	Style->SetContentRoot(IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir() / TEXT("Resources"));
 
 	Style->Set("EmergenceEmailForm.OpenPluginWindow", new IMAGE_BRUSH(TEXT("ButtonIcon_40x"), Icon40x40));
 	Style->Set("EmergenceEmailForm.Logo", new IMAGE_BRUSH(TEXT("logo"), FVector2D(570.0f, 214.0f)));

@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 #include "Brushes/SlateImageBrush.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
 
 class FToolBarBuilder;
 class FMenuBuilder;
@@ -36,7 +38,11 @@ public:
 
 	UPROPERTY()
 	bool DefaultActivationOccuredThisSession = false;
+
+	UFUNCTION()
+	void SendEmail_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 private:
+	
 	
 	void RegisterMenus();
 
@@ -46,6 +52,7 @@ private:
 	TSharedRef<class SWindow> OnSpawnPluginTab();
 
 private:
+	TSharedPtr<SWindow> CurrentWindow;
 	TSharedPtr<class FUICommandList> PluginCommands;
 	static TSharedPtr< class FSlateStyleSet > StyleInstance;
 	FString Email;
