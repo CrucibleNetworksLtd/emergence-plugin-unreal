@@ -63,12 +63,6 @@ void UWriteMethod::Activate()
 		return;
 	}
 
-#if UNREAL_MARKETPLACE_BUILD
-	//we currently haven't tested SwitchChain with the EVMOnline, so just do the old behaviour
-	CallWriteMethod();
-	return;
-#endif
-
 	//if we're working with a wallet connected wallet
 	if (this->LocalAccountName.IsEmpty()) {
 		TArray<TPair<FString, FString>> SwitchChainHeaders;
