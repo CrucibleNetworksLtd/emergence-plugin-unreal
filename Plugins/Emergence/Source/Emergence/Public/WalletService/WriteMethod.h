@@ -45,7 +45,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTransactionSent OnTransactionSent;
 
-	
+	UFUNCTION()
+	void CallWriteMethod();
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	UObject* WorldContextObject;
