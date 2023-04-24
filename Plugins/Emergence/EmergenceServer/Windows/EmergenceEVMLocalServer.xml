@@ -17,6 +17,26 @@
                 }
             </remarks>
         </member>
+        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.SwitchChain(EmergenceEVMLocalServer.ViewModels.AddChainRequest)">
+            <remarks>
+            Sample request:
+            
+                POST api/addChain
+                {        
+                    "chainId": 137,
+                    "chainName": "Polygon",
+                    "currencyName": "MATIC",
+                    "currencySymbol": "MATIC",
+                    "currencyDecimals": 18,
+                    "rpcUrls": [
+                        "https://polygon-rpc.com/"
+                    ],
+                    "blockExplorerUrls": [
+                        "https://polygonscan.com/"
+                    ]
+                }
+            </remarks>
+        </member>
         <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.LoadContract(EmergenceEVMLocalServer.ViewModels.LoadContractRequest)">
             <summary>
             Loads a contract in server's memory
@@ -31,7 +51,7 @@
                 }
             </remarks>
         </member>
-        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.writeMethod(System.String,System.String,System.String,System.String,System.String,System.String,System.String[])">
+        <member name="M:NEthereumPoC.Controllers.IntegrationLibraryController.writeMethod(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String[])">
             <summary>
             Invoke a write method of a given contract address
             </summary>
