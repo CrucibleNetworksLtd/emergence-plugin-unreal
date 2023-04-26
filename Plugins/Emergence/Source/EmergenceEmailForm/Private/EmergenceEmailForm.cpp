@@ -21,6 +21,11 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IPluginManager.h"
 #include "PlatformHttp.h"
+#include "Templates/SharedPointer.h"
+#include "Dom/JsonObject.h"
+#include "HttpService/HttpHelperLibrary.h"
+#include "Serialization/JsonWriter.h"
+#include "Interfaces/IHttpResponse.h"
 
 static const FName EmergenceEmailFormTabName("Emergence Email Form");
 static const TCHAR* ShowAgainConfigName = TEXT("ShowEmailBox");
@@ -201,15 +206,37 @@ FReply FEmergenceEmailFormModule::OnSendButtonClicked()
 {
 	TArray<TPair<FString, FString>> Headers;
 
+	TSharedPtr<FJsonObject> TemplateParams = MakeShareable(new FJsonObject);
+	TemplateParams->SetStringField("from_email", *this->Email);
+	TemplateParams->SetStringField("from_engine", FGenericPlatformHttp::EscapeUserAgentString(FApp::GetBuildVersion()));
+	TemplateParams->SetStringField("from_emergenceversion", FGenericPlatformHttp::EscapeUserAgentString(UHttpHelperLibrary::GetEmergenceVersionNumber()));
+#if UNREAL_MARKETPLACE_BUILD
+	TemplateParams->SetStringField("from_emergenceevmtype", "EVMOnline");
+#else
+	TemplateParams->SetStringField("from_emergenceevmtype", "LocalEVM");
+#endif
+	TemplateParams->SetStringField("from_os", FGenericPlatformHttp::EscapeUserAgentString(FString(FPlatformProperties::IniPlatformName()) + " " + FPlatformMisc::GetOSVersion()));
+
+	TSharedPtr<FJsonObject> SendEmailContent = MakeShareable(new FJsonObject);
+	SendEmailContent->SetStringField("service_id", "service_txbxvyw");
+	SendEmailContent->SetStringField("template_id", "template_775t29f");
+	SendEmailContent->SetStringField("user_id", "XZJBhUf8kkPvSWNuG");
+	SendEmailContent->SetStringField("accessToken", "6b8PQs8_Ior6LQsbMUbWD");
+	SendEmailContent->SetObjectField("template_params", TemplateParams);
+	FString SendEmailContentString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&SendEmailContentString);
+	FJsonSerializer::Serialize(SendEmailContent.ToSharedRef(), Writer);
+
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
-	HttpRequest->SetURL("https://example.com/");
-	HttpRequest->SetVerb("GET");
+	HttpRequest->SetURL("https://api.emailjs.com/api/v1.0/email/send");
+	HttpRequest->SetVerb("POST");
 	HttpRequest->SetTimeout(20.0F);
-	HttpRequest->SetHeader("bruh", "bruh");
-	HttpRequest->SetContentAsString("");
+	HttpRequest->SetHeader("origin", "http://localhost");
+	HttpRequest->SetHeader("Content-Type", "application/json");
+	HttpRequest->SetContentAsString(SendEmailContentString);
 	HttpRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
-		if (bSucceeded) {
-			UE_LOG(LogTemp, Display, TEXT("Request complete!"));
+		if (bSucceeded && HttpResponse->GetContentAsString() == "OK") {
+			UE_LOG(LogTemp, Display, TEXT("Request complete, returned \"%s\""), *HttpResponse->GetContentAsString());
 			if (CurrentWindow && CurrentWindow->IsVisible()) {
 				CurrentWindow->RequestDestroyWindow();
 			}

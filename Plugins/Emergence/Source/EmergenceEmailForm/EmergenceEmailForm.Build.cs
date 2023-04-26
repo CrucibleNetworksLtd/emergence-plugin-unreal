@@ -28,7 +28,10 @@ public class EmergenceEmailForm : ModuleRules
 				"Slate",
 				"SlateCore",
 				"SharedSettingsWidgets",
-				"HTTP"
+				"HTTP",
+				"Json",
+				"JsonUtilities",
+				"Emergence"
 			}
 			);
 	}
