@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 #include "EmergenceEmailFormStyle.h"
 #include "Styling/SlateStyleRegistry.h"
