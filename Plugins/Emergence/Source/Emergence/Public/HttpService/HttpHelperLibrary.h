@@ -163,7 +163,7 @@ public:
 		if (GEngine && static_cast<UObject*>(FunctionBindObject)) {
 			UObject* WorldContextObject = static_cast<UObject*>(FunctionBindObject);
 			UE_LOG(LogTemp, Error, TEXT("Trying to get world context with %s"), *WorldContextObject->GetName());
-			UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, true);
+			UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull);
 			if (
 				World && //get the world
 				World->GetGameInstance()) { //if we actually got a world, get the game instance
