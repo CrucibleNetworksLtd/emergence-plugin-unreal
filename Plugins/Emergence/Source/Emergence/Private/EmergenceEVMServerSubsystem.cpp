@@ -5,6 +5,8 @@
 #include "LocalEmergenceServer.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "HttpModule.h"
+#include "HttpManager.h"
 
 void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 #if UNREAL_MARKETPLACE_BUILD
@@ -19,6 +21,12 @@ void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 }
 
 void UEmergenceEVMServerSubsystem::Deinitialize() {
+
+	for (FHttpRequestRef Request : ActiveRequests) {
+		Request->OnProcessRequestComplete().Unbind();
+		Request->CancelRequest();		
+	}
+
 #if !UNREAL_MARKETPLACE_BUILD
 	ULocalEmergenceServer::KillLocalServerProcess();
 #else

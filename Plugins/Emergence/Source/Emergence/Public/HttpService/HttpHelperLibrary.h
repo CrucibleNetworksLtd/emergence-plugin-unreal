@@ -10,6 +10,8 @@
 #include "Interfaces/IPluginManager.h"
 #include "EmergenceSingleton.h"
 #include "PlatformHttp.h"
+#include "Kismet/GameplayStatics.h"
+#include "EmergenceEVMServerSubsystem.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**
@@ -157,6 +159,21 @@ public:
 		static_assert(std::is_base_of<UObject, T>::value, "T not derived from UObject");
 
 		TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
+
+		if (GEngine && static_cast<UObject*>(FunctionBindObject)) {
+			UObject* WorldContextObject = static_cast<UObject*>(FunctionBindObject);
+			UE_LOG(LogTemp, Error, TEXT("Trying to get world context with %s"), *WorldContextObject->GetName());
+			UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, true);
+			if (
+				World && //get the world
+				World->GetGameInstance()) { //if we actually got a world, get the game instance
+				UEmergenceEVMServerSubsystem* EmergenceSubsystem = World->GetGameInstance()->GetSubsystem<UEmergenceEVMServerSubsystem>();
+				if (EmergenceSubsystem) {
+					EmergenceSubsystem->ActiveRequests.Add(HttpRequest);
+				}
+			};
+		}
+
 		if (FunctionBindFunction && FunctionBindObject) {
 			HttpRequest->OnProcessRequestComplete().BindUObject(FunctionBindObject, FunctionBindFunction);
 		}

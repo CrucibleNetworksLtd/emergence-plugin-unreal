@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintAsyncActionBase.h"
+#include "EmergenceAsyncActionBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
@@ -130,7 +130,7 @@ struct FEmergenceAvatarResult
 };
 
 UCLASS()
-class EMERGENCE_API UAvatarByOwner : public UBlueprintAsyncActionBase
+class EMERGENCE_API UAvatarByOwner : public UEmergenceAsyncActionBase
 {
 	GENERATED_BODY()
 public:
@@ -152,7 +152,7 @@ private:
 
 	void GetMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString Address;
-	UObject* WorldContextObject;
+	
 
 	TArray<TPair<FHttpRequestRef, FEmergenceAvatarResult>> Requests;
 	TArray<FEmergenceAvatarResult> Results;
