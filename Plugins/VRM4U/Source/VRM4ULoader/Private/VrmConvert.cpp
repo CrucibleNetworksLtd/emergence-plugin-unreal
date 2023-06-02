@@ -631,31 +631,38 @@ bool VRMConverter::GetMatParam(VRM::VRMMaterial &m, int matNo) const {
 		//auto t = mat["pbrMetallicRoughness"]["baseColorFactor"].GetArray();
 		//m.floatProperties._Color, t);
 
-		m.floatProperties._Cutoff;
+		//m.floatProperties._Cutoff;
 		m.floatProperties._BumpScale = 1.f;
 		m.floatProperties._ReceiveShadowRate = 1.f;
 		m.floatProperties._ShadeShift			= mat["extensions"]["VRMC_materials_mtoon"]["shadingShiftFactor"].GetFloat();
 		m.floatProperties._ShadeToony			= mat["extensions"]["VRMC_materials_mtoon"]["shadingToonyFactor"].GetFloat();
-		m.floatProperties._LightColorAttenuation;
-		m.floatProperties._IndirectLightIntensity;
+		//m.floatProperties._LightColorAttenuation;
+		//m.floatProperties._IndirectLightIntensity;
 		m.floatProperties._RimLightingMix		= mat["extensions"]["VRMC_materials_mtoon"]["rimLightingMixFactor"].GetFloat();
 		m.floatProperties._RimFresnelPower		= mat["extensions"]["VRMC_materials_mtoon"]["parametricRimFresnelPowerFactor"].GetFloat();
 		m.floatProperties._RimLift = mat["extensions"]["VRMC_materials_mtoon"]["parametricRimLiftFactor"].GetFloat();
 		m.floatProperties._OutlineWidth = mat["extensions"]["VRMC_materials_mtoon"]["outlineWidthFactor"].GetFloat() * 100.f;
-		m.floatProperties._OutlineScaledMaxDistance;
+		//m.floatProperties._OutlineScaledMaxDistance;
 		m.floatProperties._OutlineLightingMix = mat["extensions"]["VRMC_materials_mtoon"]["outlineLightingMixFactor"].GetFloat();
 		m.floatProperties._UvAnimScrollX = mat["extensions"]["VRMC_materials_mtoon"]["uvAnimationScrollXSpeedFactor"].GetFloat();
 		m.floatProperties._UvAnimScrollY = mat["extensions"]["VRMC_materials_mtoon"]["uvAnimationScrollYSpeedFactor"].GetFloat();
 		m.floatProperties._UvAnimRotation = mat["extensions"]["VRMC_materials_mtoon"]["uvAnimationRotationSpeedFactor"].GetFloat();
-		m.floatProperties._MToonVersion;
-		m.floatProperties._DebugMode;
-		m.floatProperties._BlendMode;
+		//m.floatProperties._MToonVersion;
+		//m.floatProperties._DebugMode;
+		//m.floatProperties._BlendMode;
 		m.floatProperties._OutlineWidthMode = 1.f;
-		m.floatProperties._OutlineColorMode;
-		m.floatProperties._CullMode;
-		m.floatProperties._OutlineCullMode;
-		m.floatProperties._SrcBlend;
-		m.floatProperties._DstBlend;
+		{
+			FString s = mat["extensions"]["VRMC_materials_mtoon"]["outlineWidthMode"].GetString();
+			if (s == "none") {
+				m.floatProperties._OutlineWidthMode = 0.f;
+				m.floatProperties._OutlineWidth = 0;
+			}
+		}
+		//m.floatProperties._OutlineColorMode;
+		//m.floatProperties._CullMode;
+		//m.floatProperties._OutlineCullMode;
+		//m.floatProperties._SrcBlend;
+		//m.floatProperties._DstBlend;
 		m.floatProperties._ZWrite = mat["extensions"]["VRMC_materials_mtoon"]["transparentWithZWrite"].GetBool() ? 1.f : 0.f;
 	}
 

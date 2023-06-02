@@ -12,6 +12,7 @@
 
 class UVrmAssetListObject;
 struct FAnimNode_VrmSpringBone;
+struct FAnimNode_VrmConstraint;
 
 USTRUCT()
 struct VRM4U_API FVrmAnimInstanceCopyProxy : public FAnimInstanceProxy {
@@ -21,9 +22,11 @@ public:
 
 	float CurrentDeltaTime = 0.f;
 	bool bIgnoreVRMSwingBone = false;
+	bool bIgnoreVRMConstraint = false;
 	bool bIgnoreWindDirectionalSource = false;
 	int CalcCount = 0;
-	TSharedPtr<FAnimNode_VrmSpringBone> SpringBoneNode;
+	TSharedPtr<FAnimNode_VrmSpringBone> Node_SpringBone;
+	TSharedPtr<FAnimNode_VrmConstraint> Node_Constraint;
 
 	bool bUseAnimStop = false;
 	bool bAnimStop = false;
@@ -55,6 +58,10 @@ class VRM4U_API UVrmAnimInstanceCopy : public UAnimInstance
 	GENERATED_UCLASS_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= Rendering, meta = (NeverAsPin))
+	bool bUseAttachedParent = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	USkeletalMeshComponent *SrcSkeletalMeshComponent;
 

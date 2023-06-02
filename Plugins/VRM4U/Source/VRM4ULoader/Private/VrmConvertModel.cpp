@@ -37,6 +37,27 @@
 
 #define LOCTEXT_NAMESPACE "VRM4U"
 
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+
+typedef uint8 VRM4U_BONE_INFLUENCE_TYPE;
+static constexpr int VRM4U_MaxBoneWeight = 255;
+static constexpr float VRM4U_MaxBoneWeightFloat = 255.f;
+
+#else
+
+#include "BoneWeights.h"
+
+typedef uint16 VRM4U_BONE_INFLUENCE_TYPE;
+
+static constexpr int VRM4U_MaxBoneWeight = UE::AnimationCore::MaxRawBoneWeight;
+static constexpr float VRM4U_MaxBoneWeightFloat = UE::AnimationCore::MaxRawBoneWeightFloat;
+
+#endif
+
+static constexpr float VRM4U_InvMaxRawBoneWeightFloat = 1.0f / VRM4U_MaxBoneWeightFloat;
+static constexpr float VRM4U_BoneWeightThreshold = VRM4U_InvMaxRawBoneWeightFloat;
+
+
 #if WITH_EDITOR
 typedef FSoftSkinVertex FSoftSkinVertexLocal;
 
@@ -70,7 +91,7 @@ namespace {
 		// VertexColor
 		FColor			Color;
 		FBoneIndexType	InfluenceBones[MAX_TOTAL_INFLUENCES];
-		uint8			InfluenceWeights[MAX_TOTAL_INFLUENCES];
+		VRM4U_BONE_INFLUENCE_TYPE	InfluenceWeights[MAX_TOTAL_INFLUENCES];
 
 		/** If this vert is rigidly weighted to a bone, return true and the bone index. Otherwise return false. */
 		//ENGINE_API bool GetRigidWeightBone(uint8& OutBoneIndex) const;
@@ -1104,6 +1125,8 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 		FVector BoundMin(-100, -100, 0);
 		FVector BoundMax(100, 100, 200);
 
+		TArray<int> AllActiveBones;
+
 		{
 			int boneNum = VRMGetSkeleton(sk)->GetReferenceSkeleton().GetRawBoneNum();
 			rd.RequiredBones.SetNum(boneNum);
@@ -1252,6 +1275,39 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 				*/
 				//aiData->mRootNode->mMeshes
 				for (uint32 boneIndex = 0; boneIndex < aiM->mNumBones; ++boneIndex) {
+					auto& aiB = aiM->mBones[boneIndex];
+
+					const int b = VRMGetRefSkeleton(sk).FindBoneIndex(UTF8_TO_TCHAR(aiB->mName.C_Str()));
+
+					if (b < 0) {
+						continue;
+					}
+					for (uint32 weightIndex = 0; weightIndex < aiB->mNumWeights; ++weightIndex) {
+						auto& aiW = aiB->mWeights[weightIndex];
+
+						if (aiW.mWeight == 0.f) {
+							continue;
+						}
+						for (int jj = 0; jj < MAX_TOTAL_INFLUENCES; ++jj) {
+							auto& s = Weight[aiW.mVertexId + currentVertex];
+							if (s.InfluenceWeights[jj] > 0) {
+								continue;
+							}
+
+							const float ww = FMath::Clamp(aiW.mWeight, 0.f, 1.f);
+							if (ww < VRM4U_BoneWeightThreshold) {
+								continue;
+							}
+
+							bonemap.AddUnique(b);
+							AllActiveBones.AddUnique(b);
+						}
+					}
+				}
+				bonemap.Sort();
+
+
+				for (uint32 boneIndex = 0; boneIndex < aiM->mNumBones; ++boneIndex) {
 					auto &aiB = aiM->mBones[boneIndex];
 
 					const int b = VRMGetRefSkeleton(sk).FindBoneIndex(UTF8_TO_TCHAR(aiB->mName.C_Str()));
@@ -1265,22 +1321,23 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 						if (aiW.mWeight == 0.f) {
 							continue;
 						}
-						for (int jj = 0; jj < 8; ++jj) {
+						for (int jj = 0; jj < MAX_TOTAL_INFLUENCES; ++jj) {
 							auto &s = Weight[aiW.mVertexId + currentVertex];
 							if (s.InfluenceWeights[jj] > 0) {
 								continue;
 							}
 
-							int tabledIndex = 0;
-							auto f = bonemap.Find(b);
-							if (f != INDEX_NONE) {
-								tabledIndex = f;
+							const float ww = FMath::Clamp(aiW.mWeight, 0.f, 1.f);
+							if (ww < VRM4U_BoneWeightThreshold) {
+								continue;
 							}
-							else {
-								if (Options::Get().IsDebugOneBone() == false) {
-									tabledIndex = bonemap.Add(b);
-								}
+
+							int tabledIndex = bonemap.AddUnique(b);
+							if (tabledIndex == INDEX_NONE) {
+								UE_LOG(LogVRM4ULoader, Warning, TEXT("bonemap add error!"));
+								tabledIndex = 0;
 							}
+
 							if (tabledIndex > 255) {
 								UE_LOG(LogVRM4ULoader, Warning, TEXT("bonemap over!"));
 							}
@@ -1289,10 +1346,9 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 								tabledIndex = 0;
 							}
 
-							const float ww = FMath::Clamp(aiW.mWeight, 0.f, 1.f);
 							s.InfluenceBones[jj] = tabledIndex;
-							//s.InfluenceWeights[jj] = (uint8)FMath::TruncToInt(ww * 255.f + (0.5f - KINDA_SMALL_NUMBER));
-							s.InfluenceWeights[jj] = (uint8)FMath::TruncToInt(ww * 255.f);
+							//s.InfluenceWeights[jj] = (VRM4U_BONE_INFLUENCT_TYPE)FMath::TruncToInt(ww * 255.f + (0.5f - KINDA_SMALL_NUMBER));
+							s.InfluenceWeights[jj] = (VRM4U_BONE_INFLUENCE_TYPE)FMath::TruncToInt(ww * VRM4U_MaxBoneWeightFloat);
 
 							meshWeight[aiW.mVertexId].InfluenceBones[jj] = s.InfluenceBones[jj];
 							meshWeight[aiW.mVertexId].InfluenceWeights[jj] = s.InfluenceWeights[jj];
@@ -1350,7 +1406,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					}
 					if (mobileMap.Num()) {
 						for (auto &a : Weight) {
-							for (int i = 0; i < 8; ++i) {
+							for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 								auto &infBone = a.InfluenceBones[i];
 								auto &infWeight = a.InfluenceWeights[i];
 								if (bonemap.IsValidIndex(infBone) == false) {
@@ -1369,7 +1425,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 							}
 						}
 						for (auto &a : meshWeight) {
-							for (int i = 0; i < 8; ++i) {
+							for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 								auto &infBone = a.InfluenceBones[i];
 								auto &infWeight = a.InfluenceWeights[i];
 								if (bonemap.IsValidIndex(infBone) == false) {
@@ -1400,7 +1456,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					int f = 0;
 					int maxIndex = 0;
 					int maxWeight = 0;
-					for (int i = 0; i < 8; ++i) {
+					for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 						f += w.InfluenceWeights[i];
 
 						if (maxWeight < w.InfluenceWeights[i]) {
@@ -1408,12 +1464,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 							maxIndex = i;
 						}
 					}
-					if (f > 255) {
+					if (f > VRM4U_MaxBoneWeight) {
 						UE_LOG(LogVRM4ULoader, Warning, TEXT("overr"));
-						w.InfluenceWeights[0] -= (uint8)(f - 255);
+						w.InfluenceWeights[0] -= (VRM4U_BONE_INFLUENCE_TYPE)(f - VRM4U_MaxBoneWeight);
 					}
-					if (f <= 254) {
-						if (f <= (255 - 8)) {
+					if (1) {
+						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
 								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
 								warnCount++;
@@ -1430,27 +1486,27 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 								}
 							}
 
-							auto inf = bonemap.Find(dummy);
+							auto inf = bonemap.AddUnique(dummy);
 							if (inf == INDEX_NONE) {
-								inf = bonemap.Add(dummy);
+								inf = 0;
 							}
 							w.InfluenceBones[0] = inf;
-							w.InfluenceWeights[0] += (uint8)(255 - f);
+							w.InfluenceWeights[0] += (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeight - f);
 
 						} else {
 							const int n = Options::Get().GetBoneWeightInfluenceNum();
-							if (n >= 4) {
-								w.InfluenceWeights[maxIndex] += (uint8)(255 - f);
-							} else {
-								// sort & reduction
-								for (int i = 0; i < 7; ++i) {
-									for (int j = i + 1; j < 8; ++j) {
+
+							{
+								// sort by Weight
+								for (int i = 0; i < MAX_TOTAL_INFLUENCES-1; ++i) {
+									for (int j = i + 1; j < MAX_TOTAL_INFLUENCES; ++j) {
 										if (w.InfluenceWeights[i] < w.InfluenceWeights[j]) {
 											std::swap(w.InfluenceWeights[i], w.InfluenceWeights[j]);
 											std::swap(w.InfluenceBones[i], w.InfluenceBones[j]);
 										}
 									}
 								}
+
 								// recalc weight
 								f = 0;
 								for (int i = 0; i < n; ++i) {
@@ -1459,18 +1515,18 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 								if (f == 0) {
 									f = 1;
 								}
-								for (int i = n; i < 8; ++i) {
+								for (int i = n; i < MAX_TOTAL_INFLUENCES; ++i) {
 									w.InfluenceBones[i] = 0;
 									w.InfluenceWeights[i] = 0;
 								}
 								int total = 0;
-								for (int i = 0; i < 8; ++i) {
+								for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 									int t = w.InfluenceWeights[i];
-									w.InfluenceWeights[i] = (uint8)(255 * t / f);
+									w.InfluenceWeights[i] = (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeightFloat * t / f);
 									total += w.InfluenceWeights[i];
 								}
 								// adjust
-								w.InfluenceWeights[0] += (uint8)(255 - total);
+								w.InfluenceWeights[0] += (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeight - total);
 							}
 						}
 					}
@@ -1520,7 +1576,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 
 					NewRenderSection.NumVertices = result.meshInfo[meshID].Vertices.Num();// result.meshInfo[meshID].Triangles.Num();// allVertex;// result.meshInfo[meshID].Vertices.Num();// ModelSection.NumVertices;
 
-					NewRenderSection.MaxBoneInfluences = 4;// ModelSection.MaxBoneInfluences;
+					NewRenderSection.MaxBoneInfluences = Options::Get().GetBoneWeightInfluenceNum();// ModelSection.MaxBoneInfluences;
 															//NewRenderSection.CorrespondClothAssetIndex = ModelSection.CorrespondClothAssetIndex;
 															//NewRenderSection.ClothingData = ModelSection.ClothingData;
 					TMap<int32, TArray<int32>> OverlappingVertices;
@@ -1575,7 +1631,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 						s.BoneMap[0] = i;
 					}
 					s.NumVertices = meshWeight.Num();
-					s.MaxBoneInfluences = 4;
+					s.MaxBoneInfluences = Options::Get().GetBoneWeightInfluenceNum();
 				}
 #endif	// editor only data
 
@@ -1613,7 +1669,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					}
 					auto newBoneMap = s0.BoneMap;
 					for (auto &sv : s1.SoftVertices) {
-						for (int i = 0; i < 8; ++i) {
+						for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 							if (sv.InfluenceWeights[i] == 0) {
 								continue;
 							}
@@ -1660,7 +1716,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					int f = 0;
 					int maxIndex = 0;
 					int maxWeight = 0;
-					for (int i = 0; i < 8; ++i) {
+					for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 						f += w.InfluenceWeights[i];
 
 						if (maxWeight < w.InfluenceWeights[i]) {
@@ -1668,18 +1724,18 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 							maxIndex = i;
 						}
 					}
-					if (f > 255) {
+					if (f > VRM4U_MaxBoneWeight) {
 						UE_LOG(LogVRM4ULoader, Warning, TEXT("overr"));
-						w.InfluenceWeights[0] -= (uint8)(f - 255);
+						w.InfluenceWeights[0] -= (VRM4U_BONE_INFLUENCE_TYPE)(f - VRM4U_MaxBoneWeight);
 					}
-					if (f <= 254) {
-						if (f <= (255 - 8)) {
+					if (f < VRM4U_MaxBoneWeight) {
+						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
 								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
 								warnCount++;
 							}
 						}
-						w.InfluenceWeights[maxIndex] += (uint8)(255 - f);
+						w.InfluenceWeights[maxIndex] += (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeight - f);
 					}
 				}
 			}
@@ -1854,6 +1910,37 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 #endif
 		}
 #endif
+
+
+#if WITH_EDITOR
+		{
+			//FSkeletalMeshLODRenderData& rd = sk->GetResourceForRendering()->LODRenderData[0];
+
+			FSkeletalMeshLODModel* p = &(sk->GetImportedModel()->LODModels[0]);
+			{
+				auto& r = VRMGetSkeleton(sk)->GetReferenceSkeleton();
+				for (int i = 0; i < AllActiveBones.Num(); ++i) {
+					auto boneIndex = r.GetParentIndex(AllActiveBones[i]);
+					if (boneIndex >= 0) {
+						AllActiveBones.AddUnique(boneIndex);
+					}
+				}
+				AllActiveBones.Sort();
+
+				p->ActiveBoneIndices.SetNum(AllActiveBones.Num());
+				for (int i = 0; i < AllActiveBones.Num(); ++i) {
+					p->ActiveBoneIndices[i] = AllActiveBones[i];
+				}
+			}
+			{
+				//p->NumVertices = allVertex;
+				//p->NumTexCoords = uvNum; // allVertex;
+				//p->IndexBuffer = Triangles;
+				//p->RequiredBones = rd.RequiredBones;
+			}
+		}
+#endif
+
 	}
 
 	UPhysicsAsset *pa = nullptr;
@@ -2201,7 +2288,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 			Controller.NotifyPopulated();
 			Controller.CloseBracket(true);
 #endif
+
+#if UE_VERSION_OLDER_THAN(5,2,0)
 			ase->MarkRawDataAsModified();
+#else
+#endif
+
 		}
 		ase->PostEditChange();
 	}

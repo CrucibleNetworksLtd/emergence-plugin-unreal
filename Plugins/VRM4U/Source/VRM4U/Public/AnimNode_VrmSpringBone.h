@@ -18,6 +18,10 @@ namespace VRMSpring {
 	class VRMSpringManager;
 }
 
+namespace VRMSpring1 {
+	class VRMSpringManager;
+}
+
 
 /**
 *	Simple controller that replaces or adds to the translation/rotation of a single bone.
@@ -71,6 +75,7 @@ struct VRM4U_API FAnimNode_VrmSpringBone : public FAnimNode_SkeletalControlBase
 	TArray<FName> NoWindBoneNameList;
 
 	TSharedPtr<VRMSpring::VRMSpringManager> SpringManager;
+	TSharedPtr<VRMSpring1::VRMSpringManager> SpringManager1;
 
 	float CurrentDeltaTime = 0.f;
 

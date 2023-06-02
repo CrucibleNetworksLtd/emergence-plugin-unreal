@@ -1119,6 +1119,17 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 						if (matFlagOpaqueArray[iMat]) {
 							LocalScalarParameterSet(dm, TEXT("bOpaque"), 1.f);
 						}
+						if (vrmAssetList->MaterialHasMToon.IsValidIndex(iMat)) {
+							if (vrmAssetList->MaterialHasMToon[iMat] == false) {
+								for (auto& a : dm->VectorParameterValues) {
+									if (a.ParameterInfo.Name == TEXT("mtoon_Color")) {
+										auto c = a.ParameterValue;
+										LocalVectorParameterSet(dm, TEXT("mtoon_ShadeColor"), c);
+										break;
+									}
+								}
+							}
+						}
 					} else {
 						// gltf texture
 						TArray<FString> materialParamName;

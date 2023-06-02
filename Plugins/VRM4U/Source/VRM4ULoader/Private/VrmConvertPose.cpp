@@ -244,8 +244,20 @@ namespace {
 			SmartNamePoseList.Add(n);
 		}
 
+#if UE_VERSION_OLDER_THAN(5,2,0)
 		UAnimSequence* ase = nullptr;
 		{
+			/*
+			auto LocalGetCurveData = [](UAnimSequence* ase) {
+#if UE_VERSION_OLDER_THAN(5,2,0)
+				return (ase->RawCurveData);
+#else
+				return ase->GetCurveData();
+#endif
+			};
+			*/
+
+
 			FString AnimName = FString(TEXT("A_face_")) + vrmAssetList->BaseFileName;
 			ase = VRM4U_NewObject<UAnimSequence>(vrmAssetList->Package, *AnimName, RF_Public | RF_Standalone);
 #if UE_VERSION_OLDER_THAN(5,0,0)
@@ -578,7 +590,12 @@ namespace {
 #else
 #endif
 		ase->PostEditChange();
+#endif // 5.2
+
 	} // AnimSequence
+
+
+
 #endif
 }// namespace
 

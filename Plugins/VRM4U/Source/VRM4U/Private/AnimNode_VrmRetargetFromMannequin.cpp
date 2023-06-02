@@ -16,6 +16,56 @@
 FAnimNode_VrmRetargetFromMannequin::FAnimNode_VrmRetargetFromMannequin() {
 }
 
+void FAnimNode_VrmRetargetFromMannequin::PreUpdate(const UAnimInstance* InAnimInstance)
+{
+	//DECLARE_SCOPE_HIERARCHICAL_COUNTER_ANIMNODE(PreUpdate)
+
+	Super::PreUpdate(InAnimInstance);
+
+	//FAnimNode_RetargetPoseFromMesh::EnsureInitialized
+	// if user hasn't explicitly connected a source mesh, optionally use the parent mesh component (if there is one) 
+	if (!srcMannequinMesh.IsValid() && bUseAttachedParent)
+	{
+		USkeletalMeshComponent* TargetMesh = InAnimInstance->GetSkelMeshComponent();
+
+		// Walk up the attachment chain until we find a skeletal mesh component
+		USkeletalMeshComponent* ParentMeshComponent = nullptr;
+		for (USceneComponent* AttachParentComp = TargetMesh->GetAttachParent(); AttachParentComp != nullptr; AttachParentComp = AttachParentComp->GetAttachParent())
+		{
+			ParentMeshComponent = Cast<USkeletalMeshComponent>(AttachParentComp);
+			if (ParentMeshComponent)
+			{
+				break;
+			}
+		}
+		if (ParentMeshComponent == nullptr) {
+			AActor *targetActor = nullptr;
+			AActor *myActor = TargetMesh->GetOwner();
+			for (USceneComponent* AttachParentComp = TargetMesh->GetAttachParent(); AttachParentComp != nullptr; AttachParentComp = AttachParentComp->GetAttachParent()) {
+				targetActor = AttachParentComp->GetOwner();
+				if (targetActor != myActor) {
+					break;
+				}
+				targetActor = nullptr;
+			}
+			if (targetActor) {
+				TArray<USkeletalMeshComponent*> c;
+				targetActor->GetComponents<USkeletalMeshComponent>(c);
+				if (c.IsValidIndex(0)) {
+					ParentMeshComponent = c[0];
+				}
+			}
+		}
+
+		if (ParentMeshComponent)
+		{
+			srcMannequinMesh = ParentMeshComponent;
+		}
+	}
+
+}
+
+
 void FAnimNode_VrmRetargetFromMannequin::UpdateCache(FComponentSpacePoseContext& Output) {
 
 	if (srcMannequinMesh == nullptr){
@@ -23,11 +73,11 @@ void FAnimNode_VrmRetargetFromMannequin::UpdateCache(FComponentSpacePoseContext&
 		return;
 	}
 
-	if (srcSkeletalMesh == srcMannequinMesh->SkeletalMesh) {
+	if (srcSkeletalMesh == VRMGetSkinnedAsset(srcMannequinMesh)) {
 		return;
 	}
 
-	srcSkeletalMesh = srcMannequinMesh->SkeletalMesh;
+	srcSkeletalMesh = VRMGetSkinnedAsset(srcMannequinMesh);
 
 	if (srcSkeletalMesh == nullptr) return;
 	if (dstSkeletalMesh == nullptr) return;
@@ -75,7 +125,7 @@ void FAnimNode_VrmRetargetFromMannequin::Initialize_AnyThread(const FAnimationIn
 	if (Context.AnimInstanceProxy == nullptr) return;
 	if (Context.AnimInstanceProxy->GetSkelMeshComponent() == nullptr) return;
 
-	dstSkeletalMesh = Context.AnimInstanceProxy->GetSkelMeshComponent()->SkeletalMesh;
+	dstSkeletalMesh = VRMGetSkinnedAsset(Context.AnimInstanceProxy->GetSkelMeshComponent());
 	srcSkeletalMesh = nullptr;
 }
 void FAnimNode_VrmRetargetFromMannequin::CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) {
@@ -132,8 +182,8 @@ void FAnimNode_VrmRetargetFromMannequin::EvaluateSkeletalControl_AnyThread(FComp
 		return;
 	}
 
-	auto &srcRefSkeleton = VRMGetRefSkeleton(srcAsSkinnedMeshComp->SkeletalMesh);
-	auto &dstRefSkeleton = VRMGetRefSkeleton(Output.AnimInstanceProxy->GetSkelMeshComponent()->SkeletalMesh);
+	auto &srcRefSkeleton = VRMGetRefSkeleton( VRMGetSkinnedAsset(srcAsSkinnedMeshComp) );
+	auto &dstRefSkeleton = VRMGetRefSkeleton( VRMGetSkinnedAsset(Output.AnimInstanceProxy->GetSkelMeshComponent()) );
 
 	// ref pose
 	const auto& dstRefSkeletonTransform = dstRefSkeleton.GetRefBonePose();

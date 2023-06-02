@@ -525,7 +525,9 @@ const TArray<FName> VRMUtil::ue4_humanoid_bone_list_name = {
 };
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
-#else
+
+#elif	UE_VERSION_OLDER_THAN(5,2,0)
+
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
 #if WITH_EDITOR
@@ -534,6 +536,17 @@ const TArray<FName> VRMUtil::ue4_humanoid_bone_list_name = {
 #include "Retargeter/IKRetargeter.h"
 #include "Solvers/IKRig_PBIKSolver.h"
 #endif
+
+#else
+
+#include "IKRigDefinition.h"
+#include "IKRigSolver.h"
+#if WITH_EDITOR
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#include "Retargeter/IKRetargeter.h"
+#endif
+
 #endif
 
 

@@ -38,7 +38,11 @@
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
 
+#if	UE_VERSION_OLDER_THAN(4,26,0)
 #include "AssetRegistryModule.h"
+#else
+#include "AssetRegistry/AssetRegistryModule.h"
+#endif
 #include "UObject/Package.h"
 #include "Engine/Engine.h"
 
@@ -46,7 +50,9 @@
 //#include "Windows/WindowsSystemIncludes.h"
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
-#else
+
+#elif	UE_VERSION_OLDER_THAN(5,2, 0)
+
 #include "UObject/SavePackage.h"
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
@@ -58,6 +64,21 @@
 #include "Retargeter/IKRetargeter.h"
 #include "Solvers/IKRig_PBIKSolver.h"
 #endif
+
+#else
+
+#include "UObject/SavePackage.h"
+#include "IKRigDefinition.h"
+#include "IKRigSolver.h"
+#if WITH_EDITOR
+#include "IContentBrowserSingleton.h"
+#include "ContentBrowserModule.h"
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#include "Retargeter/IKRetargeter.h"
+#include "Solvers/IKRig_FBIKSolver.h"
+#endif
+
 #endif
 
 #if PLATFORM_WINDOWS
@@ -283,16 +304,16 @@ static void ReTransformHumanoidBone(USkeleton *targetHumanoidSkeleton, const UVr
 bool ULoaderBPFunctionLibrary::VRMReTransformHumanoidBone(USkeletalMeshComponent *targetHumanoidSkeleton, const UVrmMetaObject *meta, const USkeletalMeshComponent *displaySkeleton) {
 
 	if (targetHumanoidSkeleton == nullptr) return false;
-	if (targetHumanoidSkeleton->SkeletalMesh == nullptr) return false;
+	if (VRMGetSkinnedAsset(targetHumanoidSkeleton) == nullptr) return false;
 
 	if (displaySkeleton == nullptr) return false;
-	if (displaySkeleton->SkeletalMesh == nullptr) return false;
+	if (VRMGetSkinnedAsset(displaySkeleton) == nullptr) return false;
 
 	// no meta. use default name.
 	//if (meta == nullptr) return false;
 
-	ReTransformHumanoidBone(VRMGetSkeleton(targetHumanoidSkeleton->SkeletalMesh), meta, VRMGetSkeleton(displaySkeleton->SkeletalMesh));
-	auto &sk = targetHumanoidSkeleton->SkeletalMesh;
+	ReTransformHumanoidBone(VRMGetSkeleton( VRMGetSkinnedAsset(targetHumanoidSkeleton) ), meta, VRMGetSkeleton( VRMGetSkinnedAsset(displaySkeleton) ));
+	auto *sk = VRMGetSkinnedAsset(targetHumanoidSkeleton);
 	auto *k = VRMGetSkeleton(sk);
 
 	VRMSetRefSkeleton(sk, k->GetReferenceSkeleton());
@@ -1239,10 +1260,20 @@ static void LocalEpicSkeletonSetup(UIKRigController *rigcon) {
 
 
 	int sol_index = 0;
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 	auto* sol = rigcon->GetSolver(sol_index);
+#else
+	auto* sol = rigcon->GetSolverAtIndex(sol_index);
+#endif
+
 	if (sol == nullptr) {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 		sol_index = rigcon->AddSolver(UIKRigPBIKSolver::StaticClass());
 		sol = rigcon->GetSolver(sol_index);
+#else
+		sol_index = rigcon->AddSolver(UIKRigFBIKSolver::StaticClass());
+		sol = rigcon->GetSolverAtIndex(sol_index);
+#endif
 	}
 	if (sol == nullptr) return;
 	sol->SetRootBone(TEXT("root"));
@@ -1255,10 +1286,17 @@ static void LocalEpicSkeletonSetup(UIKRigController *rigcon) {
 			TEXT("ball_r"),
 		};
 		for (int i = 0; i < a.Num(); ++i) {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 			auto* goal = rigcon->AddNewGoal(*(a[i] + TEXT("_Goal")), *a[i]);
 			if (goal) {
 				rigcon->ConnectGoalToSolver(*goal, sol_index);
 			}
+#else
+			auto goal = rigcon->AddNewGoal(*(a[i] + TEXT("_Goal")), *a[i]);
+			if (goal != NAME_None) {
+				rigcon->ConnectGoalToSolver(goal, sol_index);
+			}
+#endif
 		}
 	}
 }
@@ -1275,6 +1313,15 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 	if (sk == nullptr) {
 		return;
 	}
+
+	auto LocalGetController = [](UIKRigDefinition * rig) {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+		return UIKRigController::GetIKRigController(rig);
+#else
+		return UIKRigController::GetController(rig);
+#endif
+	};
+
 	{
 		const FString PkgPath = sk->GetPathName();// GetPackage().pathn
 		const FString SavePackagePath = FPaths::GetPath(PkgPath);
@@ -1294,7 +1341,7 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 				rig = VRM4U_NewObject<UIKRigDefinition>(pkg, *name, RF_Public | RF_Standalone);
 			}
 
-			UIKRigController* rigcon = UIKRigController::GetIKRigController(rig);
+			UIKRigController* rigcon = LocalGetController(rig);
 			rigcon->SetSkeletalMesh(sk);
 			LocalEpicSkeletonSetup(rigcon);
 
@@ -1347,7 +1394,7 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 				rig_epic = VRM4U_NewObject<UIKRigDefinition>(pkg, *name, RF_Public | RF_Standalone);
 			}
 
-			UIKRigController* rigcon = UIKRigController::GetIKRigController(rig_epic);
+			UIKRigController* rigcon = LocalGetController(rig_epic);
 			rigcon->SetSkeletalMesh(sk);
 			LocalEpicSkeletonSetup(rigcon);
 
@@ -1432,7 +1479,11 @@ void ULoaderBPFunctionLibrary::VRMGenerateEpicSkeletonToHumanoidIKRig(USkeletalM
 				ikr = VRM4U_NewObject<UIKRetargeter>(pkg, *name, RF_Public | RF_Standalone);
 			}
 			UIKRetargeterController* c = UIKRetargeterController::GetController(ikr);
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 			c->SetSourceIKRig(rig);
+#else
+			c->SetIKRig(ERetargetSourceOrTarget::Source, rig);
+#endif
 		}
 
 		rig->PostEditChange();

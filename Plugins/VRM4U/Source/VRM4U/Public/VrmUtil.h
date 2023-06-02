@@ -3,10 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/ObjectMacros.h"
-
-#include "Engine/Texture.h"
 #include "Misc/EngineVersionComparison.h"
+#include "UObject/ObjectMacros.h"
+#include "Engine/Texture.h"
+
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+#else
+#include "Engine/SkinnedAssetCommon.h"
+#endif
+
 #include "VrmUtil.generated.h"
 
 class USkeleton;
@@ -228,6 +233,41 @@ void VRMSetUseLegacyMeshDerivedDataKey(T* t, bool b) {
 VRM4U_API void VRMAddRetargetChain(class UIKRigController* con, FName name, FName begin, FName end);
 #endif
 
+
+//template<typename T>
+FORCEINLINE  USkeletalMesh *VRMGetSkinnedAsset(USkeletalMeshComponent* t) {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+	return t->SkeletalMesh;
+#else
+	return (t->GetSkeletalMeshAsset());
+#endif
+}
+FORCEINLINE  USkeletalMesh *VRMGetSkinnedAsset(TWeakObjectPtr<USkeletalMeshComponent> t) {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+	return t->SkeletalMesh;
+#else
+	return (t->GetSkeletalMeshAsset());
+#endif
+}
+
+//template<>
+FORCEINLINE  USkeletalMesh *VRMGetSkinnedAsset(USkinnedMeshComponent* t) {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+	return t->SkeletalMesh;
+#else
+	return Cast<USkeletalMesh>(t->GetSkinnedAsset());
+#endif
+}
+//template<>
+FORCEINLINE  USkeletalMesh *VRMGetSkinnedAsset(const USkinnedMeshComponent* t) {
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+	return t->SkeletalMesh;
+#else
+	return Cast<USkeletalMesh>(t->GetSkinnedAsset());
+#endif
+}
+
+
 // 
 //
 
@@ -287,7 +327,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	float FrameRate = 60.0f;
 
-	bool bVrm10RemoveLocalRotation = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bVrm10RemoveLocalRotation = true;
 
 	bool bVrm10Bindpose = false;
 

@@ -87,20 +87,20 @@ public class VRM4ULoader : ModuleRules
 				PublicDefinitions.Add("WITH_VRM4U_ASSIMP_DEBUG=1");
 
 				string BuildString = (Target.Configuration != UnrealTargetConfiguration.Debug) ? "Debug" : "Debug";
-				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, BuildString, "assimp-vc141-mtd.lib"));
+				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, BuildString, "assimp-vc141-mtd.lib"));
 
 				PublicDelayLoadDLLs.Add("assimp-vc141-mtd.dll");
-				RuntimeDependencies.Add(Path.Combine(ThirdPartyPath, "assimp/bin", PlatformString, "assimp-vc141-mtd.dll"));
+				RuntimeDependencies.Add(Path.Combine(ThirdPartyPath, "assimp", "bin", PlatformString, "assimp-vc141-mtd.dll"));
 			}
 			else
 			{
 				PublicDefinitions.Add("WITH_VRM4U_ASSIMP_DEBUG=0");
 
 				string BuildString = (Target.Configuration != UnrealTargetConfiguration.Debug) ? "Release" : "Release";
-				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, BuildString, "assimp-vc141-mt.lib"));
+				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, BuildString, "assimp-vc141-mt.lib"));
 
 				PublicDelayLoadDLLs.Add("assimp-vc141-mt.dll");
-				RuntimeDependencies.Add(Path.Combine(ThirdPartyPath, "assimp/bin", PlatformString, "assimp-vc141-mt.dll"));
+				RuntimeDependencies.Add(Path.Combine(ThirdPartyPath, "assimp", "bin", PlatformString, "assimp-vc141-mt.dll"));
 
 			}
 		}
@@ -109,7 +109,7 @@ public class VRM4ULoader : ModuleRules
 			// static link
 			{
 				string PlatformString = "armeabi-v7a";
-				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, "libassimp.a"));
+				PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, "libassimp.a"));
 			}
 
 			/*
@@ -126,13 +126,13 @@ public class VRM4ULoader : ModuleRules
 		if (Target.Platform == UnrealTargetPlatform.IOS)
 		{
 			string PlatformString = "IOS";
-			PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, "libassimp.a"));
+			PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, "libassimp.a"));
 		}
 		if (Target.Platform == UnrealTargetPlatform.Mac)
 		{
 			// static lib
 			string PlatformString = "Mac";
-			PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp/lib", PlatformString, "libassimp.a"));
+			PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, "libassimp.a"));
 		}
 
 	}

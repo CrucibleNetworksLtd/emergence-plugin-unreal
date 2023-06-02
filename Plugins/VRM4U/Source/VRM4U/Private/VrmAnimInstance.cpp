@@ -316,11 +316,11 @@ void UVrmAnimInstance::NativeUpdateAnimation(float DeltaSeconds) {
 			return;
 		}
 
-		if (BaseSkeletalMeshComponent->SkeletalMesh == nullptr) {
+		if (VRMGetSkinnedAsset(BaseSkeletalMeshComponent) == nullptr) {
 			return;
 		}
 
-		a->CurrentSkeleton = VRMGetSkeleton(BaseSkeletalMeshComponent->SkeletalMesh);
+		a->CurrentSkeleton = VRMGetSkeleton( VRMGetSkinnedAsset(BaseSkeletalMeshComponent) );
 	}
 
 //	USkeletalMesh *m;

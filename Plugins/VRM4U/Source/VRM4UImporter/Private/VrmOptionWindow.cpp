@@ -43,6 +43,7 @@ void SVrmOptionWindow::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			.Padding(2)
 			[
+#if UE_VERSION_OLDER_THAN(5,1,0)
 				SNew(SBorder)
 				.Padding(FMargin(3))
 				.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
@@ -65,6 +66,30 @@ void SVrmOptionWindow::Construct(const FArguments& InArgs)
 						.Text(InArgs._FullPath)
 					]
 				]
+#else
+				SNew(SBorder)
+				.Padding(FMargin(3))
+				.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+					.Font(FAppStyle::GetFontStyle("CurveEd.LabelFont"))
+				.Text(LOCTEXT("Import_CurrentFileTitle", "Current File: "))
+				]
+			+ SHorizontalBox::Slot()
+				.Padding(5, 0, 0, 0)
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.Font(FAppStyle::GetFontStyle("CurveEd.InfoFont"))
+				.Text(InArgs._FullPath)
+				]
+				]
+#endif
 			]
 			+ SVerticalBox::Slot()
 			.AutoHeight()

@@ -160,10 +160,13 @@ struct VRM4U_API FVRMConstraintRoll {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
-	FString rollAxis;
+	FString sourceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	int source = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FString rollAxis;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	float weight = 1.f;
@@ -174,10 +177,13 @@ struct VRM4U_API FVRMConstraintAim {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
-	FString aimAxis;
+	FString sourceName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	int source = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	FString aimAxis;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	float weight = 1.f;
@@ -223,6 +229,14 @@ class VRM4U_API UVrmMetaObject : public UObject
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
+	int Version = 0;
+
+	UFUNCTION(BlueprintPure, Category = "VRM4U")
+	int GetVRMVersion() const {
+		return Version;
+	}
+
 	// humanoid name -> model name
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	TMap<FString, FString> humanoidBoneTable;
@@ -247,4 +261,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Rendering)
 	class UVrmAssetListObject *VrmAssetListObject;
+
+
 };

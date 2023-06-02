@@ -8,7 +8,11 @@
 #include "VrmMetaObject.h"
 #include "VrmLicenseObject.h"
 
+#if	UE_VERSION_OLDER_THAN(4,26,0)
 #include "AssetRegistryModule.h"
+#else
+#include "AssetRegistry/AssetRegistryModule.h"
+#endif
 #include "UObject/Package.h"
 #include "UObject/UObjectGlobals.h"
 
@@ -41,6 +45,17 @@ bool VRMConverter::ConvertVrmFirst(UVrmAssetListObject* vrmAssetList, const uint
 
 	// material
 	if (VRMConverter::Options::Get().IsVRM10Model()) {
+		// mtoon params
+		vrmAssetList->MaterialHasMToon.Empty();
+		for (auto& mat : jsonData.doc["materials"].GetArray()) {
+			bool b = false;
+			if (mat.HasMember("extensions")) {
+				if (mat["extensions"].HasMember("VRMC_materials_mtoon")) {
+					b = true;
+				}
+			}
+			vrmAssetList->MaterialHasMToon.Add(b);
+		}
 	} else {
 		// alpha cutoff flag
 		vrmAssetList->MaterialHasAlphaCutoff.Empty();
@@ -60,9 +75,9 @@ bool VRMConverter::ConvertVrmFirst(UVrmAssetListObject* vrmAssetList, const uint
 bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiScene *mScenePtr, const uint8* pData, size_t dataSize) {
 
 	tmpLicense = nullptr;
-	VRM::VRMMetadata *meta = reinterpret_cast<VRM::VRMMetadata*>(mScenePtr->mVRMMeta);
+	VRM::VRMMetadata *SceneMeta = reinterpret_cast<VRM::VRMMetadata*>(mScenePtr->mVRMMeta);
 
-	UVrmMetaObject *m = nullptr;
+	UVrmMetaObject *MetaObject = nullptr;
 	UVrmLicenseObject *lic = nullptr;
 
 	{
@@ -73,24 +88,28 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 		}
 
 		if (package == GetTransientPackage() || vrmAssetList==nullptr) {
-			m = VRM4U_NewObject<UVrmMetaObject>(package, NAME_None, EObjectFlags::RF_Public | RF_Transient, NULL);
+			MetaObject = VRM4U_NewObject<UVrmMetaObject>(package, NAME_None, EObjectFlags::RF_Public | RF_Transient, NULL);
 			lic = VRM4U_NewObject<UVrmLicenseObject>(package, NAME_None, EObjectFlags::RF_Public | RF_Transient, NULL);
 		} else {
-			m = VRM4U_NewObject<UVrmMetaObject>(package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_VrmMeta")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+			MetaObject = VRM4U_NewObject<UVrmMetaObject>(package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_VrmMeta")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
 			lic = VRM4U_NewObject<UVrmLicenseObject>(package, *(FString(TEXT("VL_")) + vrmAssetList->BaseFileName + TEXT("_VrmLicense")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
 		}
 
 		if (vrmAssetList) {
-			vrmAssetList->VrmMetaObject = m;
+			vrmAssetList->VrmMetaObject = MetaObject;
 			vrmAssetList->VrmLicenseObject = lic;
-			m->VrmAssetListObject = vrmAssetList;
+			MetaObject->VrmAssetListObject = vrmAssetList;
 		} else {
 			tmpLicense = lic;
 		}
 	}
 
-	if (meta == nullptr) {
+	if (SceneMeta == nullptr) {
 		return false;
+	}
+
+	if (VRMConverter::Options::Get().IsVRM10Model()) {
+		MetaObject->Version = 1;
 	}
 
 	// bone
@@ -104,15 +123,15 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 				int node = g.value["node"].GetInt();
 
 				if (node >= 0 && node < (int)origBone.Size()) {
-					m->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
+					MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
 				} else {
-					m->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = "";
+					MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = "";
 				}
 			}
 		}
 	} else {
-		for (auto& a : meta->humanoidBone) {
-			m->humanoidBoneTable.Add(UTF8_TO_TCHAR(a.humanBoneName.C_Str())) = UTF8_TO_TCHAR(a.nodeName.C_Str());
+		for (auto& a : SceneMeta->humanoidBone) {
+			MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(a.humanBoneName.C_Str())) = UTF8_TO_TCHAR(a.nodeName.C_Str());
 		}
 	}
 
@@ -121,28 +140,28 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 		// VRM10
 		auto &presets = jsonData.doc["extensions"]["VRMC_vrm"]["expressions"]["preset"];
 
-		m->BlendShapeGroup.SetNum(presets.Size());
+		MetaObject->BlendShapeGroup.SetNum(presets.Size());
 		int presetIndex = -1;
 		for (auto& presetData : presets.GetObject()){
 			++presetIndex;
 
-			m->BlendShapeGroup[presetIndex].name = UTF8_TO_TCHAR(presetData.name.GetString()); // ex happy
+			MetaObject->BlendShapeGroup[presetIndex].name = UTF8_TO_TCHAR(presetData.name.GetString()); // ex happy
 
 			auto &bindData = presetData.value["morphTargetBinds"];
 
-			m->BlendShapeGroup[presetIndex].BlendShape.SetNum(bindData.Size());
+			MetaObject->BlendShapeGroup[presetIndex].BlendShape.SetNum(bindData.Size());
 
-			m->BlendShapeGroup[presetIndex].isBinary = presetData.value["isBinary"].GetBool();
-			m->BlendShapeGroup[presetIndex].overrideBlink = presetData.value["overrideBlink"].GetString();
-			m->BlendShapeGroup[presetIndex].overrideLookAt = presetData.value["overrideLookAt"].GetString();
-			m->BlendShapeGroup[presetIndex].overrideMouth = presetData.value["overrideMouth"].GetString();
+			MetaObject->BlendShapeGroup[presetIndex].isBinary = presetData.value["isBinary"].GetBool();
+			MetaObject->BlendShapeGroup[presetIndex].overrideBlink = presetData.value["overrideBlink"].GetString();
+			MetaObject->BlendShapeGroup[presetIndex].overrideLookAt = presetData.value["overrideLookAt"].GetString();
+			MetaObject->BlendShapeGroup[presetIndex].overrideMouth = presetData.value["overrideMouth"].GetString();
 
 			int bindIndex = -1;
 			for (auto &bind : bindData.GetArray()) {
 				++bindIndex;
 
 				//m->BlendShapeGroup[presetIndex].BlendShape[bindIndex].morphTargetName = UTF8_TO_TCHAR(aiGroup.bind[b].blendShapeName.C_Str());
-				auto &targetShape = m->BlendShapeGroup[presetIndex].BlendShape[bindIndex];
+				auto &targetShape = MetaObject->BlendShapeGroup[presetIndex].BlendShape[bindIndex];
 				//targetShape.morphTargetName = UTF8_TO_TCHAR(aiGroup.bind[b].blendShapeName.C_Str());
 				//targetShape.meshName = UTF8_TO_TCHAR(aiGroup.bind[b].meshName.C_Str());
 				//targetShape.nodeName = UTF8_TO_TCHAR(aiGroup.bind[b].nodeName.C_Str());
@@ -185,9 +204,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			}
 		}
 	} else {
-		m->BlendShapeGroup.SetNum(meta->blensShapeGroupNum);
-		for (int i = 0; i < meta->blensShapeGroupNum; ++i) {
-			auto& aiGroup = meta->blensShapeGourp[i];
+		MetaObject->BlendShapeGroup.SetNum(SceneMeta->blensShapeGroupNum);
+		for (int i = 0; i < SceneMeta->blensShapeGroupNum; ++i) {
+			auto& aiGroup = SceneMeta->blensShapeGourp[i];
 
 			FString s = UTF8_TO_TCHAR(aiGroup.groupName.C_Str());
 			if (VRMConverter::Options::Get().IsRemoveBlendShapeGroupPrefix()) {
@@ -198,11 +217,11 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 					}
 				}
 			}
-			m->BlendShapeGroup[i].name = s;
+			MetaObject->BlendShapeGroup[i].name = s;
 
-			m->BlendShapeGroup[i].BlendShape.SetNum(aiGroup.bindNum);
+			MetaObject->BlendShapeGroup[i].BlendShape.SetNum(aiGroup.bindNum);
 			for (int b = 0; b < aiGroup.bindNum; ++b) {
-				auto& bind = m->BlendShapeGroup[i].BlendShape[b];
+				auto& bind = MetaObject->BlendShapeGroup[i].BlendShape[b];
 				bind.morphTargetName = UTF8_TO_TCHAR(aiGroup.bind[b].blendShapeName.C_Str());
 				bind.meshName = UTF8_TO_TCHAR(aiGroup.bind[b].meshName.C_Str());
 				bind.nodeName = UTF8_TO_TCHAR(aiGroup.bind[b].nodeName.C_Str());
@@ -230,7 +249,7 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 
 			auto& group = jsonData.doc["extensions"]["VRM"]["blendShapeMaster"]["blendShapeGroups"];
 			for (int i = 0; i < (int)group.Size(); ++i) {
-				auto& bind = m->BlendShapeGroup[i];
+				auto& bind = MetaObject->BlendShapeGroup[i];
 
 				auto& shape = group[i];
 				if (shape.HasMember("materialValues") == false) {
@@ -266,9 +285,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			{
 				auto& collider = jsonData.doc["extensions"]["VRMC_springBone"]["colliders"];
 
-				m->VRMColliderMeta.SetNum(collider.Size());
+				MetaObject->VRMColliderMeta.SetNum(collider.Size());
 				for (int colliderNo = 0; colliderNo < (int)collider.Size(); ++colliderNo) {
-					auto& dstCollider = m->VRMColliderMeta[colliderNo];
+					auto& dstCollider = MetaObject->VRMColliderMeta[colliderNo];
 					dstCollider.bone = collider.GetArray()[colliderNo]["node"].GetInt();
 					//dstCollider.boneName
 
@@ -300,7 +319,7 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			}
 			{
 				auto& colliderGroup = jsonData.doc["extensions"]["VRMC_springBone"]["colliderGroups"]["colliderGroups"];
-				auto& dstCollider = m->VRMColliderGroupMeta;
+				auto& dstCollider = MetaObject->VRMColliderGroupMeta;
 
 				dstCollider.SetNum(colliderGroup.Size());
 				for (int i = 0; i < dstCollider.Num(); ++i) {
@@ -318,17 +337,49 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 		}
 
 		//spring
-		/*
 		{
 			auto& spring = jsonData.doc["extensions"]["VRMC_springBone"]["springs"];
 
-			m->VRMSpringMeta.SetNum(spring.Size());
-			for (int springNo = 0; springNo < spring.Size(); ++springNo) {
+			auto& origBone = jsonData.doc["nodes"];
+
+			MetaObject->VRMSpringMeta.SetNum(spring.Size());
+			for (uint32 springNo = 0; springNo < spring.Size(); ++springNo) {
 				auto& joint = spring.GetArray()[springNo]["joints"];
 
-				auto& dstSpring = m->VRMSpringMeta[springNo];
-				for (int jointNo = 0; jointNo < joint.Size(); ++jointNo) {
+				auto& dstSpring = MetaObject->VRMSpringMeta[springNo];
+				for (uint32 jointNo = 0; jointNo < joint.Size(); ++jointNo) {
 					auto& j = joint.GetArray()[jointNo];
+
+					auto& s = MetaObject->VRMSpringMeta[springNo];
+
+					s.dragForce = j["dragForce"].GetFloat();
+					s.gravityPower = j["gravityPower"].GetFloat();
+					if (j.HasMember("gravityDir")) {
+						if (j["gravityDir"].GetArray().Size() == 3) {
+							s.gravityDir.X = j["gravityDir"][0].GetFloat();
+							s.gravityDir.Y = j["gravityDir"][1].GetFloat();
+							s.gravityDir.Z = j["gravityDir"][2].GetFloat();
+						}
+					}
+
+					s.bones.SetNum(1);
+					s.boneNames.SetNum(1);
+
+					int node = j["node"].GetInt();
+					s.bones[0] = node;
+
+					if (node >= 0 && node < (int)origBone.Size()) {
+						s.boneNames[0] = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
+					}
+
+					s.hitRadius = j["hitRadius"].GetFloat();
+					s.stiffness = j["stiffness"].GetFloat();
+
+					/*
+							"node": 0,
+							"hitRadius": 0.1,
+							"stiffness": 0.5,
+							"dragForce": 0.5,
 
 					s.stiffness = vrms.stiffness;
 					s.gravityPower = vrms.gravityPower;
@@ -348,19 +399,19 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 					for (int c = 0; c < vrms.colliderGourpNum; ++c) {
 						s.ColliderIndexArray[c] = vrms.colliderGroups[c];
 					}
+					*/
 
 				}
 			}
 		}
-		*/
 
 	} else {
 		// spring
-		m->VRMSpringMeta.SetNum(meta->springNum);
-		for (int i = 0; i < meta->springNum; ++i) {
-			const auto& vrms = meta->springs[i];
+		MetaObject->VRMSpringMeta.SetNum(SceneMeta->springNum);
+		for (int i = 0; i < SceneMeta->springNum; ++i) {
+			const auto& vrms = SceneMeta->springs[i];
 
-			auto& s = m->VRMSpringMeta[i];
+			auto& s = MetaObject->VRMSpringMeta[i];
 			s.stiffness = vrms.stiffness;
 			s.gravityPower = vrms.gravityPower;
 			s.gravityDir.Set(vrms.gravityDir[0], vrms.gravityDir[1], vrms.gravityDir[2]);
@@ -382,11 +433,11 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 		}
 
 		//collider
-		m->VRMColliderMeta.SetNum(meta->colliderGroupNum);
-		for (int i = 0; i < meta->colliderGroupNum; ++i) {
-			const auto& vrmc = meta->colliderGroups[i];
+		MetaObject->VRMColliderMeta.SetNum(SceneMeta->colliderGroupNum);
+		for (int i = 0; i < SceneMeta->colliderGroupNum; ++i) {
+			const auto& vrmc = SceneMeta->colliderGroups[i];
 
-			auto& c = m->VRMColliderMeta[i];
+			auto& c = MetaObject->VRMColliderMeta[i];
 			c.bone = vrmc.node;
 			c.boneName = UTF8_TO_TCHAR(vrmc.node_name.C_Str());
 
@@ -414,30 +465,32 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 
 				c.source = constraint["roll"]["source"].GetInt();
 				if (c.source < (int)nodes.Size()) {
-					c.rollAxis = nodes.GetArray()[c.source]["roll"].GetString();
+					c.sourceName = nodes.GetArray()[c.source]["name"].GetString();
 				}
+				c.rollAxis = constraint["roll"]["rollAxis"].GetString();
 				c.weight = constraint["roll"]["weight"].GetFloat();
 
 				FVRMConstraint cc;
 				cc.constraintRoll = c;
 				cc.type = EVRMConstraintType::Roll;
 
-				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+				MetaObject->VRMConstraintMeta.Add(node["name"].GetString(), cc);
 			}
 			if (constraint.HasMember("aim")) {
 				FVRMConstraintAim c;
 
 				c.source = constraint["aim"]["source"].GetInt();
 				if (c.source < (int)nodes.Size()) {
-					c.aimAxis = nodes.GetArray()[c.source]["aim"].GetString();
+					c.sourceName = nodes.GetArray()[c.source]["name"].GetString();
 				}
+				c.aimAxis = constraint["aim"]["aimAxis"].GetString();
 				c.weight = constraint["aim"]["weight"].GetFloat();
 
 				FVRMConstraint cc;
 				cc.constraintAim = c;
 				cc.type = EVRMConstraintType::Aim;
 
-				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+				MetaObject->VRMConstraintMeta.Add(node["name"].GetString(), cc);
 			}
 			if (constraint.HasMember("rotation")) {
 				FVRMConstraintRotation c;
@@ -452,7 +505,7 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 				cc.constraintRotation = c;
 				cc.type = EVRMConstraintType::Rotation;
 
-				m->VRMConstraintMeta.Add(node["name"].GetString(), cc);
+				MetaObject->VRMConstraintMeta.Add(node["name"].GetString(), cc);
 			}
 		}
 	}
@@ -483,9 +536,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			{TEXT("sexualUssageName"),	lic->sexualUsageName},
 			{TEXT("commercialUssageName"),	lic->commercialUsageName},
 		};
-		for (int i = 0; i < meta->license.licensePairNum; ++i) {
+		for (int i = 0; i < SceneMeta->license.licensePairNum; ++i) {
 
-			auto &p = meta->license.licensePair[i];
+			auto &p = SceneMeta->license.licensePair[i];
 
 			for (auto &t : table) {
 				if (t.key == p.Key.C_Str()) {

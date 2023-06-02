@@ -2,6 +2,7 @@
 
 #include "VrmUtil.h"
 
+#include "VRM4U.h"
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "UObject/UObjectHash.h"
@@ -576,7 +577,7 @@ UTexture2D* VRMUtil::CreateTexture(int32 InSizeX, int32 InSizeY, FString name, U
 		Mip->BulkData.Unlock();
 	} else
 	{
-		UE_LOG(LogTexture, Warning, TEXT("Invalid parameters specified for UTexture2D::Create()"));
+		UE_LOG(LogVRM4U, Warning, TEXT("Invalid parameters specified for UTexture2D::Create()"));
 	}
 	return NewTexture;
 }

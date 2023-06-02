@@ -199,6 +199,8 @@ public:
 
 	TArray<bool> MaterialHasAlphaCutoff;
 
+	TArray<bool> MaterialHasMToon;
+
 	TSharedPtr<FReturnedData> MeshReturnedData;
 	//FReturnedData *Result;
 

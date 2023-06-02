@@ -263,6 +263,11 @@ void FMocopiReceiverProxy::OnPacketReceived(const FArrayReaderPtr& InData, const
 				if (GetValue(p, length, i, FIELD_SKDF)) {
 					//UE_LOG(LogVRM4UCapture, Verbose, TEXT("skdf  %d"), bFindFieldFram);
 					bFindFieldSkdf = true;
+
+					// remove read data
+					FMemory::Memmove(RecvDataSet.GetData(), RecvDataSet.GetData() + (i+4), RecvDataSet.Num() - (i+4));
+					RecvDataSet.SetNum(RecvDataSet.Num() - (i+4));
+					break;
 				}
 				
 
@@ -363,6 +368,9 @@ void FMocopiReceiverProxy::OnPacketReceived(const FArrayReaderPtr& InData, const
 			}// data loop
 			if (bFindFieldSkdf) {
 				continue;
+			}
+			if (bFindFieldFram == false) {
+				break;
 			}
 		} // packet loop
 

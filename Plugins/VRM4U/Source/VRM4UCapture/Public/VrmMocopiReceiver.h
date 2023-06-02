@@ -33,22 +33,22 @@ USTRUCT(BlueprintType)
 struct FStructMocopiData{
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
 	int FrameNo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
 	int Time;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize, Category = "VRM4U")
 	TArray<FTransform> MocopiTransformWorld;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize, Category = "VRM4U")
 	TArray<FTransform> MocopiTransformLocal;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize, Category = "VRM4U")
 	TArray<FTransform> VrmTransformLocal;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
 	TMap<FString, FTransform> VrmTransformBoneList;
 
 	FStructMocopiData() {

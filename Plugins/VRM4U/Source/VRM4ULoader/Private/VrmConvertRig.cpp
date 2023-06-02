@@ -25,7 +25,9 @@
 #include "PhysicsEngine/PhysicsConstraintTemplate.h"
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
-#else
+
+#elif	UE_VERSION_OLDER_THAN(5,2,0)
+
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
 #if WITH_EDITOR
@@ -34,6 +36,18 @@
 #include "Retargeter/IKRetargeter.h"
 #include "Solvers/IKRig_PBIKSolver.h"
 #endif
+
+#else
+
+#include "IKRigDefinition.h"
+#include "IKRigSolver.h"
+#if WITH_EDITOR
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#include "Retargeter/IKRetargeter.h"
+#include "Solvers/IKRig_FBIKSolver.h"
+#endif
+
 #endif
 
 
@@ -75,12 +89,14 @@ namespace {
 	static bool isSameOrChild(const FReferenceSkeleton &skeleton, const int32 TargetBoneIndex, const int32 SameOrChildBoneIndex) {
 		auto &r = skeleton;
 
+		if (TargetBoneIndex < 0 || SameOrChildBoneIndex < 0) {
+			return false;
+		}
+
 		int32 c = SameOrChildBoneIndex;
 		for (int i = 0; i < skeleton.GetRawBoneNum(); ++i) {
 
-			if (TargetBoneIndex < 0 || SameOrChildBoneIndex < 0) {
-				return false;
-			}
+			if (c < 0) break;
 
 			if (c == TargetBoneIndex) {
 				return true;
@@ -98,13 +114,21 @@ namespace {
 	static void LocalSolverSetup(UIKRigController* rigcon, UVrmAssetListObject *assetList) {
 		if (rigcon == nullptr) return;
 
-		//rigcon->SetRetargetRoot(TEXT("Pelvis"));
-
 		int sol_index = 0;
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 		auto* sol = rigcon->GetSolver(sol_index);
+#else
+		auto* sol = rigcon->GetSolverAtIndex(sol_index);
+#endif
+
 		if (sol == nullptr) {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 			sol_index = rigcon->AddSolver(UIKRigPBIKSolver::StaticClass());
 			sol = rigcon->GetSolver(sol_index);
+#else
+			sol_index = rigcon->AddSolver(UIKRigFBIKSolver::StaticClass());
+			sol = rigcon->GetSolverAtIndex(sol_index);
+#endif
 		}
 		if (sol == nullptr) return;
 
@@ -130,6 +154,8 @@ namespace {
 			for (int i = 0; i < a.Num(); ++i) {
 				for (auto& t : assetList->VrmMetaObject->humanoidBoneTable) {
 					if (t.Key.ToLower() == a[i].ToLower()) {
+
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 						auto* goal = rigcon->AddNewGoal(*(a[i] + TEXT("_Goal")), *t.Value);
 						if (goal) {
 							rigcon->ConnectGoalToSolver(*goal, sol_index);
@@ -149,6 +175,27 @@ namespace {
 								}
 							}
 						}
+#else
+						auto goal = rigcon->AddNewGoal(*(a[i] + TEXT("_Goal")), *t.Value);
+						if (goal != NAME_None) {
+							rigcon->ConnectGoalToSolver(goal, sol_index);
+
+							// arm chain
+							if (i == 0 || i == 1) {
+								UIKRig_FBIKEffector* e = Cast<UIKRig_FBIKEffector>(sol->GetGoalSettings(goal));
+								if (e) {
+									e->PullChainAlpha = 0.f;
+								}
+							}
+
+							const auto& chain = rigcon->GetRetargetChains();
+							for (auto& c : chain) {
+								if (c.EndBone.BoneName == *t.Value) {
+									rigcon->SetRetargetChainGoal(c.ChainName, goal);
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -175,6 +222,11 @@ namespace {
 					if (t.Key.ToLower() == a[i].ToLower()) {
 
 						if (t.Value == "") continue;
+
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+#else
+						typedef UIKRig_FBIKBoneSettings UIKRig_PBIKBoneSettings;
+#endif
 
 						// shoulder
 						if (i == 0 || i == 1) {
@@ -903,12 +955,21 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 		const VRM::VRMMetadata* meta = reinterpret_cast<VRM::VRMMetadata*>(aiData->mVRMMeta);
 		USkeletalMesh* sk = vrmAssetList->SkeletalMesh;
 
+		auto LocalGetController = [](UIKRigDefinition* rig) {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+			return UIKRigController::GetIKRigController(rig);
+#else
+			return UIKRigController::GetController(rig);
+#endif
+		};
+
+
 		UIKRigDefinition* rig = nullptr;
 		{
 			FString name = FString(TEXT("IK_")) + vrmAssetList->BaseFileName + TEXT("_VrmHumanoid");
 			rig = VRM4U_NewObject<UIKRigDefinition>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
-			UIKRigController* rigcon = UIKRigController::GetIKRigController(rig);
+			UIKRigController* rigcon = LocalGetController(rig);
 			rigcon->SetSkeletalMesh(sk);
 
 			if (vrmAssetList->VrmMetaObject->humanoidBoneTable.Num() == 0) {
@@ -980,7 +1041,7 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 			FString name = FString(TEXT("IK_")) + vrmAssetList->BaseFileName + TEXT("_MannequinBone");
 			rig_epic = VRM4U_NewObject<UIKRigDefinition>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
-			UIKRigController* rigcon = UIKRigController::GetIKRigController(rig_epic);
+			UIKRigController* rigcon = LocalGetController(rig_epic);
 			rigcon->SetSkeletalMesh(sk);
 
 			{
@@ -1011,7 +1072,7 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 			FString name = FString(TEXT("IK_")) + vrmAssetList->BaseFileName + TEXT("_Mannequin");
 			rig_ik = VRM4U_NewObject<UIKRigDefinition>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
-			UIKRigController* rigcon = UIKRigController::GetIKRigController(rig_ik);
+			UIKRigController* rigcon = LocalGetController(rig_ik);
 			rigcon->SetSkeletalMesh(sk);
 
 			{
@@ -1106,12 +1167,21 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 
 			UIKRetargeterController* c = UIKRetargeterController::GetController(ikr);
 
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 			if (VRMConverter::Options::Get().IsVRMModel() || VRMConverter::Options::Get().IsBVHModel()) {
 				c->SetSourceIKRig(rig_ik);
 			}
 			else {
 				c->SetSourceIKRig(rig);
 			}
+#else
+			if (VRMConverter::Options::Get().IsVRMModel() || VRMConverter::Options::Get().IsBVHModel()) {
+				c->SetIKRig(ERetargetSourceOrTarget::Source, rig_ik);
+			}
+			else {
+				c->SetIKRig(ERetargetSourceOrTarget::Source, rig);
+			}
+#endif
 		}
 #endif
 #endif // editor

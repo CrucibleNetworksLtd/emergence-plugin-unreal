@@ -12,146 +12,8 @@
 //#include "BoneControllers/AnimNode_TwoBoneIK.h"
 //#include "BoneControllers/AnimNode_SplineIK.h"
 #include "AnimNode_VrmSpringBone.h"
+#include "AnimNode_VrmConstraint.h"
 
-
-namespace {
-	/*
-	const FString table[] = {
-		"hips",
-		"leftUpperLeg",
-		"rightUpperLeg",
-		"leftLowerLeg",
-		"rightLowerLeg",
-		"leftFoot",
-		"rightFoot",
-		"spine",
-		"chest",
-		"neck",
-		"head",
-		"leftShoulder",
-		"rightShoulder",
-		"leftUpperArm",
-		"rightUpperArm",
-		"leftLowerArm",
-		"rightLowerArm",
-		"leftHand",
-		"rightHand",
-		"leftToes",
-		"rightToes",
-		"leftEye",
-		"rightEye",
-		"jaw",
-		"leftThumbProximal",
-		"leftThumbIntermediate",
-		"leftThumbDistal",
-		"leftIndexProximal",
-		"leftIndexIntermediate",
-		"leftIndexDistal",
-		"leftMiddleProximal",
-		"leftMiddleIntermediate",
-		"leftMiddleDistal",
-		"leftRingProximal",
-		"leftRingIntermediate",
-		"leftRingDistal",
-		"leftLittleProximal",
-		"leftLittleIntermediate",
-		"leftLittleDistal",
-		"rightThumbProximal",
-		"rightThumbIntermediate",
-		"rightThumbDistal",
-		"rightIndexProximal",
-		"rightIndexIntermediate",
-		"rightIndexDistal",
-		"rightMiddleProximal",
-		"rightMiddleIntermediate",
-		"rightMiddleDistal",
-		"rightRingProximal",
-		"rightRingIntermediate",
-		"rightRingDistal",
-		"rightLittleProximal",
-		"rightLittleIntermediate",
-		"rightLittleDistal",
-		"upperChest"
-	};
-	*/
-	/*
-	const FString table[] = {
-		"Root",
-		"Pelvis",
-		"spine_01",
-		"spine_02",
-		"spine_03",
-		"clavicle_l",
-		"UpperArm_L",
-		"lowerarm_l",
-		"Hand_L",
-		"index_01_l",
-		"index_02_l",
-		"index_03_l",
-		"middle_01_l",
-		"middle_02_l",
-		"middle_03_l",
-		"pinky_01_l",
-		"pinky_02_l",
-		"pinky_03_l",
-		"ring_01_l",
-		"ring_02_l",
-		"ring_03_l",
-		"thumb_01_l",
-		"thumb_02_l",
-		"thumb_03_l",
-		"lowerarm_twist_01_l",
-		"upperarm_twist_01_l",
-		"clavicle_r",
-		"UpperArm_R",
-		"lowerarm_r",
-		"Hand_R",
-		"index_01_r",
-		"index_02_r",
-		"index_03_r",
-		"middle_01_r",
-		"middle_02_r",
-		"middle_03_r",
-		"pinky_01_r",
-		"pinky_02_r",
-		"pinky_03_r",
-		"ring_01_r",
-		"ring_02_r",
-		"ring_03_r",
-		"thumb_01_r",
-		"thumb_02_r",
-		"thumb_03_r",
-		"lowerarm_twist_01_r",
-		"upperarm_twist_01_r",
-		"neck_01",
-		"head",
-		"Thigh_L",
-		"calf_l",
-		"calf_twist_01_l",
-		"Foot_L",
-		"ball_l",
-		"thigh_twist_01_l",
-		"Thigh_R",
-		"calf_r",
-		"calf_twist_01_r",
-		"Foot_R",
-		"ball_r",
-		"thigh_twist_01_r",
-		"ik_foot_root",
-		"ik_foot_l",
-		"ik_foot_r",
-		"ik_hand_root",
-		"ik_hand_gun",
-		"ik_hand_l",
-		"ik_hand_r",
-		"Custom_1",
-		"Custom_2",
-		"Custom_3",
-		"Custom_4",
-		"Custom_5",
-	};
-	*/
-}
 
 namespace {
 	// for UE4.19-4.22
@@ -190,17 +52,24 @@ namespace {
 
 FVrmAnimInstanceCopyProxy::FVrmAnimInstanceCopyProxy()
 {
-	if (SpringBoneNode.Get() == nullptr) {
-		SpringBoneNode = MakeShareable(new FAnimNode_VrmSpringBone());
+	if (Node_SpringBone.Get() == nullptr) {
+		Node_SpringBone = MakeShareable(new FAnimNode_VrmSpringBone());
+	}
+	if (Node_Constraint.Get() == nullptr) {
+		Node_Constraint = MakeShareable(new FAnimNode_VrmConstraint());
 	}
 }
 
 FVrmAnimInstanceCopyProxy::FVrmAnimInstanceCopyProxy(UAnimInstance* InAnimInstance)
 	: FAnimInstanceProxy(InAnimInstance)
 {
-	if (SpringBoneNode.Get() == nullptr) {
-		SpringBoneNode = MakeShareable(new FAnimNode_VrmSpringBone());
+	if (Node_SpringBone.Get() == nullptr) {
+		Node_SpringBone = MakeShareable(new FAnimNode_VrmSpringBone());
 	}
+	if (Node_Constraint.Get() == nullptr) {
+		Node_Constraint = MakeShareable(new FAnimNode_VrmConstraint());
+	}
+	
 }
 
 
@@ -257,10 +126,13 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 			return false;
 		}
 	}
+	if (VRMGetSkinnedAsset(srcAsSkinnedMeshComp) == nullptr) {
+		return false;
+	}
 
 	// ref pose
-	const auto &dstRefSkeletonTransform = VRMGetRefSkeleton(GetSkelMeshComponent()->SkeletalMesh).GetRefBonePose();
-	const auto &srcRefSkeletonTransform = VRMGetRefSkeleton(srcAsSkinnedMeshComp->SkeletalMesh).GetRefBonePose();
+	const auto &dstRefSkeletonTransform = VRMGetRefSkeleton( VRMGetSkinnedAsset(GetSkelMeshComponent()) ).GetRefBonePose();
+	const auto &srcRefSkeletonTransform = VRMGetRefSkeleton( VRMGetSkinnedAsset(srcAsSkinnedMeshComp) ).GetRefBonePose();
 
 	auto &pose = Output.Pose;
 
@@ -350,7 +222,7 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 				while (p != INDEX_NONE) {
 
 					HipHeight += dstRefSkeletonTransform[p].GetLocation().Z;
-					p = VRMGetRefSkeleton(GetSkelMeshComponent()->SkeletalMesh).GetParentIndex(p);
+					p = VRMGetRefSkeleton( VRMGetSkinnedAsset(GetSkelMeshComponent()) ).GetParentIndex(p);
 				}
 				//FVector diff = srcCurrentTrans.GetLocation() - srcRefTrans.GetLocation();
 				//FVector scale = dstRefTrans.GetLocation() / srcRefTrans.GetLocation();
@@ -418,8 +290,9 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 		pose[bi] = t;
 	}
 
-
-	if (bIgnoreVRMSwingBone == false) {
+	// constraint
+	if (bIgnoreVRMConstraint == false) {
+//	if (0){
 		bool bCalc = true;
 		{
 			bool bPlay, bSIE, bEditor;
@@ -431,22 +304,89 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 		}
 
 		if (bCalc) {
-			if (SpringBoneNode.Get() == nullptr) {
-				SpringBoneNode = MakeShareable(new FAnimNode_VrmSpringBone());
+			if (Node_Constraint.Get() == nullptr) {
+				Node_Constraint = MakeShareable(new FAnimNode_VrmConstraint());
 			}
 
-			if (SpringBoneNode.Get()) {
-				auto& springBone = *SpringBoneNode.Get();
+			if (Node_Constraint.Get()) {
+#if	UE_VERSION_OLDER_THAN(4,22,0)
+#else
+				if (animInstance->PendingDynamicResetTeleportType != ETeleportType::None)
+				{
+					Node_Constraint->ResetDynamics(animInstance->PendingDynamicResetTeleportType);
+				}
+#endif
+
+				auto& constraint = *Node_Constraint.Get();
+
+				constraint.VrmMetaObject = dstMeta;
+				constraint.bCallByAnimInstance = true;
+
+				FAnimationInitializeContext InitContext(this);
+
+				if (constraint.	bCallInitialized  == false) {
+					constraint.Initialize_AnyThread(InitContext);
+					constraint.ComponentPose.SetLinkNode(&constraint);
+				}
+
+				if (0) {
+					++CalcCount;
+					FComponentSpacePoseContext InputCSPose(this);
+					for (int i = 0; i < 20; ++i) {
+						InputCSPose.Pose.InitPose(Output.Pose);
+						constraint.EvaluateComponentSpace_AnyThread(InputCSPose);
+						ConvertToLocalPoses(InputCSPose.Pose, Output.Pose);
+					}
+				}
+				else {
+					FComponentSpacePoseContext InputCSPose(this);
+					InputCSPose.Pose.InitPose(Output.Pose);
+					constraint.EvaluateComponentSpace_AnyThread(InputCSPose);
+					ConvertToLocalPoses(InputCSPose.Pose, Output.Pose);
+				}
+
+			}
+		}
+	}
+	else {
+		Node_Constraint = nullptr;
+	}
+
+
+
+	if (bIgnoreVRMSwingBone == false) {
+	//if (0){
+		bool bCalc = true;
+		{
+			bool bPlay, bSIE, bEditor;
+			bPlay = bSIE = bEditor = true;
+			UVrmBPFunctionLibrary::VRMGetPlayMode(bPlay, bSIE, bEditor);
+			if (bPlay == false) {
+				bCalc = false;
+			}
+		}
+
+		if (bCalc) {
+			if (Node_SpringBone.Get() == nullptr) {
+				Node_SpringBone = MakeShareable(new FAnimNode_VrmSpringBone());
+			}
+
+			if (Node_SpringBone.Get()) {
+#if	UE_VERSION_OLDER_THAN(4,22,0)
+#else
+				if(animInstance->PendingDynamicResetTeleportType != ETeleportType::None)
+				{
+					Node_SpringBone->ResetDynamics(animInstance->PendingDynamicResetTeleportType);
+				}
+#endif
+
+				auto& springBone = *Node_SpringBone.Get();
 
 				springBone.VrmMetaObject = dstMeta;
 				springBone.bCallByAnimInstance = true;
 				springBone.CurrentDeltaTime = CurrentDeltaTime;
 
-				// Evaluate the child and convert
-				//FComponentSpacePoseContext InputCSPose(Output.AnimInstanceProxy);
-				//f.EvaluateSkeletalControl_AnyThread(
 				FAnimationInitializeContext InitContext(this);
-
 
 				if (springBone.IsSpringInit() == false) {
 					springBone.Initialize_AnyThread(InitContext);
@@ -475,7 +415,7 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 			}
 		}
 	} else {
-		SpringBoneNode = nullptr;
+		Node_SpringBone = nullptr;
 	}
 
 
@@ -529,6 +469,48 @@ void UVrmAnimInstanceCopy::NativeUninitializeAnimation() {
 	if (GetOwningComponent()) {
 		GetOwningComponent()->ClearMorphTargets();
 	}
+
+	if (!SrcSkeletalMeshComponent && bUseAttachedParent)
+	{
+		USkeletalMeshComponent* TargetMesh = GetOwningComponent();
+
+		// Walk up the attachment chain until we find a skeletal mesh component
+		USkeletalMeshComponent* ParentMeshComponent = nullptr;
+		for (USceneComponent* AttachParentComp = TargetMesh->GetAttachParent(); AttachParentComp != nullptr; AttachParentComp = AttachParentComp->GetAttachParent())
+		{
+			ParentMeshComponent = Cast<USkeletalMeshComponent>(AttachParentComp);
+			if (ParentMeshComponent)
+			{
+				break;
+			}
+		}
+		if (ParentMeshComponent == nullptr) {
+			AActor *targetActor = nullptr;
+			AActor *myActor = TargetMesh->GetOwner();
+			for (USceneComponent* AttachParentComp = TargetMesh->GetAttachParent(); AttachParentComp != nullptr; AttachParentComp = AttachParentComp->GetAttachParent()) {
+				targetActor = AttachParentComp->GetOwner();
+				if (targetActor != myActor) {
+					break;
+				}
+				targetActor = nullptr;
+			}
+			if (targetActor) {
+				TArray<USkeletalMeshComponent*> c;
+				targetActor->GetComponents<USkeletalMeshComponent>(c);
+				if (c.IsValidIndex(0)) {
+					ParentMeshComponent = c[0];
+				}
+			}
+		}
+
+		if (ParentMeshComponent)
+		{
+			SrcSkeletalMeshComponent = ParentMeshComponent;
+		}
+	}
+	if (SrcAsSkinnedMeshComponent == nullptr) {
+		SrcAsSkinnedMeshComponent = SrcSkeletalMeshComponent;
+	}
 }
 void UVrmAnimInstanceCopy::NativeBeginPlay() {
 	if (GetOwningComponent()) {
@@ -558,7 +540,7 @@ void UVrmAnimInstanceCopy::SetSkeletalMeshCopyDataForCustomSpring(UVrmMetaObject
 
 void UVrmAnimInstanceCopy::SetVrmSpringBoneParam(float gravityScale, FVector gravityAdd, float stiffnessScale, float stiffnessAdd, float randomWindRange) {
 	if (myProxy == nullptr) return;
-	auto a = myProxy->SpringBoneNode.Get();
+	auto a = myProxy->Node_SpringBone.Get();
 	if (a == nullptr) return;
 
 	a->gravityScale = gravityScale;
@@ -570,7 +552,7 @@ void UVrmAnimInstanceCopy::SetVrmSpringBoneParam(float gravityScale, FVector gra
 
 void UVrmAnimInstanceCopy::SetVrmSpringBoneBool(bool bIgnoreVrmSpringBone, bool bIgnorePhysicsCollision, bool bIgnoreVRMCollision, bool bIgnoreWind) {
 	if (myProxy == nullptr) return;
-	auto a = myProxy->SpringBoneNode.Get();
+	auto a = myProxy->Node_SpringBone.Get();
 	if (a == nullptr) return;
 
 	this->bIgnoreVRMSwingBone = bIgnoreVrmSpringBone;
@@ -582,7 +564,7 @@ void UVrmAnimInstanceCopy::SetVrmSpringBoneBool(bool bIgnoreVrmSpringBone, bool 
 
 void UVrmAnimInstanceCopy::SetVrmSpringBoneIgnoreWingBone(const TArray<FName> &boneNameList) {
 	if (myProxy == nullptr) return;
-	auto a = myProxy->SpringBoneNode.Get();
+	auto a = myProxy->Node_SpringBone.Get();
 	if (a == nullptr) return;
 
 	a->NoWindBoneNameList = boneNameList;

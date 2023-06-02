@@ -3,7 +3,11 @@
 #include "VRM4UImporterFactory.h"
 #include "VRM4UImporterLog.h"
 #include "AssetToolsModule.h"
+#if	ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION < 26
 #include "AssetRegistryModule.h"
+#else
+#include "AssetRegistry/AssetRegistryModule.h"
+#endif
 #include "PackageTools.h"
 #include "Misc/Paths.h"
 #include "Engine/SkeletalMesh.h"

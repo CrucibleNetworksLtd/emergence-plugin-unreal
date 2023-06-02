@@ -210,7 +210,7 @@ void FAnimNode_VrmCopyHandBone::EvaluateSkeletalControl_AnyThread(FComponentSpac
 			}
 
 			const auto &dstRefSkeletonTransform = dstRefSkeleton.GetRefBonePose();
-			const auto &srcRefSkeletonTransform = VRMGetRefSkeleton(SkeletalMeshComponent->SkeletalMesh).GetRefBonePose();
+			const auto &srcRefSkeletonTransform = VRMGetRefSkeleton( VRMGetSkinnedAsset(SkeletalMeshComponent) ).GetRefBonePose();
 
 			const auto srcIndex = SkeletalMeshComponent->GetBoneIndex(*BoneNameLeap);
 			const auto dstIndex = dstRefSkeleton.FindBoneIndex(*BoneNameModel);
