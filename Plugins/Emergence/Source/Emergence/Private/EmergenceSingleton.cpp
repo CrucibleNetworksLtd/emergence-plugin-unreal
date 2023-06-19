@@ -23,6 +23,9 @@
 
 #include "EmergenceChainObject.h"
 
+#include "Engine/GameViewportClient.h"
+#include "TextureResource.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
