@@ -75,4 +75,7 @@ public:
     //Shows a message on the inventory to inform the user that the inventory they are view is not theirs
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Meta = (ExposeOnSpawn = true), Category = "Emergence Internal|Inventory Service|UI")
     bool ShowExternalInventoryMessage = false;
+
+    UFUNCTION(BlueprintPure, Category = "Emergence Internal|UI")
+    TArray<FString> GetCollectionWhitelist();
 };
