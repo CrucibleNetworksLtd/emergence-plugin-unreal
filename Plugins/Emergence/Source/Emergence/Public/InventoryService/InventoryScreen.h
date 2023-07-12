@@ -52,7 +52,7 @@ struct FEmergenceInventoryFilterSet
 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "UseBlockchain"), Category = "Emergence|Inventory Service|Filtering")
-    EEmergenceInventoryBlockchain Blockchain;
+    EEmergenceInventoryBlockchain Blockchain = EEmergenceInventoryBlockchain::Any;
 
 };
 
