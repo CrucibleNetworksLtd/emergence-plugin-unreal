@@ -19,7 +19,8 @@
 	"SupportedTargetPlatforms": [
 		"Win64",
 		"Win32",
-		"Mac"
+		"Mac",
+		"Android"
 	],
 	"Modules": [
 		{
@@ -29,7 +30,8 @@
 			"WhitelistPlatforms": [
 				"Win64",
 				"Win32",
-				"Mac"
+				"Mac",
+				"Android"
 			]
 		},
 		{
@@ -55,7 +57,12 @@
 		{
 			"Name": "EmergenceEmailForm",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32",
+				"Mac"
+			]
 		}
 	]
 }
