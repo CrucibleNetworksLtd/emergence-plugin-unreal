@@ -31,6 +31,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnInventoryByOwnerCompleted OnInventoryByOwnerCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void InventoryByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString Address, Network;

@@ -78,4 +78,19 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Emergence Internal|UI")
     TArray<FString> GetCollectionWhitelist();
+
+    UPROPERTY()
+    UInventoryByOwner* InventoryByOwnerRequest;
+
+    UFUNCTION()
+    void OnGetInventoryAndAvatarsComplete_Internal(FEmergenceInventory Inventory, EErrorCode StatusCode);
+    
+    UFUNCTION(BlueprintCallable, Category = "Emergence Internal|UI")
+    void GetInventoryAndAvatars();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Emergence Internal|UI")
+    void OnGetInventoryAndAvatarsComplete(const TArray<FEmergenceCombinedInventoryItem>& Inventory, EErrorCode StatusCode);
+
+    virtual void RemoveFromParent() override;
+
 };
