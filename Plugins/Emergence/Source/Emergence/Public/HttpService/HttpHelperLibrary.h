@@ -120,7 +120,8 @@ public:
 		}
 
 		if (DevelopmentEnvironmentString == "Production") {
-			return "7vz9y7rdpy.us-east-1.awsapprunner.com";
+//			return "7vz9y7rdpy.us-east-1.awsapprunner.com";
+			return "dysaw5zhak.us-east-1.awsapprunner.com"; //@hack, only staging is used right now
 		}
 
 		return "dysaw5zhak.us-east-1.awsapprunner.com";
