@@ -36,6 +36,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTextureFromUrlCompleted OnGetTextureFromUrlCompleted;
 
+	FHttpRequestPtr GetDataRequest;
+	FHttpRequestPtr ConvertGifRequest;
+
 private:
 	void GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

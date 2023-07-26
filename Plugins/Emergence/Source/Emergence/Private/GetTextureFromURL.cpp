@@ -22,7 +22,7 @@ void UGetTextureFromUrl::Activate()
 		}
 	}
 
-	UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete, this->Url);
+	GetDataRequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete, this->Url);
 	if (AllowCacheUsage) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started (%s), didn't find it in the cache, calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
 	}
@@ -49,8 +49,8 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 			TArray<TPair<FString, FString>> Headers;
 			Headers.Add(TPair<FString, FString>("Content-Type", "multipart/form-data; boundary=EmergenceBoundary"));
 			Headers.Add(TPair<FString, FString>("accept", "*/*"));
-			FHttpRequestRef Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete, UHttpHelperLibrary::APIBase + "gifTojpeg", "POST", 60.0F, Headers, "", false);
-			
+			ConvertGifRequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetTextureFromUrl>(this, &UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete, UHttpHelperLibrary::APIBase + "gifTojpeg", "POST", 60.0F, Headers, "", false);
+
 			FString a = "\r\n--EmergenceBoundary\r\n";
 			FString b = "Content-Disposition: form-data; name=\"file\";  filename=\"gif.gif\"\r\n";
 
@@ -66,8 +66,8 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 			data.Append(ResponceBytes);
 			data.Append((uint8*)TCHAR_TO_UTF8(*e), e.Len());
 
-			Request->SetContent(data);
-			Request->ProcessRequest();
+			ConvertGifRequest->SetContent(data);
+			ConvertGifRequest->ProcessRequest();
 			return; //don't continue, we'll handle all the conversions once ConvertGIFtoPNG_HttpRequestComplete returns
 #else
 			return;
