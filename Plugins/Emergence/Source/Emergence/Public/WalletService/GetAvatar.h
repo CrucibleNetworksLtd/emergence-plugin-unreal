@@ -28,6 +28,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAvatarCompleted OnGetAvatarCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

@@ -30,6 +30,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnRequestToSignCompleted OnRequestToSignCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

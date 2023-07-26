@@ -32,6 +32,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnValidateSignedMessageCompleted OnValidateSignedMessageCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void ValidateSignedMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

@@ -147,6 +147,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByOwnerCompleted OnAvatarByOwnerCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

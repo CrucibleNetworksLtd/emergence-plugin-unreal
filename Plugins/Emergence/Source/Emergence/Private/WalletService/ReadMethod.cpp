@@ -47,6 +47,7 @@ void UReadMethod::Activate()
 	//if this contract has never had its ABI loaded...
 	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
 		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
+		LoadContractRequest = LoadContract->Request;
 		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UReadMethod::LoadContractCompleted);
 		LoadContract->Activate();
 		return;
@@ -65,7 +66,7 @@ void UReadMethod::Activate()
 	}
 	ContentString.Append("]");
 
-	UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
+	ReadMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UReadMethod>(
 		this, 
 		&UReadMethod::ReadMethod_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "readMethod?contractAddress=" + DeployedContract->Address + "&network=" + DeployedContract->Blockchain->Name.ToString().Replace(TEXT(" "), TEXT("")) + "&methodName=" + MethodName.MethodName + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL,

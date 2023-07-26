@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnReadMethodCompleted OnReadMethodCompleted;
+
+	FHttpRequestPtr LoadContractRequest;
+	FHttpRequestPtr ReadMethodRequest;
 private:
 	void ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

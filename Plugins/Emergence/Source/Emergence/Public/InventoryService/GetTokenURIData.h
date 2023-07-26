@@ -25,6 +25,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTokenURIDataCompleted OnGetTokenURIDataCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetTokenURIData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString TokenURI;

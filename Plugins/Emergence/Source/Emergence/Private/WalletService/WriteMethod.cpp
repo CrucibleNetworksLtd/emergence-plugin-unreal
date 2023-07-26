@@ -58,6 +58,7 @@ void UWriteMethod::Activate()
 	//if this contract has never had its ABI loaded...
 	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
 		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
+		LoadContractRequest = LoadContract->Request;
 		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
 		LoadContract->Activate();
 		return;
@@ -93,6 +94,7 @@ void UWriteMethod::Activate()
 			300.0F, //give the user lots of time to mess around setting high gas fees
 			SwitchChainHeaders,
 			SwitchChainContentString, false);
+		SwitchChainRequest = Request;
 		Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 			EErrorCode StatusCode;
 			FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
@@ -141,7 +143,7 @@ void UWriteMethod::CallWriteMethod()
 		GasString = "&gasPrice=" + GasPrice;
 	}
 
-	UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
+	WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
 		this,
 		&UWriteMethod::WriteMethod_HttpRequestComplete,
 		UHttpHelperLibrary::APIBase + "writeMethod?contractAddress=" + DeployedContract->Address + "&nodeUrl=" + DeployedContract->Blockchain->NodeURL + "&network=" + DeployedContract->Blockchain->Name.ToString().Replace(TEXT(" "), TEXT("")) + "&methodName=" + MethodName.MethodName + "&value=" + Value + (LocalAccountName != "" ? "&localAccountName=" + LocalAccountName : "") + GasString,

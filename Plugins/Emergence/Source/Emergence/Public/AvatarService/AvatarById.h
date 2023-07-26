@@ -33,6 +33,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void AvatarById_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

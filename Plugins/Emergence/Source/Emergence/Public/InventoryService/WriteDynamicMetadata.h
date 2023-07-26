@@ -35,6 +35,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWriteDynamicMetadataCompleted OnWriteDynamicMetadataCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void WriteDynamicMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString AuthorizationHeader, Network, Contract, TokenID, Metadata;

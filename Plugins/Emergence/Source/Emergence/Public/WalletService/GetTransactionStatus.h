@@ -30,6 +30,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetTransactionStatusCompleted OnGetTransactionStatusCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetTransactionStatus_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

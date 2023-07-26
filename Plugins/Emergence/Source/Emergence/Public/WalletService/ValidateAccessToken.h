@@ -30,6 +30,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnValidateAccessTokenCompleted OnValidateAccessTokenCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void ValidateAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

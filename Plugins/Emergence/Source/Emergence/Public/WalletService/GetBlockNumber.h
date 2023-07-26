@@ -29,6 +29,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetBlockNumberCompleted OnGetBlockNumberCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

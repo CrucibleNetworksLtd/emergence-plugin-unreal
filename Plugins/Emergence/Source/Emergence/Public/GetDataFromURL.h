@@ -34,6 +34,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGetDataFromUrlCompleted OnGetDataFromUrlCompleted;
 
+	FHttpRequestPtr Request;
 private:
 	void GetDataFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

@@ -31,6 +31,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCreateWalletAndKeyStoreFileCompleted OnCreateWalletAndKeyStoreFileCompleted;
 
+	FHttpRequestPtr Request;
 private:
 	FString Path;
 	FString Password;

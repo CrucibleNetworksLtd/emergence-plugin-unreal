@@ -32,6 +32,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetDynamicMetadataCompleted OnGetDynamicMetadataCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetDynamicMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString Network, Contract, TokenID;

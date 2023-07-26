@@ -36,6 +36,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLoadAccountFromKeyStoreFileCompleted OnLoadAccountFromKeyStoreFileCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void LoadAccountFromKeyStoreFile_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

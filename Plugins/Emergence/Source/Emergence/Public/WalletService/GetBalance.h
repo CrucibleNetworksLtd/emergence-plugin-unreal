@@ -29,6 +29,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetBalanceCompleted OnGetBalanceCompleted;
+
+	FHttpRequestPtr Request;
 private:
 	void GetBalance_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	FString Address;

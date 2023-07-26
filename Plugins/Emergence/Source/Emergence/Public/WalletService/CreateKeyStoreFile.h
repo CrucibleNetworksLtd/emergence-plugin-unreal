@@ -33,6 +33,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCreateKeyStoreFileCompleted OnCreateKeyStoreFileCompleted;
 
+	FHttpRequestPtr Request;
 private:
 	FString PrivateKey;
 	FString Password;

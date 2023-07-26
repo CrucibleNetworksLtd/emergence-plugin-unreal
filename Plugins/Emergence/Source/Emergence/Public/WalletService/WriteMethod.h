@@ -47,6 +47,10 @@ public:
 
 	UFUNCTION()
 	void CallWriteMethod();
+
+	FHttpRequestPtr LoadContractRequest;
+	FHttpRequestPtr SwitchChainRequest;
+	FHttpRequestPtr WriteMethodRequest;
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	
