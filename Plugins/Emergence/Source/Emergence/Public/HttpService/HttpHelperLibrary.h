@@ -164,15 +164,17 @@ public:
 
 		if (GEngine && static_cast<UObject*>(FunctionBindObject)) {
 			UObject* WorldContextObject = static_cast<UObject*>(FunctionBindObject);
-			UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull);
-			if (
-				World && //get the world
-				World->GetGameInstance()) { //if we actually got a world, get the game instance
-				UEmergenceEVMServerSubsystem* EmergenceSubsystem = World->GetGameInstance()->GetSubsystem<UEmergenceEVMServerSubsystem>();
-				if (EmergenceSubsystem) {
-					EmergenceSubsystem->ActiveRequests.Add(HttpRequest);
-				}
-			};
+			if (WorldContextObject) {
+				UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull);
+				if (
+					World && //get the world
+					World->GetGameInstance()) { //if we actually got a world, get the game instance
+					UEmergenceEVMServerSubsystem* EmergenceSubsystem = World->GetGameInstance()->GetSubsystem<UEmergenceEVMServerSubsystem>();
+					if (EmergenceSubsystem) {
+						EmergenceSubsystem->ActiveRequests.Add(HttpRequest);
+					}
+				};
+			}
 		}
 
 		if (FunctionBindFunction && FunctionBindObject) {

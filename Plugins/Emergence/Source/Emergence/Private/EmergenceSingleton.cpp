@@ -93,6 +93,15 @@ void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
 	this->OwnedAvatarNFTCached = false;
 }
 
+const bool UEmergenceSingleton::IsMarketplaceBuild()
+{
+#if UNREAL_MARKETPLACE_BUILD
+	return true;
+#else
+	return false;
+#endif
+}
+
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::Denied) {

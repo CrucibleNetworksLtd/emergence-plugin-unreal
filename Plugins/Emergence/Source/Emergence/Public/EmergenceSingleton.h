@@ -81,6 +81,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
 	bool OwnedAvatarNFTCached = false;
 
+	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
+	const bool IsMarketplaceBuild();
+
 	//HTTPService Functions
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetAccessTokenRequest, GetHandshakeRequest;
