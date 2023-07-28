@@ -18,6 +18,9 @@ void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 	}
 	ULocalEmergenceServer::LaunchLocalServerProcess(LaunchHidden);
 #endif
+
+	FHttpModule::Get().SetMaxReadBufferSize(524288); //libcurl maximum allowed value
+	FHttpModule::Get().SetHttpThreadActiveFrameTimeInSeconds(1.0f / 100000.f);
 }
 
 void UEmergenceEVMServerSubsystem::Deinitialize() {
