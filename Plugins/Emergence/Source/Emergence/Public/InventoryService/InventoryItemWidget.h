@@ -15,13 +15,13 @@ class EMERGENCE_API UInventoryItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, Category="Emergence Internal|Inventory Item Widget")
 	void OnGetTextureFromURLCompleted(UTexture2D* Texture, EErrorCode StatusCode);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Inventory Item Widget")
 	void GetTextureFromURL(FString URL);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Inventory Item Widget")
 	void StopConnections();
 
 private:
