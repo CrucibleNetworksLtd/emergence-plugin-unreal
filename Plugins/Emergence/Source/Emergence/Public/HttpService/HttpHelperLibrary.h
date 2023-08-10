@@ -128,8 +128,9 @@ public:
 	}
 
 	inline static FString InternalIPFSURLToHTTP(FString IPFSURL) {
-		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://"))) {
-			UE_LOG(LogEmergenceHttp, Display, TEXT("Found IPFS URL, replacing with public node..."));
+
+		if (IPFSURL.Contains(TEXT("ipfs://")) || IPFSURL.Contains(TEXT("IPFS://")) || IPFSURL.Contains(TEXT("https://cloudflare-ipfs.com/ipfs/"))) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Found %s URL, replacing with public node..."), IPFSURL.Contains(TEXT("https://cloudflare-ipfs.com/ipfs/")) ? TEXT("Cloudflare-IPFS") : TEXT("IPFS"));
 
 			FString IPFSNode = TEXT("http://ipfs.openmeta.xyz/ipfs/");
 			FString CustomIPFSNode = "";
@@ -140,7 +141,9 @@ public:
 					IPFSNode = CustomIPFSNode;
 				}
 			}
-			FString NewURL = IPFSURL.Replace(TEXT("ipfs://"), *IPFSNode);
+			FString NewURL = IPFSURL.Replace(TEXT("ipfs://"), *IPFSNode)
+				.Replace(TEXT("IPFS://"), *IPFSNode)
+				.Replace(TEXT("https://cloudflare-ipfs.com/ipfs/"), *IPFSNode);
 			UE_LOG(LogEmergenceHttp, Display, TEXT("New URL is \"%s\""), *NewURL);
 			return NewURL;
 		}
