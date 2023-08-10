@@ -27,7 +27,7 @@ void UGetTextureFromUrl::Activate()
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started (%s), didn't find it in the cache, calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
 	}
 	else {
-		UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started (%s), calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started (%s), not using cache, calling GetTextureFromUrl_HttpRequestComplete on request completed"), *this->Url);
 	}
 }
 
