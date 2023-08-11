@@ -12,20 +12,6 @@ void UInventoryItemWidget::GetTextureFromURL(FString URL) {
 void UInventoryItemWidget::StopConnections()
 {
 	if (GetTextureFromUrlRequest) {
-		GetTextureFromUrlRequest->OnGetTextureFromUrlCompleted.Clear();
-		if (GetTextureFromUrlRequest->GetDataRequest) {
-			if (GetTextureFromUrlRequest->GetDataRequest->GetStatus() == EHttpRequestStatus::Processing) {
-				UE_LOG(LogEmergenceHttp, Warning, TEXT("Cancelled GetTextureFromURL data request within InventoryItemWidget."))
-					GetTextureFromUrlRequest->GetDataRequest->OnProcessRequestComplete().Unbind();
-				GetTextureFromUrlRequest->GetDataRequest->CancelRequest();
-			}
-		}
-		if (GetTextureFromUrlRequest->ConvertGifRequest) {
-			if (GetTextureFromUrlRequest->ConvertGifRequest->GetStatus() == EHttpRequestStatus::Processing) {
-				UE_LOG(LogEmergenceHttp, Warning, TEXT("Cancelled GetTextureFromURL gif conversion request within InventoryItemWidget."))
-					GetTextureFromUrlRequest->ConvertGifRequest->OnProcessRequestComplete().Unbind();
-				GetTextureFromUrlRequest->ConvertGifRequest->CancelRequest();
-			}
-		}
+		GetTextureFromUrlRequest->Cancel();
 	}
 }

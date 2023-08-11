@@ -163,3 +163,15 @@ void UGetTextureFromUrl::WaitOneFrame()
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetTextureFromUrl request started (%s), found it in cache, returning"), *this->Url);
 	Timer.Invalidate();
 }
+
+bool UGetTextureFromUrl::IsActive() const
+{
+	return GetDataRequest->GetStatus() == EHttpRequestStatus::Processing || ConvertGifRequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
+void UGetTextureFromUrl::Cancel() {
+	GetDataRequest->OnProcessRequestComplete().Unbind();
+	ConvertGifRequest->OnProcessRequestComplete().Unbind();
+	GetDataRequest->CancelRequest();
+	ConvertGifRequest->CancelRequest();
+}

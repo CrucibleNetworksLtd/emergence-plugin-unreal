@@ -31,6 +31,20 @@ void UReadMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode)
 	}
 }
 
+void UReadMethod::Cancel()
+{
+	LoadContractRequest->OnProcessRequestComplete().Unbind();
+	ReadMethodRequest->OnProcessRequestComplete().Unbind();
+	LoadContractRequest->CancelRequest();
+	ReadMethodRequest->CancelRequest();
+}
+
+bool UReadMethod::IsActive() const
+{
+	return LoadContractRequest->GetStatus() == EHttpRequestStatus::Processing || 
+		ReadMethodRequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
 void UReadMethod::Activate()
 {
 	if (!DeployedContract) {

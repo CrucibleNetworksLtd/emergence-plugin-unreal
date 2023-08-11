@@ -2,6 +2,7 @@
 
 
 #include "EmergenceAsyncActionBase.h"
+#include "..\Public\EmergenceAsyncActionBase.h"
 
 UWorld* UEmergenceAsyncActionBase::GetWorld() const
 {

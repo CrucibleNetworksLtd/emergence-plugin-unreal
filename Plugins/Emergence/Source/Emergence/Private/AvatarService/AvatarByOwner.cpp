@@ -65,8 +65,8 @@ void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpReque
 
 void UAvatarByOwner::GetMetadata_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	auto ThisRequest = Requests.FindByPredicate([HttpRequest](TPair<FHttpRequestRef, FEmergenceAvatarResult> Request) {
-		return Request.Key.Get().GetURL() == HttpRequest.Get()->GetURL();
+	auto ThisRequest = Requests.FindByPredicate([HttpRequest](TPair<FHttpRequestRef, FEmergenceAvatarResult> RequestToFind) {
+		return RequestToFind.Key.Get().GetURL() == HttpRequest.Get()->GetURL();
 	});
 
 	FJsonObjectConverter::JsonArrayStringToUStruct<FEmergenceAvatarMetadata>(*HttpResponse->GetContentAsString(), &ThisRequest->Value.Avatars, 0, 0);

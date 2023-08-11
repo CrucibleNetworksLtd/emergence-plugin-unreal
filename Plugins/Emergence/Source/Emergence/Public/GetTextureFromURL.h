@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncActionBase.h"
+#include "EmergenceCancelableAsyncBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
@@ -12,7 +12,7 @@
 /**
  */
 UCLASS()
-class EMERGENCE_API UGetTextureFromUrl : public UEmergenceAsyncActionBase
+class EMERGENCE_API UGetTextureFromUrl : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:
@@ -28,6 +28,10 @@ public:
 		BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 		return BlueprintNode;
 	}
+
+	virtual void Cancel();
+
+	virtual bool IsActive() const;
 
 	virtual void Activate() override;
 

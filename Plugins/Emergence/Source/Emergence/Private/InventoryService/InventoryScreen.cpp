@@ -37,13 +37,6 @@ void UInventoryScreen::RemoveFromParent()
 {
 	Super::RemoveFromParent();
 	if (InventoryByOwnerRequest) {
-		InventoryByOwnerRequest->OnInventoryByOwnerCompleted.Clear();
-		if (InventoryByOwnerRequest->Request) {
-			if (InventoryByOwnerRequest->Request->GetStatus() == EHttpRequestStatus::Processing) {
-				UE_LOG(LogEmergenceHttp, Warning, TEXT("Cancelled InventoryByOwner request."))
-					InventoryByOwnerRequest->Request->OnProcessRequestComplete().Unbind();
-				InventoryByOwnerRequest->Request->CancelRequest();
-			}
-		}
+		InventoryByOwnerRequest->Cancel();
 	}
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncActionBase.h"
+#include "EmergenceAsyncSingleRequestBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
@@ -130,7 +130,7 @@ struct FEmergenceAvatarResult
 };
 
 UCLASS()
-class EMERGENCE_API UAvatarByOwner : public UEmergenceAsyncActionBase
+class EMERGENCE_API UAvatarByOwner : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
@@ -147,8 +147,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByOwnerCompleted OnAvatarByOwnerCompleted;
-
-	FHttpRequestPtr Request;
 private:
 	void AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

@@ -155,6 +155,23 @@ void UWriteMethod::CallWriteMethod()
 	UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *ContentString);
 }
 
+void UWriteMethod::Cancel()
+{
+	LoadContractRequest->OnProcessRequestComplete().Unbind();
+	SwitchChainRequest->OnProcessRequestComplete().Unbind();
+	WriteMethodRequest->OnProcessRequestComplete().Unbind();
+	LoadContractRequest->CancelRequest();
+	SwitchChainRequest->CancelRequest();
+	WriteMethodRequest->CancelRequest();
+}
+
+bool UWriteMethod::IsActive() const
+{
+	return LoadContractRequest->GetStatus() == EHttpRequestStatus::Processing ||
+		SwitchChainRequest->GetStatus() == EHttpRequestStatus::Processing ||
+		WriteMethodRequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
