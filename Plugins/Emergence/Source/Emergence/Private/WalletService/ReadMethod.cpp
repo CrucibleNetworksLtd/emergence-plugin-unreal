@@ -33,10 +33,14 @@ void UReadMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode)
 
 void UReadMethod::Cancel()
 {
-	LoadContractRequest->OnProcessRequestComplete().Unbind();
-	ReadMethodRequest->OnProcessRequestComplete().Unbind();
-	LoadContractRequest->CancelRequest();
-	ReadMethodRequest->CancelRequest();
+	if (LoadContractRequest) {
+		LoadContractRequest->OnProcessRequestComplete().Unbind();
+		LoadContractRequest->CancelRequest();
+	}
+	if (ReadMethodRequest) {
+		ReadMethodRequest->OnProcessRequestComplete().Unbind();
+		ReadMethodRequest->CancelRequest();
+	}
 }
 
 bool UReadMethod::IsActive() const

@@ -9,8 +9,10 @@ bool UEmergenceAsyncSingleRequestBase::IsActive() const
 }
 
 void UEmergenceAsyncSingleRequestBase::Cancel() {
-	Request->OnProcessRequestComplete().Unbind();
-	Request->CancelRequest();
+	if (Request) {
+		Request->OnProcessRequestComplete().Unbind();
+		Request->CancelRequest();
+	}
 	IsCancelled = true;
 }
 

@@ -170,8 +170,12 @@ bool UGetTextureFromUrl::IsActive() const
 }
 
 void UGetTextureFromUrl::Cancel() {
-	GetDataRequest->OnProcessRequestComplete().Unbind();
-	ConvertGifRequest->OnProcessRequestComplete().Unbind();
-	GetDataRequest->CancelRequest();
-	ConvertGifRequest->CancelRequest();
+	if (GetDataRequest) {
+		GetDataRequest->OnProcessRequestComplete().Unbind();
+		GetDataRequest->CancelRequest();
+	}
+	if (ConvertGifRequest) {
+		ConvertGifRequest->OnProcessRequestComplete().Unbind();
+		ConvertGifRequest->CancelRequest();
+	}
 }

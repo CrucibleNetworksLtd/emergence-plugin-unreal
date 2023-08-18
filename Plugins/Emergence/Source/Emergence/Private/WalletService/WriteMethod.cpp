@@ -157,12 +157,18 @@ void UWriteMethod::CallWriteMethod()
 
 void UWriteMethod::Cancel()
 {
-	LoadContractRequest->OnProcessRequestComplete().Unbind();
-	SwitchChainRequest->OnProcessRequestComplete().Unbind();
-	WriteMethodRequest->OnProcessRequestComplete().Unbind();
-	LoadContractRequest->CancelRequest();
-	SwitchChainRequest->CancelRequest();
-	WriteMethodRequest->CancelRequest();
+	if (LoadContractRequest) {
+		LoadContractRequest->OnProcessRequestComplete().Unbind();
+		LoadContractRequest->CancelRequest();
+	}
+	if (SwitchChainRequest) {
+		SwitchChainRequest->OnProcessRequestComplete().Unbind();
+		SwitchChainRequest->CancelRequest();
+	}
+	if (WriteMethodRequest) {
+		WriteMethodRequest->OnProcessRequestComplete().Unbind();
+		WriteMethodRequest->CancelRequest();
+	}
 }
 
 bool UWriteMethod::IsActive() const
