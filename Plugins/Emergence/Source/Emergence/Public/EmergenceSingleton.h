@@ -218,6 +218,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
+	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect requiring stuff).
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Debug Commands")
+	void ForceLoginViaAccessToken(FString AccessToken);
+
+	//this is used by ForceLoginViaAccessToken to override the returned value of IsConnected to true, if enabled
+	UPROPERTY()
+	bool ForceIsConnected = false;
+
 	UFUNCTION()
 	void OnOverlayClosed();
 
