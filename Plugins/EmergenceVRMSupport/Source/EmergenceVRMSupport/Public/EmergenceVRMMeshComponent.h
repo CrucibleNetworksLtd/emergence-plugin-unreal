@@ -24,7 +24,7 @@ public:
 	 * @param MaterialType Defaults to MToonUnlit. Usually should be used with "MaterialTypeFromString" method to convert the "Material Type" information from AvatarByID or AvatarByOwner.
 	 */
 	UFUNCTION(BlueprintCallable)
-	void ActivateVRMMeshFromData(const TArray<uint8>& Data, const EVRMImportMaterialType MaterialType = EVRMImportMaterialType::VRMIMT_MToonUnlit);
+	void ActivateVRMMeshFromData(const TArray<uint8>& Data, const EVRMImportMaterialType MaterialType = EVRMImportMaterialType::VRMIMT_MToonUnlit, UMaterial* MaterialOverride = nullptr);
 	
 	UFUNCTION(BlueprintPure)
 	static const EVRMImportMaterialType MaterialTypeFromString(const FString MaterialString);
@@ -34,6 +34,12 @@ public:
 
 	UPROPERTY()
 	UVrmAssetListObject* VrmAssetListObject;
+
+	UPROPERTY()
+	UMaterial* VrmMToonBaseOpaque;
+
+	UPROPERTY()
+	UVrmImportMaterialSet* VrmImportMaterialSet;
 
 	UPROPERTY()
 	UVrmAssetListObject* OutVrmAsset;

@@ -19,7 +19,7 @@ UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
 	VRoidSimpleAssetList = VRoidSimpleAssetListBP.Object;
 }
 
-void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Data, const EVRMImportMaterialType MaterialType) {
+void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Data, const EVRMImportMaterialType MaterialType, UMaterial* MaterialOverride) {
 	if (!VrmAssetListObjectBPClass) {
 		UE_LOG(LogTemp, Error, TEXT("Couldn't find /VRM4U/VrmAssetListObjectBP.VrmAssetListObjectBP"));
 		return;
@@ -43,6 +43,16 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 	LatentInfo.Linkage = 1;
 
 	OptionForRuntimeLoad.MaterialType = MaterialType;
+
+	if (MaterialOverride) {
+		VrmImportMaterialSet = NewObject<UVrmImportMaterialSet>();
+		VrmImportMaterialSet->Opaque = MaterialOverride;
+		VrmImportMaterialSet->OpaqueTwoSided = MaterialOverride;
+		VrmImportMaterialSet->Translucent = MaterialOverride;
+		VrmImportMaterialSet->TranslucentTwoSided = MaterialOverride;
+		VrmAssetListObject->MtoonUnlitSet = VrmImportMaterialSet;
+		OptionForRuntimeLoad.MaterialType = EVRMImportMaterialType::VRMIMT_MToonUnlit;
+	}
 
 	ULoaderBPFunctionLibrary::LoadVRMFromMemoryAsync(this->GetOwner(), VrmAssetListObject, OutVrmAsset, Data, OptionForRuntimeLoad, LatentInfo);
 }
