@@ -61,5 +61,13 @@ public:
 	//For Crucible use only! Shows the EVM server output window.
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Launch EVM server hidden"))
 	bool LaunchServerHidden = true;
-	
+
+
+	//If false, libcurl will be prevented from reusing connections. This can speed up requests on some systems.
+	UPROPERTY(config, EditAnywhere, Category = "libCurl", meta = (DisplayName = "Allow LibCurl Connection Reuse", EditCondition = "EngineHasConnectionReuseConfig", EditConditionHides))
+	bool AllowLibcurlConnectionReuse = false;
+
+
+	UPROPERTY()
+	bool EngineHasConnectionReuseConfig = true;
 };
