@@ -63,8 +63,8 @@ public:
 	bool LaunchServerHidden = true;
 
 
-	//If false, libcurl will be prevented from reusing connections. This can speed up requests on some systems.
-	UPROPERTY(config, EditAnywhere, Category = "libCurl", meta = (DisplayName = "Allow LibCurl Connection Reuse", EditCondition = "EngineHasConnectionReuseConfig", EditConditionHides))
+	//If false, libcurl will be prevented from reusing connections. This can speed up requests on some systems. If you toggle this, you may have to restart the editor for it to fully have an effect.
+	UPROPERTY(config, EditAnywhere, Category = "libCurl", meta = (DisplayName = "Allow LibCurl Connection Reuse", EditCondition = "EngineHasConnectionReuseConfig", EditConditionHides, HideEditConditionToggle))
 	bool AllowLibcurlConnectionReuse = false;
 
 
