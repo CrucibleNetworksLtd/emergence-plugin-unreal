@@ -11,6 +11,11 @@
 #include "Serialization/JsonSerializer.h"
 #include "Dom/JsonValue.h"
 #include "Serialization/JsonTypes.h"
+#include "JsonObjectWrapper.h"
+#include "K2Node_CallFunction.h"
+#include "WalletService/EmergenceJSONHelpers.h"
+#include "KismetCompiler.h"
+#include "K2Node_GetArrayItem.h"
 
 FText UMyK2Node::GetNodeTitle(ENodeTitleType::Type TitleType) const {
 	return FText::FromString("Test");
@@ -36,8 +41,9 @@ void UMyK2Node::AllocateDefaultPins()
 	PinParams.bIsReference = false;
 	ContractPin = CreatePin(EEdGraphPinDirection::EGPD_Input, UEdGraphSchema_K2::PC_Object, UEmergenceDeployment::StaticClass(), "Deployment", PinParams);
 	ContractPin->bNotConnectable = true;
-	MethodPin = CreatePin(EEdGraphPinDirection::EGPD_Input, UEdGraphSchema_K2::PC_Struct, FEmergenceContractMethod::StaticStruct(), "Method Name");
+	MethodPin = CreatePin(EEdGraphPinDirection::EGPD_Input, UEdGraphSchema_K2::PC_Struct, FEmergenceContractMethod::StaticStruct(), "MethodName");
 	MethodPin->bNotConnectable = true;
+	DataPin = CreatePin(EEdGraphPinDirection::EGPD_Input, UEdGraphSchema_K2::PC_Struct, FJsonObjectWrapper::StaticStruct(), "ReadMethodResponse");
 
 	for (int i = 0; i < MethodReturnTypeMap.Num(); i++) {
 		FName OutputName = MethodReturnTypeMap[i].Key;
@@ -84,15 +90,15 @@ FName UMyK2Node::ContractTypeToUnrealPinType(FString ContractType)
 		return UEdGraphSchema_K2::PC_Boolean;
 	}
 	if (ContractType == "bytes4") {
-		return UEdGraphSchema_K2::PC_Byte;
-	}
-	if (ContractType == "uint256") {
 		return UEdGraphSchema_K2::PC_Int;
 	}
-	if (ContractType == "uint128") {
+	if (ContractType == "int16") {
 		return UEdGraphSchema_K2::PC_Int;
 	}
-	if (ContractType == "int256") {
+	if (ContractType == "uint16") {
+		return UEdGraphSchema_K2::PC_Int;
+	}
+	if (ContractType == "int32") {
 		return UEdGraphSchema_K2::PC_Int;
 	}
 	if (ContractType == "string") {
@@ -100,6 +106,21 @@ FName UMyK2Node::ContractTypeToUnrealPinType(FString ContractType)
 	}
 	return FName();
 }
+
+const UFunction* UMyK2Node::UnrealPinTypeToConversionFunction(FName UnrealPinType)
+{
+	/*if (UEdGraphSchema_K2::PC_Boolean == UnrealPinType) {
+		return FCString::StaticClass()->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(FCString, ToBool));
+	}
+	if (UEdGraphSchema_K2::PC_Int == UnrealPinType) {
+		return FCString::StaticClass()->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(FCString, Atoi));
+	}
+	if (UEdGraphSchema_K2::PC_String == UnrealPinType) {
+		return nullptr;
+	}*/
+	return nullptr;
+}
+
 
 TArray<TPair<FName, FName>> UMyK2Node::FindMethodReturnTypes(UEmergenceDeployment* Deployment, FString MethodName)
 {
@@ -134,4 +155,46 @@ TArray<TPair<FName, FName>> UMyK2Node::FindMethodReturnTypes(UEmergenceDeploymen
 		}
 	}
 	return PinTypes;
+}
+
+void UMyK2Node::ExpandNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
+{
+	Super::ExpandNode(CompilerContext, SourceGraph);
+	
+	UFunction* JSONToStringArrayBlueprintFunction = UEmergenceJSONHelpers::StaticClass()->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UEmergenceJSONHelpers, ReadMethodJSONToStringArray));
+	if (!JSONToStringArrayBlueprintFunction)
+	{
+		CompilerContext.MessageLog.Error(TEXT("The function \"ReadMethodJSONToStringArray\" has not been found."), this);
+		return;
+	}
+
+	UK2Node_CallFunction* JSONToStringArrayCallFunctionNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
+	JSONToStringArrayCallFunctionNode->SetFromFunction(JSONToStringArrayBlueprintFunction);
+	JSONToStringArrayCallFunctionNode->AllocateDefaultPins();
+	CompilerContext.MessageLog.NotifyIntermediateObjectCreation(JSONToStringArrayCallFunctionNode, this);
+	UEdGraphPin* JSONToStringArrayOutputPin = JSONToStringArrayCallFunctionNode->FindPinChecked(TEXT("OutputString")); //for some reason this wants to be called OutputString instead of OutputStringArray
+	UEdGraphPin* JSONToStringArrayInputPin = JSONToStringArrayCallFunctionNode->FindPinChecked(TEXT("JSONObject"));
+	CompilerContext.MovePinLinksToIntermediate(*FindPinChecked(TEXT("ReadMethodResponse")), *JSONToStringArrayInputPin);
+
+	for (int i = 0; i < this->Pins.Num(); i++) {
+		UEdGraphPin* Pin = this->Pins[i];
+		if (Pin->Direction == EEdGraphPinDirection::EGPD_Output) {
+			if (Pin->PinType.PinCategory == UEdGraphSchema_K2::PC_String) { //if its going to be a string no conversion is needed
+				UK2Node_GetArrayItem* GetArrayItemNode = CompilerContext.SpawnIntermediateNode<UK2Node_GetArrayItem>(this, SourceGraph);
+				GetArrayItemNode->AllocateDefaultPins();
+				CompilerContext.MovePinLinksToIntermediate(*GetArrayItemNode->GetTargetArrayPin(), *JSONToStringArrayOutputPin);
+				CompilerContext.MovePinLinksToIntermediate(*Pin, *GetArrayItemNode->GetResultPin());
+				GetArrayItemNode->GetIndexPin()->DefaultValue = FString::FromInt(i);
+			}
+			/*
+			UK2Node_CallFunction* FunctionNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
+			FunctionNode->SetFromFunction(UnrealPinTypeToConversionFunction(Pin->PinType.PinCategory));
+			FunctionNode->AllocateDefaultPins();
+			CompilerContext.MessageLog.NotifyIntermediateObjectCreation(FunctionNode, this);
+			CompilerContext.MovePinLinksToIntermediate(*Pin, *JSONToStringArrayCallFunctionNode->FindPinChecked(TEXT("OutputStringArray"), EEdGraphPinDirection::EGPD_Output));
+			*/
+		}
+	}
+
+	//BreakAllNodeLinks(); //After we are done we break all links to this node (not the internally created one)
 }

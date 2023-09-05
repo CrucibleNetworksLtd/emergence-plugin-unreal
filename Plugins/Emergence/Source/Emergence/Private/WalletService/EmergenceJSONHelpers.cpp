@@ -16,9 +16,9 @@ bool UEmergenceJSONHelpers::ReadMethodJSONToString(FJsonObjectWrapper JSONObject
 	}
 }
 
-bool UEmergenceJSONHelpers::ReadMethodJSONToStringArray(FJsonObjectWrapper JSONObject, TArray<FString>& OutputStringArray)
+bool UEmergenceJSONHelpers::ReadMethodJSONToStringArray(FJsonObjectWrapper JSONObject, TArray<FString>& OutputString)
 {
-	OutputStringArray.Empty();
+	OutputString.Empty();
 	TArray<TSharedPtr<FJsonValue>> JsonValueArray;
 	if (JSONObject && JSONObject.JsonObject->HasTypedField<EJson::Array>("response")) {
 		TArray<TSharedPtr<FJsonValue>> ArrayField = JSONObject.JsonObject->GetArrayField("response");
@@ -27,36 +27,36 @@ bool UEmergenceJSONHelpers::ReadMethodJSONToStringArray(FJsonObjectWrapper JSONO
 			auto Writer = TJsonWriterFactory<>::Create(&Result);
 			switch (ArrayField[i]->Type) {
 				case EJson::String:
-				OutputStringArray.Add(ArrayField[i]->AsString());
+				OutputString.Add(ArrayField[i]->AsString());
 				break;
 				case EJson::Number:
-				OutputStringArray.Add(FString::FromInt(ArrayField[i]->AsNumber()));
+				OutputString.Add(FString::FromInt(ArrayField[i]->AsNumber()));
 				break;
 				case EJson::Boolean:
-				OutputStringArray.Add(ArrayField[i]->AsBool() ? "true" : "false");
+				OutputString.Add(ArrayField[i]->AsBool() ? "true" : "false");
 				break;
 				case EJson::Null:
 				case EJson::None:
-				OutputStringArray.Add("");
+				OutputString.Add("");
 				break;
 				case EJson::Array:
 					
 					if (FJsonSerializer::Serialize(ArrayField[i]->AsArray(), Writer))
 					{
-						OutputStringArray.Add(Result);
+						OutputString.Add(Result);
 					}
 					else {
-						OutputStringArray.Add("EMERGENCE PARSE JSON ARRAY ERROR");
+						OutputString.Add("EMERGENCE PARSE JSON ARRAY ERROR");
 						return false;
 					}
 				break;
 				case EJson::Object:
 					if (FJsonSerializer::Serialize(ArrayField[i]->AsObject().ToSharedRef(), Writer))
 					{
-						OutputStringArray.Add(Result);
+						OutputString.Add(Result);
 					}
 					else {
-						OutputStringArray.Add("EMERGENCE PARSE JSON OBJECT ERROR");
+						OutputString.Add("EMERGENCE PARSE JSON OBJECT ERROR");
 						return false;
 					}
 				break;

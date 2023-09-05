@@ -24,7 +24,11 @@ public:
 	virtual void NodeConnectionListChanged() override;
 	UEdGraphPin* ContractPin;
 	UEdGraphPin* MethodPin;
+	UEdGraphPin* DataPin;
+	virtual bool IsNodePure() const override { return true; }
 	static FName ContractTypeToUnrealPinType(FString ContractType);
+	static const UFunction* UnrealPinTypeToConversionFunction(FName UnrealPinType);
 	static TArray<TPair<FName, FName>> FindMethodReturnTypes(UEmergenceDeployment* Deployment, FString MethodName);
+	virtual void ExpandNode(class FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph) override;
 	TArray<TPair<FName, FName>> MethodReturnTypeMap;
 };
