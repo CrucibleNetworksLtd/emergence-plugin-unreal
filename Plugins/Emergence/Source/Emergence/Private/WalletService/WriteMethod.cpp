@@ -182,12 +182,14 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		this->TransactionHash = JsonObject.GetObjectField("message")->GetStringField("transactionHash");
-		GetTransactionStatus();
-		OnTransactionSent.Broadcast();
-		return;
+	if (HttpResponse) {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
+		if (StatusCode == EErrorCode::EmergenceOk) {
+			this->TransactionHash = JsonObject.GetObjectField("message")->GetStringField("transactionHash");
+			GetTransactionStatus();
+			OnTransactionSent.Broadcast();
+			return;
+		}
 	}
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
 	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
