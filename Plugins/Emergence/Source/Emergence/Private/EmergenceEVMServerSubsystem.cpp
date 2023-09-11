@@ -7,6 +7,7 @@
 #include "EmergenceSingleton.h"
 #include "HttpModule.h"
 #include "HttpManager.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 #if UNREAL_MARKETPLACE_BUILD

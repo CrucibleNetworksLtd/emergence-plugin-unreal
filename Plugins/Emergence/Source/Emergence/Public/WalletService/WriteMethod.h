@@ -9,6 +9,7 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceDeployment.h"
 #include "WalletService/GetTransactionStatus.h"
+#include "Engine/EngineTypes.h"
 #include "WriteMethod.generated.h"
 
 UCLASS()
