@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EmergenceUEExampleCharacter.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -71,21 +70,6 @@ void AEmergenceUEExampleCharacter::SetupPlayerInputComponent(class UInputCompone
 	// handle touch devices
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AEmergenceUEExampleCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AEmergenceUEExampleCharacter::TouchStopped);
-
-	// VR headset functionality
-	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AEmergenceUEExampleCharacter::OnResetVR);
-}
-
-
-void AEmergenceUEExampleCharacter::OnResetVR()
-{
-	// If EmergenceUEExample is added to a project via 'Add Feature' in the Unreal Editor the dependency on HeadMountedDisplay in EmergenceUEExample.Build.cs is not automatically propagated
-	// and a linker error will result.
-	// You will need to either:
-	//		Add "HeadMountedDisplay" to [YourProject].Build.cs PublicDependencyModuleNames in order to build successfully (appropriate if supporting VR).
-	// or:
-	//		Comment or delete the call to ResetOrientationAndPosition below (appropriate if not supporting VR)
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AEmergenceUEExampleCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
