@@ -1111,6 +1111,15 @@ bool FAnimNode_VrmSpringBone::IsSpringInit() const {
 }
 void FAnimNode_VrmSpringBone::Initialize_AnyThread(const FAnimationInitializeContext& Context) {
 
+	Super::Initialize_AnyThread(Context);
+
+	if (SpringManager.Get()) {
+		SpringManager.Get()->reset();
+	} else {
+		SpringManager = MakeShareable(new VRMSpring::VRMSpringManager());
+	}
+}
+void FAnimNode_VrmSpringBone::Initialize_AnyThread_local(const FAnimationInitializeContext& Context) {
 	{
 		//Super::Initialize_AnyThread(Context); crash
 
@@ -1120,15 +1129,14 @@ void FAnimNode_VrmSpringBone::Initialize_AnyThread(const FAnimationInitializeCon
 		AlphaBoolBlend.Reinitialize();
 		AlphaScaleBiasClamp.Reinitialize();
 	}
-
 	if (SpringManager.Get()) {
 		SpringManager.Get()->reset();
-	} else {
+	}
+	else {
 		SpringManager = MakeShareable(new VRMSpring::VRMSpringManager());
 	}
-	if (VrmMetaObject) {
-	}
 }
+
 void FAnimNode_VrmSpringBone::CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) {
 	Super::CacheBones_AnyThread(Context);
 }

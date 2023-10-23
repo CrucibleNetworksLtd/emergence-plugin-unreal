@@ -24,11 +24,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM Title / Author"))
 	FString TitleAuthor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "A-pose(Off to T-pose)"))
+	/** for Mobile. Import root bone only */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE5** UEFN mode"))
+	bool bUEFN = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE4** RetargetPose A-pose(Off to T-pose)"))
 	bool bAPoseRetarget = true;
 
 	/** for Mobile. Import root bone only */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Reduce bonemap<=75 for mobile"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**mobile** Reduce bonemap<=75"))
 	bool bMobileBone = false;
 
 	/** Materal Type */
@@ -46,8 +50,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Model scale"))
 	float ModelScale = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Animation Frame Rate"))
-	float FrameRate = 60.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Animation Translate scale"))
+	float AnimationTranslateScale = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Animation Play Rate Scale"))
+	float PlayRateScale = 1.0f;
 
 	/** Remove Local Rotation for VRM10 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM10 Remove Local Rotation"))
@@ -91,7 +98,7 @@ public:
 
 
 	/** Use Strict MorphTarget Name Mode */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE5EA** controlrig work around: Eable MorphTarget Name Check"))
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE5EA** controlrig work around: Eable MorphTarget Name Check"))
 	bool bStrictMorphTargetNameMode = VRM4U_MorphStrictMode;
 
 	/** Use Strict MorphTarget Name Mode */
@@ -135,8 +142,8 @@ public:
 	bool bOptimizeMaterial = true;
 
 	/** Remove unused vertex */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] remove unused vertex"))
-	bool bOptimizeVertex = true;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] remove unused vertex"))
+	bool bOptimizeVertex = false;
 
 	/** Remove degenerate triangles */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] remove degenerate triangles"))
@@ -149,6 +156,10 @@ public:
 	/** Remove bone has no mesh */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] Remove bone used DCC tool"))
 	bool bSimpleRoot = true;
+
+	/** Remove bone has no mesh */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] Use ActiveBone List"))
+	bool bActiveBone = true;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName="Delete bone without mesh"))
 	bool bSkipNoMeshBone = false;
@@ -185,6 +196,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Miscellaneous)
 	void ResetToDefault();
+
+	//virtual bool CanEditChange(const FProperty* InProperty) const override;
 
 	/** IImportSettings Interface */
 	virtual void ParseFromJson(TSharedRef<class FJsonObject> ImportSettingsJson) override;

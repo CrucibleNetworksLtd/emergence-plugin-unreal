@@ -477,6 +477,8 @@ bool VRMConverter::ConvertMorphTarget(UVrmAssetListObject *vrmAssetList) {
 	}
 #endif
 
+	sk->UnregisterAllMorphTarget();
+
 	for (int i=0; i<MorphTargetList.Num(); ++i){
 		auto *mt = MorphTargetList[i];
 		if (i == MorphTargetList.Num() - 1) {
@@ -484,6 +486,12 @@ bool VRMConverter::ConvertMorphTarget(UVrmAssetListObject *vrmAssetList) {
 		} else {
 			VRMGetMorphTargets(sk).Add(mt);
 		}
+	}
+	for (auto name : MorphNameList) {
+		FCurveMetaData* FoundCurveMetaData = VRMGetSkeleton(sk)->GetCurveMetaData(*name);
+		if (FoundCurveMetaData == nullptr) continue;
+
+		VRMGetSkeleton(sk)->AccumulateCurveMetaData(*name, false, true);
 	}
 
 #if WITH_EDITOR

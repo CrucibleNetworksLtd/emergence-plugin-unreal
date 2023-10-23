@@ -59,6 +59,7 @@ public class VRM4U : ModuleRules
                 "Engine",
 				"AssetRegistry",
 				"CinematicCamera",
+				"InputCore",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

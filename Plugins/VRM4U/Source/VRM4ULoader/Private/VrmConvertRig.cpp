@@ -26,7 +26,7 @@
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
 
-#elif	UE_VERSION_OLDER_THAN(5,2,0)
+#elif UE_VERSION_OLDER_THAN(5,2,0)
 
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
@@ -37,7 +37,7 @@
 #include "Solvers/IKRig_PBIKSolver.h"
 #endif
 
-#else
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
@@ -46,6 +46,16 @@
 #include "RetargetEditor/IKRetargeterController.h"
 #include "Retargeter/IKRetargeter.h"
 #include "Solvers/IKRig_FBIKSolver.h"
+#endif
+
+#else
+#include "Rig/IKRigDefinition.h"
+#include "Rig/Solvers/IKRigSolver.h"
+#if WITH_EDITOR
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#include "Retargeter/IKRetargeter.h"
+#include "Rig/Solvers/IKRig_FBIKSolver.h"
 #endif
 
 #endif
@@ -309,37 +319,47 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 		bPlay = b1;
 	}
 	if (bPlay) {
-		// set dummy collision only
-		//return;
 	}
+
+	// override bone table
+	if (VRMConverter::Options::Get().IsVRMAModel()) {
+		if (vrmAssetList->VrmMetaObject) {
+			for (auto& t : vrmAssetList->VrmMetaObject->humanoidBoneTable) {
+				t.Value = t.Key;
+			}
+		}
+	}
+
 
 #if	UE_VERSION_OLDER_THAN(4,20,0)
 #else
 #if WITH_EDITOR
 
+	auto* k = VRMGetSkeleton(vrmAssetList->SkeletalMesh);
+
 	UNodeMappingContainer* mc = nullptr;
+
+#if	UE_VERSION_OLDER_THAN(5,0,0)
 	{
 		FString name = FString(TEXT("RIG_")) + vrmAssetList->BaseFileName;
 		mc = VRM4U_NewObject<UNodeMappingContainer>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 	}
-
-	auto *k = VRMGetSkeleton(vrmAssetList->SkeletalMesh);
 	VRMGetNodeMappingData(vrmAssetList->SkeletalMesh).Add(mc);
-
 	URig *EngineHumanoidRig = LoadObject<URig>(nullptr, TEXT("/Engine/EngineMeshes/Humanoid.Humanoid"), nullptr, LOAD_None, nullptr);
 	mc->SetSourceAsset(EngineHumanoidRig);
 
 	VRMGetSkeleton(vrmAssetList->SkeletalMesh)->SetRigConfig(EngineHumanoidRig);
 
-
 	mc->SetTargetAsset(vrmAssetList->SkeletalMesh);
 	mc->AddDefaultMapping();
+#endif
 
 	FString PelvisBoneName;
 	{
 		const VRM::VRMMetadata *meta = reinterpret_cast<VRM::VRMMetadata*>(aiData->mVRMMeta);
 
 		auto func = [&](const FString &a, const FString b) {
+			if (mc == nullptr) return;
 			mc->AddMapping(*a, *b);
 			VRMGetSkeleton(vrmAssetList->SkeletalMesh)->SetRigBoneMapping(*a, *b);
 		};
@@ -377,8 +397,6 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 					}
 				}
 				func(ue4, target);
-				//mc->AddMapping(*ue4, *target);
-				//vrmAssetList->SkeletalMesh->Skeleton->SetRigBoneMapping(*ue4, *target);
 			}
 			{
 				const TArray<FString> cc = {
@@ -392,6 +410,8 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 
 				// find bone from child bone
 				for (int i = cc.Num() - 2; i > 0; --i) {
+					if (mc == nullptr) continue;
+
 					const auto &m = mc->GetNodeMappingTable();
 
 					{
@@ -435,6 +455,7 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 
 				// set null -> parent bone
 				for (int i = 1; i < cc.Num(); ++i) {
+					if (mc == nullptr) continue;
 					const auto &m = mc->GetNodeMappingTable();
 
 					{
@@ -834,8 +855,10 @@ bool VRMConverter::ConvertRig(UVrmAssetListObject *vrmAssetList) {
 
 	}
 	//mc->AddMapping
-	mc->PostEditChange();
-	vrmAssetList->HumanoidRig = mc;
+	if (mc) {
+		mc->PostEditChange();
+		vrmAssetList->HumanoidRig = mc;
+	}
 
 #endif // editor
 #endif //420

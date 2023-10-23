@@ -484,15 +484,29 @@ void VRMSkeleton::readVrmBone(aiScene* scene, int& boneOffset, FReferenceSkeleto
 			}
 
 			// bone name check
-			for (int c = 0; c < 100; ++c) {
-				if (RefSkeleton.FindRawBoneIndex(info.Name) == INDEX_NONE) {
-					break;
+			{
+				auto baseName = info.Name.ToString();
+				for (int c = 0; c < 100; ++c) {
+					if (RefSkeleton.FindRawBoneIndex(info.Name) == INDEX_NONE) {
+						break;
+					}
+					info.Name = *FString::Printf(TEXT("%s_vrm4u%02d"), *baseName, c);
 				}
-				info.Name = *(info.Name.ToString() + FString(TEXT("_DUP")));
 			}
 			if (totalBoneCount > 0 && ParentIndex == INDEX_NONE) {
 				// bad bone. root?
 				continue;
+			}
+			if (VRMConverter::Options::Get().IsVRMAModel()) {
+				if (vrmAssetList->VrmMetaObject) {
+					for (auto& t : vrmAssetList->VrmMetaObject->humanoidBoneTable) {
+
+						if (t.Value == info.Name.ToString()) {
+							info.Name = *t.Key;
+							break;
+						}
+					}
+				}
 			}
 
 			RefSkelModifier.Add(info, pose);

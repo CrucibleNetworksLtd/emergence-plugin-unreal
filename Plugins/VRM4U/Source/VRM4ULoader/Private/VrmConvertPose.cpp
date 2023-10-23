@@ -17,6 +17,7 @@
 #include "Animation/Skeleton.h"
 #include "Animation/SkeletalMeshActor.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "CommonFrameRates.h"
 
 #if WITH_EDITOR
 #include "IPersonaToolkit.h"
@@ -89,9 +90,20 @@ namespace {
 namespace {
 // utility function 
 #if WITH_EDITOR
-	FSmartName GetUniquePoseName(USkeleton* Skeleton, const FString &Name)
+#if	UE_VERSION_OLDER_THAN(5,3,0)
+	FSmartName GetUniquePoseName(USkeleton* Skeleton, const FString &Name, bool bFind = false)
 	{
-		check(Skeleton);
+		if (Skeleton == nullptr) {
+			return FSmartName();
+		}
+
+		if (bFind) {
+			auto NewUID = Skeleton->GetUIDByName(USkeleton::AnimCurveMappingName, *Name);
+			if (NewUID != SmartName::MaxUID) {
+				return FSmartName(*Name, NewUID);
+			}
+		}
+
 		int32 NameIndex = 0;
 
 		SmartName::UID_Type NewUID;
@@ -114,6 +126,44 @@ namespace {
 
 		return NewPoseName;
 	}
+#else
+	FName GetUniquePoseName(USkeleton* Skeleton, const FString& Name, bool bFind = false)
+	{
+		if (Skeleton == nullptr) {
+			return "";
+		}
+
+		if (bFind) {
+			bool bSame = false;
+			Skeleton->ForEachCurveMetaData([Name, &bSame](FName InCurveName, const FCurveMetaData& InMetaData)
+			{
+					if (InCurveName.ToString().ToLower() == Name.ToLower()) {
+						bSame = true;
+
+					}
+			});
+			if (bSame) {
+				return *Name;
+			}
+		}
+
+		int32 NameIndex = 0;
+		FName NewName;
+
+		do
+		{
+			NewName = FName(*FString::Printf(TEXT("%s_%d"), *Name, NameIndex++));
+
+			if (NameIndex == 1) {
+				NewName = *Name;
+			}
+		} while (Skeleton->AddCurveMetaData(NewName) == false);
+
+
+		return NewName;
+	}
+#endif
+
 #endif 
 
 #if WITH_EDITOR
@@ -237,14 +287,16 @@ namespace {
 			skc->SetComponentSpaceTransformsDoubleBuffering(false);
 		}
 
+#if UE_VERSION_OLDER_THAN(5,3,0)
 		TArray < FSmartName > SmartNamePoseList;
+#else
+		TArray < FName > SmartNamePoseList;
+#endif
 		{
-			FSmartName n;
-			n = GetUniquePoseName(k, TEXT("DefaultRefPose"));
+			auto n = GetUniquePoseName(k, TEXT("DefaultRefPose"), true);
 			SmartNamePoseList.Add(n);
 		}
 
-#if UE_VERSION_OLDER_THAN(5,2,0)
 		UAnimSequence* ase = nullptr;
 		{
 			/*
@@ -260,20 +312,69 @@ namespace {
 
 			FString AnimName = FString(TEXT("A_face_")) + vrmAssetList->BaseFileName;
 			ase = VRM4U_NewObject<UAnimSequence>(vrmAssetList->Package, *AnimName, RF_Public | RF_Standalone);
+			ase->SetSkeleton(k);
+
 #if UE_VERSION_OLDER_THAN(5,0,0)
 			ase->CleanAnimSequenceForImport();
-#else
+#elif UE_VERSION_OLDER_THAN(5,2,0)
 			IAnimationDataController& DataController = ase->GetController();
 			IAnimationDataController::FScopedBracket ScopedBracket(&DataController, FText());
 			DataController.ResetModel();
+#else
+
+			IAnimationDataController& DataController = ase->GetController();
+			IAnimationDataController::FScopedBracket ScopedBracket(&DataController, FText());
+
+			DataController.ResetModel();
+			DataController.InitializeModel();
+			DataController.NotifyPopulated();
 
 
-			//auto *DataModel = DuplicateObject(ase->GetDataModel(), ase);
-			//DataController.SetModel(DataModel);
+			FFrameRate f(1, 1);
+			DataController.SetFrameRate(f);
+			//DataController.SetFrameRate(FCommonFrameRates::FPS_30());
+			DataController.SetNumberOfFrames(10);
 
-			//DataModel->GetNumberOfTransformCurves
+			DataController.UpdateWithSkeleton(k);
 #endif
-			ase->SetSkeleton(k);
+
+
+
+
+#if UE_VERSION_OLDER_THAN(5,2,0)
+			auto GetCurves = [ase] ()-> TArray<FFloatCurve> &{
+				return ase->RawCurveData.FloatCurves;
+			};
+
+			auto GetCurveName = [](FFloatCurve& c) {
+				return c.Name.DisplayName;
+			};
+			auto GetCurveSmartName = [](FFloatCurve& c) {
+				return c.Name;
+			};
+#elif UE_VERSION_OLDER_THAN(5,3,0)
+			auto GetCurves = [&DataController]() {
+				return DataController.GetModel()->GetFloatCurves();
+			};
+
+			auto GetCurveName = [](FFloatCurve& c) {
+				return c.Name.DisplayName;
+			};
+			auto GetCurveSmartName = [](FFloatCurve& c) {
+				return c.Name;
+			};
+#else
+			auto GetCurves = [&DataController]() {
+				return DataController.GetModel()->GetFloatCurves();
+			};
+
+			auto GetCurveName = [](FFloatCurve& c) {
+				return c.GetName();
+			};
+			auto GetCurveSmartName = [](FFloatCurve& c) {
+				return c.GetName();
+			};
+#endif
 			// arkit blendshape
 			for (auto& arkitMorph : arkitMorphName) {
 
@@ -315,10 +416,9 @@ namespace {
 				//	continue;
 				//}
 
-				FSmartName SmartPoseName;
-				SmartPoseName = GetUniquePoseName(k, *arkitMorph);
+				auto SmartPoseName = GetUniquePoseName(k, *arkitMorph, true);
+				auto curveName = GetUniquePoseName(nullptr, "");
 
-				FSmartName curveName;
 				int targetNo = 0;
 				bool bSameName = false;
 				if (arkitMorph == modelMorph) {
@@ -331,33 +431,37 @@ namespace {
 					bSameName = true;
 				} else {
 					bool bFind = false;
-					for (auto& c : ase->RawCurveData.FloatCurves) {
-						if (c.Name.DisplayName.ToString().ToLower() == modelMorph.ToLower()) {
+					for (decltype(auto) c : GetCurves()) {
+						if (GetCurveName(c).ToString().ToLower() == modelMorph.ToLower()) {
 							// found curve in list
 							bFind = true;
-							curveName = c.Name;
+							curveName = GetCurveSmartName(c);
 							break;
 						}
 						++targetNo;
 					}
 					if (bFind == false) {
 						// create new curve
-						curveName = GetUniquePoseName(k, *modelMorph);
-						targetNo = ase->RawCurveData.FloatCurves.Num();
+						curveName = GetUniquePoseName(k, *modelMorph, true);
+						targetNo = GetCurves().Num();
 					}
 				}
+#if UE_VERSION_OLDER_THAN(5,2,0)
 				ase->RawCurveData.AddCurveData(curveName);
-
+#else
+				FAnimationCurveIdentifier id(curveName, ERawCurveTrackTypes::RCT_Float);
+				DataController.AddCurve(id);
+#endif
 
 				// Anim to Pose
 				if (bSameName == false) {
-					auto& c = ase->RawCurveData.FloatCurves;
+					decltype(auto) c = GetCurves();
 					auto& a = c[targetNo];
 
 					a.SetCurveTypeFlag(AACF_Editable, true);
 
 					// for default +1
-					int targetFrame = ase->RawCurveData.FloatCurves.Num() + 1;
+					int targetFrame = GetCurves().Num() + 1;
 
 					// 0 for prev and forward frame
 					if (a.Evaluate(targetFrame - 2) == 0) {
@@ -383,22 +487,21 @@ namespace {
 			// vrm blendshape
 			{
 				// for add and offset
-				int targetFrame = ase->RawCurveData.FloatCurves.Num() + 1 + 1;
+				int targetFrame = GetCurves().Num() + 1 + 1;
 
 				for (auto& group : vrmAssetList->VrmMetaObject->BlendShapeGroup) {
 
 					if (group.name == "") continue;
 					if (group.BlendShape.Num() == 0) continue;
 
-					FSmartName SmartPoseName;
-					SmartPoseName = GetUniquePoseName(k, *group.name);
+					auto SmartPoseName = GetUniquePoseName(k, *group.name, true);
 
 					// !! vrm blend shape !!
 					bool addCurve = false;
 					for (auto& shape : group.BlendShape) {
 						if (shape.morphTargetName == "") continue;
 
-						FSmartName curveName;
+						auto curveName = GetUniquePoseName(nullptr, "");
 						int targetNo = 0;
 
 						bool bSameName = false;
@@ -408,25 +511,31 @@ namespace {
 							bSameName = true;
 						} else {
 							bool bFind = false;
-							for (auto& c : ase->RawCurveData.FloatCurves) {
-								if (c.Name.DisplayName.ToString().ToLower() == shape.morphTargetName.ToLower()) {
+							for (decltype(auto) c : GetCurves()) {
+								if (GetCurveName(c).ToString().ToLower() == shape.morphTargetName.ToLower()) {
 									// found curve name in list
 									bFind = true;
-									curveName = c.Name;
+									curveName = GetCurveSmartName(c);
 									break;
 								}
 								++targetNo;
 							}
 							if (bFind == false) {
 								// create new curve
-								curveName = GetUniquePoseName(k, *shape.morphTargetName);
-								targetNo = ase->RawCurveData.FloatCurves.Num();
+								curveName = GetUniquePoseName(k, *shape.morphTargetName, true);
+								targetNo = GetCurves().Num();
 							}
 						}
+
+#if UE_VERSION_OLDER_THAN(5,2,0)
 						ase->RawCurveData.AddCurveData(curveName);
+#else
+						FAnimationCurveIdentifier id(curveName, ERawCurveTrackTypes::RCT_Float);
+						DataController.AddCurve(id);
+#endif
 
 						if (bSameName == false) {
-							auto& c = ase->RawCurveData.FloatCurves;
+							decltype(auto) c = GetCurves();
 							auto& a = c[targetNo];
 
 							a.SetCurveTypeFlag(AACF_Editable, true);
@@ -443,7 +552,7 @@ namespace {
 #if UE_VERSION_OLDER_THAN(5,0,0)
 #else
 							FAnimationCurveIdentifier CurveId(curveName, ERawCurveTrackTypes::RCT_Float);
-							DataController.AddCurve(CurveId);
+							//DataController.AddCurve(CurveId);
 							DataController.SetCurveKeys(CurveId, a.FloatCurve.GetConstRefOfKeys());
 #endif
 						}
@@ -491,24 +600,38 @@ namespace {
 
 					int arMorphFrameNo = -1;
 					{
+#if UE_VERSION_OLDER_THAN(5,3,0)
 						FSmartName* m = SmartNamePoseList.FindByPredicate(
 							[&arkitMorph](FSmartName& name) {
 							return (arkitMorph.ToLower() == name.DisplayName.ToString().ToLower());
 						});
+#else
+						FName* m = SmartNamePoseList.FindByPredicate(
+							[&arkitMorph](FName& name) {
+								return (arkitMorph.ToLower() == name.ToString().ToLower());
+							});
+#endif
 						if (m == nullptr) continue;
 						arMorphFrameNo = SmartNamePoseList.Find(*m);
 					}
 					int vrmMorphFrameNo = -1;
 					{
+#if UE_VERSION_OLDER_THAN(5,3,0)
 						FSmartName* m = SmartNamePoseList.FindByPredicate(
 							[&vrmMorph](FSmartName& name) {
 							return (vrmMorph.ToLower() == name.DisplayName.ToString().ToLower());
 						});
+#else
+						FName* m = SmartNamePoseList.FindByPredicate(
+							[&vrmMorph](FName& name) {
+								return (vrmMorph.ToLower() == name.ToString().ToLower());
+							});
+#endif
 						if (m == nullptr) continue;
 						vrmMorphFrameNo = SmartNamePoseList.Find(*m);
 					}
 
-					auto& curves = ase->RawCurveData.FloatCurves;
+					decltype(auto) curves = GetCurves();
 					if (curves.Num() <= arMorphFrameNo || curves.Num() <= vrmMorphFrameNo) {
 						// range check
 						continue;
@@ -561,17 +684,25 @@ namespace {
 
 #if UE_VERSION_OLDER_THAN(5,0,0)
 			ase->SequenceLength = float(SmartNamePoseList.Num() - 1);
-#else
+#elif UE_VERSION_OLDER_THAN(5,2,0)
 			{
 				DataController.SetPlayLength(float(SmartNamePoseList.Num() - 1));
 
 				FFrameRate f(1, 1);
 				DataController.SetFrameRate(f);
 
-				//FAnimationCurveIdentifier CurveId(SmartNamePoseList[0], ERawCurveTrackTypes::RCT_Float);
-				//DataController.AddCurve(CurveId);
-				//const FFloatCurve* NewCurve = Sequence->GetDataModel()->FindFloatCurve(CurveId);
+				DataController.UpdateCurveNamesFromSkeleton(k, ERawCurveTrackTypes::RCT_Float);
+				DataController.NotifyPopulated();
+			}
+#else
+			{
+				//DataController.InitializeModel();
+				FFrameRate ff(1, 1); 
+				//DataController.SetFrameRate(FCommonFrameRates::FPS_30());
+				DataController.SetFrameRate(ff);
+				DataController.SetNumberOfFrames(SmartNamePoseList.Num() - 1);
 
+				ase->SetPreviewMesh(sk);
 
 				DataController.UpdateCurveNamesFromSkeleton(k, ERawCurveTrackTypes::RCT_Float);
 				DataController.NotifyPopulated();
@@ -590,7 +721,6 @@ namespace {
 #else
 #endif
 		ase->PostEditChange();
-#endif // 5.2
 
 	} // AnimSequence
 
@@ -978,11 +1108,13 @@ bool VRMConverter::ConvertPose(UVrmAssetListObject *vrmAssetList) {
 						//bvh
 						{
 							auto *mc = vrmAssetList->HumanoidRig;
-							const auto &m = mc->GetNodeMappingTable();
-							auto *value = m.Find(*a.BoneUE4);
-							if (value) {
-								bFound = true;
-								mapTable.Add(value->ToString(), a);
+							if (mc) {
+								const auto& m = mc->GetNodeMappingTable();
+								auto* value = m.Find(*a.BoneUE4);
+								if (value) {
+									bFound = true;
+									mapTable.Add(value->ToString(), a);
+								}
 							}
 						}
 						if (bFound) {
@@ -1046,9 +1178,11 @@ bool VRMConverter::ConvertPose(UVrmAssetListObject *vrmAssetList) {
 								dstTrans[ik_l] = dstTrans[kl];
 
 								// local
-								VRMGetRetargetBasePose(sk)[ik_g] = dstTrans[kr];
-								VRMGetRetargetBasePose(sk)[ik_r].SetIdentity();
-								VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl] * dstTrans[kr].Inverse();
+								if (VRMGetRetargetBasePose(sk).Num()) {
+									VRMGetRetargetBasePose(sk)[ik_g] = dstTrans[kr];
+									VRMGetRetargetBasePose(sk)[ik_r].SetIdentity();
+									VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl] * dstTrans[kr].Inverse();
+								}
 							}
 						}
 					}
@@ -1070,45 +1204,51 @@ bool VRMConverter::ConvertPose(UVrmAssetListObject *vrmAssetList) {
 								dstTrans[ik_l] = dstTrans[kl];
 
 								// local
-								VRMGetRetargetBasePose(sk)[ik_r] = dstTrans[kr];
-								VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl];
+								if (VRMGetRetargetBasePose(sk).Num()) {
+									VRMGetRetargetBasePose(sk)[ik_r] = dstTrans[kr];
+									VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl];
+								}
 							}
 						}
 					}
 
 				}
 				{
-					FSmartName PoseName;
+					auto  PoseName = GetUniquePoseName(nullptr, "");
 					switch(poseCount) {
 					case 0:
-						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_T"));
+						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_T"), true);
 						break;
 					case 1:
-						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_A"));
+						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_A"), true);
 						break;
 					case 2:
-						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_T(foot_A)"));
+						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_T(foot_A)"), true);
 						break;
 					case 3:
 					default:
-						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_A(foot_T)"));
+						PoseName = GetUniquePoseName(VRMGetSkeleton(sk), TEXT("POSE_A(foot_T)"), true);
 						break;
 					}
 					//pose->AddOrUpdatePose(PoseName, Cast<USkeletalMeshComponent>(PreviewComponent));
 
+#if	UE_VERSION_OLDER_THAN(5,3,0)
 					FSmartName newName;
 					//pose->AddOrUpdatePoseWithUniqueName(Cast<USkeletalMeshComponent>(PreviewComponent), &newName);
 					pose->AddOrUpdatePoseWithUniqueName(skc, &newName);
 					pose->ModifyPoseName(newName.DisplayName, PoseName.DisplayName, nullptr);
+#else
+					auto newName = pose->AddPoseWithUniqueName(skc);
+					pose->ModifyPoseName(newName, PoseName);
+#endif
 				}
 			}
 		}
 	}
 
-//#if	UE_VERSION_OLDER_THAN(5,0,0)
-	//todo crash ue5...
-	localFaceMorphConv(vrmAssetList, aiData);
-//#endif
+	if (VRMConverter::Options::Get().IsNoMesh() == false) {
+		localFaceMorphConv(vrmAssetList, aiData);
+	}
 
 #endif // editor
 #endif //420

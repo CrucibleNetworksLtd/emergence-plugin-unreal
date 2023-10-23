@@ -83,6 +83,8 @@ public:
 		class USkeleton *GetSkeleton();
 		bool IsSimpleRootBone() const;
 
+		bool IsActiveBone() const;
+
 		bool IsSkipPhysics() const;
 
 		bool IsSkipNoMeshBone() const;
@@ -138,16 +140,24 @@ public:
 		void SetVRM0Model(bool bVRM);
 		void SetVRM10Model(bool bVRM);
 
+		bool IsVRMAModel() const;
+		void SetVRMAModel(bool bVRMA);
+
 		bool IsBVHModel() const;
 		void SetBVHModel(bool bBVH);
 
 		bool IsPMXModel() const;
 		void SetPMXModel(bool bPMX);
 
+		bool IsNoMesh() const;
+		void SetNoMesh(bool bNoMesh);
+
 		bool IsForceOverride() const;
 		float GetModelScale() const;
 
-		float GetAnimationFrameRate() const;
+		float GetAnimationTranslateScale() const;
+
+		float GetAnimationPlayRateScale() const;
 
 		bool IsAPoseRetarget() const;
 

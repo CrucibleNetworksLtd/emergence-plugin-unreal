@@ -2,6 +2,7 @@
 
 
 #include "VrmAssetListObject.h"
+#include "EditorFramework/AssetImportData.h"
 //#include "LoaderBPFunctionLibrary.h"
 
 
@@ -25,6 +26,9 @@ void UVrmAssetListObject::CopyMember(UVrmAssetListObject *dst) const {
 	dst->SSSProfileSet = SSSProfileSet;
 	dst->UnlitSet = UnlitSet;
 	dst->GLTFSet = GLTFSet;
+	dst->UEFNUnlitSet = UEFNUnlitSet;
+	dst->UEFNLitSet = UEFNLitSet;
+	dst->UEFNSSSProfileSet = UEFNSSSProfileSet;
 	dst->CustomSet = CustomSet;
 
 
@@ -62,3 +66,25 @@ void UVrmAssetListObject::CopyMember(UVrmAssetListObject *dst) const {
 	dst->BaseFileName = BaseFileName;
 	dst->HumanoidSkeletalMesh = HumanoidSkeletalMesh;
 }
+
+#if WITH_EDITOR
+void UVrmAssetListObject::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
+{
+	if (AssetImportData)
+	{
+		OutTags.Add(FAssetRegistryTag(SourceFileTagName(), AssetImportData->GetSourceData().ToJson(), FAssetRegistryTag::TT_Hidden));
+
+		OutTags.Add(FAssetRegistryTag("VRM4U", SourceFileTagName().ToString(), FAssetRegistryTag::TT_Hidden));
+	}
+	Super::GetAssetRegistryTags(OutTags);
+}
+
+void UVrmAssetListObject::WaitUntilAsyncPropertyReleased() const {
+	if (IsValid(SkeletalMesh) == false) {
+		return;
+	}
+	//SkeletalMesh->WaitUntilAsyncPropertyReleased(AsyncProperties);
+}
+
+
+#endif

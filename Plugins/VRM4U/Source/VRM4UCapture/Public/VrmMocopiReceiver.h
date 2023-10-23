@@ -34,10 +34,10 @@ struct FStructMocopiData{
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
-	int FrameNo;
+	int FrameNo = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
-	int Time;
+	int Time = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, EditFixedSize, Category = "VRM4U")
 	TArray<FTransform> MocopiTransformWorld;

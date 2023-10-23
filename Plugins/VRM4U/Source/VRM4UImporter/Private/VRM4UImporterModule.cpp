@@ -25,6 +25,8 @@ DEFINE_LOG_CATEGORY(LogVRM4UImporter);
 
 class FVRM4UImporterModule : public FDefaultModuleImpl
 {
+	TArray< TSharedPtr<IAssetTypeActions> >  AssetTypeActions;
+
 public:
 	virtual void StartupModule() override
 	{
@@ -36,15 +38,16 @@ public:
 		}
 
 		{
-			IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-			AssetTools.RegisterAssetTypeActions(MakeShareable(new FAssetTypeActions_VrmAssetList));
-			AssetTools.RegisterAssetTypeActions(MakeShareable(new FAssetTypeActions_VrmLicense));
-			AssetTools.RegisterAssetTypeActions(MakeShareable(new FAssetTypeActions_VrmMeta));
-		}
+			AssetTypeActions.Empty();
+			AssetTypeActions.Add(MakeShareable(new FAssetTypeActions_VrmAssetList));
+			AssetTypeActions.Add(MakeShareable(new FAssetTypeActions_VrmLicense));
+			AssetTypeActions.Add(MakeShareable(new FAssetTypeActions_VrmMeta));
 
-		{
-			//FLevelEditorModule& LevelEditor = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
-			//LevelEditor.OnActorSelectionChanged().RemoveAll(this);
+			IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+
+			for (decltype(auto) a : AssetTypeActions) {
+				AssetTools.RegisterAssetTypeActions(a.ToSharedRef());
+			}
 		}
 
 		{
@@ -68,6 +71,14 @@ public:
 
 			FPropertyEditorModule& PropertyEditorModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 			PropertyEditorModule.UnregisterCustomPropertyTypeLayout(("VRMRetargetSrcAnimSequence"));
+
+
+			IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+			for (decltype(auto) a : AssetTypeActions) {
+				AssetTools.UnregisterAssetTypeActions(a.ToSharedRef());
+				a.Reset();
+			}
+			AssetTypeActions.Empty();
 		}
 	}
 };

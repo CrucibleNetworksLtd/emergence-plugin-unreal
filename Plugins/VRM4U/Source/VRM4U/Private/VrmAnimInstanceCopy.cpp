@@ -389,7 +389,7 @@ bool FVrmAnimInstanceCopyProxy::Evaluate(FPoseContext& Output) {
 				FAnimationInitializeContext InitContext(this);
 
 				if (springBone.IsSpringInit() == false) {
-					springBone.Initialize_AnyThread(InitContext);
+					springBone.Initialize_AnyThread_local(InitContext);
 					springBone.ComponentPose.SetLinkNode(&springBone);
 					CalcCount = 0;
 					springBone.CurrentDeltaTime = 1.f / 20.f;

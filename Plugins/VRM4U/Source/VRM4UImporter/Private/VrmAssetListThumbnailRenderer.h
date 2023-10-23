@@ -27,6 +27,7 @@ public:
 	// IAssetTypeActions Implementation
 	virtual FText GetName() const override;
 	virtual UClass* GetSupportedClass() const override;
+	virtual bool IsImportedAsset() const override { return true; }
 };
 class FAssetTypeActions_VrmLicense : public FAssetTypeActions_VrmBase
 {

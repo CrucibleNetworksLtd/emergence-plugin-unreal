@@ -318,19 +318,29 @@ bool VRMConverter::Options::IsSimpleRootBone() const {
 #endif
 }
 
+bool VRMConverter::Options::IsActiveBone() const {
+	bool ret = true;
+#if WITH_EDITOR
+	if (ImportOption == nullptr) return ret;
+
+	return ImportOption->bActiveBone;
+#else
+	return ret;
+#endif
+}
+
 bool VRMConverter::Options::IsSkipPhysics() const {
 	bool ret = true;
 
 	if (IsDebugOneBone()) {
 		return true;
 	}
-#if WITH_EDITOR
+
 	if (ImportOption == nullptr) return ret;
 
+	if (ImportOption->bUEFN) return true;
+
 	return ImportOption->bSkipPhysics;
-#else
-	return ret;
-#endif
 }
 
 bool VRMConverter::Options::IsForceOpaque() const {
@@ -345,6 +355,9 @@ bool VRMConverter::Options::IsForceTwoSided() const {
 
 bool VRMConverter::Options::IsSingleUAssetFile() const {
 	if (ImportOption == nullptr) return true;
+
+	if (ImportOption->bUEFN) return false;
+
 	return ImportOption->bSingleUAssetFile;
 }
 
@@ -394,8 +407,9 @@ bool VRMConverter::Options::IsMergePrimitive() const {
 }
 
 bool VRMConverter::Options::IsOptimizeVertex() const {
-	if (ImportOption == nullptr) return true;
-	return ImportOption->bOptimizeVertex;
+	return false;
+	//if (ImportOption == nullptr) return true;
+	//return ImportOption->bOptimizeVertex;
 }
 
 bool VRMConverter::Options::IsRemoveDegenerateTriangles() const {
@@ -446,6 +460,15 @@ bool VRMConverter::Options::IsVRMModel() const {
 	return IsVRM0Model() || IsVRM10Model();
 }
 
+static bool bbVRMA = false;
+void VRMConverter::Options::SetVRMAModel(bool bVRMA) {
+	bbVRMA = bVRMA;
+}
+
+bool VRMConverter::Options::IsVRMAModel() const {
+	return bbVRMA;
+}
+
 static bool bbBVH = false;
 void VRMConverter::Options::SetBVHModel(bool bBVH) {
 	bbBVH = bBVH;
@@ -464,11 +487,22 @@ bool VRMConverter::Options::IsPMXModel() const {
 	return bbPMX;
 }
 
+static bool bbNoMesh = false;
+void VRMConverter::Options::SetNoMesh(bool bNoMesh) {
+	bbNoMesh = bNoMesh;
+}
+
+bool VRMConverter::Options::IsNoMesh() const {
+	return bbNoMesh;
+}
+
 void VRMConverter::Options::ClearModelType() {
 	bbVRM0 = false;
 	bbVRM10 = false;
+	bbVRMA = false;
 	bbBVH = false;
 	bbPMX = false;
+	bbNoMesh = false;
 }
 
 bool VRMConverter::Options::IsForceOverride() const {
@@ -487,9 +521,14 @@ float VRMConverter::Options::GetModelScale() const {
 	return ImportOption->ModelScale;
 }
 
-float VRMConverter::Options::GetAnimationFrameRate() const {
+float VRMConverter::Options::GetAnimationTranslateScale() const {
 	if (ImportOption == nullptr) return 1.f;
-	return ImportOption->FrameRate;
+	return ImportOption->AnimationTranslateScale;
+}
+
+float VRMConverter::Options::GetAnimationPlayRateScale() const {
+	if (ImportOption == nullptr) return 1.f;
+	return ImportOption->PlayRateScale;
 }
 
 bool VRMConverter::Options::IsAPoseRetarget() const {

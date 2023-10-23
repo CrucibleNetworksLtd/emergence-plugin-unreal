@@ -13,8 +13,10 @@
 struct FCameraTrackingFocusSettings {
 	int dummy;
 };
-#else
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 #include "CinematicCamera/Public/CineCameraComponent.h"
+#else
+#include "CineCameraComponent.h"
 #endif
 
 #include "VrmBPFunctionLibrary.generated.h"

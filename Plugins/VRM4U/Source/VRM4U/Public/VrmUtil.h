@@ -24,6 +24,7 @@ struct FSkeletalMaterial;
 
 template<typename T>
 USkeleton* VRMGetSkeleton(T* t){
+	if (t == nullptr) return nullptr;
 #if	UE_VERSION_OLDER_THAN(4,27,0)
 	return t->Skeleton;
 #else
@@ -192,8 +193,10 @@ template<typename T>
 void VRMSetRetargetBasePose(T* t, TArray<FTransform>& pose) {
 #if	UE_VERSION_OLDER_THAN(4,27,0)
 	t->RetargetBasePose = pose;
-#else
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 	t->SetRetargetBasePose(pose);
+#else
+	// no old retarget pose.
 #endif
 }
 
@@ -275,14 +278,17 @@ FORCEINLINE  USkeletalMesh *VRMGetSkinnedAsset(const USkinnedMeshComponent* t) {
 UENUM(BlueprintType)
 enum class EVRMImportMaterialType : uint8
 {
-	VRMIMT_Auto			UMETA(DisplayName = "Auto(MToon Unlit)"),
-	VRMIMT_MToon		UMETA(DisplayName = "MToon Lit"),
-	VRMIMT_MToonUnlit	UMETA(DisplayName = "MToon Unlit"),
-	VRMIMT_SSS			UMETA(DisplayName = "Subsurface"),
-	VRMIMT_SSSProfile	UMETA(DisplayName = "Subsurface Profile"),
-	VRMIMT_Unlit		UMETA(DisplayName = "Unlit"),
-	VRMIMT_glTF			UMETA(DisplayName = "PBR(glTF2)"),
-	VRMIMT_Custom		UMETA(DisplayName = "Custom"),
+	VRMIMT_Auto				UMETA(DisplayName = "Auto(MToon Unlit)"),
+	VRMIMT_MToon			UMETA(DisplayName = "MToon Lit"),
+	VRMIMT_MToonUnlit		UMETA(DisplayName = "MToon Unlit"),
+	VRMIMT_SSS				UMETA(DisplayName = "Subsurface"),
+	VRMIMT_SSSProfile		UMETA(DisplayName = "Subsurface Profile"),
+	VRMIMT_Unlit			UMETA(DisplayName = "Unlit"),
+	VRMIMT_glTF				UMETA(DisplayName = "PBR(glTF2)"),
+	VRMIMT_UEFNLit			UMETA(DisplayName = "UEFN(Lit)"),
+	VRMIMT_UEFNUnlit		UMETA(DisplayName = "UEFN(Unlit)"),
+	VRMIMT_UEFNSSSProfile	UMETA(DisplayName = "UEFN(SSSProfile)"),
+	VRMIMT_Custom			UMETA(DisplayName = "Custom"),
 
 	VRMIMT_MAX,
 };
@@ -310,6 +316,9 @@ public:
 #endif
 
 	void init();
+
+	bool bUEFN = false;
+
 	bool bAPoseRetarget = true;
 
 	bool bMobileBone = false;
@@ -325,7 +334,10 @@ public:
 	float ModelScale = 1.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
-	float FrameRate = 60.0f;
+	float AnimationTranslateScale = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	float PlayRateScale = 1.0f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bVrm10RemoveLocalRotation = true;
@@ -340,7 +352,8 @@ public:
 
 	bool bGenerateRigIK = false;
 
-	bool bSkipPhysics = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bSkipPhysics = true;
 
 	bool bSkipMorphTarget = false;
 
@@ -384,6 +397,8 @@ public:
 	bool bRemoveDegenerateTriangles = false;
 
 	bool bSimpleRoot = true;
+
+	bool bActiveBone = true;
 
 	bool bSkipNoMeshBone = false;
 

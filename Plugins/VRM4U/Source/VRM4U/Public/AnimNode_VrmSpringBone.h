@@ -91,6 +91,7 @@ struct VRM4U_API FAnimNode_VrmSpringBone : public FAnimNode_SkeletalControlBase
 
 	// FAnimNode_SkeletalControlBase interface
 	virtual void Initialize_AnyThread(const FAnimationInitializeContext& Context) override;
+	virtual void Initialize_AnyThread_local(const FAnimationInitializeContext& Context);
 	virtual void CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) override;
 //	virtual void Update_AnyThread(const FAnimationUpdateContext& Context) override;
 	virtual void EvaluateSkeletalControl_AnyThread(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms) override;

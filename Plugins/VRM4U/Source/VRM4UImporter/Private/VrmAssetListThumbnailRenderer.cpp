@@ -10,6 +10,7 @@
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Brushes/SlateColorBrush.h"
+#include "EditorFramework/AssetImportData.h"
 
 #include "ThumbnailRendering/SkeletalMeshThumbnailRenderer.h"
 
@@ -26,6 +27,7 @@ UClass* FAssetTypeActions_VrmAssetList::GetSupportedClass() const {
 FText FAssetTypeActions_VrmAssetList::GetName() const {
 	return NSLOCTEXT("AssetTypeActions", "FAssetTypeActions_VrmAssetList", "Vrm Asset List");
 }
+
 UClass* FAssetTypeActions_VrmLicense::GetSupportedClass() const {
 	return UVrmLicenseObject::StaticClass();
 }

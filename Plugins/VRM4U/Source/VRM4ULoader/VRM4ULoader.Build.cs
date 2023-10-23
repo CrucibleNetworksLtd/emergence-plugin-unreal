@@ -44,6 +44,7 @@ public class VRM4ULoader : ModuleRules
 				"Projects",
 				"VRM4U",
 			});
+		PrivateDependencyModuleNames.Add("TimeManagement");
 
 		if (Target.bBuildEditor) {
 			PrivateDependencyModuleNames.Add("Persona");

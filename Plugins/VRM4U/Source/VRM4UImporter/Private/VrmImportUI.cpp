@@ -15,6 +15,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 
 	d.init();
 
+	c(bUEFN);
+
 	c(bAPoseRetarget);
 
 	c(bMobileBone);
@@ -25,7 +27,9 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 
 	c(ModelScale);
 
-	c(FrameRate);
+	c(AnimationTranslateScale);
+
+	c(PlayRateScale);
 
 	c(bVrm10RemoveLocalRotation);
 
@@ -72,6 +76,8 @@ const FImportOptionData* UVrmImportUI::GenerateOptionData() {
 	c(BoneWeightInfluenceNum);
 
 	c(bSimpleRoot);
+
+	c(bActiveBone);
 
 	c(bSkipNoMeshBone);
 

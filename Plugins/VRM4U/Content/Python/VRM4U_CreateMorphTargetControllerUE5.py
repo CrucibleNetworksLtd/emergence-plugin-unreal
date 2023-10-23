@@ -49,10 +49,18 @@ for i in range(len(morphList)):
     
 print(morphListWithNo)
 
-while(len(hierarchy.get_bones()) > 0):
-    e = hierarchy.get_bones()[-1]
-    h_con.remove_all_parents(e)
-    h_con.remove_element(e)
+boneRemove = False
+if ("5." in unreal.SystemLibrary.get_engine_version()):
+    if ("5.0." in unreal.SystemLibrary.get_engine_version()):
+        boneRemove = True
+else:
+    boneRemove = True
+
+if (boneRemove):
+    while(len(hierarchy.get_bones()) > 0):
+        e = hierarchy.get_bones()[-1]
+        h_con.remove_all_parents(e)
+        h_con.remove_element(e)
 
 h_con.import_bones(unreal.ControlRigBlueprintLibrary.get_preview_mesh(rig).skeleton)
 h_con.import_curves(unreal.ControlRigBlueprintLibrary.get_preview_mesh(rig).skeleton)

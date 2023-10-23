@@ -596,6 +596,10 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 	if (vrmAssetList == nullptr || aiData == nullptr) {
 		return false;
 	}
+	if (VRMConverter::Options::Get().IsNoMesh()) {
+		return true;
+	}
+
 
 	const bool bGenerateMips = VRMConverter::Options::Get().IsMipmapGenerateMode();
 
@@ -827,6 +831,18 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 					break;
 				case EVRMImportMaterialType::VRMIMT_glTF:
 					mset = vrmAssetList->GLTFSet;
+					bMToon = false;
+					break;
+				case EVRMImportMaterialType::VRMIMT_UEFNUnlit:
+					mset = vrmAssetList->UEFNUnlitSet;
+					bMToon = false;
+					break;
+				case EVRMImportMaterialType::VRMIMT_UEFNLit:
+					mset = vrmAssetList->UEFNLitSet;
+					bMToon = false;
+					break;
+				case EVRMImportMaterialType::VRMIMT_UEFNSSSProfile:
+					mset = vrmAssetList->UEFNSSSProfileSet;
 					bMToon = false;
 					break;
 				case EVRMImportMaterialType::VRMIMT_Custom:
@@ -1116,8 +1132,10 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 					if (bMToon || VRMConverter::Options::Get().IsVRM10Model()) {
 						createAndAddMaterial(dm, iMat, vrmAssetList, this);
 
-						if (matFlagOpaqueArray[iMat]) {
-							LocalScalarParameterSet(dm, TEXT("bOpaque"), 1.f);
+						if (matFlagOpaqueArray.IsValidIndex(iMat)) {
+							if (matFlagOpaqueArray[iMat]) {
+								LocalScalarParameterSet(dm, TEXT("bOpaque"), 1.f);
+							}
 						}
 						if (vrmAssetList->MaterialHasMToon.IsValidIndex(iMat)) {
 							if (vrmAssetList->MaterialHasMToon[iMat] == false) {
@@ -1148,6 +1166,7 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 
 							int index = TextureTypeToIndex[t];
 							if (index < 0) continue;
+							if (vrmAssetList->Textures.IsValidIndex(index) == false) continue;
 							if (IsValid(vrmAssetList->Textures[index]) == false) continue;
 
 							LocalTextureSet(dm, *(materialParamName[t]), vrmAssetList->Textures[index]);

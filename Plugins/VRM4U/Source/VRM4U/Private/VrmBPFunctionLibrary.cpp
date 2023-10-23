@@ -29,7 +29,8 @@
 #include "Rendering/SkeletalMeshModel.h"
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
-#else
+
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
 #include "Retargeter/IKRetargeter.h"
@@ -37,6 +38,16 @@
 #include "RigEditor/IKRigController.h"
 #include "RetargetEditor/IKRetargeterController.h"
 #endif
+
+#else
+#include "Rig/IKRigDefinition.h"
+#include "Rig/Solvers/IKRigSolver.h"
+#include "Retargeter/IKRetargeter.h"
+#if WITH_EDITOR
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#endif
+
 #endif
 
 #include "Animation/AnimInstance.h"
@@ -485,11 +496,19 @@ void UVrmBPFunctionLibrary::VRMDrawMaterialToRenderTarget(UObject* WorldContextO
 
 		UCanvas* Canvas = World->GetCanvasForDrawMaterialToRenderTarget();
 
+#if	UE_VERSION_OLDER_THAN(5,3,0)
 		FCanvas RenderCanvas(
 			RenderTargetResource,
 			nullptr,
 			World,
 			World->FeatureLevel);
+#else
+		FCanvas RenderCanvas(
+			RenderTargetResource,
+			nullptr,
+			World,
+			World->GetFeatureLevel());
+#endif
 
 		Canvas->Init(TextureRenderTarget->SizeX, TextureRenderTarget->SizeY, nullptr, &RenderCanvas);
 		Canvas->Update();

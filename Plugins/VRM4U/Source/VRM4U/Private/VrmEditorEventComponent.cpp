@@ -17,9 +17,12 @@
 #elif UE_VERSION_OLDER_THAN(5,0,0)
 #include "ILevelSequenceEditorToolkit.h"
 #include "LevelSequenceEditor/Public/LevelSequenceEditorBlueprintLibrary.h"
-#else
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 #include "ILevelSequenceEditorToolkit.h"
 #include "LevelSequenceEditor/Public/LevelSequenceEditorBlueprintLibrary.h"
+#else
+#include "ILevelSequenceEditorToolkit.h"
+#include "LevelSequenceEditorBlueprintLibrary.h"
 #endif
 
 

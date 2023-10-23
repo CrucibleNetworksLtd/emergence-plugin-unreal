@@ -73,7 +73,7 @@ controlPin = None
 while(len(hierarchy.get_bones()) > 0):
     e = hierarchy.get_bones()[-1]
     h_con.remove_all_parents(e)
-    h_con.remove_element(e)
+    #h_con.remove_element(e)
 
 h_con.import_bones(unreal.ControlRigBlueprintLibrary.get_preview_mesh(rig).skeleton)
 
@@ -528,8 +528,11 @@ def disableNode(toNoneNode):
             if (hierarchy.contains(key) == True):
                 settings = h_con.get_control_settings(key)
 
-                if ("5.1." in unreal.SystemLibrary.get_engine_version()):
-                    settings.set_editor_property('shape_visible',  False)
+                if ("5." in unreal.SystemLibrary.get_engine_version()):
+                    if ("5.0." in unreal.SystemLibrary.get_engine_version()):
+                        settings.set_editor_property('shape_enabled',  False)
+                    else:
+                        settings.set_editor_property('shape_visible',  False)
                 else:
                     settings.set_editor_property('shape_enabled',  False)
             

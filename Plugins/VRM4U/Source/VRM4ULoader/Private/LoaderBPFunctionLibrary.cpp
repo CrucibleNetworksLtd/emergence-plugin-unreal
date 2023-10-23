@@ -34,6 +34,7 @@
 #include "Misc/FileHelper.h"
 #include "UObject/Package.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "EditorFramework/AssetImportData.h"
 
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
@@ -51,12 +52,13 @@
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
 
-#elif	UE_VERSION_OLDER_THAN(5,2, 0)
+#elif UE_VERSION_OLDER_THAN(5,2,0)
 
 #include "UObject/SavePackage.h"
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
 #if WITH_EDITOR
+#include "EditorFramework/AssetImportData.h"
 #include "IContentBrowserSingleton.h"
 #include "ContentBrowserModule.h"
 #include "RigEditor/IKRigController.h"
@@ -65,18 +67,32 @@
 #include "Solvers/IKRig_PBIKSolver.h"
 #endif
 
-#else
-
+#elif UE_VERSION_OLDER_THAN(5,3,0)
 #include "UObject/SavePackage.h"
 #include "IKRigDefinition.h"
 #include "IKRigSolver.h"
 #if WITH_EDITOR
+#include "EditorFramework/AssetImportData.h"
 #include "IContentBrowserSingleton.h"
 #include "ContentBrowserModule.h"
 #include "RigEditor/IKRigController.h"
 #include "RetargetEditor/IKRetargeterController.h"
 #include "Retargeter/IKRetargeter.h"
 #include "Solvers/IKRig_FBIKSolver.h"
+#endif
+
+#else
+#include "UObject/SavePackage.h"
+#include "Rig/IKRigDefinition.h"
+#include "Rig/Solvers/IKRigSolver.h"
+#if WITH_EDITOR
+#include "EditorFramework/AssetImportData.h"
+#include "IContentBrowserSingleton.h"
+#include "ContentBrowserModule.h"
+#include "RigEditor/IKRigController.h"
+#include "RetargetEditor/IKRetargeterController.h"
+#include "Retargeter/IKRetargeter.h"
+#include "Rig/Solvers/IKRig_FBIKSolver.h"
 #endif
 
 #endif
@@ -383,12 +399,17 @@ namespace {
 }
 
 UVrmLicenseObject* ULoaderBPFunctionLibrary::GetVRMMeta(FString filepath) {
+
+	UE_LOG(LogVRM4ULoader, Log, TEXT("GetVRMMeta:OrigFileName=%s"), *filepath);
+
 	std::string file;
 #if PLATFORM_WINDOWS
 	file = utf_16_to_shift_jis(*filepath);
 #else
 	file = TCHAR_TO_UTF8(*filepath);
 #endif
+
+	UE_LOG(LogVRM4ULoader, Log, TEXT("GetVRMMeta:std::stringFileName=%s"), file.c_str());
 
 	Assimp::Importer mImporter;
 	const aiScene *mScenePtr = nullptr; // delete by Assimp::Importer::~Importer
@@ -397,6 +418,8 @@ UVrmLicenseObject* ULoaderBPFunctionLibrary::GetVRMMeta(FString filepath) {
 		TArray<uint8> Res;
 		if (FFileHelper::LoadFileToArray(Res, *filepath)) {
 		}
+		UE_LOG(LogVRM4ULoader, Log, TEXT("GetVRMMeta: filesize=%d"), Res.Num());
+
 		const FString ext = FPaths::GetExtension(filepath);
 #if PLATFORM_WINDOWS
 		std::string e = utf_16_to_shift_jis(*ext);
@@ -409,6 +432,8 @@ UVrmLicenseObject* ULoaderBPFunctionLibrary::GetVRMMeta(FString filepath) {
 			e.c_str());
 
 		//UE_LOG(LogVRM4ULoader, Log, TEXT("VRM:(%3.3lf secs) ReadFileFromMemory"), FPlatformTime::Seconds() - StartTime);
+
+		UE_LOG(LogVRM4ULoader, Log, TEXT("GetVRMMeta: mScenePtr=%p"), mScenePtr);
 	}
 	if (mScenePtr == nullptr) {
 		return nullptr;
@@ -628,8 +653,10 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 		const FString ext = FPaths::GetExtension(filepath).ToLower();
 #if PLATFORM_WINDOWS
 		std::string e = utf_16_to_shift_jis(*ext);
+		std::string e_imp = utf_16_to_shift_jis(*ext);
 #else
 		std::string e = TCHAR_TO_UTF8(*ext);
+		std::string e_imp = TCHAR_TO_UTF8(*ext);
 #endif
 
 		VRMConverter::Options::Get().ClearModelType();
@@ -642,8 +669,15 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 			if (VRMIsVRM10(pFileDataData, dataSize)) {
 				VRMConverter::Options::Get().SetVRM10Model(true);
 			}
-
 		}
+
+		if (e.compare("vrma") == 0) {
+			VRMConverter::Options::Get().SetVRMAModel(true);
+			VRMConverter::Options::Get().SetNoMesh(true);
+			e_imp = "vrm";
+			VRMConverter::Options::Get().SetBVHModel(true);
+		}
+
 		if (e.compare("bvh") == 0) {
 			VRMConverter::Options::Get().SetBVHModel(true);
 		}
@@ -653,7 +687,7 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 
 		mScenePtr = mImporter.ReadFileFromMemory(pFileDataData, dataSize,
 			aiProcess_Triangulate | aiProcess_MakeLeftHanded | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_OptimizeMeshes,
-			e.c_str());
+			e_imp.c_str());
 
 		if (mScenePtr == nullptr) {
 			std::string file;
@@ -698,11 +732,17 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 		}
 		OutVrmAsset = out;
 	}
-
 	if (out == nullptr) {
 		UE_LOG(LogVRM4ULoader, Warning, TEXT("VRM4U: no UVrmAssetListObject.\n"));
 		return false;
 	}
+
+#if WITH_EDITORONLY_DATA
+	{
+		out->AssetImportData = NewObject<UAssetImportData>(out, TEXT("AssetImportData"));
+		out->AssetImportData->Update(filepath);
+	}
+#endif
 
 	out->FileFullPathName = filepath;
 	out->OrigFileName = baseFileName;

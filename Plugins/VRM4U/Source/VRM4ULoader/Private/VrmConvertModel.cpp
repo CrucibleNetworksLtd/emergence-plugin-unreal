@@ -18,6 +18,7 @@
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Animation/MorphTarget.h"
 #include "Rendering/SkinWeightVertexBuffer.h"
+#include "CommonFrameRates.h"
 
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/PhysicsConstraintTemplate.h"
@@ -947,11 +948,13 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 		if (Options::Get().GetSkeleton() == nullptr) {
 			k->RecreateBoneTree(sk);
 		}
+
+#if	UE_VERSION_OLDER_THAN(5,0,0)
 		{
 			TArray<FName> BonesToRemove;
 			k->RemoveVirtualBones(BonesToRemove);
 		}
-
+#endif
 
 		// sk end
 
@@ -1077,10 +1080,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 		FSkeletalMeshLODRenderData* pRd = &p->LODRenderData[0];
 
 		{
-			pRd->StaticVertexBuffers.PositionVertexBuffer.Init(allVertex);
-			pRd->StaticVertexBuffers.ColorVertexBuffer.InitFromSingleColor(FColor(255, 255, 255, 255), allVertex);
-			pRd->StaticVertexBuffers.StaticMeshVertexBuffer.CleanUp();
-			pRd->StaticVertexBuffers.StaticMeshVertexBuffer.Init(allVertex, uvNum);
+			if (allVertex > 0) {
+				pRd->StaticVertexBuffers.PositionVertexBuffer.Init(allVertex);
+				pRd->StaticVertexBuffers.ColorVertexBuffer.InitFromSingleColor(FColor(255, 255, 255, 255), allVertex);
+				pRd->StaticVertexBuffers.StaticMeshVertexBuffer.CleanUp();
+				pRd->StaticVertexBuffers.StaticMeshVertexBuffer.Init(allVertex, uvNum);
+			}
 
 
 #if WITH_EDITOR
@@ -1453,6 +1458,17 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					if (&w == &meshWeight[0]) {
 						warnCount = 0;
 					}
+
+					// sort by Weight
+					for (int i = 0; i < MAX_TOTAL_INFLUENCES - 1; ++i) {
+						for (int j = i + 1; j < MAX_TOTAL_INFLUENCES; ++j) {
+							if (w.InfluenceWeights[i] < w.InfluenceWeights[j]) {
+								std::swap(w.InfluenceWeights[i], w.InfluenceWeights[j]);
+								std::swap(w.InfluenceBones[i], w.InfluenceBones[j]);
+							}
+						}
+					}
+
 					int f = 0;
 					int maxIndex = 0;
 					int maxWeight = 0;
@@ -1484,6 +1500,8 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 								if (dummy == INDEX_NONE) {
 									dummy = 0;
 								}
+								// add active bone for simple static mesh (not skinned mesh)
+								AllActiveBones.AddUnique(dummy);
 							}
 
 							auto inf = bonemap.AddUnique(dummy);
@@ -1497,16 +1515,6 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 							const int n = Options::Get().GetBoneWeightInfluenceNum();
 
 							{
-								// sort by Weight
-								for (int i = 0; i < MAX_TOTAL_INFLUENCES-1; ++i) {
-									for (int j = i + 1; j < MAX_TOTAL_INFLUENCES; ++j) {
-										if (w.InfluenceWeights[i] < w.InfluenceWeights[j]) {
-											std::swap(w.InfluenceWeights[i], w.InfluenceWeights[j]);
-											std::swap(w.InfluenceBones[i], w.InfluenceBones[j]);
-										}
-									}
-								}
-
 								// recalc weight
 								f = 0;
 								for (int i = 0; i < n; ++i) {
@@ -1519,13 +1527,18 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 									w.InfluenceBones[i] = 0;
 									w.InfluenceWeights[i] = 0;
 								}
+
 								int total = 0;
 								for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 									int t = w.InfluenceWeights[i];
-									w.InfluenceWeights[i] = (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeightFloat * t / f);
+									w.InfluenceWeights[i] = (VRM4U_BONE_INFLUENCE_TYPE)FMath::TruncToInt(VRM4U_MaxBoneWeightFloat * t / f);
 									total += w.InfluenceWeights[i];
 								}
 								// adjust
+								if (total > VRM4U_MaxBoneWeight) {
+									UE_LOG(LogVRM4ULoader, Warning, TEXT("overr"));
+									w.InfluenceWeights[0] -= (VRM4U_BONE_INFLUENCE_TYPE)(total - VRM4U_MaxBoneWeight);
+								}
 								w.InfluenceWeights[0] += (VRM4U_BONE_INFLUENCE_TYPE)(VRM4U_MaxBoneWeight - total);
 							}
 						}
@@ -1716,6 +1729,17 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					int f = 0;
 					int maxIndex = 0;
 					int maxWeight = 0;
+
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+#else
+#if WITH_EDITOR
+#else
+					for (int i = 0; i < Options::Get().GetBoneWeightInfluenceNum(); ++i) {
+						w.InfluenceWeights[i] = (VRM4U_BONE_INFLUENCE_TYPE)(((int)(w.InfluenceWeights[i] / 256)) * 256);
+					}
+#endif
+#endif
+
 					for (int i = 0; i < MAX_TOTAL_INFLUENCES; ++i) {
 						f += w.InfluenceWeights[i];
 
@@ -1916,20 +1940,29 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 		{
 			//FSkeletalMeshLODRenderData& rd = sk->GetResourceForRendering()->LODRenderData[0];
 
-			FSkeletalMeshLODModel* p = &(sk->GetImportedModel()->LODModels[0]);
 			{
-				auto& r = VRMGetSkeleton(sk)->GetReferenceSkeleton();
-				for (int i = 0; i < AllActiveBones.Num(); ++i) {
-					auto boneIndex = r.GetParentIndex(AllActiveBones[i]);
-					if (boneIndex >= 0) {
-						AllActiveBones.AddUnique(boneIndex);
+				FSkeletalMeshLODModel* p = &(sk->GetImportedModel()->LODModels[0]);
+				if (Options::Get().IsActiveBone()) {
+					auto& r = VRMGetSkeleton(sk)->GetReferenceSkeleton();
+					for (int i = 0; i < AllActiveBones.Num(); ++i) {
+						auto boneIndex = r.GetParentIndex(AllActiveBones[i]);
+						if (boneIndex >= 0) {
+							AllActiveBones.AddUnique(boneIndex);
+						}
 					}
-				}
-				AllActiveBones.Sort();
+					AllActiveBones.Sort();
 
-				p->ActiveBoneIndices.SetNum(AllActiveBones.Num());
-				for (int i = 0; i < AllActiveBones.Num(); ++i) {
-					p->ActiveBoneIndices[i] = AllActiveBones[i];
+					p->ActiveBoneIndices.SetNum(AllActiveBones.Num());
+					for (int i = 0; i < AllActiveBones.Num(); ++i) {
+						p->ActiveBoneIndices[i] = AllActiveBones[i];
+					}
+				} else {
+					int boneNum = VRMGetSkeleton(sk)->GetReferenceSkeleton().GetRawBoneNum();
+
+					p->ActiveBoneIndices.SetNum(boneNum);
+					for (int i = 0; i < boneNum; ++i) {
+						p->ActiveBoneIndices[i] = i;
+					}
 				}
 			}
 			{
@@ -2070,9 +2103,6 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 															//sk->SkeletalBodySetups.Num();
 					bs->CreatePhysicsMeshes();
 
-#if WITH_EDITOR
-					//pa->InvalidateAllPhysicsMeshes();
-#endif
 				}// collision
 			}
 
@@ -2100,8 +2130,8 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 
 #if WITH_EDITOR
 	// animation
-	if (aiData->mNumAnimations > 0){
-		UAnimSequence *ase;
+	if (aiData->mNumAnimations > 0) {
+		UAnimSequence* ase;
 		ase = VRM4U_NewObject<UAnimSequence>(vrmAssetList->Package, *(TEXT("A_") + vrmAssetList->BaseFileName), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
 		ase->SetSkeleton(k);
 
@@ -2109,8 +2139,6 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 		ase->CleanAnimSequenceForImport();
 #else
 
-		auto &Controller = ase->GetController();
-		Controller.ResetModel();
 
 		int FrameNum = 0;
 		for (uint32_t animNo = 0; animNo < aiData->mNumAnimations; animNo++) {
@@ -2123,13 +2151,52 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 				FrameNum = FMath::Max(FrameNum, (int)aiNA->mNumRotationKeys);
 			}
 		}
+		auto& Controller = ase->GetController();
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+#else
+		Controller.OpenBracket(LOCTEXT("VRM4U", "Importing BVH"), false);
+#endif
+		Controller.ResetModel();
+
+
+		double AnimDeltaTime = 0.f;
+		{
+			for (uint32_t animNo = 0; animNo < aiData->mNumAnimations; animNo++) {
+				aiAnimation* aiA = aiData->mAnimations[animNo];
+
+				for (uint32_t chanNo = 0; chanNo < aiA->mNumChannels; chanNo++) {
+					aiNodeAnim* aiNA = aiA->mChannels[chanNo];
+
+					for (int i = 0; i < (int)(aiNA->mNumRotationKeys)-1; ++i) {
+						auto dif = (aiNA->mRotationKeys[i+1].mTime - aiNA->mRotationKeys[i].mTime) / aiA->mTicksPerSecond;
+						if (AnimDeltaTime == 0.f && dif != 0.f) {
+							AnimDeltaTime = dif;
+						}
+					}
+				}
+			}
+		}
+
+
+#if	UE_VERSION_OLDER_THAN(5,2,0)
 		Controller.SetPlayLength(FrameNum-1);
 		Controller.SetFrameRate(FFrameRate(1, 1));
+#else
+		Controller.InitializeModel();
+		ase->ResetAnimation();
+		ase->SetPreviewMesh(sk);
+		if (AnimDeltaTime > 0.f) {
+			Controller.SetFrameRate(FFrameRate(1.f / AnimDeltaTime, 1));
+		} else {
+			Controller.SetFrameRate(FCommonFrameRates::FPS_30());
+		}
+		Controller.SetNumberOfFrames(FrameNum - 1);
+#endif
 		Controller.UpdateCurveNamesFromSkeleton(k, ERawCurveTrackTypes::RCT_Float);
 
-		Controller.OpenBracket(LOCTEXT("VRM4U", "Importing BVH"), false);
+		//Controller.OpenBracket(LOCTEXT("VRM4U", "Importing BVH"), false);
 
-		ase->RateScale = VRMConverter::Options::Get().GetAnimationFrameRate();
+		ase->RateScale = VRMConverter::Options::Get().GetAnimationPlayRateScale();
 #endif
 
 
@@ -2148,12 +2215,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 
 					FRawAnimSequenceTrack RawTrack;
 
-					if (chanNo == 0) {
+					{
 						for (uint32_t i = 0; i < aiNA->mNumPositionKeys; ++i) {
 							const auto &v = aiNA->mPositionKeys[i].mValue;
 							//FVector pos(v.x, v.y, v.z);
 							FVector pos(-v.x, v.z, v.y);
-							//pos *= VRMConverter::Options::Get().GetModelScale();
+							pos *= 100.f * VRMConverter::Options::Get().GetAnimationTranslateScale();
 							if (VRMConverter::Options::Get().IsVRM10Model() || VRMConverter::Options::Get().IsPMXModel() || VRMConverter::Options::Get().IsBVHModel()) {
 								pos.X *= -1.f;
 								pos.Y *= -1.f;
@@ -2168,12 +2235,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 						}
 						if (chanNo == 0) {
 							if (RawTrack.PosKeys.Num()) {
-								//ase->bEnableRootMotion = true;
+								ase->bEnableRootMotion = true;
 							}
 						}
 					}
 
-					if (chanNo > 0 || 1) {
+					{
 						for (uint32_t i = 0; i < aiNA->mNumRotationKeys; ++i) {
 							const auto &v = aiNA->mRotationKeys[i].mValue;
 
@@ -2251,9 +2318,29 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 
 #if	UE_VERSION_OLDER_THAN(5,0,0)
 						int32 NewTrackIdx = ase->AddNewRawTrack(UTF8_TO_TCHAR(aiNA->mNodeName.C_Str()), &RawTrack);
-#else
+#elif UE_VERSION_OLDER_THAN(5,2,0)
 						if (Controller.AddBoneTrack(UTF8_TO_TCHAR(aiNA->mNodeName.C_Str())) != INDEX_NONE) {
 							Controller.SetBoneTrackKeys(UTF8_TO_TCHAR(aiNA->mNodeName.C_Str()), RawTrack.PosKeys, RawTrack.RotKeys, RawTrack.ScaleKeys);
+						}
+#else
+						{
+							FName NodeName = UTF8_TO_TCHAR(aiNA->mNodeName.C_Str());
+							
+							if (VRMConverter::Options::Get().IsVRMAModel()) {
+								if (vrmAssetList->VrmMetaObject) {
+									for (auto& t : vrmAssetList->VrmMetaObject->humanoidBoneTable) {
+
+										if (t.Value == NodeName.ToString()) {
+											NodeName = *t.Key;
+											break;
+										}
+									}
+								}
+							}
+
+							if (Controller.AddBoneCurve(NodeName)) {
+								Controller.SetBoneTrackKeys(NodeName, RawTrack.PosKeys, RawTrack.RotKeys, RawTrack.ScaleKeys);
+							}
 						}
 #endif
 

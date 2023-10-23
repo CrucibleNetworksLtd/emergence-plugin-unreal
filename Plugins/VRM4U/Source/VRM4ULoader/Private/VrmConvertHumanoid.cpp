@@ -28,8 +28,14 @@
 static void renameToHumanoidBone(USkeletalMesh *targetSK, const UVrmMetaObject *meta, const USkeletalMesh *srcSK) {
 
 	USkeleton *targetSkeleton = VRMGetSkeleton(targetSK);
-	UNodeMappingContainer * rig = VRMGetNodeMappingData(targetSK)[0];
-	UNodeMappingContainer *src_rig = VRMGetNodeMappingData(srcSK)[0];
+	UNodeMappingContainer* rig = nullptr;
+	if (VRMGetNodeMappingData(targetSK).Num()) {
+		rig = VRMGetNodeMappingData(targetSK)[0];
+	}
+	UNodeMappingContainer* src_rig = nullptr;
+	if (VRMGetNodeMappingData(srcSK).Num()) {
+		src_rig = VRMGetNodeMappingData(srcSK)[0];
+	}
 
 	if (meta == nullptr) {
 		return;
@@ -99,8 +105,14 @@ static void renameToHumanoidBone(USkeletalMesh *targetSK, const UVrmMetaObject *
 static void renameToUE4Bone(USkeletalMesh *targetSK, UVrmMetaObject *meta, const USkeletalMesh *srcSK) {
 
 	USkeleton *targetSkeleton = VRMGetSkeleton(targetSK);
-	UNodeMappingContainer * rig = VRMGetNodeMappingData(targetSK)[0];
-	UNodeMappingContainer *src_rig = VRMGetNodeMappingData(srcSK)[0];
+	UNodeMappingContainer* rig = nullptr;
+	if (VRMGetNodeMappingData(targetSK).Num()) {
+		rig = VRMGetNodeMappingData(targetSK)[0];
+	}
+	UNodeMappingContainer* src_rig = nullptr;
+	if (VRMGetNodeMappingData(srcSK).Num()) {
+		src_rig = VRMGetNodeMappingData(srcSK)[0];
+	}
 
 	//k->RemoveBonesFromSkeleton()
 	auto &allbone = const_cast<TArray<FMeshBoneInfo> &>(targetSkeleton->GetReferenceSkeleton().GetRawRefBoneInfo());
@@ -216,6 +228,7 @@ bool VRMConverter::ConvertHumanoid(UVrmAssetListObject *vrmAssetList) {
 		USkeletalMesh *ss = nullptr;
 		UNodeMappingContainer *rr = nullptr;
 
+#if WITH_EDITOR
 		if (i == 0) {
 			ss = DuplicateObject<USkeletalMesh>(src_sk, vrmAssetList->Package, *name_mesh);
 			base = DuplicateObject<USkeleton>(src_k, vrmAssetList->Package, *name_skeleton);
@@ -225,6 +238,11 @@ bool VRMConverter::ConvertHumanoid(UVrmAssetListObject *vrmAssetList) {
 			base = DuplicateObject<USkeleton>(src_k, vrmAssetList->Package, *name_skeleton);
 			rr = VRM4U_NewObject<UNodeMappingContainer>(vrmAssetList->Package, *name_rig, RF_Public | RF_Standalone);
 		}
+#else
+		ss = const_cast<USkeletalMesh*>(src_sk);
+		base = const_cast<USkeleton*>(src_k);
+		if (i == 1) continue;
+#endif
 
 		new_sk[i] = ss;
 		new_k[i] = base;
@@ -296,6 +314,7 @@ bool VRMConverter::ConvertHumanoid(UVrmAssetListObject *vrmAssetList) {
 		int boneNo = 0;
 		TPair<FString, FString> prev;
 		for (auto& a : meta->humanoidBoneTable) {
+			if (ss==nullptr) break;
 			auto ind = VRMGetRefSkeleton(ss).FindBoneIndex(*(a.Value));
 
 			if (boneNo == 0) {
