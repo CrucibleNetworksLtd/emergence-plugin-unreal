@@ -75,6 +75,24 @@ void UGetLinkedFuturepassInformation::Activate(){
 	LinkedFuturepassRequest->ProcessRequest();
 }
 
+void UGetLinkedFuturepassInformation::Cancel()
+{
+	if (LinkedFuturepassRequest) {
+		LinkedFuturepassRequest->OnProcessRequestComplete().Unbind();
+		LinkedFuturepassRequest->CancelRequest();
+	}
+	if (LinkedEOARequest) {
+		LinkedEOARequest->OnProcessRequestComplete().Unbind();
+		LinkedEOARequest->CancelRequest();
+	}
+}
+
+bool UGetLinkedFuturepassInformation::IsActive() const
+{
+	return LinkedFuturepassRequest->GetStatus() == EHttpRequestStatus::Processing ||
+		LinkedEOARequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
 void UGetLinkedFuturepassInformation::GetLinkedFuturepassInformation_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded){
 	
 }

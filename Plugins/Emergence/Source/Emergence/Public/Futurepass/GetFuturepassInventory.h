@@ -1,0 +1,30 @@
+// Copyright Crucible Networks Ltd 2023. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "EmergenceAsyncSingleRequestBase.h"
+#include "InventoryService/EmergenceInventoryServiceStructs.h"
+#include "GetFuturepassInventory.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class EMERGENCE_API UGetFuturepassInventory : public UEmergenceAsyncSingleRequestBase
+{
+	GENERATED_BODY()
+public:
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Futurepass Methods")
+	static UGetFuturepassInventory* GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses);
+
+	virtual void Activate() override;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetFuturepassInventoryCompleted, FEmergenceInventory, Response, EErrorCode, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGetFuturepassInventoryCompleted OnGetFuturepassInventoryCompleted;
+
+private:
+	TArray<FString> Addresses;
+};

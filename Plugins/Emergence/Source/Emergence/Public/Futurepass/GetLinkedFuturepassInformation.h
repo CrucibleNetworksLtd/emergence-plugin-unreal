@@ -96,6 +96,10 @@ public:
 
 	virtual void Activate() override;
 
+	virtual void Cancel();
+
+	virtual bool IsActive() const;
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetLinkedFuturepassInformationCompleted, FLinkedFuturepassInformationResponse, Response, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
