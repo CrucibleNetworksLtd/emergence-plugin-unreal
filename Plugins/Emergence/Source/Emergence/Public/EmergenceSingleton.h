@@ -16,6 +16,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Emergence.h"
 #include "Brushes/SlateDynamicImageBrush.h"
+#include "Futurepass/GetLinkedFuturepassInformation.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -43,6 +44,12 @@ public:
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
+
+	UPROPERTY(BlueprintReadWrite)
+	FLinkedFuturepassInformationResponse FuturepassInfo;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool FuturepassInfoIsSet = false;
 
 	UPROPERTY()
 	FString DeviceID;

@@ -13,7 +13,13 @@ UGetFuturepassInventory* UGetFuturepassInventory::GetFuturepassInventory(UObject
 }
 
 void UGetFuturepassInventory::Activate() {
-	FString AddressString = Addresses[0];
+	FString AddressString;
+	for (int i = 0; i < Addresses.Num(); i++) {
+		if (i != 0) {
+			AddressString = AddressString + ",";
+		}
+		AddressString = AddressString + "\"" + Addresses[i] + "\"";
+	}
 
 	FString Content = R"({"query":"query ExampleQuery($addresses: [Address]!, $chainLocations: [BlockchainLocationInput], $first: Int) {\n  nfts(addresses: $addresses, chainLocations: $chainLocations, first: $first) {\n    edges {\n      node {\n        assetType\n        collection {\n          chainId\n          chainType\n          location\n          name\n        }\n        tokenIdNumber\n        metadata {\n          properties\n        }\n      }\n    }\n  }\n}\n","variables":{"addresses":[)" + AddressString + R"(],"first":100},"operationName":"ExampleQuery"})";
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
