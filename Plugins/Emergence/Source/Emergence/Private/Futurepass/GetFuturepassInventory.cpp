@@ -50,7 +50,7 @@ void UGetFuturepassInventory::Activate() {
 
 						FEmergenceInventoryItem Item;
 						Item.contract = NFTData->GetObjectField("collection")->GetStringField("location");
-						Item.tokenId = FString::FromInt(NFTData->GetNumberField("tokenIdNumber"));
+						Item.tokenId = "#" + FString::FromInt(NFTData->GetNumberField("tokenIdNumber"));
 						Item.blockchain = NFTData->GetObjectField("collection")->GetStringField("chainId") + ":" + NFTData->GetObjectField("collection")->GetStringField("chainType");
 						if (NFTData->GetObjectField("metadata")->GetObjectField("properties")->HasTypedField<EJson::String>("name")) {
 							Item.meta.name = NFTData->GetObjectField("metadata")->GetObjectField("properties")->GetStringField("name");
