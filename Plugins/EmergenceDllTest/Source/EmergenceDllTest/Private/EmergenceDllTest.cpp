@@ -18,13 +18,13 @@ void FEmergenceDllTestModule::StartupModule()
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
 #if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/EmergenceDllTestLibrary/Win64/nativehost.dll"));
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("ThirdParty/EmergenceDllTestLibrary/Win64/nativehost.dll"));
 #elif PLATFORM_MAC
     LibraryPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/EmergenceDllTestLibrary/Mac/Release/libExampleLibrary.dylib"));
 #endif // PLATFORM_WINDOWS
-	FString DllDirectory = BaseDir + "/Binaries/ThirdParty/EmergenceDllTestLibrary/Win64/";
+	FString DllDirectory = BaseDir + "/ThirdParty/EmergenceDllTestLibrary/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
-	ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(TEXT("H:/emergence-plugin-unreal/Plugins/EmergenceDllTest/Binaries/ThirdParty/EmergenceDllTestLibrary/Win64/nativehost.dll")) : nullptr;
+	ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(TEXT("H:/emergence-plugin-unreal/Plugins/EmergenceDllTest/ThirdParty/EmergenceDllTestLibrary/Win64/nativehost.dll")) : nullptr;
 
 	if (ExampleLibraryHandle)
 	{
