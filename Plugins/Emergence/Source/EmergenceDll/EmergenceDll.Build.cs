@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class EmergenceDllTest : ModuleRules
+public class EmergenceDll : ModuleRules
 {
-	public EmergenceDllTest(ReadOnlyTargetRules Target) : base(Target)
+	public EmergenceDll(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -26,7 +26,8 @@ public class EmergenceDllTest : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Projects"
+				"Projects",
+				"Emergence"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -35,8 +36,8 @@ public class EmergenceDllTest : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				// ... add private dependencies that you statically link with here ...	
-			}
+                "CoreUObject",
+            }
 			);
 		
 		

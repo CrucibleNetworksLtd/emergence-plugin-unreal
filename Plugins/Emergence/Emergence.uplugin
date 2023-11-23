@@ -23,6 +23,11 @@
 	],
 	"Modules": [
 		{
+			"Name": "EmergenceDll",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
 			"Name": "Emergence",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault",
