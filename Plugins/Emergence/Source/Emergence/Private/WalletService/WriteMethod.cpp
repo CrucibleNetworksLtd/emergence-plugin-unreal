@@ -115,7 +115,36 @@ void UWriteMethod::Activate()
 	//if we're working with a local wallet 
 	else {
 		//switching networks isn't allowed
-		CallWriteMethod();
+		//CallWriteMethod();
+		auto EmergenceModule = FModuleManager::GetModuleChecked<FEmergenceModule>("Emergence");
+		TArray<FString> Params;
+		LocalAccountName.ParseIntoArray(Params, TEXT(","), true);
+		FString TransactionResponse;
+		bool success = EmergenceModule.SendTransactionViaKeystore(DeployedContract, MethodName.MethodName, Params[0], Params[1], GasPrice, Value, TransactionResponse);
+		EErrorCode StatusCode = EErrorCode::EmergenceInternalError;
+		if (success)
+		{
+			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(TransactionResponse);
+			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+			{
+				if (JsonObject->HasField("statusCode"))
+				{
+					StatusCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+				}
+			}
+
+			if (StatusCode == EErrorCode::EmergenceOk) {
+				this->TransactionHash = JsonObject->GetObjectField("message")->GetStringField("transactionHash");
+				GetTransactionStatus();
+				OnTransactionSent.Broadcast();
+				return;
+			}
+		}
+
+		//If the code gets to this point something has failed
+		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
+		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 	}
 }
 
