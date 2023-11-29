@@ -145,11 +145,12 @@ void UWriteMethod::IsConnectedCompleted(bool IsConnected, FString Address, EErro
 {
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	Singleton->OnIsConnectedCompleted.RemoveDynamic(this, &UWriteMethod::IsConnectedCompleted);
-	if (StatusCode != EErrorCode::EmergenceOk && IsConnected) { //user is still connected via WalletConnect
+	if (StatusCode == EErrorCode::EmergenceOk && IsConnected) { //user is still connected via WalletConnect
 		MainRequests();
 	}
 	else { //User has dropped WalletConnect session		
-		Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::MainRequests);
+		UE_LOG(LogEmergenceHttp, Warning, TEXT("User has dropped WalletConnect connection, showing QR code to rescan."));
+		Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::Activate);
 		Singleton->ReconnectWalletConnectRequested.Broadcast();
 	}
 }
