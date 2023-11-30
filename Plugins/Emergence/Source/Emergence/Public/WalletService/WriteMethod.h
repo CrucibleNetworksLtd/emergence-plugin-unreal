@@ -61,7 +61,7 @@ public:
 	void IsConnectedCompleted(bool IsConnected, FString Address, EErrorCode StatusCode);
 
 	UFUNCTION()
-	void MainRequests();
+	void StartReconnectWalletUserFlow();
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 

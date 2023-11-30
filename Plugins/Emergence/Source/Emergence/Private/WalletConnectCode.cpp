@@ -56,8 +56,9 @@ void UWalletConnectCode::GetHandshakeCompleted(FString Address, EErrorCode Statu
 
 void UWalletConnectCode::StartAttempt()
 {
+	Singleton->ContractsWithLoadedABIs.Empty();
+	Singleton->DeviceID.Empty();
 	this->TimeRemaining = 60;
-
 	Singleton->OnGetQRCodeCompleted.RemoveDynamic(this, &UWalletConnectCode::QRCodeCompleted);
 	Singleton->OnGetAccessTokenCompleted.RemoveDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
 	Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);

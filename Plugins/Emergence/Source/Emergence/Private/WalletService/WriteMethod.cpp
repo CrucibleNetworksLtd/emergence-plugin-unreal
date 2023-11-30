@@ -30,6 +30,12 @@ void UWriteMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		this->Activate();
 	}
+	else if (StatusCode == EErrorCode::BadGateway || 
+		StatusCode == EErrorCode::ServerError ||
+		StatusCode == EErrorCode::GatewayTimeout) {
+		StartReconnectWalletUserFlow();
+		return;
+	}
 	else {
 		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 	}
@@ -48,21 +54,81 @@ void UWriteMethod::Activate()
 	}
 
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	Singleton->OnReconnectWalletConnectCompleteDelegate.RemoveDynamic(this, &UWriteMethod::Activate);
 
 	if (this->LocalAccountName.IsEmpty() && !Singleton->HasAccessToken()) {
 		UE_LOG(LogEmergenceHttp, Error, TEXT("If you aren't using a local wallet you need to have connected with WalletConnect to use WriteMethod!"));
 		return;
 	}
 
-#if UNREAL_MARKETPLACE_BUILD
-	if (Singleton)
-	{
-		Singleton->OnIsConnectedCompleted.AddUniqueDynamic(this, &UWriteMethod::IsConnectedCompleted);
-		Singleton->IsConnected();
+	//if this contract has never had its ABI loaded...
+	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
+		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
+		LoadContractRequest = LoadContract->Request;
+		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
+		LoadContract->Activate();
+		return;
 	}
-#else
-	MainRequests();
-#endif
+
+	//if we're working with a wallet connected wallet
+	if (this->LocalAccountName.IsEmpty()) {
+		TArray<TPair<FString, FString>> SwitchChainHeaders;
+
+		if (!Singleton->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
+			SwitchChainHeaders.Add(TPair<FString, FString>("deviceId", Singleton->DeviceID));
+		}
+		SwitchChainHeaders.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+
+		TSharedPtr<FJsonObject> SwitchChainContent = MakeShareable(new FJsonObject);
+		SwitchChainContent->SetNumberField("chainId", DeployedContract->Blockchain->ChainID);
+		SwitchChainContent->SetStringField("chainName", DeployedContract->Blockchain->Name.ToString());
+		SwitchChainContent->SetStringField("currencyName", DeployedContract->Blockchain->Symbol);
+		SwitchChainContent->SetStringField("currencySymbol", DeployedContract->Blockchain->Symbol);
+		SwitchChainContent->SetNumberField("currencyDecimals", 18);
+		SwitchChainContent->SetArrayField("rpcUrls", { MakeShared<FJsonValueString>(DeployedContract->Blockchain->NodeURL) });
+		SwitchChainContent->SetArrayField("blockExplorerUrls", {});
+		FString SwitchChainContentString;
+		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&SwitchChainContentString);
+		FJsonSerializer::Serialize(SwitchChainContent.ToSharedRef(), Writer);
+
+		//call switchChain to make sure we're on the right chain
+		auto Request = UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
+			this,
+			nullptr,
+			UHttpHelperLibrary::APIBase + "switchChain",
+			"POST",
+			300.0F, //give the user lots of time to mess around setting high gas fees
+			SwitchChainHeaders,
+			SwitchChainContentString, false);
+		SwitchChainRequest = Request;
+		Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+			EErrorCode StatusCode;
+			FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain_HttpRequestComplete: %s"), *res->GetContentAsString());
+			if (StatusCode == EErrorCode::EmergenceOk) {
+				CallWriteMethod();
+				return;
+			}
+			else if (StatusCode == EErrorCode::BadGateway || 
+				StatusCode == EErrorCode::ServerError ||
+				StatusCode == EErrorCode::GatewayTimeout) {
+				StartReconnectWalletUserFlow();
+				return;
+			}
+			else {
+				this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+				return;
+			}
+			});
+		Request->ProcessRequest();
+		UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain request started on method %s with value %s, calling lambda function on request completed. Json sent as part of the request: "), *MethodName.MethodName, *Value);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *SwitchChainContentString);
+	}
+	//if we're working with a local wallet 
+	else {
+		//switching networks isn't allowed
+		CallWriteMethod();
+	}
 }
 
 void UWriteMethod::CallWriteMethod()
@@ -124,6 +190,13 @@ bool UWriteMethod::IsActive() const
 		WriteMethodRequest->GetStatus() == EHttpRequestStatus::Processing;
 }
 
+void UWriteMethod::StartReconnectWalletUserFlow()
+{
+	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	Singleton->ReconnectWalletConnectRequested.Broadcast();
+	Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::Activate);
+}
+
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
@@ -136,6 +209,14 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 			OnTransactionSent.Broadcast();
 			return;
 		}
+		else if (StatusCode == EErrorCode::BadGateway || 
+			StatusCode == EErrorCode::ServerError ||
+			StatusCode == EErrorCode::GatewayTimeout) {
+			UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+			Singleton->OnIsConnectedCompleted.AddUniqueDynamic(this, &UWriteMethod::IsConnectedCompleted);
+			Singleton->IsConnected();
+			return;
+		}
 	}
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
 	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
@@ -146,81 +227,12 @@ void UWriteMethod::IsConnectedCompleted(bool IsConnected, FString Address, EErro
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 	Singleton->OnIsConnectedCompleted.RemoveDynamic(this, &UWriteMethod::IsConnectedCompleted);
 	if (StatusCode == EErrorCode::EmergenceOk && IsConnected) { //user is still connected via WalletConnect
-		MainRequests();
+		Activate();
 	}
 	else { //User has dropped WalletConnect session		
 		UE_LOG(LogEmergenceHttp, Warning, TEXT("User has dropped WalletConnect connection, showing QR code to rescan."));
 		Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::Activate);
 		Singleton->ReconnectWalletConnectRequested.Broadcast();
-	}
-}
-
-void UWriteMethod::MainRequests()
-{
-	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
-	Singleton->OnReconnectWalletConnectCompleteDelegate.RemoveDynamic(this, &UWriteMethod::MainRequests);
-
-	//if this contract has never had its ABI loaded...
-	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
-		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
-		LoadContractRequest = LoadContract->Request;
-		LoadContract->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
-		LoadContract->Activate();
-		return;
-	}
-
-	//if we're working with a wallet connected wallet
-	if (this->LocalAccountName.IsEmpty()) {
-		TArray<TPair<FString, FString>> SwitchChainHeaders;
-
-		if (!Singleton->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
-			SwitchChainHeaders.Add(TPair<FString, FString>("deviceId", Singleton->DeviceID));
-		}
-		SwitchChainHeaders.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-
-		TSharedPtr<FJsonObject> SwitchChainContent = MakeShareable(new FJsonObject);
-		SwitchChainContent->SetNumberField("chainId", DeployedContract->Blockchain->ChainID);
-		SwitchChainContent->SetStringField("chainName", DeployedContract->Blockchain->Name.ToString());
-		SwitchChainContent->SetStringField("currencyName", DeployedContract->Blockchain->Symbol);
-		SwitchChainContent->SetStringField("currencySymbol", DeployedContract->Blockchain->Symbol);
-		SwitchChainContent->SetNumberField("currencyDecimals", 18);
-		SwitchChainContent->SetArrayField("rpcUrls", { MakeShared<FJsonValueString>(DeployedContract->Blockchain->NodeURL) });
-		SwitchChainContent->SetArrayField("blockExplorerUrls", {});
-		FString SwitchChainContentString;
-		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&SwitchChainContentString);
-		FJsonSerializer::Serialize(SwitchChainContent.ToSharedRef(), Writer);
-
-		//call switchChain to make sure we're on the right chain
-		auto Request = UHttpHelperLibrary::ExecuteHttpRequest<UWriteMethod>(
-			this,
-			nullptr,
-			UHttpHelperLibrary::APIBase + "switchChain",
-			"POST",
-			300.0F, //give the user lots of time to mess around setting high gas fees
-			SwitchChainHeaders,
-			SwitchChainContentString, false);
-		SwitchChainRequest = Request;
-		Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
-			EErrorCode StatusCode;
-			FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
-			UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain_HttpRequestComplete: %s"), *res->GetContentAsString());
-			if (StatusCode == EErrorCode::EmergenceOk) {
-				CallWriteMethod();
-				return;
-			}
-			else {
-				this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
-				return;
-			}
-			});
-		Request->ProcessRequest();
-		UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain request started on method %s with value %s, calling lambda function on request completed. Json sent as part of the request: "), *MethodName.MethodName, *Value);
-		UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *SwitchChainContentString);
-	}
-	//if we're working with a local wallet 
-	else {
-		//switching networks isn't allowed
-		CallWriteMethod();
 	}
 }
 
