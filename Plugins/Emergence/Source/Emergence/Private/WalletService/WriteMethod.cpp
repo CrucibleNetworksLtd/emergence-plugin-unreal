@@ -119,6 +119,14 @@ void UWriteMethod::Activate()
 		auto EmergenceModule = FModuleManager::GetModuleChecked<FEmergenceModule>("Emergence");
 		TArray<FString> Params;
 		LocalAccountName.ParseIntoArray(Params, TEXT(","), true);
+		
+		if (Params.Num() != 2) {
+			UE_LOG(LogEmergenceHttp, Error, TEXT("WriteMethod using a local account requires the local account in the format \"PrivateKey,PublicKey\" "));
+			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", EErrorCode::EmergenceInternalError);
+			this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
+			return;
+		}
+
 		FString TransactionResponse;
 		bool success = EmergenceModule.SendTransactionViaKeystore(DeployedContract, MethodName.MethodName, Params[0], Params[1], GasPrice, Value, TransactionResponse);
 		EErrorCode StatusCode = EErrorCode::EmergenceInternalError;

@@ -45,7 +45,6 @@ void FEmergenceModule::ShutdownModule()
 
 bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {
-
 	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
 
 	// Add on the relative location of the third party dll and load it
@@ -55,13 +54,19 @@ bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployme
 #endif // PLATFORM_WINDOWS
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
-	ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(TEXT("H:/emergence-plugin-unreal/Plugins/Emergence/EmergenceDll/Win64/nativehost.dll")) : nullptr;
-	if (ExampleLibraryHandle) {
+
+	if (!ExampleLibraryHandle) { //if we don't have a handle on the lib already
+		ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(TEXT("H:/emergence-plugin-unreal/Plugins/Emergence/EmergenceDll/Win64/nativehost.dll")) : nullptr;
+	}
+
+	if (ExampleLibraryHandle && !ExampleLibraryFunction) { //if we now have a handle (not a guarantee), and we don't have a library
 		ExampleLibraryFunction = (_getExampleLibraryFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle, TEXT("entry"));
 	}
-	else {
-		return false;
+	
+	if(!ExampleLibraryHandle || !ExampleLibraryFunction) { //if we don't have either of them by now
+		return false; //give up
 	}
+	
 
 	FString GasPriceInternal;
 	GasPriceInternal.Empty(0);
@@ -119,7 +124,7 @@ bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployme
 		return false;
 	}
 
-	FPlatformProcess::FreeDllHandle(ExampleLibraryHandle);
+	
 }
 
 #undef LOCTEXT_NAMESPACE
