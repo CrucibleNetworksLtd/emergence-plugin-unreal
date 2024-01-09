@@ -128,31 +128,8 @@ void UWriteMethod::Activate()
 		}
 
 		FString TransactionResponse;
-		bool success = EmergenceModule.SendTransactionViaKeystore(DeployedContract, MethodName.MethodName, Params[0], Params[1], GasPrice, Value, TransactionResponse);
-		EErrorCode StatusCode = EErrorCode::EmergenceInternalError;
-		if (success)
-		{
-			TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-			TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(TransactionResponse);
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				if (JsonObject->HasField("statusCode"))
-				{
-					StatusCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
-				}
-			}
-
-			if (StatusCode == EErrorCode::EmergenceOk) {
-				this->TransactionHash = JsonObject->GetObjectField("message")->GetStringField("transactionHash");
-				GetTransactionStatus();
-				OnTransactionSent.Broadcast();
-				return;
-			}
-		}
-
-		//If the code gets to this point something has failed
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
-		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+		EmergenceModule.SendTransactionViaKeystore(this, DeployedContract, MethodName.MethodName, Params[0], Params[1], GasPrice, Value, TransactionResponse);
+		
 	}
 }
 
@@ -213,6 +190,34 @@ bool UWriteMethod::IsActive() const
 	return LoadContractRequest->GetStatus() == EHttpRequestStatus::Processing ||
 		SwitchChainRequest->GetStatus() == EHttpRequestStatus::Processing ||
 		WriteMethodRequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
+void UWriteMethod::SendTransactionViaKeystoreComplete(FString Response)
+{
+	EErrorCode StatusCode = EErrorCode::EmergenceInternalError;
+	if (!Response.IsEmpty())
+	{
+		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response);
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+		{
+			if (JsonObject->HasField("statusCode"))
+			{
+				StatusCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+			}
+		}
+
+		if (StatusCode == EErrorCode::EmergenceOk) {
+			this->TransactionHash = JsonObject->GetObjectField("message")->GetStringField("transactionHash");
+			GetTransactionStatus();
+			OnTransactionSent.Broadcast();
+			return;
+		}
+	}
+
+	//If the code gets to this point something has failed
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
+	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 }
 
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

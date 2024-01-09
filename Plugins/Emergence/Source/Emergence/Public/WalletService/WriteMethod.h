@@ -56,6 +56,8 @@ public:
 	FHttpRequestPtr LoadContractRequest;
 	FHttpRequestPtr SwitchChainRequest;
 	FHttpRequestPtr WriteMethodRequest;
+
+	void SendTransactionViaKeystoreComplete(FString Response);
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	

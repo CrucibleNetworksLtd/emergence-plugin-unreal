@@ -8,6 +8,7 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 #include "Interfaces/IPluginManager.h"
 #include "EmergenceChainObject.h"
 #include "EmergenceContract.h"
+#include "EmergenceLocalEVMThread.h"
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
 
@@ -43,7 +44,7 @@ void FEmergenceModule::ShutdownModule()
 
 }
 
-bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
+void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {
 	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
 
@@ -64,7 +65,7 @@ bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployme
 	}
 	
 	if(!ExampleLibraryHandle || !ExampleLibraryFunction) { //if we don't have either of them by now
-		return false; //give up
+		return; //give up
 	}
 	
 
@@ -81,7 +82,7 @@ bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployme
 		ABI[i] = (ANSICHAR)c;
 	}
 
-	JSON jsonArgs{
+	EmergenceLocalEVMJSON* jsonArgs = new EmergenceLocalEVMJSON{
 		9,
 		"Hello World",
 		TCHAR_TO_ANSI(Deployment->Address.GetCharArray().GetData()),
@@ -108,20 +109,33 @@ bool FEmergenceModule::SendTransactionViaKeystore(UEmergenceDeployment* Deployme
 
 		// Call the test function in the third party library that opens a message box
 		if (ExampleLibraryFunction) {
-			ExampleLibraryFunction((TCHAR*)*DllDirectory, DllDirectory.Len(), &jsonArgs);
-			UE_LOG(LogTemp, Display, TEXT("Got transaction JSON %s"), jsonArgs.result);
+
+			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
+			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
+			wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*DllDirectory);
+			const wchar_t* MyWideCharString = (*DllDirectory);
+			wcscpy(Runnable->fullpath, MyWideCharString);
+			Runnable->length = DllDirectory.Len();
+			Runnable->ExampleLibraryFunction = ExampleLibraryFunction;
+			Runnable->WriteMethod = WriteMethod;
+			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
+			//Thread->WaitForCompletion();
+			//ExampleLibraryFunction((TCHAR*)*DllDirectory, DllDirectory.Len(), &jsonArgs);
+
+			/*UE_LOG(LogTemp, Display, TEXT("Got transaction JSON %s"), jsonArgs.result);
 			TransactionResponse = "";
 			for (int i = 0; i < jsonArgs.ResultLength * 2; i++) {
 				TransactionResponse.AppendChar(jsonArgs.result[i]);
 			}
-			return true;
+			WriteMethod->SendTransactionViaKeystoreComplete(TransactionResponse);*/
+			return;
 		}
-		return false;
+		return;
 	}
 	else
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
-		return false;
+		return;
 	}
 
 	
