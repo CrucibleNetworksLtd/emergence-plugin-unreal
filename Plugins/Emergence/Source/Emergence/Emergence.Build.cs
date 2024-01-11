@@ -16,6 +16,9 @@ public class Emergence : ModuleRules
 			RuntimeDependencies.Add("$(BinaryOutputDir)", "$(PluginDir)/EmergenceServer/Windows/...");
 		}
 		
+		RuntimeDependencies.Add(
+		"$(TargetOutputDir)/../../Plugins/Emergence/EmergenceDll/Win64/...");
+		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 		
