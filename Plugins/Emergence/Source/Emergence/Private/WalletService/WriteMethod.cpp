@@ -30,6 +30,12 @@ void UWriteMethod::LoadContractCompleted(FString Response, EErrorCode StatusCode
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		this->Activate();
 	}
+	else if (StatusCode == EErrorCode::BadGateway || 
+		StatusCode == EErrorCode::ServerError ||
+		StatusCode == EErrorCode::GatewayTimeout) {
+		StartReconnectWalletUserFlow();
+		return;
+	}
 	else {
 		this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 	}
@@ -48,13 +54,13 @@ void UWriteMethod::Activate()
 	}
 
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	Singleton->OnReconnectWalletConnectCompleteDelegate.RemoveDynamic(this, &UWriteMethod::Activate);
 
 	if (this->LocalAccountName.IsEmpty() && !Singleton->HasAccessToken()) {
 		UE_LOG(LogEmergenceHttp, Error, TEXT("If you aren't using a local wallet you need to have connected with WalletConnect to use WriteMethod!"));
 		return;
 	}
 
-	
 	//if this contract has never had its ABI loaded...
 	if (!Singleton->ContractsWithLoadedABIs.Contains(DeployedContract->Blockchain->Name.ToString() + DeployedContract->Address)) {
 		ULoadContractInternal* LoadContract = ULoadContractInternal::LoadContract(WorldContextObject, DeployedContract);
@@ -103,11 +109,17 @@ void UWriteMethod::Activate()
 				CallWriteMethod();
 				return;
 			}
+			else if (StatusCode == EErrorCode::BadGateway || 
+				StatusCode == EErrorCode::ServerError ||
+				StatusCode == EErrorCode::GatewayTimeout) {
+				StartReconnectWalletUserFlow();
+				return;
+			}
 			else {
 				this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 				return;
 			}
-		});
+			});
 		Request->ProcessRequest();
 		UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain request started on method %s with value %s, calling lambda function on request completed. Json sent as part of the request: "), *MethodName.MethodName, *Value);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("%s"), *SwitchChainContentString);
@@ -178,6 +190,13 @@ bool UWriteMethod::IsActive() const
 		WriteMethodRequest->GetStatus() == EHttpRequestStatus::Processing;
 }
 
+void UWriteMethod::StartReconnectWalletUserFlow()
+{
+	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	Singleton->ReconnectWalletConnectRequested.Broadcast();
+	Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::Activate);
+}
+
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
@@ -190,9 +209,31 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 			OnTransactionSent.Broadcast();
 			return;
 		}
+		else if (StatusCode == EErrorCode::BadGateway || 
+			StatusCode == EErrorCode::ServerError ||
+			StatusCode == EErrorCode::GatewayTimeout) {
+			UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+			Singleton->OnIsConnectedCompleted.AddUniqueDynamic(this, &UWriteMethod::IsConnectedCompleted);
+			Singleton->IsConnected();
+			return;
+		}
 	}
 	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
 	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+}
+
+void UWriteMethod::IsConnectedCompleted(bool IsConnected, FString Address, EErrorCode StatusCode)
+{
+	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	Singleton->OnIsConnectedCompleted.RemoveDynamic(this, &UWriteMethod::IsConnectedCompleted);
+	if (StatusCode == EErrorCode::EmergenceOk && IsConnected) { //user is still connected via WalletConnect
+		Activate();
+	}
+	else { //User has dropped WalletConnect session		
+		UE_LOG(LogEmergenceHttp, Warning, TEXT("User has dropped WalletConnect connection, showing QR code to rescan."));
+		Singleton->OnReconnectWalletConnectCompleteDelegate.AddUniqueDynamic(this, &UWriteMethod::Activate);
+		Singleton->ReconnectWalletConnectRequested.Broadcast();
+	}
 }
 
 void UWriteMethod::GetTransactionStatus()

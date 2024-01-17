@@ -6,7 +6,7 @@ public class Emergence : ModuleRules
 {
 	public Emergence(ReadOnlyTargetRules Target) : base(Target)
 	{
-		bool MarketplaceBuild = false;
+		bool MarketplaceBuild = true;
 		
 		if(MarketplaceBuild || Target.Platform == UnrealTargetPlatform.Mac){
 			PublicDefinitions.Add("UNREAL_MARKETPLACE_BUILD=1");

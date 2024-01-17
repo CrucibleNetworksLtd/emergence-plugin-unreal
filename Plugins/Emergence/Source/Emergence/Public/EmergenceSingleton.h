@@ -54,6 +54,18 @@ public:
 	UPROPERTY()
 	FString DeviceID;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FReconnectWalletConnectRequested);
+
+	//Called when a reconnection of WalletConnect is requested
+	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	FReconnectWalletConnectRequested ReconnectWalletConnectRequested;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReconnectWalletConnectCompleteSignature);
+
+	//This is called by blueprint once the Reconnection of WalletConnect should be complete
+	UPROPERTY(BlueprintCallable, Category = "EventDispatchers|Emergence Requests")
+	FOnReconnectWalletConnectCompleteSignature OnReconnectWalletConnectCompleteDelegate;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence")
 	FEmergencePersona CachedCurrentPersona;
 

@@ -56,8 +56,15 @@ public:
 	FHttpRequestPtr LoadContractRequest;
 	FHttpRequestPtr SwitchChainRequest;
 	FHttpRequestPtr WriteMethodRequest;
+
+	UFUNCTION()
+	void IsConnectedCompleted(bool IsConnected, FString Address, EErrorCode StatusCode);
+
+	UFUNCTION()
+	void StartReconnectWalletUserFlow();
 private:
 	void WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
 	
 	UEmergenceDeployment* DeployedContract;
 	FEmergenceContractMethod MethodName;
