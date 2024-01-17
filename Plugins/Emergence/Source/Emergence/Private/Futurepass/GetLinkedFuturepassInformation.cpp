@@ -48,7 +48,8 @@ void UGetLinkedFuturepassInformation::Activate(){
 						"", false);
 					LinkedEOARequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded2) {
 						UE_LOG(LogEmergenceHttp, Display, TEXT("GetLinkedFuturepassInformation part 2: %s"), *res->GetContentAsString());
-						this->OnGetLinkedFuturepassInformationCompleted.Broadcast(FLinkedFuturepassInformationResponse(res->GetContentAsString()), StatusCode);
+						FLinkedFuturepassInformationResponse Response = FLinkedFuturepassInformationResponse(res->GetContentAsString());
+						this->OnGetLinkedFuturepassInformationCompleted.Broadcast(Response, bSucceeded2 ? EErrorCode::EmergenceOk : EErrorCode::EmergenceInternalError);
 						return;
 					});
 					LinkedEOARequest->ProcessRequest();
