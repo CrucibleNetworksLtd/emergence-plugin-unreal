@@ -47,17 +47,19 @@ void FEmergenceModule::ShutdownModule()
 void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {
 	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
-
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
 #if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("EmergenceDll/Win64/nativehost.dll"));
-#endif // PLATFORM_WINDOWS
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
-
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nativehost.dll");
+#endif // PLATFORM_WINDOWS
+	if (LibraryPath.IsEmpty()) { //probably on mac
+		return; //error out
+	}
+	
 	if (!ExampleLibraryHandle) { //if we don't have a handle on the lib already
-		ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(TEXT("H:/emergence-plugin-unreal/Plugins/Emergence/EmergenceDll/Win64/nativehost.dll")) : nullptr;
+		ExampleLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
 	}
 
 	if (ExampleLibraryHandle && !ExampleLibraryFunction) { //if we now have a handle (not a guarantee), and we don't have a library
@@ -112,10 +114,10 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 
 			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
 			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
-			wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*DllDirectory);
-			const wchar_t* MyWideCharString = (*DllDirectory);
+			//wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*LibraryPath);
+			const wchar_t* MyWideCharString = (*LibraryPath);
 			wcscpy(Runnable->fullpath, MyWideCharString);
-			Runnable->length = DllDirectory.Len();
+			Runnable->length = LibraryPath.Len();
 			Runnable->ExampleLibraryFunction = ExampleLibraryFunction;
 			Runnable->WriteMethod = WriteMethod;
 			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
