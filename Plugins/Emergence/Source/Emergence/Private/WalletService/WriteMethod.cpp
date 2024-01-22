@@ -9,14 +9,14 @@
 #include "WalletService/LoadContractInternal.h"
 #include "Templates/SharedPointer.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString LocalAccountName, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
+UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString PrivateKey, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->MethodName = MethodName;
 	BlueprintNode->Content = Content;
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->LocalAccountName = LocalAccountName;
+	BlueprintNode->LocalAccountName = PrivateKey;
 	BlueprintNode->GasPrice = GasPrice;
 	BlueprintNode->Value = Value;
 	BlueprintNode->NumberOfConfirmations = NumberOfConfirmations;
@@ -117,18 +117,9 @@ void UWriteMethod::Activate()
 		//switching networks isn't allowed
 		//CallWriteMethod();
 		auto EmergenceModule = FModuleManager::GetModuleChecked<FEmergenceModule>("Emergence");
-		TArray<FString> Params;
-		LocalAccountName.ParseIntoArray(Params, TEXT(","), true);
-		
-		if (Params.Num() != 2) {
-			UE_LOG(LogEmergenceHttp, Error, TEXT("WriteMethod using a local account requires the local account in the format \"PrivateKey,PublicKey\" "));
-			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", EErrorCode::EmergenceInternalError);
-			this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
-			return;
-		}
 
 		FString TransactionResponse;
-		EmergenceModule.SendTransactionViaKeystore(this, DeployedContract, MethodName.MethodName, Params[0], Params[1], GasPrice, Value, TransactionResponse);
+		EmergenceModule.SendTransactionViaKeystore(this, DeployedContract, MethodName.MethodName, LocalAccountName, FString(), GasPrice, Value, TransactionResponse);
 		
 	}
 }
