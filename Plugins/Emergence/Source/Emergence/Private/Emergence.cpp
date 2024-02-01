@@ -14,29 +14,7 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 
 void FEmergenceModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
-	// Get the base directory of this plugin
-
-	UEmergenceChain* Chain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
-	Chain->ChainID = 5;
-	Chain->Name = FText::FromString("Goerli");
-	Chain->NodeURL = "https://goerli.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134";
-	Chain->Symbol = "ETH";
-	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
-	Contract->ABI = R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])";
-	UEmergenceDeployment* Deployment = NewObject<UEmergenceDeployment>(UEmergenceDeployment::StaticClass());
-	Deployment->Address = "0xC9571AaF9EbCa8C08EC37D962310d0Ab9F8A5Dd2";
-	Deployment->Blockchain = Chain;
-	Deployment->Contract = Contract;
-	FString Response;
-	//bool success = this->SendTransactionViaKeystore(Deployment, "IncrementCount", "197233bb20ca5efda264661b53546828a6de6b531f317338fe3de7b179958d54", "0x33C5fDbf5944971F3db7Cfc1E6268561E50511bd", "", "0", Response);
-	//if (success) {
-	//	UE_LOG(LogTemp, Display, TEXT("Got transaction JSON %s"), *Response);
-	//}
-	//else {
-	//	UE_LOG(LogTemp, Display, TEXT("transaction failed"));
-	//}
 }
 
 void FEmergenceModule::ShutdownModule()
@@ -46,15 +24,18 @@ void FEmergenceModule::ShutdownModule()
 
 void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {
+#if PLATFORM_WINDOWS
 	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
-#if PLATFORM_WINDOWS
+
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
 	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nativehost.dll");
-#endif // PLATFORM_WINDOWS
-	if (LibraryPath.IsEmpty()) { //probably on mac
+
+	if (LibraryPath.IsEmpty()) {
+		UE_LOG(LogEmergence, Error, TEXT("Failed to load library, library path empty."));
+		WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 		return; //error out
 	}
 	
@@ -67,6 +48,8 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	}
 	
 	if(!ExampleLibraryHandle || !ExampleLibraryFunction) { //if we don't have either of them by now
+		UE_LOG(LogEmergence, Error, TEXT("Failed to load library."));
+		WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 		return; //give up
 	}
 	
@@ -85,31 +68,27 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	}
 
 	EmergenceLocalEVMJSON* jsonArgs = new EmergenceLocalEVMJSON{
-		9,
-		"Hello World",
+		0, //unused
+		"", //unused
 		TCHAR_TO_ANSI(Deployment->Address.GetCharArray().GetData()),
 		ABI,
 		TCHAR_TO_ANSI(Deployment->Blockchain->Name.ToString().GetCharArray().GetData()),
 		TCHAR_TO_ANSI(Deployment->Blockchain->NodeURL.GetCharArray().GetData()),
 		TCHAR_TO_ANSI(MethodName.GetCharArray().GetData()),
-		"local",
-		"12345",
-		R"(H:\emergence-plugin-unreal\keystore.test)",
+		"", //no longer used
+		"", //no longer used
+		R"()", //no longer used
 		TCHAR_TO_ANSI(FString::FromInt(Deployment->Blockchain->ChainID).GetCharArray().GetData()),
 		TCHAR_TO_ANSI(GasPriceInternal.GetCharArray().GetData()),
 		TCHAR_TO_ANSI(Value.GetCharArray().GetData()),
 		TCHAR_TO_ANSI(PrivateKey.GetCharArray().GetData()),
 		TCHAR_TO_ANSI(PublicKey.GetCharArray().GetData()),
-		nullptr,
-		0
+		nullptr, //return address
+		0 //return length
 	};
 
 	if (ExampleLibraryHandle)
 	{
-		
-		//FString Name = "entry";
-
-		// Call the test function in the third party library that opens a message box
 		if (ExampleLibraryFunction) {
 
 			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
@@ -121,26 +100,20 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 			Runnable->ExampleLibraryFunction = ExampleLibraryFunction;
 			Runnable->WriteMethod = WriteMethod;
 			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
-			//Thread->WaitForCompletion();
-			//ExampleLibraryFunction((TCHAR*)*DllDirectory, DllDirectory.Len(), &jsonArgs);
-
-			/*UE_LOG(LogTemp, Display, TEXT("Got transaction JSON %s"), jsonArgs.result);
-			TransactionResponse = "";
-			for (int i = 0; i < jsonArgs.ResultLength * 2; i++) {
-				TransactionResponse.AppendChar(jsonArgs.result[i]);
-			}
-			WriteMethod->SendTransactionViaKeystoreComplete(TransactionResponse);*/
 			return;
 		}
-		return;
-	}
-	else
-	{
-		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
-		return;
 	}
 
-	
+	//if it hasn't returned by now something has gone really wrong
+	UE_LOG(LogEmergence, Error, TEXT("Failed to load library, handles weren't valid."));
+	WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
+	return;
+
+#else //any other platform
+	UE_LOG(LogEmergence, Error, TEXT("Sending Transactions via a private key is only available on Windows."));
+	WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
+	return;
+#endif	
 }
 
 #undef LOCTEXT_NAMESPACE
