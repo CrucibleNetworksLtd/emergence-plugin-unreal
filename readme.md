@@ -2,13 +2,14 @@
 
 ## Getting started
 To run and compile this, you need the following:
-- Unreal Engine 4.26.2
-- Visual Studio 2019
-- A built version of the Emergence EVM server from [this repo](https://github.com/Crucible-wtd/emergence-evm-server). Usually the develop branch of the Emergence plugin follows the develop branch of the EVM server.
+- Unreal Engine 4.26.2 to 5.3
+- Visual Studio 2019 / 2022 (depends on unreal version)
+- ~~A built version of the Emergence EVM server from [this repo](https://github.com/Crucible-wtd/emergence-evm-server). Usually the develop branch of the Emergence plugin follows the develop branch of the EVM server.~~ This is now included in the project, no need to build it from scratch.
+- To use the EVM DLL features (only on windows), you need the dotnet runtime install from here https://dotnet.microsoft.com/en-us/download/dotnet/7.0 windows x64
 
 ### Steps to running
-1. Build the Emergence EVM server as Debug, Any CPU, WalletConnectPoC. 
-2. It should have built to the folder `emergence-evm-server\bin\Debug\net5.0`. Copy and paste the entire content of this folder to `emergence-plugin-unreal\Plugins\Emergence\EmergenceServer`.
+1. ~~Build the Emergence EVM server as Debug, Any CPU, WalletConnectPoC.~~ (This is now included in the project, no need to build it from scratch.)
+2. ~~It should have built to the folder `emergence-evm-server\bin\Debug\net5.0`. Copy and paste the entire content of this folder to `emergence-plugin-unreal\Plugins\Emergence\EmergenceServer`.~~
 2. Run the "EmergenceUEExample.uproject" in Unreal Engine.
 
 ### Steps to pulling changes
