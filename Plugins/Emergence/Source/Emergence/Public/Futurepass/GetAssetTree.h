@@ -8,18 +8,33 @@
 
 
 USTRUCT(BlueprintType)
+struct FEmergenceFutureversePredicateData
+{
+
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Predicate Data")
+	FString Id;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Predicate Data")
+	TMap<FString, FString> AdditonalData;
+
+};
+
+USTRUCT(BlueprintType)
 struct FEmergenceFutureverseAssetTreePart
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futurepass Methods")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
     FString Id;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futurepass Methods")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
 	FString RDFType;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
+	TMap<FString, FEmergenceFutureversePredicateData> Predicates;
 
 };
 
@@ -33,7 +48,7 @@ class EMERGENCE_API UGetAssetTree : public UEmergenceAsyncSingleRequestBase
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAssetTreeCompleted, FString, Balance, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAssetTreeCompleted, const TArray<FEmergenceFutureverseAssetTreePart>&, AssetTree, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAssetTreeCompleted OnGetAssetTreeCompleted;

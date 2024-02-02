@@ -34,7 +34,7 @@ void UGetAssetTree::Activate()
 	}
 	else {
 		UE_LOG(LogEmergenceHttp, Error, TEXT("One or more of UGetAssetTree's inputs were empty."));
-		OnGetAssetTreeCompleted.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
+		OnGetAssetTreeCompleted.Broadcast(TArray<FEmergenceFutureverseAssetTreePart>(), EErrorCode::EmergenceClientFailed);
 	}
 }
 
@@ -51,8 +51,52 @@ void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest
 			TSharedPtr<FJsonObject> Object = JsonValue->AsObject();
 			if (Object) {
 				auto DataArray = Object->GetObjectField("data")->GetObjectField("asset")->GetObjectField("assetTree")->GetObjectField("data")->GetArrayField("@graph");
+				TArray<FEmergenceFutureverseAssetTreePart> AssetTree;
 
+				for (auto Data : DataArray) {
+					FEmergenceFutureverseAssetTreePart AssetTreePartStruct;
+					AssetTreePartStruct.Id = Data->AsObject()->GetStringField("@id"); //get the ID of this
+					AssetTreePartStruct.RDFType = Data->AsObject()->GetObjectField("rdf:type")->GetStringField("@id"); //get the rdf:type
+					
+					TArray<FString> PredicateKeys;
+					if (Data->AsObject()->Values.GetKeys(PredicateKeys) > 0) {
+						for (FString PredicateKey : PredicateKeys) {
+
+							if (PredicateKey == "@id" || PredicateKey == "rdf:type") { //ignore these ones
+								continue;
+							}
+
+							FEmergenceFutureversePredicateData PredicateStruct;
+							TSharedPtr<FJsonObject> Predicate = Data->AsObject()->GetObjectField(PredicateKey);
+							PredicateStruct.Id = Predicate->GetStringField("@id");
+
+							TArray<FString> PredicateContentKeys;
+							if (Predicate->Values.GetKeys(PredicateContentKeys) > 0) {
+								for (FString PredicateContentKey : PredicateContentKeys) {
+									if (PredicateContentKey == "@id") { //ignore
+										continue;
+									}
+
+									FString JsonAsString;
+									TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonAsString);
+									FJsonSerializer::Serialize(*Predicate->Values.Find(PredicateContentKey), PredicateContentKey, Writer);
+
+									PredicateStruct.AdditonalData.Add(PredicateContentKey, JsonAsString);
+								}
+							}
+							
+							AssetTreePartStruct.Predicates.Add(PredicateKey, PredicateStruct);
+							
+						}
+					}
+					AssetTree.Add(AssetTreePartStruct);
+				}
+				OnGetAssetTreeCompleted.Broadcast(AssetTree, EErrorCode::EmergenceClientFailed);
+				return;
 			}
 		}
 	}
+	OnGetAssetTreeCompleted.Broadcast(TArray<FEmergenceFutureverseAssetTreePart>(), EErrorCode::EmergenceClientFailed);
+	UE_LOG(LogEmergenceHttp, Error, TEXT("One or more errors occured trying to parse asset tree."));
+	return;
 }
