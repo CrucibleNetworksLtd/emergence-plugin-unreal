@@ -39,6 +39,7 @@ class EMERGENCE_API UARTMBuilderLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
+	//ADDRESS IS EOA ADDRESS / MUST BE ETH CHECKSUMMED
 	UFUNCTION(BlueprintPure)
 	static FString GenerateARTM(FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
 

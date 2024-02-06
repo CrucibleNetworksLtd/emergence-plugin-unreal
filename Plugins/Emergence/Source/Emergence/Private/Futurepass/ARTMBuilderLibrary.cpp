@@ -5,6 +5,7 @@
 
 FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce)
 {
+    UE_LOG(LogTemp, Display, TEXT("Generating ARTM with message %s, %d operations, for address %s, with nonce %s"), *Message, ARTMOperations.Num(), *Address, *Nonce);
     TMap< EEmergenceFutureverseARTMOperationType, FString> OperationTypeStrings = {
         {EEmergenceFutureverseARTMOperationType::CREATELINK, "asset-link create"},
         {EEmergenceFutureverseARTMOperationType::DELETELINK, "asset-link delete"}
@@ -29,5 +30,6 @@ FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FEmergenceFutu
     ARTM += "Operations END\n\n";
     ARTM += "Address: " + Address + "\n";
     ARTM += "Nonce: " + Nonce;
-    return ARTM;
+    FString FinalEthARTM = "\u0019" + FString() + "Ethereum Signed Message:\n" + FString::FromInt(ARTM.Len()) + ARTM;
+    return FinalEthARTM;
 }

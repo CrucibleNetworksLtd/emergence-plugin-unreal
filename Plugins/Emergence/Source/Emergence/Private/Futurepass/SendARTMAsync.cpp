@@ -19,14 +19,13 @@ USendARTMAsync* USendARTMAsync::SendARTMAsync(UObject* _WorldContextObject, FStr
 
 void USendARTMAsync::Activate()
 {
-	if (WorldContextObject && !UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->FuturepassInfoIsSet) {
+	if (WorldContextObject && !UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->HasCachedAddress()) {
 		UE_LOG(LogEmergence, Error, TEXT("Tried to get the futurepass user address but it has never been set. To use this function you must have the user login with futurepass."));
 		return;
 	}
-	TArray<FString> Out;
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->FuturepassInfo.futurepass.ParseIntoArray(Out, TEXT(":"), true);
-	FString FuturepassAddress = Out.Last();
+	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress();
 
+	//THIS MUST BE EOA / ETH CHECKSUMMED
 	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
 		this,
 		nullptr,
@@ -36,15 +35,15 @@ void USendARTMAsync::Activate()
 		TArray<TPair<FString,FString>>(),
 		FString(), false);
 	GetNonceRequest->SetHeader("content-type", "application/json");
-	GetNonceRequest->SetContentAsString(R"({"query":"query GetNonce($input: NonceInput!) {\n  getNonceForChainAddress(input: $input)\n}","variables":{"input":{"chainAddress":")" + FuturepassAddress + "\"}}}");
-	GetNonceRequest->OnProcessRequestComplete().BindLambda([&, FuturepassAddress](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+	GetNonceRequest->SetContentAsString(R"({"query":"query GetNonce($input: NonceInput!) {\n  getNonceForChainAddress(input: $input)\n}","variables":{"input":{"chainAddress":")" + EoAAddress + "\"}}}");
+	GetNonceRequest->OnProcessRequestComplete().BindLambda([&, EoAAddress](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		//when the request finishes
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetNonce_HttpRequestComplete: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			int Nonce = JsonObject.GetObjectField("data")->GetIntegerField("getNonceForChainAddress");
-			ConstructedMessage = UARTMBuilderLibrary::GenerateARTM(_MessageToUser, _ARTMOperations, FuturepassAddress, FString::FromInt(Nonce)).ReplaceCharWithEscapedChar();
+			ConstructedMessage = UARTMBuilderLibrary::GenerateARTM(_MessageToUser, _ARTMOperations, EoAAddress, FString::FromInt(Nonce)).ReplaceCharWithEscapedChar();
 			URequestToSign* URequestToSign = URequestToSign::RequestToSign(WorldContextObject, ConstructedMessage);
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Sending the following message to Request to Sign: %s"), *ConstructedMessage);
 			URequestToSign->OnRequestToSignCompleted.AddDynamic(this, &USendARTMAsync::OnRequestToSignCompleted);
