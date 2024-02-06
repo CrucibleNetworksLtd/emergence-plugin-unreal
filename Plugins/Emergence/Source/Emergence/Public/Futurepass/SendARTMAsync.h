@@ -16,17 +16,29 @@ class EMERGENCE_API USendARTMAsync : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse Methods")
+	//Remove blueprintcallable when testing finishes
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Futureverse Methods")
 	static USendARTMAsync* SendARTMAsync(UObject* WorldContextObject, FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations);
 
 	virtual void Activate() override;
 
+	virtual void Cancel();
+
+	virtual bool IsActive() const;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSendARTMCompleted, FString, TransactionHash, EErrorCode, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSendARTMCompleted OnSendARTMCompleted;
+
 private:
-	FString _Message;
+	FString ConstructedMessage;
+	FString _MessageToUser;
 	TArray<FEmergenceFutureverseARTMOperation> _ARTMOperations;
 
 	FHttpRequestPtr GetNonceRequest;
 	FHttpRequestPtr RequestToSignRequest;
+	FHttpRequestPtr SendMutationRequest;
 
 	UFUNCTION()
 	void OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode);

@@ -10,7 +10,7 @@
 
 USendARTMAsync* USendARTMAsync::SendARTMAsync(UObject* _WorldContextObject, FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations) {
 	USendARTMAsync* BlueprintNode = NewObject<USendARTMAsync>();
-	BlueprintNode->_Message = Message;
+	BlueprintNode->_MessageToUser = Message;
 	BlueprintNode->_ARTMOperations = ARTMOperations;
 	BlueprintNode->WorldContextObject = _WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(_WorldContextObject);
@@ -38,17 +38,24 @@ void USendARTMAsync::Activate()
 	GetNonceRequest->SetHeader("content-type", "application/json");
 	GetNonceRequest->SetContentAsString(R"({"query":"query GetNonce($input: NonceInput!) {\n  getNonceForChainAddress(input: $input)\n}","variables":{"input":{"chainAddress":")" + FuturepassAddress + "\"}}}");
 	GetNonceRequest->OnProcessRequestComplete().BindLambda([&, FuturepassAddress](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+		//when the request finishes
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetNonce_HttpRequestComplete: %s"), *res->GetContentAsString());
-		if (StatusCode == EErrorCode::EmergenceOk) {
+		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			int Nonce = JsonObject.GetObjectField("data")->GetIntegerField("getNonceForChainAddress");
-			FString Message = UARTMBuilderLibrary::GenerateARTM(_Message, _ARTMOperations, FuturepassAddress, FString::FromInt(Nonce)).ReplaceCharWithEscapedChar();
-			URequestToSign* URequestToSign = URequestToSign::RequestToSign(WorldContextObject, Message);
-			UE_LOG(LogEmergenceHttp, Display, TEXT("Sending the following message to Request to Sign: %s"), *Message);
+			ConstructedMessage = UARTMBuilderLibrary::GenerateARTM(_MessageToUser, _ARTMOperations, FuturepassAddress, FString::FromInt(Nonce)).ReplaceCharWithEscapedChar();
+			URequestToSign* URequestToSign = URequestToSign::RequestToSign(WorldContextObject, ConstructedMessage);
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Sending the following message to Request to Sign: %s"), *ConstructedMessage);
 			URequestToSign->OnRequestToSignCompleted.AddDynamic(this, &USendARTMAsync::OnRequestToSignCompleted);
 			RequestToSignRequest = URequestToSign->Request;
 			URequestToSign->Activate();
+			return;
+		}
+		else {
+			//handle fail to parse errors
+			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+			UE_LOG(LogEmergence, Error, TEXT("Send Mutation Request failed"));
 			return;
 		}
 	});
@@ -56,7 +63,67 @@ void USendARTMAsync::Activate()
 	
 }
 
+void USendARTMAsync::Cancel()
+{
+	if (GetNonceRequest) {
+		GetNonceRequest->OnProcessRequestComplete().Unbind();
+		GetNonceRequest->CancelRequest();
+	}
+	if (RequestToSignRequest) {
+		RequestToSignRequest->OnProcessRequestComplete().Unbind();
+		RequestToSignRequest->CancelRequest();
+	}
+	if (SendMutationRequest) {
+		SendMutationRequest->OnProcessRequestComplete().Unbind();
+		SendMutationRequest->CancelRequest();
+	}
+}
+
+bool USendARTMAsync::IsActive() const
+{
+	return GetNonceRequest->GetStatus() == EHttpRequestStatus::Processing
+		|| RequestToSignRequest->GetStatus() == EHttpRequestStatus::Processing
+		|| SendMutationRequest->GetStatus() == EHttpRequestStatus::Processing;
+}
+
 void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode)
 {
 	UE_LOG(LogTemp, Display, TEXT("OnRequestToSignCompleted: %s"), *SignedMessage);
+
+	if (StatusCode != EErrorCode::EmergenceOk) {
+		//handle fail to parse errors
+		OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+		UE_LOG(LogEmergence, Error, TEXT("Request To Sign Request failed"));
+		return;
+	}
+
+	SendMutationRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
+		this,
+		nullptr,
+		"https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql",
+		"POST",
+		60.0F,
+		TArray<TPair<FString, FString>>(),
+		FString(), false);
+	SendMutationRequest->SetHeader("content-type", "application/json");
+	FString JSONString = R"({"query":"mutation SubmitTransaction($input: SubmitTransactionInput!) {\n  submitTransaction(input: $input) {\n    transactionHash\n  }\n}","variables":{"input":{"transaction":")" + ConstructedMessage + R"(","signature":")" + SignedMessage + "\"}}}";
+
+	SendMutationRequest->SetContentAsString(JSONString);
+	SendMutationRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+		//when the request finishes
+		EErrorCode StatusCode;
+		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("SendMutationRequest_HttpRequestComplete: %s"), *res->GetContentAsString());
+		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
+			FString TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
+			OnSendARTMCompleted.Broadcast(TransactionHash, EErrorCode::EmergenceOk);
+		}
+		else {
+			//handle fail to parse errors
+			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+			UE_LOG(LogEmergence, Error, TEXT("Send Mutation Request failed"));
+			return;
+		}
+	});
+	SendMutationRequest->ProcessRequest();
 }
