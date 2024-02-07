@@ -13,22 +13,22 @@ enum class EEmergenceFutureverseARTMOperationType : uint8 {
 	NONE
 };
 
-USTRUCT(BlueprintType, meta = (DisableSplitPin))
+USTRUCT(BlueprintType)
 struct FEmergenceFutureverseARTMOperation
 {
 
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Futureverse|ATRM Operation")
 	EEmergenceFutureverseARTMOperationType OperationType = EEmergenceFutureverseARTMOperationType::NONE;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
 	FString Slot;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
 	FString LinkA;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
 	FString LinkB;
 
 	
@@ -43,7 +43,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static FString GenerateARTM(FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
 
-	UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
+	/*UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
 	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMCreateAssetLink(FString Slot, FString LinkA, FString LinkB)
 	{
 		FEmergenceFutureverseARTMOperation Operation;
@@ -55,12 +55,13 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
-	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMDeleteAssetLink(FString LinkA, FString LinkB)
+	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMDeleteAssetLink(FString Slot, FString LinkA, FString LinkB)
 	{
 		FEmergenceFutureverseARTMOperation Operation;
 		Operation.LinkA = LinkA;
 		Operation.LinkB = LinkB;
+		Operation.Slot = Slot;
 		Operation.OperationType = EEmergenceFutureverseARTMOperationType::DELETELINK;
 		return Operation;
-	}
+	}*/
 };

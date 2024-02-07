@@ -20,9 +20,7 @@ FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FEmergenceFutu
         }
 
         ARTM += *OperationTypeStrings.Find(Operation.OperationType) + "\n";
-        if (Operation.OperationType == EEmergenceFutureverseARTMOperationType::CREATELINK) {
-            ARTM += "- " + Operation.Slot + "\n";
-        }
+        ARTM += "- " + Operation.Slot + "\n";
         ARTM += "- " + Operation.LinkA + "\n";
         ARTM += "- " + Operation.LinkB + "\n";
         ARTM += "end\n\n";
@@ -30,6 +28,5 @@ FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FEmergenceFutu
     ARTM += "Operations END\n\n";
     ARTM += "Address: " + Address + "\n";
     ARTM += "Nonce: " + Nonce;
-    FString FinalEthARTM = "\u0019" + FString() + "Ethereum Signed Message:\n" + FString::FromInt(ARTM.Len()) + ARTM;
-    return FinalEthARTM;
+    return ARTM;
 }
