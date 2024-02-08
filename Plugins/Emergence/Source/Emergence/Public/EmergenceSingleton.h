@@ -101,6 +101,9 @@ private:
 	UPROPERTY()
 	FString CurrentAddress = "";
 
+	UPROPERTY()
+	FString CurrentChecksummedAddress = "";
+
 	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
 	bool HandleDatabaseServerAuthFail(EErrorCode ErrorCode);
 
@@ -152,6 +155,9 @@ public:
 	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	FString GetCachedAddress();
+
+	UFUNCTION()
+	FString GetCachedChecksummedAddress();
 
 	//GetWalletConnectURI stuff
 	UFUNCTION(BlueprintCallable, meta=(DeprecatedFunction), Category = "Emergence Internal|Overlay Methods")

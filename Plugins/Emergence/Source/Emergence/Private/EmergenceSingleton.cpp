@@ -229,6 +229,16 @@ FString UEmergenceSingleton::GetCachedAddress()
 	}
 }
 
+FString UEmergenceSingleton::GetCachedChecksummedAddress()
+{
+	if (this->CurrentAddress.Len() > 0) {
+		return this->CurrentChecksummedAddress;
+	}
+	else {
+		return FString("-1");
+	}
+}
+
 void UEmergenceSingleton::GetWalletConnectURI()
 {
 	this->DeviceID = ""; //clear the device ID, we'll be getting a new one so we don't want to be able to accidently send an old header
@@ -315,6 +325,10 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
 			OnGetHandshakeCompleted.Broadcast(Address, StatusCode);
 			this->CurrentAddress = Address;
+			FString ChecksummedAddress;
+			if (JsonObject.GetObjectField("message")->TryGetStringField("checksummedAddress", ChecksummedAddress)) {
+				this->CurrentChecksummedAddress = ChecksummedAddress;
+			}
 			GetAccessToken();
 		}
 		else {

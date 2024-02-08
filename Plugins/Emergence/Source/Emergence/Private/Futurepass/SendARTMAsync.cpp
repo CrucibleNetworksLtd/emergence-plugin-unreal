@@ -23,7 +23,7 @@ void USendARTMAsync::Activate()
 		UE_LOG(LogEmergence, Error, TEXT("Tried to get the futurepass user address but it has never been set. To use this function you must have the user login with futurepass."));
 		return;
 	}
-	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress();
+	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedChecksummedAddress();
 
 	//THIS MUST BE EOA / ETH CHECKSUMMED
 	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
