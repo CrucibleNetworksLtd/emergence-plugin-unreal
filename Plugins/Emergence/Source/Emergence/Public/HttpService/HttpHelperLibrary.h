@@ -54,6 +54,30 @@ public:
 		return "https://" + GetAvatarServiceHostURL() + "/AvatarSystem/";
 	}
 
+	inline static FString GetFutureverseAssetRegistryAPIURL() {
+
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#endif
+
+		if (Environment == "Production") {
+			//Production Env URL
+			return "https://saybx2ywpd.execute-api.us-west-2.amazonaws.com/graphql";
+		}
+
+		if (Environment == "Development") {
+			//Development Env URL
+			return "https://8pq9ec5unj.execute-api.us-west-2.amazonaws.com/graphql";
+		}
+
+		//Staging Env URL
+		return "https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql";
+	}
+
 	inline static FString GetPersonaAPIURL() {
 
 #if UE_BUILD_SHIPPING

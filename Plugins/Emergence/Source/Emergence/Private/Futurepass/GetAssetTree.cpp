@@ -25,7 +25,7 @@ void UGetAssetTree::Activate()
 		Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetAssetTree>(
 			this,
 			&UGetAssetTree::GetAssetTree_HttpRequestComplete,
-			"https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql",
+			UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
 			"POST",
 			60.0F,
 			Headers,

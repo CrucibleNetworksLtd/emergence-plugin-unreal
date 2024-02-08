@@ -21,6 +21,14 @@ public:
 	//Which cloud environment should be communicated with when the game is built as "Shipping". Default is "Production".
 	UPROPERTY(config, EditAnywhere, Category = "General", meta = (EditCondition = "!EnableDevelopmentEnvironment", DisplayName = "Shipping build cloud environment"))
 	EEmergenceEnvironment ShippingEnvironment = EEmergenceEnvironment::Production;
+
+	//Which Futureverse cloud environment should be communicated with when the game is built as "Debug", "Development" or "Test". Default is "Staging".
+	UPROPERTY(config, EditAnywhere, Category = "Futureverse", meta = (DisplayName = "Debug/Development/Test build Futureverse cloud environment"))
+	EEmergenceEnvironment FutureverseDevelopmentEnvironment = EEmergenceEnvironment::Staging;
+
+	//Which Futureverse cloud environment should be communicated with when the game is built as "Shipping". Default is "Production".
+	UPROPERTY(config, EditAnywhere, Category = "Futureverse", meta = (DisplayName = "Shipping build Futureverse cloud environment"))
+	EEmergenceEnvironment FutureverseShippingEnvironment = EEmergenceEnvironment::Production;
 	
 	//For Crucible use only! Enable the development environment. Not to be confused with the development build of the game.
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Enable Development Environment"))

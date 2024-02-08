@@ -29,7 +29,7 @@ void USendARTMAsync::Activate()
 	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
 		this,
 		nullptr,
-		"https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql",
+		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		TArray<TPair<FString,FString>>(),
@@ -99,7 +99,7 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 	SendMutationRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
 		this,
 		nullptr,
-		"https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql",
+		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		60.0F,
 		TArray<TPair<FString, FString>>(),
