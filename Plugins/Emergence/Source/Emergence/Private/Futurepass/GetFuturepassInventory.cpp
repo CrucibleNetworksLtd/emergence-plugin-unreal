@@ -25,7 +25,7 @@ void UGetFuturepassInventory::Activate() {
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
 		this,
 		nullptr,
-		"https://adx1wewtnh.execute-api.us-west-2.amazonaws.com/api/graphql",
+		UHttpHelperLibrary::GetFutureverseIndexerAPIURL(),
 		"POST",
 		60.0F, //give the user lots of time to mess around setting high gas fees
 		{TPair<FString, FString>("Content-Type","application/json")},
