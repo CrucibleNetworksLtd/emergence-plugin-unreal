@@ -76,13 +76,18 @@ void USendARTMAsync::Cancel()
 		SendMutationRequest->OnProcessRequestComplete().Unbind();
 		SendMutationRequest->CancelRequest();
 	}
+	if (GetTransactionStatusRequest) {
+		GetTransactionStatusRequest->OnProcessRequestComplete().Unbind();
+		GetTransactionStatusRequest->CancelRequest();
+	}
 }
 
 bool USendARTMAsync::IsActive() const
 {
 	return GetNonceRequest->GetStatus() == EHttpRequestStatus::Processing
 		|| RequestToSignRequest->GetStatus() == EHttpRequestStatus::Processing
-		|| SendMutationRequest->GetStatus() == EHttpRequestStatus::Processing;
+		|| SendMutationRequest->GetStatus() == EHttpRequestStatus::Processing
+		|| GetTransactionStatusRequest->GetStatus() == EHttpRequestStatus::Processing;
 }
 
 void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode)
@@ -114,8 +119,16 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("SendMutationRequest_HttpRequestComplete: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
-			FString TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
-			OnSendARTMCompleted.Broadcast(TransactionHash, EErrorCode::EmergenceOk);
+			FString _TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
+			if (!_TransactionHash.IsEmpty()) {
+				this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &USendARTMAsync::GetARTMStatus, 5.0F, true);
+			}
+			else {
+				//handle fail to parse errors
+				OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+				UE_LOG(LogEmergence, Error, TEXT("Send Mutation Response parse failed"));
+				return;
+			}
 		}
 		else {
 			//handle fail to parse errors
@@ -125,4 +138,40 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		}
 	});
 	SendMutationRequest->ProcessRequest();
+}
+
+void USendARTMAsync::GetARTMStatus()
+{
+	GetTransactionStatusRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
+		this,
+		nullptr,
+		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+		"POST",
+		60.0F,
+		TArray<TPair<FString, FString>>(),
+		FString(), false);
+	GetTransactionStatusRequest->SetHeader("content-type", "application/json");
+	GetTransactionStatusRequest->SetContentAsString(R"({"query":"query Transaction($transactionHash: TransactionHash!) {\n  transaction(transactionHash: $transactionHash) {\n    status\n    error {\n      code\n      message\n    }\n    events {\n      action\n      args\n      type\n    }\n  }\n}","variables":{"transactionHash":")" + _TransactionHash + R"("}})");
+	GetTransactionStatusRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+		EErrorCode StatusCode;
+		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
+			UE_LOG(LogTemp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
+			if (JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status") == "PENDING") {
+				UE_LOG(LogTemp, Display, TEXT("Transaction pending..."));
+			}
+			else {
+				TimerHandle.Invalidate();
+			}
+			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceOk);
+			return;
+		}
+		else {
+			//handle fail to parse errors
+			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+			UE_LOG(LogEmergence, Error, TEXT("Get ARTM Transaction Status failed"));
+			return;
+		}
+		});
+	GetTransactionStatusRequest->ProcessRequest();
 }

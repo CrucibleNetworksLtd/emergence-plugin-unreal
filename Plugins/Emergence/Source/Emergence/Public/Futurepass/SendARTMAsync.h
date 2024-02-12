@@ -35,10 +35,17 @@ private:
 	FString ConstructedMessage;
 	FString _MessageToUser;
 	TArray<FEmergenceFutureverseARTMOperation> _ARTMOperations;
+	FString _TransactionHash;
 
 	FHttpRequestPtr GetNonceRequest;
 	FHttpRequestPtr RequestToSignRequest;
 	FHttpRequestPtr SendMutationRequest;
+	FHttpRequestPtr GetTransactionStatusRequest;
+
+	FTimerHandle TimerHandle;
+
+	UFUNCTION()
+	void GetARTMStatus();
 
 	UFUNCTION()
 	void OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode);
