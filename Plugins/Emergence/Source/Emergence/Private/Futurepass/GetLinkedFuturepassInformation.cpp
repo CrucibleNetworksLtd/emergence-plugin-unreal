@@ -15,7 +15,7 @@ UGetLinkedFuturepassInformation* UGetLinkedFuturepassInformation::GetLinkedFutur
 }
 
 void UGetLinkedFuturepassInformation::Activate(){
-	FString URL = "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1/linked-futurepass?eoa=";
+	FString URL = UHttpHelperLibrary::GetFutureverseFuturepassAPIURL() + "/linked-futurepass?eoa=";
 	URL = URL + "1:EVM:" + Address;
 	LinkedFuturepassRequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetLinkedFuturepassInformation>(
 		this,
@@ -36,7 +36,7 @@ void UGetLinkedFuturepassInformation::Activate(){
 			if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
 				FString OwnedFuturepass;
 				if(JsonValue->AsObject()->TryGetStringField("ownedFuturepass", OwnedFuturepass)){
-					FString LinkedEOAURL = "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1/linked-eoa?futurepass=" + OwnedFuturepass;
+					FString LinkedEOAURL = UHttpHelperLibrary::GetFutureverseFuturepassAPIURL() + "/linked-eoa?futurepass=" + OwnedFuturepass;
 					
 					LinkedEOARequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetLinkedFuturepassInformation>(
 						this,

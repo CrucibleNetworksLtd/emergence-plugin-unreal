@@ -78,6 +78,30 @@ public:
 		return "https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql";
 	}
 
+	inline static FString GetFutureverseFuturepassAPIURL() {
+
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#endif
+
+		if (Environment == "Production") {
+			//Production Env URL
+			return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1"; //ALL URLS ARE THE SAME RIGHT NOW, SUBJECT TO CHANGE
+		}
+
+		if (Environment == "Development") {
+			//Development Env URL
+			return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1";
+		}
+
+		//Staging Env URL
+		return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1";
+	}
+
 	inline static FString GetPersonaAPIURL() {
 
 #if UE_BUILD_SHIPPING
