@@ -20,7 +20,7 @@ USendARTMAsync* USendARTMAsync::SendARTMAsync(UObject* _WorldContextObject, FStr
 void USendARTMAsync::Activate()
 {
 	if (WorldContextObject && !UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->HasCachedAddress()) {
-		UE_LOG(LogEmergence, Error, TEXT("Tried to get the futurepass user address but it has never been set. To use this function you must have the user login with futurepass."));
+		UE_LOG(LogEmergence, Error, TEXT("Tried to get the user EOA address but it has never been set."));
 		return;
 	}
 	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedChecksummedAddress();
@@ -119,9 +119,9 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("SendMutationRequest_HttpRequestComplete: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
-			FString _TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
+			_TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
 			if (!_TransactionHash.IsEmpty()) {
-				this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &USendARTMAsync::GetARTMStatus, 5.0F, true);
+				this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &USendARTMAsync::GetARTMStatus, 3.0F, true, 1.0F);
 			}
 			else {
 				//handle fail to parse errors
@@ -151,25 +151,30 @@ void USendARTMAsync::GetARTMStatus()
 		TArray<TPair<FString, FString>>(),
 		FString(), false);
 	GetTransactionStatusRequest->SetHeader("content-type", "application/json");
-	GetTransactionStatusRequest->SetContentAsString(R"({"query":"query Transaction($transactionHash: TransactionHash!) {\n  transaction(transactionHash: $transactionHash) {\n    status\n    error {\n      code\n      message\n    }\n    events {\n      action\n      args\n      type\n    }\n  }\n}","variables":{"transactionHash":")" + _TransactionHash + R"("}})");
+	FString ContentAsString = R"({"query":"query Transaction($transactionHash: TransactionHash!) {\n  transaction(transactionHash: $transactionHash) {\n    status\n    error {\n      code\n      message\n    }\n    events {\n      action\n      args\n      type\n    }\n  }\n}","variables":{"transactionHash":")" + _TransactionHash + R"("}})";
+	GetTransactionStatusRequest->SetContentAsString(ContentAsString);
+	UE_LOG(LogTemp, Display, TEXT("Content: %s"), *ContentAsString);
 	GetTransactionStatusRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			UE_LOG(LogTemp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
-			if (JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status") == "PENDING") {
-				UE_LOG(LogTemp, Display, TEXT("Transaction pending..."));
+			FString TransactionStatus = JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status");
+			if (TransactionStatus != "PENDING") {
+				this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 			}
-			else {
-				TimerHandle.Invalidate();
-			}
+			UE_LOG(LogTemp, Display, TEXT("Transaction status: %s"), *TransactionStatus);
 			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceOk);
 			return;
 		}
 		else {
-			//handle fail to parse errors
+			this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+			auto Errors = JsonObject.GetArrayField("errors");
+			UE_LOG(LogEmergence, Error, TEXT("Get ARTM Transaction Status failed. Errors:"));
+			for (auto Error : Errors) {
+				UE_LOG(LogEmergence, Error, TEXT("%s"), *Error->AsObject()->GetStringField("message"));
+			}
 			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
-			UE_LOG(LogEmergence, Error, TEXT("Get ARTM Transaction Status failed"));
 			return;
 		}
 		});
