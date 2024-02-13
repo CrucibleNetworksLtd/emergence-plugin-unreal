@@ -26,6 +26,6 @@ private:
 	/** Handle to the test dll we will load */
 	void* ExampleLibraryHandle;
 
-	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, EmergenceLocalEVMJSON* Data);
+	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, void* Data, int DataSize);
 	_getExampleLibraryFunction ExampleLibraryFunction;
 };

@@ -92,7 +92,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 		if (ExampleLibraryFunction) {
 
 			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
-			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
+			FMemory::Memcpy(&Runnable->Data, jsonArgs, sizeof(EmergenceLocalEVMJSON));
 			//wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*LibraryPath);
 			const wchar_t* MyWideCharString = (*LibraryPath);
 			wcscpy(Runnable->fullpath, MyWideCharString);

@@ -44,7 +44,20 @@ public:
 	UWriteMethod* WriteMethod;
 	wchar_t fullpath[2048];
 	int length;
-	EmergenceLocalEVMJSON* Data;
-	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, EmergenceLocalEVMJSON* Data);
+	EmergenceLocalEVMJSON Data;
+	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, void* Data, int DataLength);
 	_getExampleLibraryFunction ExampleLibraryFunction;
+
+private:
+	char* AssignString(char const* _Source) {
+		if (_Source != NULL) {
+			size_t Len = strlen(_Source) + 1; //gotta leave room for the null string terminator
+			char* _Destination = new char[Len];
+			strcpy_s(_Destination, Len, _Source);
+			return _Destination;
+		}
+		else {
+			return NULL;
+		}
+	};
 };
