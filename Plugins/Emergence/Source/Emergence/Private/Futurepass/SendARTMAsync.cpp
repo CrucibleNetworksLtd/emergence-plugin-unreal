@@ -110,8 +110,10 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		TArray<TPair<FString, FString>>(),
 		FString(), false);
 	SendMutationRequest->SetHeader("content-type", "application/json");
+	UE_LOG(LogTemp, Display, TEXT("Constructed Message: %s"), *ConstructedMessage);
+	UE_LOG(LogTemp, Display, TEXT("Signed Message: %s"), *SignedMessage);
 	FString JSONString = R"({"query":"mutation SubmitTransaction($input: SubmitTransactionInput!) {\n  submitTransaction(input: $input) {\n    transactionHash\n  }\n}","variables":{"input":{"transaction":")" + ConstructedMessage + R"(","signature":")" + SignedMessage + "\"}}}";
-
+	UE_LOG(LogTemp, Display, TEXT("Content String: %s"), *JSONString);
 	SendMutationRequest->SetContentAsString(JSONString);
 	SendMutationRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		//when the request finishes
