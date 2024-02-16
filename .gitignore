@@ -83,3 +83,4 @@ package/
 !Plugins/VRM4U/ThirdParty/assimp/**/*.*
 .idea/
 .vsconfig
+!Plugins/EmergenceDllTest/Binaries/ThirdParty/EmergenceDllTestLibrary/Win64/*.*
