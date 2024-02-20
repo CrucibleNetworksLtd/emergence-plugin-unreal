@@ -7,20 +7,20 @@
 #include "ARTMBuilderLibrary.generated.h"
 
 UENUM(BlueprintType)
-enum class EEmergenceFutureverseARTMOperationType : uint8 {
+enum class EFutureverseARTMOperationType : uint8 {
 	CREATELINK       UMETA(DisplayName = "Create Asset Link"),
 	DELETELINK        UMETA(DisplayName = "Delete Asset Link"),
 	NONE
 };
 
 USTRUCT(BlueprintType)
-struct FEmergenceFutureverseARTMOperation
+struct FFutureverseARTMOperation
 {
 
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Futureverse|ATRM Operation")
-	EEmergenceFutureverseARTMOperationType OperationType = EEmergenceFutureverseARTMOperationType::NONE;
+	EFutureverseARTMOperationType OperationType = EFutureverseARTMOperationType::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
 	FString Slot;
@@ -41,7 +41,7 @@ class EMERGENCE_API UARTMBuilderLibrary : public UBlueprintFunctionLibrary
 public:
 	//ADDRESS IS EOA ADDRESS / MUST BE ETH CHECKSUMMED
 	UFUNCTION(BlueprintPure)
-	static FString GenerateARTM(FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
+	static FString GenerateARTM(FString Message, TArray<FFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
 
 	/*UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
 	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMCreateAssetLink(FString Slot, FString LinkA, FString LinkB)

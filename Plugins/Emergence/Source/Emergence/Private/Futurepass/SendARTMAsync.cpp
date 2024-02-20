@@ -8,8 +8,8 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 
-USendARTMAsync* USendARTMAsync::SendARTMAsync(UObject* _WorldContextObject, FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations) {
-	USendARTMAsync* BlueprintNode = NewObject<USendARTMAsync>();
+USendFutureverseARTM* USendFutureverseARTM::SendFutureverseARTM(UObject* _WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations) {
+	USendFutureverseARTM* BlueprintNode = NewObject<USendFutureverseARTM>();
 	BlueprintNode->_MessageToUser = Message;
 	BlueprintNode->_ARTMOperations = ARTMOperations;
 	BlueprintNode->WorldContextObject = _WorldContextObject;
@@ -17,7 +17,7 @@ USendARTMAsync* USendARTMAsync::SendARTMAsync(UObject* _WorldContextObject, FStr
 	return BlueprintNode;
 }
 
-void USendARTMAsync::Activate()
+void USendFutureverseARTM::Activate()
 {
 	if (WorldContextObject && !UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->HasCachedAddress()) {
 		UE_LOG(LogEmergence, Error, TEXT("Tried to get the user EOA address but it has never been set."));
@@ -26,7 +26,7 @@ void USendARTMAsync::Activate()
 	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedChecksummedAddress();
 
 	//THIS MUST BE EOA / ETH CHECKSUMMED
-	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
+	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
 		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
@@ -46,7 +46,7 @@ void USendARTMAsync::Activate()
 			ConstructedMessage = UARTMBuilderLibrary::GenerateARTM(_MessageToUser, _ARTMOperations, EoAAddress, FString::FromInt(Nonce)).ReplaceCharWithEscapedChar();
 			URequestToSign* URequestToSign = URequestToSign::RequestToSign(WorldContextObject, ConstructedMessage);
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Sending the following message to Request to Sign: %s"), *ConstructedMessage);
-			URequestToSign->OnRequestToSignCompleted.AddDynamic(this, &USendARTMAsync::OnRequestToSignCompleted);
+			URequestToSign->OnRequestToSignCompleted.AddDynamic(this, &USendFutureverseARTM::OnRequestToSignCompleted);
 			RequestToSignRequest = URequestToSign->Request;
 			URequestToSign->Activate();
 			return;
@@ -62,7 +62,7 @@ void USendARTMAsync::Activate()
 	
 }
 
-void USendARTMAsync::Cancel()
+void USendFutureverseARTM::Cancel()
 {
 	if (GetNonceRequest) {
 		GetNonceRequest->OnProcessRequestComplete().Unbind();
@@ -82,7 +82,7 @@ void USendARTMAsync::Cancel()
 	}
 }
 
-bool USendARTMAsync::IsActive() const
+bool USendFutureverseARTM::IsActive() const
 {
 	return GetNonceRequest->GetStatus() == EHttpRequestStatus::Processing
 		|| RequestToSignRequest->GetStatus() == EHttpRequestStatus::Processing
@@ -90,7 +90,7 @@ bool USendARTMAsync::IsActive() const
 		|| GetTransactionStatusRequest->GetStatus() == EHttpRequestStatus::Processing;
 }
 
-void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode)
+void USendFutureverseARTM::OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode)
 {
 	UE_LOG(LogTemp, Display, TEXT("OnRequestToSignCompleted: %s"), *SignedMessage);
 
@@ -101,7 +101,7 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		return;
 	}
 
-	SendMutationRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
+	SendMutationRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
 		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
@@ -123,7 +123,7 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			_TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
 			if (!_TransactionHash.IsEmpty()) {
-				this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &USendARTMAsync::GetARTMStatus, 3.0F, true, 1.0F);
+				this->WorldContextObject->GetWorld()->GetTimerManager().SetTimer(this->TimerHandle, this, &USendFutureverseARTM::GetARTMStatus, 3.0F, true, 1.0F);
 			}
 			else {
 				//handle fail to parse errors
@@ -142,9 +142,9 @@ void USendARTMAsync::OnRequestToSignCompleted(FString SignedMessage, EErrorCode 
 	SendMutationRequest->ProcessRequest();
 }
 
-void USendARTMAsync::GetARTMStatus()
+void USendFutureverseARTM::GetARTMStatus()
 {
-	GetTransactionStatusRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendARTMAsync>(
+	GetTransactionStatusRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
 		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),

@@ -5,9 +5,9 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 
-UGetAssetTree* UGetAssetTree::GetAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId)
+UGetFutureverseAssetTree* UGetFutureverseAssetTree::GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId)
 {
-	UGetAssetTree* BlueprintNode = NewObject<UGetAssetTree>();
+	UGetFutureverseAssetTree* BlueprintNode = NewObject<UGetFutureverseAssetTree>();
 	BlueprintNode->TokenId = TokenId;
 	BlueprintNode->CollectionId = CollectionId;
 	BlueprintNode->WorldContextObject = WorldContextObject;
@@ -15,16 +15,16 @@ UGetAssetTree* UGetAssetTree::GetAssetTree(UObject* WorldContextObject, FString 
 	return BlueprintNode;
 }
 
-void UGetAssetTree::Activate()
+void UGetFutureverseAssetTree::Activate()
 {
 	if (!TokenId.IsEmpty() && !CollectionId.IsEmpty()) {
 		TArray<TPair<FString, FString>> Headers;
 		Headers.Add(TPair<FString, FString>{ "content-type", "application/json" });
 		
 		FString Content = R"({"query":"query Asset($tokenId: String!, $collectionId: CollectionId!) {\n  asset(tokenId: $tokenId, collectionId: $collectionId) {\n    assetTree {\n      data\n    }\n  }\n}","variables":{"tokenId":")" + TokenId + R"(","collectionId":")" + CollectionId + R"("}})";
-		Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetAssetTree>(
+		Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFutureverseAssetTree>(
 			this,
-			&UGetAssetTree::GetAssetTree_HttpRequestComplete,
+			&UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete,
 			UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
 			"POST",
 			60.0F,
@@ -34,11 +34,11 @@ void UGetAssetTree::Activate()
 	}
 	else {
 		UE_LOG(LogEmergenceHttp, Error, TEXT("One or more of UGetAssetTree's inputs were empty."));
-		OnGetAssetTreeCompleted.Broadcast(TArray<FEmergenceFutureverseAssetTreePart>(), EErrorCode::EmergenceClientFailed);
+		OnGetAssetTreeCompleted.Broadcast(TArray<FFutureverseAssetTreePath>(), EErrorCode::EmergenceClientFailed);
 	}
 }
 
-void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
 	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
@@ -51,10 +51,10 @@ void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest
 			TSharedPtr<FJsonObject> Object = JsonValue->AsObject();
 			if (Object) {
 				auto DataArray = Object->GetObjectField("data")->GetObjectField("asset")->GetObjectField("assetTree")->GetObjectField("data")->GetArrayField("@graph");
-				TArray<FEmergenceFutureverseAssetTreePart> AssetTree;
+				TArray<FFutureverseAssetTreePath> AssetTree;
 
 				for (auto Data : DataArray) {
-					FEmergenceFutureverseAssetTreePart AssetTreePartStruct;
+					FFutureverseAssetTreePath AssetTreePartStruct;
 					AssetTreePartStruct.Id = Data->AsObject()->GetStringField("@id"); //get the ID of this
 					AssetTreePartStruct.RDFType = Data->AsObject()->GetObjectField("rdf:type")->GetStringField("@id"); //get the rdf:type
 					
@@ -66,7 +66,7 @@ void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest
 								continue;
 							}
 
-							FEmergenceFutureversePredicateData PredicateStruct;
+							FFutureverseAssetTreeObject PredicateStruct;
 							TSharedPtr<FJsonObject> Predicate = Data->AsObject()->GetObjectField(PredicateKey);
 							PredicateStruct.Id = Predicate->GetStringField("@id");
 
@@ -85,7 +85,7 @@ void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest
 								}
 							}
 							
-							AssetTreePartStruct.Predicates.Add(PredicateKey, PredicateStruct);
+							AssetTreePartStruct.Objects.Add(PredicateKey, PredicateStruct);
 							
 						}
 					}
@@ -96,7 +96,7 @@ void UGetAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest
 			}
 		}
 	}
-	OnGetAssetTreeCompleted.Broadcast(TArray<FEmergenceFutureverseAssetTreePart>(), EErrorCode::EmergenceClientFailed);
+	OnGetAssetTreeCompleted.Broadcast(TArray<FFutureverseAssetTreePath>(), EErrorCode::EmergenceClientFailed);
 	UE_LOG(LogEmergenceHttp, Error, TEXT("One or more errors occured trying to parse asset tree."));
 	return;
 }

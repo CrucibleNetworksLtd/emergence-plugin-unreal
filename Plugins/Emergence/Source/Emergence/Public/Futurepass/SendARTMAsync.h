@@ -12,13 +12,12 @@
  * 
  */
 UCLASS()
-class EMERGENCE_API USendARTMAsync : public UEmergenceCancelableAsyncBase
+class EMERGENCE_API USendFutureverseARTM : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:
-	//Remove blueprintcallable when testing finishes
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Futureverse Methods")
-	static USendARTMAsync* SendARTMAsync(UObject* WorldContextObject, FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations);
+	static USendFutureverseARTM* SendFutureverseARTM(UObject* WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations);
 
 	virtual void Activate() override;
 
@@ -34,7 +33,7 @@ public:
 private:
 	FString ConstructedMessage;
 	FString _MessageToUser;
-	TArray<FEmergenceFutureverseARTMOperation> _ARTMOperations;
+	TArray<FFutureverseARTMOperation> _ARTMOperations;
 	FString _TransactionHash;
 
 	FHttpRequestPtr GetNonceRequest;

@@ -8,7 +8,7 @@
 
 
 USTRUCT(BlueprintType)
-struct FEmergenceFutureversePredicateData
+struct FFutureverseAssetTreeObject
 {
 
 	GENERATED_BODY()
@@ -22,7 +22,7 @@ struct FEmergenceFutureversePredicateData
 };
 
 USTRUCT(BlueprintType)
-struct FEmergenceFutureverseAssetTreePart
+struct FFutureverseAssetTreePath
 {
 
     GENERATED_BODY()
@@ -34,21 +34,21 @@ struct FEmergenceFutureverseAssetTreePart
 	FString RDFType;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
-	TMap<FString, FEmergenceFutureversePredicateData> Predicates;
+	TMap<FString, FFutureverseAssetTreeObject> Objects;
 
 };
 
 UCLASS()
-class EMERGENCE_API UGetAssetTree : public UEmergenceAsyncSingleRequestBase
+class EMERGENCE_API UGetFutureverseAssetTree : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 	
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futurepass Methods")
-	static UGetAssetTree* GetAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId);
+	static UGetFutureverseAssetTree* GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAssetTreeCompleted, const TArray<FEmergenceFutureverseAssetTreePart>&, AssetTree, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetAssetTreeCompleted, const TArray<FFutureverseAssetTreePath>&, AssetTree, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetAssetTreeCompleted OnGetAssetTreeCompleted;

@@ -3,24 +3,29 @@
 
 #include "Futurepass/ARTMBuilderLibrary.h"
 
-FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FEmergenceFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce)
+FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce)
 {
     UE_LOG(LogTemp, Display, TEXT("Generating ARTM with message %s, %d operations, for address %s, with nonce %s"), *Message, ARTMOperations.Num(), *Address, *Nonce);
-    TMap< EEmergenceFutureverseARTMOperationType, FString> OperationTypeStrings = {
-        {EEmergenceFutureverseARTMOperationType::CREATELINK, "asset-link create"},
-        {EEmergenceFutureverseARTMOperationType::DELETELINK, "asset-link delete"}
+    TMap< EFutureverseARTMOperationType, FString> OperationTypeStrings = {
+        {EFutureverseARTMOperationType::CREATELINK, "asset-link create"},
+        {EFutureverseARTMOperationType::DELETELINK, "asset-link delete"}
     };
 
     FString ARTM = "Asset Registry transaction\n\n";
     ARTM += Message + "\n\n";
     ARTM += "Operations:\n\n";
-    for (FEmergenceFutureverseARTMOperation Operation : ARTMOperations) {
-        if (Operation.OperationType == EEmergenceFutureverseARTMOperationType::NONE) {
+    for (FFutureverseARTMOperation Operation : ARTMOperations) {
+        if (Operation.OperationType == EFutureverseARTMOperationType::NONE) {
             continue;
         }
-
+        TArray<FString> Array;
+        Operation.Slot.ParseIntoArray(Array, TEXT(":"), false);
+        if((Array.Num() == 0) || Array.Last(0).IsEmpty() || Operation.LinkA.IsEmpty() || Operation.LinkB.IsEmpty()){
+            UE_LOG(LogTemp, Error, TEXT("Error parsing ARTM Operation!"));
+            continue;
+        }
         ARTM += *OperationTypeStrings.Find(Operation.OperationType) + "\n";
-        ARTM += "- " + Operation.Slot + "\n";
+        ARTM += "- " + Array.Last(0) + "\n";
         ARTM += "- " + Operation.LinkA + "\n";
         ARTM += "- " + Operation.LinkB + "\n";
         ARTM += "end\n\n";
