@@ -78,6 +78,25 @@ public:
 		return "https://ar-api.futureverse.cloud/graphql";
 	}
 
+	inline static FString GetFutureverseFuturepassChainId() {
+
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#endif
+
+		if (Environment == "Production") {
+			//Production Env URL
+			return "1";
+		}
+
+		//Staging & Dev Env URL
+		return "11155111";
+	}
+
 	inline static FString GetFutureverseFuturepassAPIURL() {
 
 #if UE_BUILD_SHIPPING
@@ -93,13 +112,8 @@ public:
 			return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1"; //ALL URLS ARE THE SAME RIGHT NOW, SUBJECT TO CHANGE
 		}
 
-		if (Environment == "Development") {
-			//Development Env URL
-			return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1";
-		}
-
-		//Staging Env URL
-		return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1";
+		//Staging and Dev same Env URL
+		return "https://y4heevnpik.execute-api.us-west-2.amazonaws.com/api/v1";
 	}
 
 	inline static FString GetFutureverseIndexerAPIURL() {

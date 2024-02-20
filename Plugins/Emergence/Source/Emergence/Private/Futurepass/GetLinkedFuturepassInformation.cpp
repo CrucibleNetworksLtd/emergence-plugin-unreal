@@ -16,7 +16,7 @@ UGetLinkedFuturepassInformation* UGetLinkedFuturepassInformation::GetLinkedFutur
 
 void UGetLinkedFuturepassInformation::Activate(){
 	FString URL = UHttpHelperLibrary::GetFutureverseFuturepassAPIURL() + "/linked-futurepass?eoa=";
-	URL = URL + "1:EVM:" + Address;
+	URL = URL + UHttpHelperLibrary::GetFutureverseFuturepassChainId() + ":EVM:" + Address;
 	LinkedFuturepassRequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetLinkedFuturepassInformation>(
 		this,
 		nullptr,
