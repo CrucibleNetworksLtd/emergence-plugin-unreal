@@ -66,16 +66,16 @@ public:
 
 		if (Environment == "Production") {
 			//Production Env URL
-			return "https://saybx2ywpd.execute-api.us-west-2.amazonaws.com/graphql";
+			return "https://ar-api.futureverse.app/graphql";
 		}
 
 		if (Environment == "Development") {
 			//Development Env URL
-			return "https://8pq9ec5unj.execute-api.us-west-2.amazonaws.com/graphql";
+			return "https://ar-api.futureverse.dev/graphql";
 		}
 
 		//Staging Env URL
-		return "https://6b20qa1273.execute-api.us-west-2.amazonaws.com/graphql";
+		return "https://ar-api.futureverse.cloud/graphql";
 	}
 
 	inline static FString GetFutureverseFuturepassAPIURL() {
