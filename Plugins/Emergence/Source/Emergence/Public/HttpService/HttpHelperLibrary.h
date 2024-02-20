@@ -113,17 +113,12 @@ public:
 #endif
 
 		if (Environment == "Production") {
-			//Production Env URL
-			return "https://adx1wewtnh.execute-api.us-west-2.amazonaws.com/api/graphql"; //ALL URLS ARE THE SAME RIGHT NOW, SUBJECT TO CHANGE
-		}
-
-		if (Environment == "Development") {
-			//Development Env URL
+			//THIS IS THE Production Env URL
 			return "https://adx1wewtnh.execute-api.us-west-2.amazonaws.com/api/graphql";
 		}
 
-		//Staging Env URL
-		return "https://adx1wewtnh.execute-api.us-west-2.amazonaws.com/api/graphql";
+		//Dev and staging are the same
+		return "https://w1jv6xw3jh.execute-api.us-west-2.amazonaws.com/api/graphql";
 	}
 
 	inline static FString GetPersonaAPIURL() {
