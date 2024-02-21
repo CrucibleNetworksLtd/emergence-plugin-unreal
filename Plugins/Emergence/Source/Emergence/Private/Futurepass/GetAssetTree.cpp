@@ -91,7 +91,7 @@ void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr 
 					}
 					AssetTree.Add(AssetTreePartStruct);
 				}
-				OnGetAssetTreeCompleted.Broadcast(AssetTree, EErrorCode::EmergenceClientFailed);
+				OnGetAssetTreeCompleted.Broadcast(AssetTree, EErrorCode::EmergenceOk);
 				return;
 			}
 		}
