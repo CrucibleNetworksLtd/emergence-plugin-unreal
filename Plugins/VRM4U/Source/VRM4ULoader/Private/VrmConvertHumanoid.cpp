@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertHumanoid.h"
 #include "VrmConvert.h"
@@ -229,14 +229,18 @@ bool VRMConverter::ConvertHumanoid(UVrmAssetListObject *vrmAssetList) {
 		UNodeMappingContainer *rr = nullptr;
 
 #if WITH_EDITOR
-		if (i == 0) {
-			ss = DuplicateObject<USkeletalMesh>(src_sk, vrmAssetList->Package, *name_mesh);
-			base = DuplicateObject<USkeleton>(src_k, vrmAssetList->Package, *name_skeleton);
-			rr = VRM4U_NewObject<UNodeMappingContainer>(vrmAssetList->Package, *name_rig, RF_Public | RF_Standalone);
-		} else {
-			ss = DuplicateObject<USkeletalMesh>(src_sk, vrmAssetList->Package, *name_mesh);
-			base = DuplicateObject<USkeleton>(src_k, vrmAssetList->Package, *name_skeleton);
-			rr = VRM4U_NewObject<UNodeMappingContainer>(vrmAssetList->Package, *name_rig, RF_Public | RF_Standalone);
+		{
+			auto p = vrmAssetList->Package;
+
+			if (i == 0) {
+				ss = VRM4U_DuplicateObject<USkeletalMesh>(src_sk, p, *name_mesh);
+				base = VRM4U_DuplicateObject<USkeleton>(src_k, p, *name_skeleton);
+				rr = VRM4U_NewObject<UNodeMappingContainer>(p, *name_rig, RF_Public | RF_Standalone);
+			}else {
+				ss = VRM4U_DuplicateObject<USkeletalMesh>(src_sk, p, *name_mesh);
+				base = VRM4U_DuplicateObject<USkeleton>(src_k, p, *name_skeleton);
+				rr = VRM4U_NewObject<UNodeMappingContainer>(p, *name_rig, RF_Public | RF_Standalone);
+			}
 		}
 #else
 		ss = const_cast<USkeletalMesh*>(src_sk);

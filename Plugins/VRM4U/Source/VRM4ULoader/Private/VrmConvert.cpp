@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvert.h"
 
@@ -110,7 +110,63 @@ static bool ReplaceNodeName(aiNode *node, const TMap<FString, FString> &map) {
 	return true;
 }
 
+static bool LocalMakeName(aiNode* node) {
+	for (uint32_t i = 0; i < node->mNumChildren; ++i) {
+		LocalMakeName(node->mChildren[i]);
+	}
+	auto s = VRMUtil::MakeName(UTF8_TO_TCHAR(node->mName.C_Str()), true);
+	node->mName = TCHAR_TO_UTF8(*s);
+
+	return true;
+}
+
+
+static bool LocalNormalizeBone(aiNode *node) {
+	for (uint32_t i = 0; i < node->mNumChildren; ++i) {
+		LocalNormalizeBone(node->mChildren[i]);
+	}
+	auto s = VRMUtil::GetSafeNewName(UTF8_TO_TCHAR(node->mName.C_Str()));
+	node->mName = TCHAR_TO_UTF8(*s);
+
+	return true;
+}
+
 bool VRMConverter::NormalizeBoneName(const aiScene *mScenePtr) {
+	if (mScenePtr == nullptr) {
+		return false;
+	}
+
+	if (VRMConverter::Options::Get().IsForceOriginalBoneName()) {
+	}else{
+		LocalMakeName(mScenePtr->mRootNode);
+
+		// aiBone name
+		for (uint32 m = 0; m < mScenePtr->mNumMeshes; ++m) {
+			auto* aiM = mScenePtr->mMeshes[m];
+
+			for (uint32 b = 0; b < aiM->mNumBones; ++b) {
+				auto* aiB = aiM->mBones[b];
+
+				auto s = VRMUtil::MakeName(UTF8_TO_TCHAR(aiB->mName.C_Str()), true);
+				aiB->mName = TCHAR_TO_UTF8(*s);
+			}
+		}
+
+		// spring, collision name
+		VRM::VRMMetadata* meta = reinterpret_cast<VRM::VRMMetadata*>(mScenePtr->mVRMMeta);
+		if (meta) {
+			for (int s = 0; s < meta->springNum; ++s) {
+				for (int b = 0; b < meta->springs[s].boneNum; ++b) {
+					auto str = VRMUtil::MakeName(UTF8_TO_TCHAR(meta->springs[s].bones_name[b].C_Str()), true);
+					meta->springs[s].bones_name[b] = TCHAR_TO_UTF8(*str);
+				}
+			}
+			for (int c = 0; c < meta->colliderGroupNum; ++c) {
+				auto str = VRMUtil::MakeName(UTF8_TO_TCHAR(meta->colliderGroups[c].node_name.C_Str()), true);
+				meta->colliderGroups[c].node_name = TCHAR_TO_UTF8(*str);
+			}
+		}
+	}
 
 	return true;
 	//auto p = const_cast<aiScene*>(mScenePtr);
@@ -227,11 +283,11 @@ bool VRMConverter::Options::IsEnableMorphTargetNormal() const {
 #endif
 }
 
-bool VRMConverter::Options::IsStrictMorphTargetNameMode() const {
+bool VRMConverter::Options::IsForceOriginalMorphTargetName() const {
 #if WITH_EDITOR
 	if (ImportOption == nullptr) return false;
 
-	return ImportOption->bStrictMorphTargetNameMode;
+	return ImportOption->bForceOriginalMorphTargetName;
 #else
 	return false;
 #endif
@@ -245,6 +301,11 @@ bool VRMConverter::Options::IsRemoveBlendShapeGroupPrefix() const {
 #else
 	return false;
 #endif
+}
+
+bool VRMConverter::Options::IsForceOriginalBoneName() const {
+	if (ImportOption == nullptr) return false;
+	return ImportOption->bForceOriginalBoneName;
 }
 
 bool VRMConverter::Options::IsGenerateHumanoidRenamedMesh() const {
@@ -613,6 +674,7 @@ bool VRMConverter::GetMatParam(VRM::VRMMaterial &m, int matNo) const {
 
 	if (VRMConverter::Options::Get().IsVRM0Model()) {
 		const VRM::VRMMetadata* meta = static_cast<const VRM::VRMMetadata*>(aiData->mVRMMeta);
+		if (meta == nullptr) return false;
 		if (matNo >= meta->materialNum) {
 			return false;
 		}
@@ -667,9 +729,6 @@ bool VRMConverter::GetMatParam(VRM::VRMMaterial &m, int matNo) const {
 
 	// float
 	{
-		//auto t = mat["pbrMetallicRoughness"]["baseColorFactor"].GetArray();
-		//m.floatProperties._Color, t);
-
 		//m.floatProperties._Cutoff;
 		m.floatProperties._BumpScale = 1.f;
 		m.floatProperties._ReceiveShadowRate = 1.f;
@@ -734,6 +793,12 @@ bool VRMConverter::GetMatParam(VRM::VRMMaterial &m, int matNo) const {
 			auto t = mat["extensions"]["VRMC_materials_mtoon"]["outlineColorFactor"].GetArray();
 			if (t.Size()) {
 				copyVector(m.vectorProperties._OutlineColor, t);
+			}
+		}
+		{
+			auto t = mat["extensions"]["VRMC_materials_mtoon"]["matcapFactor"].GetArray();
+			if (t.Size()) {
+				//copyVector(m.vectorProperties._OutlineColor, t);
 			}
 		}
 	}

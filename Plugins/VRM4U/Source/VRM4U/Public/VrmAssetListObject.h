@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
@@ -164,6 +164,12 @@ public:
 	UNodeMappingContainer *HumanoidRig;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
+	UPoseAsset *PoseBody;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
+	UPoseAsset *PoseFace;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
 	TArray<bool> MaterialFlag_Translucent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
@@ -186,6 +192,9 @@ public:
 
 	UPROPERTY()
 	UPackage *Package;
+
+	UPROPERTY()
+	UVrmAssetListObject* ReimportBase;
 
 	UPROPERTY()
 	FString FileFullPathName;

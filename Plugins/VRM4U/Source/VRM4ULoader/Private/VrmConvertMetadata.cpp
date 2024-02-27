@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertMetadata.h"
 #include "VrmConvert.h"
@@ -91,9 +91,20 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			MetaObject = VRM4U_NewObject<UVrmMetaObject>(package, NAME_None, EObjectFlags::RF_Public | RF_Transient, NULL);
 			lic = VRM4U_NewObject<UVrmLicenseObject>(package, NAME_None, EObjectFlags::RF_Public | RF_Transient, NULL);
 		} else {
-			MetaObject = VRM4U_NewObject<UVrmMetaObject>(package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_VrmMeta")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
-			lic = VRM4U_NewObject<UVrmLicenseObject>(package, *(FString(TEXT("VL_")) + vrmAssetList->BaseFileName + TEXT("_VrmLicense")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+
+			if (vrmAssetList->ReimportBase) {
+				MetaObject = vrmAssetList->ReimportBase->VrmMetaObject;
+				lic = vrmAssetList->ReimportBase->VrmLicenseObject;
+			}
+			if (MetaObject == nullptr) {
+				MetaObject = VRM4U_NewObject<UVrmMetaObject>(package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_VrmMeta")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+			}
+			if (lic == nullptr){
+				lic = VRM4U_NewObject<UVrmLicenseObject>(package, *(FString(TEXT("VL_")) + vrmAssetList->BaseFileName + TEXT("_VrmLicense")), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+			}
 		}
+		if (MetaObject) MetaObject->MarkPackageDirty();
+		if (lic) lic->MarkPackageDirty();
 
 		if (vrmAssetList) {
 			vrmAssetList->VrmMetaObject = MetaObject;
@@ -123,7 +134,14 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 				int node = g.value["node"].GetInt();
 
 				if (node >= 0 && node < (int)origBone.Size()) {
-					MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
+					FString str = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
+
+					if (VRMConverter::Options::Get().IsForceOriginalBoneName()) {
+					}else{
+						str = VRMUtil::MakeName(str, true);
+					}
+
+					MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = str;
 				} else {
 					MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(g.name.GetString())) = "";
 				}
@@ -134,7 +152,12 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			if (FString(a.humanBoneName.C_Str()) == "") {
 				continue;
 			}
-			MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(a.humanBoneName.C_Str())) = UTF8_TO_TCHAR(a.nodeName.C_Str());
+			FString str = UTF8_TO_TCHAR(a.nodeName.C_Str());
+			if (VRMConverter::Options::Get().IsForceOriginalBoneName()) {
+			} else {
+				str = VRMUtil::MakeName(str, true);
+			}
+			MetaObject->humanoidBoneTable.Add(UTF8_TO_TCHAR(a.humanBoneName.C_Str())) = str;
 		}
 	}
 
@@ -197,8 +220,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 						if (targetShape.shapeIndex < (int)tmp.Size()) {
 							targetShape.morphTargetName = tmp[targetShape.shapeIndex].GetString();
 
-							if (VRMConverter::Options::Get().IsStrictMorphTargetNameMode()) {
-								targetShape.morphTargetName = VRMConverter::NormalizeFileName(targetShape.morphTargetName);
+							if (VRMConverter::Options::Get().IsForceOriginalMorphTargetName()) {
+							}else{
+								targetShape.morphTargetName = VRMUtil::MakeName(targetShape.morphTargetName);
 							}
 						}
 					}
@@ -207,9 +231,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 			}
 		}
 	} else {
-		MetaObject->BlendShapeGroup.SetNum(SceneMeta->blensShapeGroupNum);
-		for (int i = 0; i < SceneMeta->blensShapeGroupNum; ++i) {
-			auto& aiGroup = SceneMeta->blensShapeGourp[i];
+		MetaObject->BlendShapeGroup.SetNum(SceneMeta->blendShapeGroupNum);
+		for (int i = 0; i < SceneMeta->blendShapeGroupNum; ++i) {
+			auto& aiGroup = SceneMeta->blendShapeGroup[i];
 
 			FString s = UTF8_TO_TCHAR(aiGroup.groupName.C_Str());
 			if (VRMConverter::Options::Get().IsRemoveBlendShapeGroupPrefix()) {
@@ -232,8 +256,9 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 				bind.meshID = aiGroup.bind[b].meshID;
 				bind.shapeIndex = aiGroup.bind[b].shapeIndex;
 
-				if (VRMConverter::Options::Get().IsStrictMorphTargetNameMode()) {
-					bind.morphTargetName = VRMConverter::NormalizeFileName(bind.morphTargetName);
+				if (VRMConverter::Options::Get().IsForceOriginalMorphTargetName()) {
+				}else{
+					bind.morphTargetName = VRMUtil::MakeName(bind.morphTargetName);
 				}
 			}
 		}
@@ -372,7 +397,7 @@ bool VRMConverter::ConvertVrmMeta(UVrmAssetListObject *vrmAssetList, const aiSce
 					s.bones[0] = node;
 
 					if (node >= 0 && node < (int)origBone.Size()) {
-						s.boneNames[0] = UTF8_TO_TCHAR(origBone[node]["name"].GetString());
+						s.boneNames[0] = VRMUtil::GetSafeNewName(UTF8_TO_TCHAR(origBone[node]["name"].GetString()));
 					}
 
 					s.hitRadius = j["hitRadius"].GetFloat();
@@ -599,7 +624,7 @@ bool VRMConverter::ConvertVrmMetaRenamed(UVrmAssetListObject* vrmAssetList, cons
 		{
 			TMap<FString, FString> BoneTable;
 
-			UVrmMetaObject* m2 = DuplicateObject<UVrmMetaObject>(m, package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_ue4mannequin_VrmMeta")));
+			UVrmMetaObject* m2 = VRM4U_DuplicateObject<UVrmMetaObject>(m, package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_ue4mannequin_VrmMeta")));
 			vrmAssetList->VrmMannequinMetaObject = m2;
 			for (auto& a : m2->humanoidBoneTable) {
 				auto c = VRMUtil::table_ue4_vrm.FindByPredicate([a](const VRMUtil::VRMBoneTable& data) {
@@ -637,7 +662,7 @@ bool VRMConverter::ConvertVrmMetaRenamed(UVrmAssetListObject* vrmAssetList, cons
 		{
 			TMap<FString, FString> BoneTable;
 
-			UVrmMetaObject* m3 = DuplicateObject<UVrmMetaObject>(m, package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_humanoid_VrmMeta")));
+			UVrmMetaObject* m3 = VRM4U_DuplicateObject<UVrmMetaObject>(m, package, *(FString(TEXT("VM_")) + vrmAssetList->BaseFileName + TEXT("_humanoid_VrmMeta")));
 			vrmAssetList->VrmHumanoidMetaObject = m3;
 			for (auto& a : m3->humanoidBoneTable) {
 				if (a.Value != "") {
