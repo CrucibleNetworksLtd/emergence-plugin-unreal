@@ -58,6 +58,28 @@ void UGetFuturepassInventory::Activate() {
 						else {
 							Item.meta.name = Item.tokenId;
 						}
+						
+						
+						//Parse attributes (properties object)
+						TMap<FString, TSharedPtr<FJsonValue>> AttributesJson = NFTData->GetObjectField("collection")->Values;
+						TArray<FString> AttributesJsonKeys;
+						AttributesJson.GetKeys(AttributesJsonKeys);
+						for (FString Key : AttributesJsonKeys) {
+							TSharedPtr<FJsonValue> Json = *AttributesJson.Find(Key);
+							FString JsonContentString;
+							
+							if (Json->TryGetString(JsonContentString)) {
+								FEmergenceInventoryItemsMetaAttribute Attribute;
+								Attribute.key = "collection-"+Key;
+								Attribute.value = JsonContentString;
+								Item.meta.attributes.Add(Attribute);
+							}
+							else {
+								UE_LOG(LogEmergence, Warning, TEXT("Couldn't parse attribute %s as part of GetFuturepassInventory."), *Key);
+							}
+						}
+
+
 						UE_LOG(LogTemp, Display, TEXT("%s"), *Item.meta.name);
 						NFTData->GetObjectField("metadata")->GetObjectField("properties")->TryGetStringField("description", Item.meta.description);
 						FEmergenceInventoryItemsMetaContent Content;
