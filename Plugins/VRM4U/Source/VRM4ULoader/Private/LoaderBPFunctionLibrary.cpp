@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "LoaderBPFunctionLibrary.h"
 
@@ -727,7 +727,12 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 		if (s_vrm_package == GetTransientPackage()) {
 			out = Cast<UVrmAssetListObject>(StaticDuplicateObject(InVrmAsset, s_vrm_package, NAME_None));
 		} else {
-			out = VRM4U_NewObject<UVrmAssetListObject>(s_vrm_package, *(FString(TEXT("VA_")) + VRMConverter::NormalizeFileName(baseFileName) + FString(TEXT("_VrmAssetList"))), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+			if (InVrmAsset->ReimportBase) {
+				out = InVrmAsset->ReimportBase;
+			}
+			else {
+				out = VRM4U_NewObject<UVrmAssetListObject>(s_vrm_package, *(FString(TEXT("VA_")) + VRMConverter::NormalizeFileName(baseFileName) + FString(TEXT("_VrmAssetList"))), EObjectFlags::RF_Public | EObjectFlags::RF_Standalone);
+			}
 			InVrmAsset->CopyMember(out);
 		}
 		OutVrmAsset = out;
@@ -784,12 +789,14 @@ bool ULoaderBPFunctionLibrary::LoadVRMFileFromMemory(const UVrmAssetListObject *
 
 		ret &= vc.ConvertRig(out);
 		LogAndUpdate(TEXT("ConvertRig"));
-		ret &= vc.ConvertPose(out);
-		LogAndUpdate(TEXT("ConvertPose"));
+		ret &= vc.ConvertIKRig(out);
+		LogAndUpdate(TEXT("ConvertIKRig"));
 		if (out->bSkipMorphTarget == false) {
 			ret &= vc.ConvertMorphTarget(out);
 			LogAndUpdate(TEXT("ConvertMorphTarget"));
 		}
+		ret &= vc.ConvertPose(out);
+		LogAndUpdate(TEXT("ConvertPose"));
 		ret &= vc.ConvertHumanoid(out);
 		LogAndUpdate(TEXT("ConvertHumanoid"));
 		UpdateProgress(80);

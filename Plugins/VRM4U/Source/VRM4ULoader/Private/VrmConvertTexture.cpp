@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertTexture.h"
 #include "VrmConvert.h"
@@ -432,6 +432,19 @@ namespace {
 				{TEXT("mtoon_tex_OutlineWidthTexture"),	vrmMat.textureProperties._OutlineWidthTexture},
 				{TEXT("mtoon_tex_UvAnimMaskTexture"),	vrmMat.textureProperties._UvAnimMaskTexture},
 			};
+
+			if (VRMConverter::Options::Get().IsVRM10Model()) {
+				FSoftObjectPath r(TEXT("/VRM4U/MaterialUtil/T_DummyBlack.T_DummyBlack"));
+				UObject* u = r.TryLoad();
+				if (u) {
+					auto r2 = Cast<UTexture2D>(u);
+					if (r2) {
+						LocalTextureSet(dm, "mtoon_tex_EmissionMap", r2);
+					}
+				}
+			}
+
+
 			int count = 0;
 			for (auto &t : tableParam) {
 				++count;
@@ -1223,7 +1236,7 @@ bool VRMConverter::ConvertTextureAndMaterial(UVrmAssetListObject *vrmAssetList) 
 					bFind = true;
 					vrmAssetList->MaterialMergeTable[i] = j;
 
-					matArray[i]->Rename(nullptr, GetTransientPackage(), EObjectFlags::RF_Public | RF_Transient);
+					matArray[i]->Rename(nullptr, GetTransientPackage(), REN_DontCreateRedirectors | REN_NonTransactional | REN_ForceNoResetLoaders);
 
 					break;
 				}

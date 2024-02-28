@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 #include "Engine/LatentActionManager.h"
@@ -88,10 +88,10 @@ public:
 
 	UFUNCTION(BlueprintCallable,Category="VRM4U", meta = (DynamicOutputParam = "OutVrmAsset"))
 	static bool LoadVRMFile(const class UVrmAssetListObject *InVrmAsset, class UVrmAssetListObject *&OutVrmAsset, const FString filepath, const FImportOptionData &OptionForRuntimeLoad);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "VRM4U", meta = (Latent, DynamicOutputParam = "OutVrmAsset", WorldContext = "WorldContextObject", LatentInfo = "LatentInfo"))
 	static void LoadVRMFromMemoryAsync(const UObject* WorldContextObject, const UVrmAssetListObject* InVrmAsset, UVrmAssetListObject*& OutVrmAsset, const TArray<uint8>& Data, const FImportOptionData& OptionForRuntimeLoad, FLatentActionInfo LatentInfo);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "VRM4U", meta = (Latent, DynamicOutputParam = "OutVrmAsset", WorldContext = "WorldContextObject", LatentInfo = "LatentInfo"))
 	static void LoadVRMFileAsync(const UObject* WorldContextObject, const class UVrmAssetListObject* InVrmAsset, class UVrmAssetListObject*& OutVrmAsset, const FString filepath, const FImportOptionData& OptionForRuntimeLoad, struct FLatentActionInfo LatentInfo);
 

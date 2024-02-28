@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VRM4UImporterFactory.h"
 #include "VRM4UImporterLog.h"
@@ -6,7 +6,7 @@
 #include "Misc/EngineVersionComparison.h"
 
 #include "AssetToolsModule.h"
-#if	ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION < 26
+#if	UE_VERSION_OLDER_THAN(4,26,0)
 #include "AssetRegistryModule.h"
 #else
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -368,7 +368,16 @@ UObject* UVRM4UImporterFactory::FactoryCreateBinary(UClass* InClass, UObject* In
 			c = UVrmAssetListObject::StaticClass();
 		}
 
-		m = NewObject<UVrmAssetListObject>((UObject*)GetTransientPackage(), c.Get());
+		{
+			if (ReimportBase) {
+				m = ReimportBase;
+			}
+			if (m) {
+				m->MarkPackageDirty();
+			}else{
+				m = NewObject<UVrmAssetListObject>((UObject*)GetTransientPackage(), c.Get());
+			}
+		}
 
 	}
 
@@ -489,6 +498,14 @@ EReimportResult::Type UVRM4UImporterFactory::Reimport(UObject* Obj) {
 		return EReimportResult::Failed;
 	}
 #endif
+
+#if	UE_VERSION_OLDER_THAN(4,26,0)
+#else
+	ReimportBase = asset;
+	asset->Package = asset->GetPackage();
+	asset->ReimportBase = asset;
+#endif
+
 	{
 		FString str = asset->AssetImportData->GetSourceData().SourceFiles[0].RelativeFilename;
 		fullFileName = UAssetImportData::ResolveImportFilename(str, asset->Package);
@@ -498,6 +515,9 @@ EReimportResult::Type UVRM4UImporterFactory::Reimport(UObject* Obj) {
 	bool b_dummy = false;
 
 	UObject* n = FactoryCreateBinary(nullptr, asset->Package, "name", (EObjectFlags)0, nullptr, nullptr, buf_dummy, buf_dummy, nullptr, b_dummy);
+
+	ReimportBase = nullptr;
+	fullFileName = "";
 
 	if (n == nullptr) {
 		return EReimportResult::Failed;

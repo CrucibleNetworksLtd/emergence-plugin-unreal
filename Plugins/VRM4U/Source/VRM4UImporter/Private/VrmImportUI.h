@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
@@ -64,7 +64,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "VRM10 Bindpose"))
 	bool bVrm10Bindpose = false;
 
-	/** Duplicate mesh and renamed humanoid bone */
+	/** Force Original Bone Name */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Force original bone name"))
+	bool bForceOriginalBoneName = false;
+
+		/** Duplicate mesh and renamed humanoid bone */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName="Generate renamed humanoid mesh"))
 	bool bGenerateHumanoidRenamedMesh = false;
 
@@ -88,8 +92,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Eable MorphTarget Normal(TangentZDelta)"))
 	bool bEnableMorphTargetNormal = false;
 
-#define VRM4U_MorphStrictMode false
-
 #if UE_VERSION_OLDER_THAN(4,26,0)
 	static const bool VRM4U_UseBC7 = false;
 #else
@@ -97,9 +99,9 @@ public:
 #endif
 
 
-	/** Use Strict MorphTarget Name Mode */
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "**UE5EA** controlrig work around: Eable MorphTarget Name Check"))
-	bool bStrictMorphTargetNameMode = VRM4U_MorphStrictMode;
+	/** Force Original MorphTarget Name Mode */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Force original morphtarget name"))
+	bool bForceOriginalMorphTargetName = false;
 
 	/** Use Strict MorphTarget Name Mode */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Remove BlendShapeGroup prefix for old VRM file"))

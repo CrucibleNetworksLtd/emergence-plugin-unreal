@@ -1,5 +1,7 @@
-﻿// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// The code associated with the initialization of the mesh is based on the Engine source.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+
 
 #include "VrmConvertModel.h"
 #include "VrmConvert.h"
@@ -2219,8 +2221,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 						for (uint32_t i = 0; i < aiNA->mNumPositionKeys; ++i) {
 							const auto &v = aiNA->mPositionKeys[i].mValue;
 							//FVector pos(v.x, v.y, v.z);
+							float Scale = 1.f;
+							if (VRMConverter::Options::Get().IsVRMAModel()) {
+								Scale = 100.f;
+							}
 							FVector pos(-v.x, v.z, v.y);
-							pos *= 100.f * VRMConverter::Options::Get().GetAnimationTranslateScale();
+							pos *= Scale * VRMConverter::Options::Get().GetAnimationTranslateScale();
 							if (VRMConverter::Options::Get().IsVRM10Model() || VRMConverter::Options::Get().IsPMXModel() || VRMConverter::Options::Get().IsBVHModel()) {
 								pos.X *= -1.f;
 								pos.Y *= -1.f;
@@ -2235,7 +2241,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 						}
 						if (chanNo == 0) {
 							if (RawTrack.PosKeys.Num()) {
-								ase->bEnableRootMotion = true;
+								//ase->bEnableRootMotion = true;
 							}
 						}
 					}

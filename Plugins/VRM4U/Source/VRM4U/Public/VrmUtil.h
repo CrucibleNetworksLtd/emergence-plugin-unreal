@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2022 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
@@ -345,6 +345,9 @@ public:
 	bool bVrm10Bindpose = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bForceOriginalBoneName = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bGenerateHumanoidRenamedMesh = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
@@ -359,7 +362,7 @@ public:
 
 	bool bEnableMorphTargetNormal = false;
 	
-	bool bStrictMorphTargetNameMode = false;
+	bool bForceOriginalMorphTargetName = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bRemoveBlendShapeGroupPrefix = false;
@@ -489,4 +492,32 @@ public:
 	static UTexture2D* CreateTexture(int32 InSizeX, int32 InSizeY, FString name, UPackage* package);
 	static UTexture2D* CreateTextureFromImage(FString name, UPackage* package, const void* Buffer, const size_t Length, bool GenerateMip=false, bool bRuntimeMode=false);
 
+
+	static bool IsNoSafeName(const FString& str);
+	static FString GetSafeNewName(const FString& str);
+
+	static FString MakeName(const FString& str, bool IsJoint = false);
 };
+
+class VRM4U_API VRMRetargetData {
+public:
+
+	struct RetargetParts {
+		FString BoneUE4;
+		FString BoneVRM;
+		FString BoneModel;
+
+		FRotator rot;
+		bool operator==(const RetargetParts& a) const{
+			return BoneUE4.Compare(a.BoneUE4, ESearchCase::IgnoreCase) == 0;
+		}
+	};
+	class UVrmAssetListObject* vrmAssetList = nullptr;
+	TArray<RetargetParts> retargetTable;
+
+	void Setup(class UVrmAssetListObject* vrmAssetList, bool bVRM, bool bBVH, bool bPMX);
+	void UpdateBoneName();
+	void Remove(FString BoneUE4);
+};
+
+
