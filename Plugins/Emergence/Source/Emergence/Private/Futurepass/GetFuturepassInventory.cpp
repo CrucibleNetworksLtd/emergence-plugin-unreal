@@ -55,7 +55,7 @@ void UGetFuturepassInventory::Activate() {
 						FString ChainId = NFTData->GetObjectField("collection")->GetStringField("chainId");
 						Item.id = ChainId + ":" + ChainType + ":" + ContractAddress + ":" + TokenIDString;
 						Item.contract = ContractAddress;
-						Item.tokenId = "#" + TokenIDString;
+						Item.tokenId = TokenIDString;
 						Item.blockchain = ChainId + ":" + ChainType;
 						if (NFTData->GetObjectField("metadata")->GetObjectField("properties")->HasTypedField<EJson::String>("name")) {
 							Item.meta.name = NFTData->GetObjectField("metadata")->GetObjectField("properties")->GetStringField("name");
