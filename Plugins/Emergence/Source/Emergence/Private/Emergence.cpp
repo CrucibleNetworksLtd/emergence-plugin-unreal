@@ -14,7 +14,7 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 
 void FEmergenceModule::StartupModule()
 {
-
+	UE_LOG(LogEmergence, Warning, TEXT("Size of wchar_t: %d"), sizeof(wchar_t));
 }
 
 void FEmergenceModule::ShutdownModule()
@@ -24,15 +24,21 @@ void FEmergenceModule::ShutdownModule()
 
 void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {
-#if PLATFORM_WINDOWS
+
 	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
-
+#if PLATFORM_WINDOWS
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
 	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nativehost.dll");
-
+#endif	
+#if PLATFORM_MAC
+	FString DllDirectory = BaseDir + "/EmergenceDll/Mac/";
+	FPlatformProcess::AddDllDirectory(*DllDirectory);
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "libnethost.dylib");
+#endif	
+#if PLATFORM_WINDOWS || PLATFORM_MAC
 	if (LibraryPath.IsEmpty()) {
 		UE_LOG(LogEmergence, Error, TEXT("Failed to load library, library path empty."));
 		WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
@@ -108,8 +114,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	UE_LOG(LogEmergence, Error, TEXT("Failed to load library, handles weren't valid."));
 	WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 	return;
-
-#else //any other platform
+#else
 	UE_LOG(LogEmergence, Error, TEXT("Sending Transactions via a private key is only available on Windows."));
 	WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 	return;
