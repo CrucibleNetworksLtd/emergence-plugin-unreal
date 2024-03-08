@@ -72,7 +72,10 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 		TCHAR c = CharArray[i];
 		ABI[i] = (ANSICHAR)c;
 	}
-
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdangling-field"
+#endif
 	EmergenceLocalEVMJSON* jsonArgs = new EmergenceLocalEVMJSON{
 		0, //unused
 		"", //unused
@@ -92,21 +95,30 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 		nullptr, //return address
 		0 //return length
 	};
-
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 	if (ExampleLibraryHandle)
 	{
 		if (ExampleLibraryFunction) {
 
 			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
 			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
-			//wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*LibraryPath);
-			const wchar_t* MyWideCharString = (*LibraryPath);
-			wcscpy(Runnable->fullpath, MyWideCharString);
+
+//not sure if this block of clang stuff is required anymore, test with Angelo
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdangling-field"
+#endif
+			wcscpy(Runnable->fullpath, TCHAR_TO_WCHAR(*LibraryPath));
 			Runnable->length = LibraryPath.Len();
 			Runnable->ExampleLibraryFunction = ExampleLibraryFunction;
 			Runnable->WriteMethod = WriteMethod;
 			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
 			return;
+#if __clang__
+#pragma clang diagnostic pop
+#endif
 		}
 	}
 
