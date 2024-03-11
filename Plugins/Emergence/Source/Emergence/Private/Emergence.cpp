@@ -47,18 +47,21 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	
 	if (!ExampleLibraryHandle) { //if we don't have a handle on the lib already
 		ExampleLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
+		if (!ExampleLibraryHandle) { //if we still don't have it after specifically asking for it
+			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library."));
+			WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
+			return; //give up
+		}
 	}
 
 	if (ExampleLibraryHandle && !ExampleLibraryFunction) { //if we now have a handle (not a guarantee), and we don't have a library
 		ExampleLibraryFunction = (_getExampleLibraryFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle, TEXT("entry"));
+		if (!ExampleLibraryFunction) { //if we still don't have it after specifically asking for it
+			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library function."));
+			WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
+			return; //give up
+		}
 	}
-	
-	if(!ExampleLibraryHandle || !ExampleLibraryFunction) { //if we don't have either of them by now
-		UE_LOG(LogEmergence, Error, TEXT("Failed to load library."));
-		WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
-		return; //give up
-	}
-	
 
 	FString GasPriceInternal;
 	GasPriceInternal.Empty(0);
