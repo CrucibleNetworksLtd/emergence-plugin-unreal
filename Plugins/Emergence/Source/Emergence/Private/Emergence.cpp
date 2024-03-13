@@ -38,7 +38,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	FString DllDirectory = BaseDir + "/EmergenceDll/Mac/";
 	FString EntryName = TEXT("_entry");
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
-	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nethost.dylib");
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nativehost.dylib");
 #endif	
 #if PLATFORM_WINDOWS || PLATFORM_MAC
 	if (LibraryPath.IsEmpty()) {
@@ -50,7 +50,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	if (!ExampleLibraryHandle) { //if we don't have a handle on the lib already
 		ExampleLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
 		if (!ExampleLibraryHandle) { //if we still don't have it after specifically asking for it
-			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library."));
+			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library at path \"%s\"."), *LibraryPath);
 			WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 			return; //give up
 		}
@@ -59,7 +59,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 	if (ExampleLibraryHandle && !ExampleLibraryFunction) { //if we now have a handle (not a guarantee), and we don't have a library
 		ExampleLibraryFunction = (_getExampleLibraryFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle, *EntryName);
 		if (!ExampleLibraryFunction) { //if we still don't have it after specifically asking for it
-			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library function."));
+			UE_LOG(LogEmergence, Error, TEXT("Failed to get handle for library function \"%s\"."), *EntryName);
 			WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 			return; //give up
 		}
