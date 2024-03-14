@@ -17,7 +17,7 @@ struct FFutureverseAssetTreeObject
 	FString Id;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Predicate Data")
-	TMap<FString, FString> AdditonalData;
+	TMap<FString, FString> AdditionalData;
 
 };
 

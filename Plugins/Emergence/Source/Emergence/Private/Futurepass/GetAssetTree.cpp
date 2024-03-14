@@ -81,7 +81,7 @@ void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr 
 									TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonAsString);
 									FJsonSerializer::Serialize(*Predicate->Values.Find(PredicateContentKey), PredicateContentKey, Writer);
 
-									PredicateStruct.AdditonalData.Add(PredicateContentKey, JsonAsString);
+									PredicateStruct.AdditionalData.Add(PredicateContentKey, JsonAsString);
 								}
 							}
 							
