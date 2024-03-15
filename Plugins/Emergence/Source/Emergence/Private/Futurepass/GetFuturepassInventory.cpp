@@ -21,11 +21,11 @@ void UGetFuturepassInventory::Activate() {
 		AddressString = AddressString + "\"" + Addresses[i] + "\"";
 	}
 
-	FString Content = R"({"query":"query ExampleQuery($addresses: [Address]!, $chainLocations: [BlockchainLocationInput], $first: Int) {\n  nfts(addresses: $addresses, chainLocations: $chainLocations, first: $first) {\n    edges {\n      node {\n        assetType\n        collection {\n          chainId\n          chainType\n          location\n          name\n        }\n        tokenIdNumber\n        metadata {\n          properties\n        }\n      }\n    }\n  }\n}\n","variables":{"addresses":[)" + AddressString + R"(],"first":100},"operationName":"ExampleQuery"})";
+	FString Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float) {\r\n  assets(addresses: $addresses, first: $first) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        }\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 100 }})";
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
 		this,
 		nullptr,
-		UHttpHelperLibrary::GetFutureverseIndexerAPIURL(),
+		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		60.0F, //give the user lots of time to mess around setting high gas fees
 		{TPair<FString, FString>("Content-Type","application/json")},
@@ -41,56 +41,72 @@ void UGetFuturepassInventory::Activate() {
 			if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
 				TSharedPtr<FJsonObject> Object = JsonValue->AsObject();
 				if (Object) {
-					auto NFTArray = Object->GetObjectField("data")->GetObjectField("nfts")->GetArrayField("edges");
-
+					auto NFTArray = Object->GetObjectField("data")->GetObjectField("assets")->GetArrayField("edges");
 					TArray<FEmergenceInventoryItem> Items;
 
 					for (auto NFTNode : NFTArray) {
 						auto NFTData = NFTNode->AsObject()->GetObjectField("node");
+						
+						auto Collection = NFTData->GetObjectField("collection");
 
 						FEmergenceInventoryItem Item;
-						FString TokenIDString = FString::FromInt(NFTData->GetNumberField("tokenIdNumber"));
-						FString ContractAddress = NFTData->GetObjectField("collection")->GetStringField("location");
-						FString ChainType = NFTData->GetObjectField("collection")->GetStringField("chainType");
-						FString ChainId = NFTData->GetObjectField("collection")->GetStringField("chainId");
+						
+						FString TokenIDString = NFTData->GetStringField("tokenId");
+						FString ContractAddress = Collection->GetStringField("location");
+						FString ChainType = Collection->GetStringField("chainType");
+						FString ChainId = Collection->GetStringField("chainId");
 						Item.id = ChainId + ":" + ChainType + ":" + ContractAddress + ":" + TokenIDString;
 						Item.contract = ContractAddress;
 						Item.tokenId = TokenIDString;
 						Item.blockchain = ChainId + ":" + ChainType;
-						if (NFTData->GetObjectField("metadata")->GetObjectField("properties")->HasTypedField<EJson::String>("name")) {
-							Item.meta.name = NFTData->GetObjectField("metadata")->GetObjectField("properties")->GetStringField("name");
-						}
-						else {
-							Item.meta.name = Item.tokenId;
-						}
 						
-						
-						//Parse attributes (properties object)
-						TMap<FString, TSharedPtr<FJsonValue>> AttributesJson = NFTData->GetObjectField("collection")->Values;
-						TArray<FString> AttributesJsonKeys;
-						AttributesJson.GetKeys(AttributesJsonKeys);
-						for (FString Key : AttributesJsonKeys) {
-							TSharedPtr<FJsonValue> Json = *AttributesJson.Find(Key);
-							FString JsonContentString;
-							
-							if (Json->TryGetString(JsonContentString)) {
-								FEmergenceInventoryItemsMetaAttribute Attribute;
-								Attribute.key = "collection-"+Key;
-								Attribute.value = JsonContentString;
-								Item.meta.attributes.Add(Attribute);
+						//Parse properties
+						const TSharedPtr<FJsonObject>* Properties;
+						if (NFTData->GetObjectField("metadata")->TryGetObjectField("properties", Properties)) {
+							if (Properties->Get()->HasTypedField<EJson::String>("name")) {
+								Item.meta.name = Properties->Get()->GetStringField("name");
 							}
 							else {
-								UE_LOG(LogEmergence, Warning, TEXT("Couldn't parse attribute %s as part of GetFuturepassInventory."), *Key);
+								Item.meta.name = "#" + TokenIDString;
+							}
+							Properties->Get()->TryGetStringField("description", Item.meta.description);
+
+							//Parse content (specifically the image field)
+							FEmergenceInventoryItemsMetaContent Content;
+							Content.url = Properties->Get()->GetStringField("image");
+							if (Content.url.Contains(".png")) {
+								Content.mimeType = "image/png";
+								Item.meta.content.Add(Content);
+							}
+							else if (Content.url.Contains(".jpg") || Content.url.Contains(".jpeg")) {
+								Content.mimeType = "image/jpeg";
+								Item.meta.content.Add(Content);
+							}
+							else if (Content.url.Contains(".gif")) {
+								Content.mimeType = "image/gif";
+								Item.meta.content.Add(Content);
 							}
 						}
 
+						//Parse attributes
+						const TSharedPtr<FJsonObject>* Attributes;
+						if (NFTData->GetObjectField("metadata")->TryGetObjectField("attributes", Attributes)) {
+							for (TPair<FString, TSharedPtr<FJsonValue>> Attribute : Attributes->Get()->Values) {
+								FString JsonContentString;
+								FEmergenceInventoryItemsMetaAttribute AttributeStruct;
+								AttributeStruct.key = Attribute.Key;
+								if (Attribute.Value->TryGetString(AttributeStruct.value)) {
+									Item.meta.attributes.Add(AttributeStruct);
+								}
+								else {
+									UE_LOG(LogEmergence, Warning, TEXT("Couldn't parse attribute %s as part of GetFuturepassInventory."), *Attribute.Key);
+								}
+							}
+						}
 
-						UE_LOG(LogTemp, Display, TEXT("%s"), *Item.meta.name);
-						NFTData->GetObjectField("metadata")->GetObjectField("properties")->TryGetStringField("description", Item.meta.description);
-						FEmergenceInventoryItemsMetaContent Content;
-						Content.mimeType = "image/png";
-						Content.url = NFTData->GetObjectField("metadata")->GetObjectField("properties")->GetStringField("image");
-						Item.meta.content.Add(Content);
+						Item.meta.attributes.Add(FEmergenceInventoryItemsMetaAttribute("CollectionName", Collection->GetStringField("name")));
+
+						//add the entire item to our array
 						Items.Add(Item);
 					}
 
