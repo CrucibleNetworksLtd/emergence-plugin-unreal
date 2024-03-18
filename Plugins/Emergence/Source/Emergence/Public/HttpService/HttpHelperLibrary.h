@@ -116,25 +116,6 @@ public:
 		return "https://y4heevnpik.execute-api.us-west-2.amazonaws.com/api/v1";
 	}
 
-	inline static FString GetFutureverseIndexerAPIURL() {
-
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#endif
-
-		if (Environment == "Production") {
-			//THIS IS THE Production Env URL
-			return "https://adx1wewtnh.execute-api.us-west-2.amazonaws.com/api/graphql";
-		}
-
-		//Dev and staging are the same
-		return "https://w1jv6xw3jh.execute-api.us-west-2.amazonaws.com/api/graphql";
-	}
-
 	inline static FString GetPersonaAPIURL() {
 
 #if UE_BUILD_SHIPPING
