@@ -43,28 +43,7 @@ class EMERGENCE_API UARTMBuilderLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	//ADDRESS IS EOA ADDRESS / MUST BE ETH CHECKSUMMED
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Futurepass Methods")
 	static FString GenerateARTM(FString Message, TArray<FFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
 
-	/*UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
-	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMCreateAssetLink(FString Slot, FString LinkA, FString LinkB)
-	{
-		FEmergenceFutureverseARTMOperation Operation;
-		Operation.LinkA = LinkA;
-		Operation.LinkB = LinkB;
-		Operation.Slot = Slot;
-		Operation.OperationType = EEmergenceFutureverseARTMOperationType::CREATELINK;
-		return Operation;
-	}
-
-	UFUNCTION(BlueprintPure, Category = "Emergence|Futurepass|ARTM Operation", meta = (BlueprintThreadSafe))
-	static FEmergenceFutureverseARTMOperation MakeEmergenceFutureverseARTMDeleteAssetLink(FString Slot, FString LinkA, FString LinkB)
-	{
-		FEmergenceFutureverseARTMOperation Operation;
-		Operation.LinkA = LinkA;
-		Operation.LinkB = LinkB;
-		Operation.Slot = Slot;
-		Operation.OperationType = EEmergenceFutureverseARTMOperationType::DELETELINK;
-		return Operation;
-	}*/
 };
