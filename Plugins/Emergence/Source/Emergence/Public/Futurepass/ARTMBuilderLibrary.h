@@ -31,6 +31,9 @@ struct FFutureverseARTMOperation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
 	FString LinkB;
 
+	FFutureverseARTMOperation() {};
+
+	FFutureverseARTMOperation(EFutureverseARTMOperationType _OperationType, FString _Slot, FString _LinkA, FString _LinkB) : OperationType(_OperationType), Slot(_Slot), LinkA(_LinkA), LinkB(_LinkB) {};
 	
 };
 
