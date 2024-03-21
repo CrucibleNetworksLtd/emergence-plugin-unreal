@@ -9,12 +9,29 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 #include "EmergenceChainObject.h"
 #include "EmergenceContract.h"
 #include "EmergenceLocalEVMThread.h"
+#include "ExternalLibraryHelper.h"
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
 
 void FEmergenceModule::StartupModule()
 {
-
+	void* RustExampleLibraryHandle = FPlatformProcess::GetDllHandle(TEXT("C:\\Users\\Chris\\projects\\guessing_game\\target\\debug\\guessing_game.dll"));
+	RustExampleLibraryFunction = (_getRustExampleLibraryFunction)FPlatformProcess::GetDllExport(RustExampleLibraryHandle, TEXT("rust_function"));
+	char* ReturnedString = new char[256];
+	bool ReturnedBool;
+	uint64 ReturnedInt;
+	RustExampleLibraryFunctionReturnStruct ReturnValues = RustExampleLibraryFunction(true, "Testy", 69, ReturnedString, &ReturnedBool, &ReturnedInt);
+	
+	FString ReturnedFString = FString(ReturnedString);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *ReturnedFString);
+	UE_LOG(LogTemp, Display, TEXT("%d"), ReturnValues.sign_in_count);
+	if (ReturnValues.active) {
+		UE_LOG(LogTemp, Display, TEXT("true"))
+	}
+	else {
+		UE_LOG(LogTemp, Display, TEXT("false"))
+	}
+	UE_LOG(LogTemp, Display, TEXT("finished DLL load"));
 }
 
 void FEmergenceModule::ShutdownModule()

@@ -13,6 +13,12 @@ DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);
 class UWriteMethod;
 struct EmergenceLocalEVMJSON;
 
+struct RustExampleLibraryFunctionReturnStruct {
+	bool active;
+	char* username;
+	uint64 sign_in_count;
+};
+
 class FEmergenceModule : public IModuleInterface
 {
 public:
@@ -28,4 +34,7 @@ private:
 
 	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, EmergenceLocalEVMJSON* Data);
 	_getExampleLibraryFunction ExampleLibraryFunction;
+
+	typedef RustExampleLibraryFunctionReturnStruct(*_getRustExampleLibraryFunction)(bool active, char* username, uint64 sign_in_count, char* returnedstring, bool* returnedbool, uint64* returnedint);
+	_getRustExampleLibraryFunction RustExampleLibraryFunction;
 };
