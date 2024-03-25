@@ -52,6 +52,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCachedPersonaUpdated, FEmergencePersona, NewPersona);
 
+	//When the user's active persona changes, this is called
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
 
@@ -216,6 +217,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, EErrorCode, StatusCode);
 	
+	//Called when the user has done the last step of the login process to Emergence
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
