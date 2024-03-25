@@ -13,10 +13,10 @@ struct FFutureverseAssetTreeObject
 
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Predicate Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Predicate Data")
 	FString Id;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Predicate Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Predicate Data")
 	TMap<FString, FString> AdditionalData;
 
 };
@@ -27,13 +27,13 @@ struct FFutureverseAssetTreePath
 
     GENERATED_BODY()
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
     FString Id;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
 	FString RDFType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futurepass|Asset Tree Part")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
 	TMap<FString, FFutureverseAssetTreeObject> Objects;
 
 };
@@ -43,7 +43,7 @@ class EMERGENCE_API UGetFutureverseAssetTree : public UEmergenceAsyncSingleReque
 {
 	GENERATED_BODY()
 	
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futurepass Methods")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UGetFutureverseAssetTree* GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId);
 
 	virtual void Activate() override;
