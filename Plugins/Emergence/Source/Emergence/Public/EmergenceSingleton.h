@@ -59,7 +59,8 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCachedPersonaUpdated, FEmergencePersona, NewPersona);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	//When the user's active persona changes, this is called
+	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
 
 	UPROPERTY()
@@ -173,7 +174,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
 
 
@@ -187,7 +188,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
 
 	//Handshake stuff
@@ -196,7 +197,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
 	//ReinitializeWalletConnect stuff
@@ -205,7 +206,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
 	//isConnected stuff
@@ -214,7 +215,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
 
 	//killSession stuff
@@ -223,12 +224,14 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	//Called when the Emergence session ends and a new WalletConnect connection can be started
+	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, EErrorCode, StatusCode);
 	
-	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence Requests")
+	//Called when the user has done the last step of the login process to Emergence
+	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
 	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect requiring stuff).
