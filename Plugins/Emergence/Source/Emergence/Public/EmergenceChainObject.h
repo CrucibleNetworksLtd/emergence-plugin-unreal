@@ -21,16 +21,16 @@ public:
 
 	UEmergenceChain(FText Name, FString _NodeURL, FString Symbol);
 
-	UPROPERTY(EditAnywhere, Category="Blockchain")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blockchain")
 	FText Name;
 
-	UPROPERTY(EditAnywhere, Category="Blockchain")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blockchain")
 	FString NodeURL;
 
-	UPROPERTY(EditAnywhere, Category="Blockchain")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blockchain")
 	FString Symbol;
 
-	UPROPERTY(EditAnywhere, Category="Blockchain")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blockchain")
 	int64 ChainID;
 
 
