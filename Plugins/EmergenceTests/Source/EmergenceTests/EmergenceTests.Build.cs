@@ -16,9 +16,10 @@ public class EmergenceTests : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"FunctionalTesting",
-				"Emergence"
-			}
+				"Emergence",
+				"Json",
+                "JsonUtilities"
+            }
 		);
-		
-	}
+    }
 }

@@ -37,13 +37,13 @@ public:
 	UFUNCTION(BlueprintPure, Category="Emergence|Contract")
 	static UEmergenceContract* CreateEmergenceContract(FString _ABI);
 	
-	UPROPERTY(EditAnywhere, Category="Contract")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Contract")
 	FString ABI;
 
-	UPROPERTY(VisibleAnywhere, Category="Contract Methods")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Contract Methods")
 	TArray<FEmergenceContractMethod> ReadMethods;
 
-	UPROPERTY(VisibleAnywhere, Category="Contract Methods")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Contract Methods")
 	TArray<FEmergenceContractMethod> WriteMethods;
 
 	UFUNCTION(CallInEditor, Category="Contract Methods")
