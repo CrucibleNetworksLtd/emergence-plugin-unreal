@@ -66,13 +66,13 @@ public:
 	void ShowServerErrorMessage(const EErrorCode& ErrorCode);
 
 	//Closes the EmergenceUI.
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|UI")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Overlay")
 	void Close();
 	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnClosed);
 
 	//Called when the UI is closed.
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|UI")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence|Overlay")
 	FOnClosed Closed;
 
 	//Called when the UI reaches the home screen.
