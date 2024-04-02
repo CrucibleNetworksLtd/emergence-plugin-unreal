@@ -128,11 +128,11 @@ public:
 	FString GetCurrentAccessToken();
 
 	//Opens the Emergence UI, returns the widget to focus
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton", meta = (DeterminesOutputType = "EmergenceUIClass"))
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Overlay", meta = (DeterminesOutputType = "EmergenceUIClass"))
 	UEmergenceUI* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
 
 	//Gets the Emergence UI
-	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
+	UFUNCTION(BlueprintPure, Category = "Emergence|Overlay")
 	UEmergenceUI* GetEmergenceUI();
 
 	//Do we have an access token?
