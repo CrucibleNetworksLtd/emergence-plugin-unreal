@@ -64,8 +64,8 @@ bool UEmergenceUI::GetMostRecentLoadingMessage(FText& Message)
 
 void UEmergenceUI::Close()
 {
-	this->RemoveFromParent();
 	this->Closed.Broadcast();
+	this->RemoveFromParent(); //this makes this object stop existing, must come last!
 }
 
 TSoftObjectPtr<UTexture2D> UEmergenceUI::GetDefaultAvatarIcon()
