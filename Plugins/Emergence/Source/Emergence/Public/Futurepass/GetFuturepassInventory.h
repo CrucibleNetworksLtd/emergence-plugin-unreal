@@ -7,14 +7,16 @@
 #include "InventoryService/EmergenceInventoryServiceStructs.h"
 #include "GetFuturepassInventory.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class EMERGENCE_API UGetFuturepassInventory : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Gets the futurepass inventory of the given addresses.
+	 * @param Addresses A list of addresses to get the futurepass inventory of - just the address, no blockchain information.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UGetFuturepassInventory* GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses);
 

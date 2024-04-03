@@ -43,6 +43,11 @@ class EMERGENCE_API UGetFutureverseAssetTree : public UEmergenceAsyncSingleReque
 {
 	GENERATED_BODY()
 	
+	/**
+	 * Gets the Asset Tree associated with a specific asset.
+	 * @param TokenId The interger ID of the token you want to get the Asset Tree of. For example: "473" (without quotes).
+	 * @param CollectionId The collection ID of the token you want to get the asset tree of. For example: "7672:root:303204" (without quotes).
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UGetFutureverseAssetTree* GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId);
 

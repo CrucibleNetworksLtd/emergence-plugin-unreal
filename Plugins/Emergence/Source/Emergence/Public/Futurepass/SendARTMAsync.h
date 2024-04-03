@@ -8,14 +8,17 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "SendARTMAsync.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class EMERGENCE_API USendFutureverseARTM : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Sends an ARTM, including creating the ARTM message, sending it to the wallet to be signed, sending it to the ARTM endpoint and waiting for the transaction to succeed or fail.
+	 * @param Message The message to include as part of the ARTM, tells the user what is happening.
+	 * @param ARTMOperations The operations to perform as part of the ARTM, such as creating or deleting links.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static USendFutureverseARTM* SendFutureverseARTM(UObject* WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations);
 
