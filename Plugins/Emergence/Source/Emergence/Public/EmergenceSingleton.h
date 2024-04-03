@@ -137,19 +137,23 @@ public:
 	UFUNCTION(Category = "Emergence|Emergence Singleton", BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
 
-	//Opens the Emergence UI, returns the widget to focus
+	/**
+	 * Opens the Emergence UI (also known as the Overlay), returns the widget to focus.
+	 * @param OwnerPlayerController Player Controller that the overlay should be shown to. Should usually be the local player, who is usually "Player Controller 0".
+	 * @param EmergenceUIClass Should always be set to "EmergenceUI_BP".
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Overlay", meta = (DeterminesOutputType = "EmergenceUIClass"))
 	UEmergenceUI* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
 
-	//Gets the Emergence UI
+	//Gets the Emergence UI (also known as the Overlay), also known as the Emergence Overlay
 	UFUNCTION(BlueprintPure, Category = "Emergence|Overlay")
 	UEmergenceUI* GetEmergenceUI();
 
-	//Do we have an access token?
+	//Do we have an access token? This will likely only be true when the player has logged in via wallet connect.
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	bool HasAccessToken();
 
-	//Do we have a wallet connected address?
+	//Do we have a wallet connected address? This will likely only be true when the player has logged in via wallet connect.
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	bool HasCachedAddress();
 

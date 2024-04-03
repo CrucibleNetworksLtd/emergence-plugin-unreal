@@ -214,7 +214,10 @@ public:
 		}
 	}
 
-	//Takes an IPFS URL and changes it to be a IPFS gateway link.
+	/**
+	 * Takes an IPFS URL and changes it to be a IPFS gateway link (IPFS via HTTP). If its already HTTP, no conversion happens.
+	 * @param IPFSURL The URL to try to convert. If its already HTTP, no conversion happens.
+	 */
 	UFUNCTION(BlueprintPure, Category = "Emergence|Helpers")
 	static FString IPFSURLToHTTP(FString IPFSURL) {
 		return UHttpHelperLibrary::InternalIPFSURLToHTTP(IPFSURL);
