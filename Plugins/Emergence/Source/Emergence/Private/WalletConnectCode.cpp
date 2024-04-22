@@ -40,9 +40,10 @@ void UWalletConnectCode::AccessTokenCompleted(EErrorCode StatusCode) {
 }
 
 void UWalletConnectCode::CancelAllAndRestartAttempt() {
-	Singleton->OnReinitializeWalletConnectCompleted.AddDynamic(this, &UWalletConnectCode::ReinitializeWalletConnectCompleted);
+	//Singleton->OnReinitializeWalletConnectCompleted.AddDynamic(this, &UWalletConnectCode::ReinitializeWalletConnectCompleted);
 	Singleton->CancelSignInRequest();
-	Singleton->ReinitializeWalletConnect();
+	//Singleton->ReinitializeWalletConnect();
+	this->StartAttempt();
 }
 
 void UWalletConnectCode::GetHandshakeCompleted(FString Address, EErrorCode StatusCode)
