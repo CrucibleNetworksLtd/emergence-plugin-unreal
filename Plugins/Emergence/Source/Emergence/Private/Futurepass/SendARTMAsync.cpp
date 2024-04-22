@@ -92,7 +92,7 @@ bool USendFutureverseARTM::IsActive() const
 
 void USendFutureverseARTM::OnRequestToSignCompleted(FString SignedMessage, EErrorCode StatusCode)
 {
-	UE_LOG(LogTemp, Display, TEXT("OnRequestToSignCompleted: %s"), *SignedMessage);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("OnRequestToSignCompleted: %s"), *SignedMessage);
 
 	if (StatusCode != EErrorCode::EmergenceOk) {
 		//handle fail to parse errors
@@ -110,10 +110,7 @@ void USendFutureverseARTM::OnRequestToSignCompleted(FString SignedMessage, EErro
 		TArray<TPair<FString, FString>>(),
 		FString(), false);
 	SendMutationRequest->SetHeader("content-type", "application/json");
-	UE_LOG(LogTemp, Display, TEXT("Constructed Message: %s"), *ConstructedMessage);
-	UE_LOG(LogTemp, Display, TEXT("Signed Message: %s"), *SignedMessage);
 	FString JSONString = R"({"query":"mutation SubmitTransaction($input: SubmitTransactionInput!) {\n  submitTransaction(input: $input) {\n    transactionHash\n  }\n}","variables":{"input":{"transaction":")" + ConstructedMessage + R"(","signature":")" + SignedMessage + "\"}}}";
-	UE_LOG(LogTemp, Display, TEXT("Content String: %s"), *JSONString);
 	SendMutationRequest->SetContentAsString(JSONString);
 	SendMutationRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		//when the request finishes
@@ -155,18 +152,23 @@ void USendFutureverseARTM::GetARTMStatus()
 	GetTransactionStatusRequest->SetHeader("content-type", "application/json");
 	FString ContentAsString = R"({"query":"query Transaction($transactionHash: TransactionHash!) {\n  transaction(transactionHash: $transactionHash) {\n    status\n    error {\n      code\n      message\n    }\n    events {\n      action\n      args\n      type\n    }\n  }\n}","variables":{"transactionHash":")" + _TransactionHash + R"("}})";
 	GetTransactionStatusRequest->SetContentAsString(ContentAsString);
-	UE_LOG(LogTemp, Display, TEXT("Content: %s"), *ContentAsString);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("ARTM Request Content: %s"), *ContentAsString);
 	GetTransactionStatusRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
-			UE_LOG(LogTemp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
 			FString TransactionStatus = JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status");
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Transaction status of \"%s\": %s"), *_TransactionHash, *TransactionStatus);
 			if (TransactionStatus != "PENDING") {
 				this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 			}
-			UE_LOG(LogTemp, Display, TEXT("Transaction status: %s"), *TransactionStatus);
-			OnSendARTMCompleted.Broadcast(FString(), EErrorCode::EmergenceOk);
+			else if (TransactionStatus == "SUCCESS") {
+				OnSendARTMCompleted.Broadcast(_TransactionHash, EErrorCode::EmergenceOk);
+			}
+			else { //failed
+				OnSendARTMCompleted.Broadcast(_TransactionHash, EErrorCode::EmergenceClientFailed);
+			}
 			return;
 		}
 		else {
