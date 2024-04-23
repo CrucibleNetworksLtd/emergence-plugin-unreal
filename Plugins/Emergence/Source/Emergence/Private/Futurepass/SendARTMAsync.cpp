@@ -160,15 +160,17 @@ void USendFutureverseARTM::GetARTMStatus()
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
 			FString TransactionStatus = JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status");
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Transaction status of \"%s\": %s"), *_TransactionHash, *TransactionStatus);
-			if (TransactionStatus != "PENDING") {
-				this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+			if (TransactionStatus == "PENDING") {
+				return;
 			}
 			else if (TransactionStatus == "SUCCESS") {
 				OnSendARTMCompleted.Broadcast(_TransactionHash, EErrorCode::EmergenceOk);
+				this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);			
 			}
 			else { //failed
 				OnSendARTMCompleted.Broadcast(_TransactionHash, EErrorCode::EmergenceClientFailed);
-			}
+				this->WorldContextObject->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+			}	
 			return;
 		}
 		else {
