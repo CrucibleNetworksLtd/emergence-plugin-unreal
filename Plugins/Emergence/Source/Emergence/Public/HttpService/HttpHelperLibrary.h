@@ -109,11 +109,11 @@ public:
 
 		if (Environment == "Production") {
 			//Production Env URL
-			return "https://4yzj264is3.execute-api.us-west-2.amazonaws.com/api/v1"; //ALL URLS ARE THE SAME RIGHT NOW, SUBJECT TO CHANGE
+			return "https://account-indexer.api.futurepass.futureverse.app/api/v1";
 		}
 
 		//Staging and Dev same Env URL
-		return "https://y4heevnpik.execute-api.us-west-2.amazonaws.com/api/v1";
+		return "https://account-indexer.api.futurepass.futureverse.dev/api/v1";
 	}
 
 	inline static FString GetPersonaAPIURL() {
