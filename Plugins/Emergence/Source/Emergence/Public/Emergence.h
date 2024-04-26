@@ -26,6 +26,6 @@ private:
 	/** Handle to the test dll we will load */
 	void* ExampleLibraryHandle;
 
-	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, void* Data, int DataSize, wchar_t* DllName, int DllNameLength, wchar_t* MethodName, int MethodNameLength);
+	typedef int(*_getExampleLibraryFunction)(void* Data);
 	_getExampleLibraryFunction ExampleLibraryFunction;
 };

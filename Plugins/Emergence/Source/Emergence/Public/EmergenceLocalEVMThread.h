@@ -45,7 +45,7 @@ public:
 	wchar_t fullpath[2048];
 	int length;
 	EmergenceLocalEVMJSON Data;
-	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, void* Data, int DataLength, wchar_t* DllName, int DllNameLength, wchar_t* MethodName, int MethodNameLength);
+	typedef int(*_getExampleLibraryFunction)(void* Data);
 	_getExampleLibraryFunction ExampleLibraryFunction;
 
 private:

@@ -31,7 +31,7 @@ void FEmergenceModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEm
 
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
-	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "nativehost.dll");
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "EmergenceEVMLocalServer.dll");
 
 	if (LibraryPath.IsEmpty()) {
 		UE_LOG(LogEmergence, Error, TEXT("Failed to load library, library path empty."));

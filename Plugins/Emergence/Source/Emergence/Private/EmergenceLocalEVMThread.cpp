@@ -24,7 +24,7 @@ uint32 FLocalEVMThreadRunnable::Run()
     Data._publicKey = AssignString(Data._publicKey);
     wchar_t* DllName = L"EmergenceEVMLocalServer";
     wchar_t* MethodName = L"JSONify";
-	this->ExampleLibraryFunction(fullpath, length, (void*)&Data, sizeof(Data), DllName, wcslen(DllName), MethodName, wcslen(MethodName));
+	this->ExampleLibraryFunction((void*)&Data);
 	return 0;
 }
 
