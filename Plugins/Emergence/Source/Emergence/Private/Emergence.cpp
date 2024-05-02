@@ -20,7 +20,11 @@ void FEmergenceModule::StartupModule()
 
 	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
 	FPlatformProcess::AddDllDirectory(*DllDirectory);
+#if PLATFORM_WINDOWS
 	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "SimpleLibrary.dll");
+#else //assume mac
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "SimpleLibrary.dylib");
+#endif
 	void* ExampleLibraryHandle2 = FPlatformProcess::GetDllHandle(*LibraryPath);
 
 	typedef int(*_AddFunction)(int a, int b);
