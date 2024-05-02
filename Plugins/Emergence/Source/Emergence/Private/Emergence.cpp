@@ -14,7 +14,26 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 
 void FEmergenceModule::StartupModule()
 {
+	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
+	// Add on the relative location of the third party dll and load it
+	FString LibraryPath;
 
+	FString DllDirectory = BaseDir + "/EmergenceDll/Win64/";
+	FPlatformProcess::AddDllDirectory(*DllDirectory);
+	LibraryPath = FPaths::ConvertRelativePathToFull(DllDirectory + "SimpleLibrary.dll");
+	void* ExampleLibraryHandle2 = FPlatformProcess::GetDllHandle(*LibraryPath);
+
+	typedef int(*_AddFunction)(int a, int b);
+	_AddFunction AddFunction = (_AddFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle2, TEXT("aotsample_add"));
+
+	typedef char*(*_CombineStringFunction)(void* StringA, void* StringB);
+	_CombineStringFunction CombineStringFunction = (_CombineStringFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle2, TEXT("aotsample_sumstring"));
+
+	int a = AddFunction(5, 12);
+	int b = AddFunction(80, 200);
+	int c = AddFunction(-80, 200);
+	char* Text = CombineStringFunction("test", "test2");
+	UE_LOG(LogEmergence, Display, TEXT("Simple Library Test: a: %d, b: %d, c: %d, Text: %s"), a, b, c, *FString(Text));
 }
 
 void FEmergenceModule::ShutdownModule()
