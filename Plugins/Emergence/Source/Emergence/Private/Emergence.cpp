@@ -30,7 +30,7 @@ void FEmergenceModule::StartupModule()
 	typedef int(*_AddFunction)(int a, int b);
 	_AddFunction AddFunction = (_AddFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle2, TEXT("aotsample_add"));
 
-	typedef char*(*_CombineStringFunction)(char* StringA, char* StringB);
+	typedef char*(*_CombineStringFunction)(const char* StringA, const char* StringB);
 	_CombineStringFunction CombineStringFunction = (_CombineStringFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle2, TEXT("aotsample_sumstring"));
 
 	int a = AddFunction(5, 12);
