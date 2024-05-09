@@ -1,7 +1,7 @@
 name: Update JIRA Issue Status
 on:
   pull_request:
-    branches: [ "master" ]
+    branches: [ "develop" ]
 
 jobs:
   update-jira-issue-status:
