@@ -14,7 +14,7 @@ jobs:
         id: extract-jira-id
         run: |
           echo "Extracting JIRA issue ID from branch name: ${{ github.event.pull_request.head.ref }}"
-          JIRA_ISSUE_ID=$(echo ${{ github.event.pull_request.head.ref }} | grep -oP 'EM-\d+')
+          JIRA_ISSUE_ID=$(echo ${{ github.event.pull_request.head.ref }} | grep -oiP 'EM-\d+')
           echo "Extracted JIRA issue ID: $JIRA_ISSUE_ID"
           echo "::set-output name=jira_issue_id::$JIRA_ISSUE_ID"
         shell: bash
