@@ -45,11 +45,21 @@ public:
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
 
-	UPROPERTY(BlueprintReadWrite)
-	FLinkedFuturepassInformationResponse FuturepassInfo;
+	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
+	UFUNCTION(BlueprintCallable)
+	void SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo);
 
-	UPROPERTY(BlueprintReadWrite)
-	bool FuturepassInfoIsSet = false;
+	//Clears the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to false)
+	UFUNCTION(BlueprintCallable)
+	void ClearFuturepassInfomationCache();
+
+	//Cache of the last Futurepass information set as part of SetFuturepassInfomationCache
+	UPROPERTY(BlueprintReadOnly)
+	FLinkedFuturepassInformationResponse FuturepassInfoCache;
+
+	//Is FuturepassInfoCache valid?
+	UPROPERTY(BlueprintReadOnly)
+	bool FuturepassInfoCacheIsSet = false;
 
 	UPROPERTY()
 	FString DeviceID;

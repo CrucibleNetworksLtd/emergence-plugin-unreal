@@ -80,6 +80,18 @@ void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCur
 	OnCachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
 }
 
+void UEmergenceSingleton::SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo)
+{
+	FuturepassInfoCache = FuturepassInfo;
+	FuturepassInfoCacheIsSet = true;
+}
+
+void UEmergenceSingleton::ClearFuturepassInfomationCache()
+{
+	FuturepassInfoCache = FLinkedFuturepassInformationResponse();
+	FuturepassInfoCacheIsSet = false;
+}
+
 void UEmergenceSingleton::SetOwnedAvatarNFTCache(TArray<FEmergenceAvatarResult> Results)
 {
 	this->OwnedAvatarNFTCache = Results;
