@@ -1,7 +1,7 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-
 #include "UI/EmergenceScreen.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 UEmergenceUI* UEmergenceScreen::GetEmergenceUI() {
 	if (this != nullptr 
@@ -13,4 +13,9 @@ UEmergenceUI* UEmergenceScreen::GetEmergenceUI() {
 	else {
 		return nullptr;
 	}
+}
+
+void UEmergenceScreen::CopyStringToClipboard(FString StringToCopy)
+{
+	FPlatformMisc::ClipboardCopy(*StringToCopy);
 }
