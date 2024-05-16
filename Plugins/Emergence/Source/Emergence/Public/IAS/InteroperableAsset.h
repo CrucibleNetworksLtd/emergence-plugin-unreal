@@ -271,6 +271,7 @@ struct FEmergenceInteroperableAsset
   }
 
   FEmergenceInteroperableAsset(FString _json_) {
+      UE_LOG(LogTemp, Display, TEXT("%s"), *_json_);
       FEmergenceInteroperableAsset _tmpEmergenceInteroperableAsset;
 
       FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAsset>(_json_, &_tmpEmergenceInteroperableAsset, 0, 0);
