@@ -2,6 +2,13 @@
 
 UEmergenceInteroperableAssetSubType* UEmergenceInteroperableAssetLibrary::GetInteroperableAssetSubType(TArray<UEmergenceInteroperableAssetSubType*> Array, TSubclassOf<UEmergenceInteroperableAssetSubType> SubtypeClass, bool& success)
 {
+	for (auto Type : Array) {
+		if (Type->GetClass() == SubtypeClass) {
+			success = true;
+			return Type;
+		}
+	}
+	success = false;
 	return nullptr;
 }
 
