@@ -55,8 +55,14 @@ void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr 
 
 				for (auto Data : DataArray) {
 					FFutureverseAssetTreePath AssetTreePartStruct;
-					AssetTreePartStruct.Id = Data->AsObject()->GetStringField("@id"); //get the ID of this
-					AssetTreePartStruct.RDFType = Data->AsObject()->GetObjectField("rdf:type")->GetStringField("@id"); //get the rdf:type
+
+					//so as of recently some assets will have predicates that don't have IDs nor RdfTypes, so we can't assume they'll exist any more
+					Data->AsObject()->TryGetStringField("@id", AssetTreePartStruct.Id); //get the ID of this, fail nicely if it doesn't exist
+
+					TSharedPtr<FJsonValue> RdfTypeObject = Data->AsObject()->TryGetField("rdf:type");
+					if (RdfTypeObject->Type == EJson::Object) { //if it isn't an object, its probably null, so no need to handle any other type
+						RdfTypeObject->AsObject()->TryGetStringField("@id", AssetTreePartStruct.RDFType); //get the rdf:type - if it somehow doesn't have an ID, handle this nicely too
+					}
 					
 					TArray<FString> PredicateKeys;
 					if (Data->AsObject()->Values.GetKeys(PredicateKeys) > 0) {
