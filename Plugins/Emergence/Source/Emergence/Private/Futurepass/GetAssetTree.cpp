@@ -60,7 +60,7 @@ void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr 
 					Data->AsObject()->TryGetStringField("@id", AssetTreePartStruct.Id); //get the ID of this, fail nicely if it doesn't exist
 
 					TSharedPtr<FJsonValue> RdfTypeObject = Data->AsObject()->TryGetField("rdf:type");
-					if (RdfTypeObject->Type == EJson::Object) { //if it isn't an object, its probably null, so no need to handle any other type
+					if (RdfTypeObject && RdfTypeObject->Type == EJson::Object) { //if it isn't an object, its probably null, so no need to handle any other type
 						RdfTypeObject->AsObject()->TryGetStringField("@id", AssetTreePartStruct.RDFType); //get the rdf:type - if it somehow doesn't have an ID, handle this nicely too
 					}
 					
