@@ -16,6 +16,13 @@ enum class  EmergenceConfirmationType : uint8
 	Error      UMETA(ToolTip = "To be implemented as bright red, for when you really need the users attention")
 };
 
+UENUM(BlueprintType)
+enum class EmergenceLoginType : uint8
+{
+	WalletConnect     UMETA(ToolTip = "A normal wallet connect flow."),
+	Futureverse      UMETA(ToolTip = "Login with the Futureverse suite of logins. Useful if you're making a gmae with Futureverse.")
+};
+
 UCLASS(HideDropdown)
 class EMERGENCE_API UEmergenceUI : public UUserWidget
 {
@@ -26,6 +33,18 @@ private:
 public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScreenSwitched, UUserWidget*, NewScreen);
+
+	UFUNCTION(BlueprintPure)
+	EmergenceLoginType GetProjectLoginType();
+
+	template<typename T>
+	inline static T StringToEnum(const FString& Name) {
+		UEnum* EnumClass = StaticEnum<T>();
+		if (!EnumClass) {
+			UE_LOG(LogTemp, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
+		}
+		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
+	}
 
 	//Called whenever the screen is changed
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence UI")

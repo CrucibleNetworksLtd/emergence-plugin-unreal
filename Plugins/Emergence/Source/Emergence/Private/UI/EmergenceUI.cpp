@@ -4,6 +4,20 @@
 #include "UI/EmergenceUI.h"
 #include "EmergenceSingleton.h"
 
+EmergenceLoginType UEmergenceUI::GetProjectLoginType()
+{
+	if (!GConfig) { 
+		return EmergenceLoginType::WalletConnect;
+	}
+
+	FString LoginTypeString;
+	if (!GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ProjectLoginType"), LoginTypeString, GGameIni)) {
+		return EmergenceLoginType::WalletConnect;
+	};
+
+	return StringToEnum<EmergenceLoginType>(LoginTypeString);
+}
+
 void UEmergenceUI::SetUserHasLoggedInBefore(bool HasLoggedInBefore)
 {
 	if (!GConfig) return;
