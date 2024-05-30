@@ -17,6 +17,7 @@
 #include "Emergence.h"
 #include "Brushes/SlateDynamicImageBrush.h"
 #include "Futurepass/GetLinkedFuturepassInformation.h"
+#include "Environment.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -44,6 +45,9 @@ public:
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
+
+	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
+	static EFutureverseEnvironment GetFutureverseEnvironment();
 
 	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
 	UFUNCTION(BlueprintCallable)

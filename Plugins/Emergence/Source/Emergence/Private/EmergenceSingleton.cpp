@@ -80,6 +80,31 @@ void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCur
 	OnCachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
 }
 
+EFutureverseEnvironment UEmergenceSingleton::GetFutureverseEnvironment()
+{
+
+#if UE_BUILD_SHIPPING
+	FString Environment = "Production"; //Shipping defaults to production
+	GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#else
+	FString Environment = "Staging"; //Everything else defaults to staging
+	GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#endif
+
+	if (Environment == "Production") {
+		//Production Env URL
+		return EFutureverseEnvironment::Production;
+	}
+
+	if (Environment == "Development") {
+		//Development Env URL
+		return EFutureverseEnvironment::Development;
+	}
+
+	//Staging Env URL
+	return EFutureverseEnvironment::Staging;
+}
+
 void UEmergenceSingleton::SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo)
 {
 	FuturepassInfoCache = FuturepassInfo;
