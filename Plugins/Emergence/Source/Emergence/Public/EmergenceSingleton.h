@@ -204,7 +204,7 @@ public:
 
 	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, FString, WalletConnectString, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;

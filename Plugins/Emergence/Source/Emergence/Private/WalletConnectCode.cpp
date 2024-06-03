@@ -12,10 +12,11 @@ TSharedRef<SWidget> UWalletConnectCode::RebuildWidget() {
 	return Super::RebuildWidget();
 }
 
-void UWalletConnectCode::QRCodeCompleted(UTexture2D* Icon, EErrorCode StatusCode) {
+void UWalletConnectCode::QRCodeCompleted(UTexture2D* _Icon, FString _WalletConnectString, EErrorCode _StatusCode) {
 	Singleton->OnGetQRCodeCompleted.RemoveDynamic(this, &UWalletConnectCode::QRCodeCompleted);
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		this->SetBrushFromTexture(Icon, false);
+	if (_StatusCode == EErrorCode::EmergenceOk) {
+		this->SetBrushFromTexture(_Icon, false);
+		this->WalletConnectString = _WalletConnectString;
 		Singleton->GetHandshake();
 	}
 	else {
