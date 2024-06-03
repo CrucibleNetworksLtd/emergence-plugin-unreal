@@ -379,7 +379,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 	OnAnyRequestError.Broadcast("GetHandshake", StatusCode);
 }
 
-void UEmergenceSingleton::GetHandshake()
+void UEmergenceSingleton::GetHandshake(int Timeout)
 {
 	auto ChainData = UEmergenceChain::GetEmergenceChainDataFromConfig(this);
 	FString NodeURL = ChainData->NodeURL;
@@ -391,11 +391,12 @@ void UEmergenceSingleton::GetHandshake()
 	if (!this->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
 	}
+	Headers.Add(TPair<FString, FString>("timeout", FString::FromInt(Timeout)));
 	
 	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
 		UHttpHelperLibrary::APIBase + "handshake" + "?nodeUrl=" + NodeURL,
-		"GET", 60.F, Headers);  //extra time because they might be fiddling with their phones
+		"GET", Timeout, Headers); //use the timeout provided
 	
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetHandshake request started, calling GetHandshake_HttpRequestComplete on request completed"));
 }
