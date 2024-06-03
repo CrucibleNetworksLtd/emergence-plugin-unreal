@@ -211,7 +211,7 @@ public:
 
 	//Handshake stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void GetHandshake();
+	void GetHandshake(int Timeout = 60);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, EErrorCode, StatusCode);
 
