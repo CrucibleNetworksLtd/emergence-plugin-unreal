@@ -246,22 +246,23 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 {
 	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
-		OnGetQRCodeCompleted.Broadcast(nullptr, ResponseCode);
+		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), ResponseCode);
 		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
 		return;
 	}
 
-	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
+	TArray<uint8> ResponseBytes = HttpResponse->GetContent();
 	UTexture2D* QRCodeTexture;
-	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponseBytes, QRCodeTexture)) {
 #if UNREAL_MARKETPLACE_BUILD
 		this->DeviceID = HttpResponse->GetHeader("deviceId");
 #endif
-		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
+		FString WalletConnectString = HttpResponse->GetHeader("walletconnecturi");
+		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, WalletConnectString, EErrorCode::EmergenceOk);
 		return;
 	}
 	else {
-		OnGetQRCodeCompleted.Broadcast(nullptr, EErrorCode::EmergenceClientWrongType);
+		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), EErrorCode::EmergenceClientWrongType);
 		OnAnyRequestError.Broadcast("GetQRCode", EErrorCode::EmergenceClientWrongType);
 	}
 }
