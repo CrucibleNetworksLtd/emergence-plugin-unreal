@@ -71,7 +71,11 @@ void UEmergenceSingleton::Shutdown()
 	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
 
 	RemoveFromRoot();
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+	MarkAsGarbage();
+#else
 	MarkPendingKill();
+#endif
 }
 
 void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
