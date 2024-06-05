@@ -51,7 +51,7 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 		UE_LOG(LogEmergenceHttp, Verbose, TEXT("Got Emergence Singleton: %s"), *Manager->GetFName().ToString());
 		return Manager.Get();
 	}
-	UE_LOG(LogEmergenceHttp, Error, TEXT("Text %s"), "No manager avalible, whats going on?");
+	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: No manager avalible, whats going on?"));
 	return nullptr;
 }
 
