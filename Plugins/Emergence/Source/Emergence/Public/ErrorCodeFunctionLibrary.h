@@ -100,5 +100,5 @@ public:
 	UFUNCTION(BlueprintPure, Category="Emergence|Error Code Helpers", meta = (DisplayName = "Status Code Enum to Status Ok Bool", CompactNodeTitle = "->", BlueprintAutocast))
 	static bool Conv_ErrorCodeToBool(EErrorCode ErrorCode);
 
-	static const TMap<int32, TEnumAsByte<EErrorCode>> StatusCodeIntToErrorCode;
+	static const TMap<int32, EErrorCode> StatusCodeIntToErrorCode;
 };
