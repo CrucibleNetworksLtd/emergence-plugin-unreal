@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
@@ -10,8 +10,11 @@
 #if	UE_VERSION_OLDER_THAN(5,1,0)
 #else
 #include "Engine/SkinnedAssetCommon.h"
+#include "Engine/SkinnedAsset.h"
 #endif
 
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "VrmUtil.generated.h"
 
 class USkeleton;
@@ -116,8 +119,13 @@ void VRMSetRefSkeleton(TObjectPtr<T> t, const FReferenceSkeleton& refsk) {
 //refskeleton end
 
 // morph targets
+#if	UE_VERSION_OLDER_THAN(5,4,0)
 template<typename T>
 TArray<UMorphTarget*>& VRMGetMorphTargets(T* t) {
+#else
+template<typename T>
+TArray<TObjectPtr<UMorphTarget>>& VRMGetMorphTargets(T * t) {
+#endif
 #if	UE_VERSION_OLDER_THAN(4,27,0)
 	return t->MorphTargets;
 #else
@@ -168,8 +176,13 @@ UPhysicsAsset* VRMGetPhysicsAsset(T* t) {
 }
 
 // nodemappingdata
+#if	UE_VERSION_OLDER_THAN(5,4,0)
 template<typename T>
 TArray<class UNodeMappingContainer*>& VRMGetNodeMappingData(T* t) {
+#else
+template<typename T>
+TArray<TObjectPtr<class UNodeMappingContainer>>& VRMGetNodeMappingData(T * t) {
+#endif
 #if	UE_VERSION_OLDER_THAN(4,27,0)
 	return t->NodeMappingData;
 #else
@@ -225,8 +238,10 @@ template<typename T>
 void VRMSetUseLegacyMeshDerivedDataKey(T* t, bool b) {
 #if	UE_VERSION_OLDER_THAN(4,27,0)
 	t->UseLegacyMeshDerivedDataKey = b;
-#else
+#elif UE_VERSION_OLDER_THAN(5,4,0)
 	t->SetUseLegacyMeshDerivedDataKey(b);
+#else
+	// ue5.4 no action
 #endif
 }
 
@@ -315,6 +330,13 @@ public:
 	static const bool VRM4U_UseBC7 = true;
 #endif
 
+#if UE_VERSION_OLDER_THAN(5,2,0)
+	static const bool VRM4U_UseUE5Mat = false;
+#else
+	static const bool VRM4U_UseUE5Mat = true;
+#endif
+
+
 	void init();
 
 	bool bUEFN = false;
@@ -374,7 +396,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bForceTwoSided = false;
 
-	bool bSingleUAssetFile = true;
+	bool bSingleUAssetFile = false;
 
 	bool bDefaultGridTextureMode = false;
 
@@ -385,13 +407,16 @@ public:
 	bool bMipmapGenerateMode = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
+	bool bUseUE5Material = VRM4U_UseUE5Mat;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bGenerateOutlineMaterial = true;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bMergeMaterial = true;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
-	bool bMergePrimitive = true;
+	bool bMergePrimitive = false;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "VRM4U")
 	bool bOptimizeVertex = true;
@@ -406,6 +431,8 @@ public:
 	bool bSkipNoMeshBone = false;
 
 	bool bDebugOneBone = false;
+	bool bDebugNoMesh = false;
+	bool bDebugNoMaterial = false;
 
 	UPROPERTY()
 	class USkeleton* Skeleton = nullptr;
@@ -486,17 +513,14 @@ public:
 	};
 
 
-	//static bool LoadImageFromMemory(const char* Buffer, const size_t Length, VRMUtil::FImportImage& OutImage);
-	static bool LoadImageFromMemory(const void* Buffer, const size_t Length, VRMUtil::FImportImage& OutImage);
-
-	static UTexture2D* CreateTexture(int32 InSizeX, int32 InSizeY, FString name, UPackage* package);
-	static UTexture2D* CreateTextureFromImage(FString name, UPackage* package, const void* Buffer, const size_t Length, bool GenerateMip=false, bool bRuntimeMode=false);
-
-
 	static bool IsNoSafeName(const FString& str);
 	static FString GetSafeNewName(const FString& str);
 
 	static FString MakeName(const FString& str, bool IsJoint = false);
+
+	static int32 GetDirectChildBones(FReferenceSkeleton& refs, int32 ParentBoneIndex, TArray<int32>& Children);
+
+	static class UVrmAssetListObject* GetAssetListObject(const UObject*);
 };
 
 class VRM4U_API VRMRetargetData {

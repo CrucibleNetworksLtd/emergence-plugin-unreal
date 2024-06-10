@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 #include "Engine/LatentActionManager.h"
@@ -127,6 +127,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRM4U", meta = (DynamicOutputParam = "RigIK"))
 	static void VRMGenerateIKRetargeterPose(UObject * IKRetargeter, UObject* targetRigIK, UPoseAsset* targetPose);
 
-	static class UVrmLicenseObject *GetVRMMeta(FString filepath);
+	static void GetVRMMeta(FString filepath, UVrmLicenseObject*& a, UVrm1LicenseObject*& b);
 
 };

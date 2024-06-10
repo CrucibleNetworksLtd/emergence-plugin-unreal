@@ -1,8 +1,9 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmJson.h"
 
 bool VrmJson::init(const uint8_t* pData, size_t size) {
+	bEnable = false;
 
 	if (size < 4 || pData == nullptr) {
 		return false;
@@ -43,6 +44,9 @@ bool VrmJson::init(const uint8_t* pData, size_t size) {
 		}
 	}
 
+	if (c_end - c_start <=1) {
+		return false;
+	}
 	std::vector<char> v;
 	v.resize(c_end - c_start);
 	memcpy(&v[0], pData + c_start, c_end - c_start);
@@ -50,11 +54,8 @@ bool VrmJson::init(const uint8_t* pData, size_t size) {
 
 	doc.Parse(&v[0]);
 
+	bEnable = true;
 	return true;
-}
-
-
-void VrmJsonTest(const uint8_t* pData, size_t size) {
 }
 
 bool VRMIsVRM10(const uint8_t* pData, size_t size) {
@@ -108,6 +109,9 @@ bool VRMIsVRM10(const uint8_t* pData, size_t size) {
 
 	if (doc.HasMember("extensions")) {
 		if (doc["extensions"].HasMember("VRMC_vrm")) {
+			return true;
+		}
+		if (doc["extensions"].HasMember("VRMC_vrm_animation")) {
 			return true;
 		}
 	}

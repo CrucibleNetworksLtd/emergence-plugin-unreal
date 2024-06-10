@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -8,6 +8,11 @@
 #include "Engine/Scene.h"
 #include "LiveLinkTypes.h"
 #include "VrmUtil.h"
+
+#if	UE_VERSION_OLDER_THAN(4,26,0)
+#else
+#include "AssetRegistry/Assetdata.h"
+#endif
 
 #if	UE_VERSION_OLDER_THAN(4,20,0)
 struct FCameraTrackingFocusSettings {
@@ -232,7 +237,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "VRM4U", meta = (DynamicOutputParam = "AssetName"))
 	static void VRMGetTopLevelAssetName(const FAssetData& target, FName& AssetName);
-	
+
+	UFUNCTION(BlueprintPure, Category = "VRM4U")
+	static UVrmAssetListObject* VRMGetVrmAssetListObjectFromAsset(const UObject *Asset);
+
 };
 
 

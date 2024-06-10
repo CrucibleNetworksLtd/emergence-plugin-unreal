@@ -1,4 +1,4 @@
-﻿// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+﻿// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertRig.h"
 #include "VrmConvert.h"
@@ -12,12 +12,15 @@
 
 #include "Animation/MorphTarget.h"
 #include "Animation/NodeMappingContainer.h"
-#include "Animation/Rig.h"
 #include "Animation/PoseAsset.h"
 #include "Animation/Skeleton.h"
 #include "Animation/SkeletalMeshActor.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CommonFrameRates.h"
+#if UE_VERSION_OLDER_THAN(5,4,0)
+#include "Animation/Rig.h"
+#endif
+
 
 #if WITH_EDITOR
 #include "IPersonaToolkit.h"
@@ -702,7 +705,9 @@ namespace {
 
 				ase->SetPreviewMesh(sk);
 
+#if	UE_VERSION_OLDER_THAN(5,3,0)
 				DataController.UpdateCurveNamesFromSkeleton(k, ERawCurveTrackTypes::RCT_Float);
+#endif
 				DataController.NotifyPopulated();
 			}
 #endif
@@ -1118,12 +1123,14 @@ bool VRMConverter::ConvertPose(UVrmAssetListObject *vrmAssetList) {
 								dstTrans[ik_r] = dstTrans[kr];
 								dstTrans[ik_l] = dstTrans[kl];
 
+#if	UE_VERSION_OLDER_THAN(5,3,0)
 								// local
 								if (VRMGetRetargetBasePose(sk).Num()) {
 									VRMGetRetargetBasePose(sk)[ik_g] = dstTrans[kr];
 									VRMGetRetargetBasePose(sk)[ik_r].SetIdentity();
 									VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl] * dstTrans[kr].Inverse();
 								}
+#endif
 							}
 						}
 					}
@@ -1144,11 +1151,13 @@ bool VRMConverter::ConvertPose(UVrmAssetListObject *vrmAssetList) {
 								dstTrans[ik_r] = dstTrans[kr];
 								dstTrans[ik_l] = dstTrans[kl];
 
+#if	UE_VERSION_OLDER_THAN(5,3,0)
 								// local
 								if (VRMGetRetargetBasePose(sk).Num()) {
 									VRMGetRetargetBasePose(sk)[ik_r] = dstTrans[kr];
 									VRMGetRetargetBasePose(sk)[ik_l] = dstTrans[kl];
 								}
+#endif
 							}
 						}
 					}
