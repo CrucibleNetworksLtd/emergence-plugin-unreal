@@ -1,10 +1,11 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/SkeletalMesh.h"
+#include "Animation/Skeleton.h"
 #include "VrmImportMaterialSet.h"
 #include "VrmUtil.h"
 #include "VrmAssetListObject.generated.h"
@@ -15,6 +16,7 @@ class USkeletalMesh;
 class USkeleton;
 class UVrmMetaObject;
 class UVrmLicenseObject;
+class UVrm1LicenseObject;
 struct FReturnedData;
 class UNodeMappingContainer;
 
@@ -136,6 +138,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
 	UVrmLicenseObject* VrmLicenseObject;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
+	UVrm1LicenseObject* Vrm1LicenseObject;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Out")
 	USkeletalMesh* SkeletalMesh;

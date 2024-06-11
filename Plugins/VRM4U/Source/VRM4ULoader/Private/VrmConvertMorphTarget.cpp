@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertMorphTarget.h"
 #include "VrmConvert.h"
@@ -182,29 +182,47 @@ static bool readMorph2(TArray<FMorphTargetDelta> &MorphDeltas, aiString targetNa
 				++VertexCount;
 
 				if (aiA.mVertices) {
+
+					auto aiV = aiA.mVertices[i] - aiM.mVertices[i];
+
 					v.PositionDelta.Set(
-						-aiA.mVertices[i][0] * 100.f,
-						aiA.mVertices[i][2] * 100.f,
-						aiA.mVertices[i][1] * 100.f
+						-aiV[0] * 100.f,
+						aiV[2] * 100.f,
+						aiV[1] * 100.f
 					);
+
+					if (VRMConverter::Options::Get().IsVRM10Model()) {
+						v.PositionDelta.Set(
+							aiV[0] * 100.f,
+							-aiV[2] * 100.f,
+							aiV[1] * 100.f
+						);
+					}
 				}
 
 				v.PositionDelta *= VRMConverter::Options::Get().GetModelScale();
 
-				if (VRMConverter::Options::Get().IsVRM10Model()) {
-					v.PositionDelta.X *= -1.f;
-					v.PositionDelta.Y *= -1.f;
-				}
 
 				if (bIncludeNormal) {
+
+					auto aiV = aiA.mNormals[i] - aiM.mNormals[i];
+
 #if	UE_VERSION_OLDER_THAN(5,0,0)
-					const FVector n(
+					FVector n(
 #else
-					const FVector3f n(
+					FVector3f n(
 #endif
-						-aiA.mNormals[i][0],
-						aiA.mNormals[i][2],
-						aiA.mNormals[i][1]);
+						-aiV[0],
+						aiV[2],
+						aiV[1]);
+
+					if (VRMConverter::Options::Get().IsVRM10Model()) {
+						n.Set(
+							aiV[0],
+							-aiV[2],
+							aiV[1]);
+					}
+
 					if (n.Size() > 1.f) {
 						v.TangentZDelta = n.GetUnsafeNormal();
 					}
@@ -424,7 +442,14 @@ bool VRMConverter::ConvertMorphTarget(UVrmAssetListObject *vrmAssetList) {
 				}
 			}
 #endif
+
+#if	UE_VERSION_OLDER_THAN(5,4,0)
 			sk->GetResourceForRendering()->LODRenderData[0].InitResources(false, 0, VRMGetMorphTargets(sk), sk);
+#else
+#if WITH_EDITOR
+			sk->GetResourceForRendering()->LODRenderData[0].InitResources(false, 0, VRMGetMorphTargets(sk), sk);
+#endif
+#endif
 		}
 	}
 #endif
