@@ -1,4 +1,4 @@
-﻿// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+﻿// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #include "VrmConvertIKRig.h"
 #include "VrmConvert.h"
@@ -17,10 +17,12 @@
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Animation/MorphTarget.h"
 #include "Animation/NodeMappingContainer.h"
-#include "Animation/Rig.h"
 #include "Animation/Skeleton.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "UObject/UnrealType.h"
+#if UE_VERSION_OLDER_THAN(5,4,0)
+#include "Animation/Rig.h"
+#endif
 
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/PhysicsConstraintTemplate.h"
@@ -83,6 +85,19 @@
 
 //#include "Engine/.h"
 
+#if WITH_EDITOR
+#if UE_VERSION_OLDER_THAN(5,4,0)
+#else
+#define VRM4U_USE_AUTOALIGN 1
+#endif
+#endif
+
+#ifndef VRM4U_USE_AUTOALIGN
+#define VRM4U_USE_AUTOALIGN 0
+#endif
+
+
+
 namespace {
 
 #if WITH_EDITOR
@@ -110,7 +125,11 @@ namespace {
 		}
 		if (sol == nullptr) return;
 
+#if UE_VERSION_OLDER_THAN(5,4,0)
 		sol->SetEnabled(false);
+#else
+		sol->SetEnabled(true);
+#endif
 
 		// hip
 		for (auto& modelName : assetList->VrmMetaObject->humanoidBoneTable) {
@@ -191,6 +210,10 @@ namespace {
 				TEXT("leftLowerLeg"),
 				TEXT("rightLowerLeg"),
 
+				TEXT("leftFoot"),
+				TEXT("rightFoot"),
+				
+
 				TEXT("hips"),
 				TEXT("spine"),
 				TEXT("chest"),
@@ -213,7 +236,7 @@ namespace {
 							UIKRig_PBIKBoneSettings* s = Cast<UIKRig_PBIKBoneSettings>(sol->GetBoneSetting(*t.Value));
 							if (s == nullptr) continue;
 
-							s->RotationStiffness = 1.f;
+							s->RotationStiffness = 0.95f;
 						}
 
 						// arm
@@ -230,8 +253,8 @@ namespace {
 							}
 						}
 
-						// upperleg
-						if (i == 4 || i == 5 || i == 6 || i == 7) {
+						// only lower leg
+						if (i == 6 || i == 7) {
 							sol->AddBoneSetting(*t.Value);
 							UIKRig_PBIKBoneSettings* s = Cast<UIKRig_PBIKBoneSettings>(sol->GetBoneSetting(*t.Value));
 							if (s == nullptr) continue;
@@ -246,13 +269,22 @@ namespace {
 							}
 						}
 
-						// shoulder
-						if (i >= 8) {
+						// foot
+						if (i == 8 || i == 9) {
 							sol->AddBoneSetting(*t.Value);
 							UIKRig_PBIKBoneSettings* s = Cast<UIKRig_PBIKBoneSettings>(sol->GetBoneSetting(*t.Value));
 							if (s == nullptr) continue;
 
-							if (i == 8) {
+							s->RotationStiffness = 0.85f;
+						}
+
+						// spine
+						if (i >= 10) {
+							sol->AddBoneSetting(*t.Value);
+							UIKRig_PBIKBoneSettings* s = Cast<UIKRig_PBIKBoneSettings>(sol->GetBoneSetting(*t.Value));
+							if (s == nullptr) continue;
+
+							if (i == 10) {
 								s->RotationStiffness = 1.f;
 							} else {
 								s->RotationStiffness = 0.9f;
@@ -332,7 +364,7 @@ public:
 	}
 #else
 	void SetIKRig(const ERetargetSourceOrTarget SourceOrTarget, UIKRigDefinition* IKRig) const {
-#if VRM4U_USE_EDITOR_RIG || WITH_EDITOR
+#if VRM4U_USE_EDITOR_RIG
 		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
 		c->SetIKRig(SourceOrTarget, IKRig);
 #else
@@ -371,6 +403,91 @@ public:
 #endif
 	}
 #endif
+
+	void AutoAlignAllBones(const ERetargetSourceOrTarget SourceOrTarget) const {
+#if	!WITH_EDITOR || UE_VERSION_OLDER_THAN(5,4,0)
+#else
+		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
+		c->AutoAlignAllBones(SourceOrTarget);
+#endif
+	}
+
+	void SetCurrentRetargetPose(FName NewCurrentPose, const ERetargetSourceOrTarget SourceOrTarget) const {
+#if	!WITH_EDITOR || UE_VERSION_OLDER_THAN(5,4,0)
+#else
+		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
+		c->SetCurrentRetargetPose(NewCurrentPose, SourceOrTarget);
+#endif
+	}
+
+	TMap<FName, FIKRetargetPose>& GetRetargetPoses(const ERetargetSourceOrTarget SourceOrTarget) const {
+#if	!WITH_EDITOR || UE_VERSION_OLDER_THAN(5,4,0)
+		static TMap<FName, FIKRetargetPose> a;
+		return a;
+#else
+		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
+		return c->GetRetargetPoses(SourceOrTarget);
+#endif
+	};
+
+	void SetChainSetting() {
+#if	UE_VERSION_OLDER_THAN(5,2,0)
+#else
+#if VRM4U_USE_EDITOR_RIG
+		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
+		{
+			auto cs = c->GetRetargetChainSettings(TEXT("Root"));
+			cs.FK.TranslationMode = ERetargetTranslationMode::GloballyScaled;
+			c->SetRetargetChainSettings(TEXT("Root"), cs);
+		}
+		{
+			TArray<FString> table = {
+				TEXT("FootRootIK"),
+				TEXT("LeftFootIK"),
+				TEXT("RightFootIK"),
+				TEXT("HandRootIK"),
+				TEXT("LeftHandIK"),
+				TEXT("RightHandIK"),
+			};
+			for (auto s : table) {
+				auto cs = c->GetRetargetChainSettings(*s);
+				cs.FK.TranslationMode = ERetargetTranslationMode::GloballyScaled;
+				c->SetRetargetChainSettings(*s, cs);
+			}
+		}
+		/*
+		{
+			TArray<FString> table = {
+				TEXT("LeftLeg"),
+				TEXT("RightLeg"),
+				TEXT("LeftArm"),
+				TEXT("RightArm"),
+			};
+			for (auto s : table) {
+				auto cs = c->GetRetargetChainSettings(*s);
+				cs.FK.PoleVectorMatching = 1.f;
+				c->SetRetargetChainSettings(*s, cs);
+			}
+		}
+		{
+			TArray<FString> table = {
+				TEXT("LeftArm"),
+				TEXT("RightArm"),
+			};
+			for (auto s : table) {
+				auto cs = c->GetRetargetChainSettings(*s);
+				cs.IK.bAffectedByIKWarping = false;
+				c->SetRetargetChainSettings(*s, cs);
+			}
+		}
+		*/
+
+#else
+		auto r = Retargeter->GetChainMapByName(TEXT("Root"));
+		r->Settings.FK.TranslationMode = ERetargetTranslationMode::GloballyScaled;
+#endif // rig
+#endif // 5.2
+	}
 };
 #endif // 5.0
 
@@ -470,7 +587,11 @@ public:
 
 #if VRM4U_USE_EDITOR_RIG
 		auto* r = LocalGetController(RigDefinition);
+#if UE_VERSION_OLDER_THAN(5,4,0)
 		r->AddRetargetChain(c);
+#else
+		r->AddRetargetChain(name, begin, end, NAME_None);
+#endif
 		return NAME_None;
 #else
 		if (c.StartBone.BoneName != NAME_None && RigDefinition->GetSkeleton().GetBoneIndexFromName(c.StartBone.BoneName) == INDEX_NONE)
@@ -729,7 +850,12 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 			};
 			TArray<TT> table = {
 				{TEXT("Spine"),		TEXT("spine"),				TEXT("chest"),},
+#if	UE_VERSION_OLDER_THAN(5,4,0)
 				{TEXT("Head"),		TEXT("neck"),				TEXT("head"),},
+#else
+				{TEXT("Neck"),		TEXT("neck"),				TEXT("neck"),},
+				{TEXT("Head"),		TEXT("head"),				TEXT("head"),},
+#endif
 				{TEXT("RightArm"),	TEXT("rightUpperArm"),		TEXT("rightHand"),},
 				{TEXT("LeftArm"),	TEXT("leftUpperArm"),		TEXT("leftHand"),},
 				{TEXT("RightLeg"),	TEXT("rightUpperLeg"),		TEXT("rightToes"),},
@@ -772,10 +898,10 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 				}
 				if (conv.s1 == "" || conv.s2 == "") {
 					// for ik bone
-					if (sk->RefSkeleton.FindBoneIndex(*t.s1) >= 0) {
+					if (VRMGetRefSkeleton(sk).FindBoneIndex(*t.s1) >= 0) {
 						conv.s1 = t.s1;
 					}
-					if (sk->RefSkeleton.FindBoneIndex(*t.s2) >= 0) {
+					if (VRMGetRefSkeleton(sk).FindBoneIndex(*t.s2) >= 0) {
 						conv.s2 = t.s2;
 					}
 				}
@@ -835,17 +961,25 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 			ikr->TargetMeshOffset.Set(100, 0, 0);
 #endif
 
+			auto SourceOrTargetVRM = ERetargetSourceOrTarget::Target;
+			auto SourceOrTargetMannequin = ERetargetSourceOrTarget::Source;
+
+			if (Options::Get().IsVRMAModel()) {
+				SourceOrTargetVRM = ERetargetSourceOrTarget::Source;
+				SourceOrTargetMannequin = ERetargetSourceOrTarget::Target;
+
+			}
 
 			SimpleRetargeterController c = SimpleRetargeterController(ikr);
 
-			c.SetIKRig(ERetargetSourceOrTarget::Target, rig_ik);
+			c.SetIKRig(SourceOrTargetVRM, rig_ik);
 
 			FSoftObjectPath r(TEXT("/Game/Characters/Mannequins/Rigs/IK_Mannequin.IK_Mannequin"));
 			UObject* u = r.TryLoad();
 			if (u) {
 				auto r2 = Cast<UIKRigDefinition>(u);
 				if (r2) {
-					c.SetIKRig(ERetargetSourceOrTarget::Source, r2);
+					c.SetIKRig(SourceOrTargetMannequin, r2);
 				}
 			}
 
@@ -885,73 +1019,86 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 					return false;
 				};
 
-				//name
-				FName PoseName = "POSE_A";
-				const FName NewPoseName = c.CreateRetargetPose(PoseName, ERetargetSourceOrTarget::Target);
-				FIKRetargetPose *NewPose = c.GetRetargetPosesByName(ERetargetSourceOrTarget::Target, NewPoseName);
-
-				FReferenceSkeleton& RefSkeleton = sk->GetRefSkeleton();
-				const TArray<FTransform>& RefPose = RefSkeleton.GetRefBonePose();
-				const FName RetargetRootBoneName = rig_ik->GetRetargetRoot();
-				for (int32 BoneIndex = 0; BoneIndex < RefSkeleton.GetNum(); ++BoneIndex)
 				{
-					auto BoneName = RefSkeleton.GetBoneName(BoneIndex);
+					//name
+					FName PoseName = "POSE_A";
+					const FName NewPoseName = c.CreateRetargetPose(PoseName, SourceOrTargetVRM);
+					FIKRetargetPose* NewPose = c.GetRetargetPosesByName(SourceOrTargetVRM, NewPoseName);
 
-					auto str = FindKeyByValue(BoneName.ToString());
-					if (str == "") {
-						continue;
-					}
-					FRotator rot;
-					if (FindRotData(*str, rot) == false) {
-						continue;
-					}
-					
-
-					// record a global space translation offset for the root bone
-					if (BoneName == RetargetRootBoneName)
+					FReferenceSkeleton& RefSkeleton = sk->GetRefSkeleton();
+					const TArray<FTransform>& RefPose = RefSkeleton.GetRefBonePose();
+					const FName RetargetRootBoneName = rig_ik->GetRetargetRoot();
+					for (int32 BoneIndex = 0; BoneIndex < RefSkeleton.GetNum(); ++BoneIndex)
 					{
-					//	FTransform GlobalRefTransform = FAnimationRuntime::GetComponentSpaceTransform(RefSkeleton, RefPose, BoneIndex);
-					//	FTransform GlobalImportedTransform = PoseAsset->GetComponentSpaceTransform(BoneName, LocalBoneTransformFromPose);
-					//	NewPose.SetRootTranslationDelta(GlobalImportedTransform.GetLocation() - GlobalRefTransform.GetLocation());
-					}
+						auto BoneName = RefSkeleton.GetBoneName(BoneIndex);
 
-					// record a local space delta rotation (if there is one)
-
-					const FTransform& LocalRefTransform = RefPose[BoneIndex];
-					const FTransform& LocalImportedTransform = FTransform(rot, FVector(0,0,0), FVector(1, 1, 1));
-					//const FQuat DeltaRotation = LocalRefTransform.GetRotation().Inverse() * LocalImportedTransform.GetRotation();
-
-					FQuat DeltaRotation = FQuat(rot);
-					if (VRMConverter::Options::Get().IsVRM10Model()) {
-
-						FTransform dstTrans;
-						auto dstIndex = BoneIndex;
-						while (dstIndex >= 0)
-						{
-							dstTrans = RefSkeleton.GetRefBonePose()[dstIndex].GetRelativeTransform(dstTrans);
-							dstIndex = RefSkeleton.GetParentIndex(dstIndex);
-							if (dstIndex < 0) {
-								break;
-							}
+						auto str = FindKeyByValue(BoneName.ToString());
+						if (str == "") {
+							continue;
+						}
+						FRotator rot;
+						if (FindRotData(*str, rot) == false) {
+							continue;
 						}
 
-						//DeltaRotation = LocalRefTransform.GetRotation().Inverse() * DeltaRotation * LocalRefTransform.GetRotation();
-						//DeltaRotation = LocalRefTransform.GetRotation() * DeltaRotation * LocalRefTransform.GetRotation().Inverse();
-						//DeltaRotation = dstTrans.GetRotation() * DeltaRotation * dstTrans.GetRotation().Inverse();
-						DeltaRotation = dstTrans.GetRotation().Inverse() * DeltaRotation * dstTrans.GetRotation();
-					}
 
-					const float DeltaAngle = FMath::RadiansToDegrees(DeltaRotation.GetAngle());
-					constexpr float MinAngleThreshold = 0.05f;
-					if (DeltaAngle >= MinAngleThreshold)
-					{
-						NewPose->SetDeltaRotationForBone(BoneName, DeltaRotation);
-						NewPose->SortHierarchically(ikr->GetTargetIKRig()->GetSkeleton());
+						// record a global space translation offset for the root bone
+						if (BoneName == RetargetRootBoneName)
+						{
+							//	FTransform GlobalRefTransform = FAnimationRuntime::GetComponentSpaceTransform(RefSkeleton, RefPose, BoneIndex);
+							//	FTransform GlobalImportedTransform = PoseAsset->GetComponentSpaceTransform(BoneName, LocalBoneTransformFromPose);
+							//	NewPose.SetRootTranslationDelta(GlobalImportedTransform.GetLocation() - GlobalRefTransform.GetLocation());
+						}
+
+						// record a local space delta rotation (if there is one)
+
+						const FTransform& LocalRefTransform = RefPose[BoneIndex];
+						const FTransform& LocalImportedTransform = FTransform(rot, FVector(0, 0, 0), FVector(1, 1, 1));
+						//const FQuat DeltaRotation = LocalRefTransform.GetRotation().Inverse() * LocalImportedTransform.GetRotation();
+
+						FQuat DeltaRotation = FQuat(rot);
+						if (VRMConverter::Options::Get().IsVRM10Model()) {
+
+							FTransform dstTrans;
+							auto dstIndex = BoneIndex;
+							while (dstIndex >= 0)
+							{
+								dstTrans = RefSkeleton.GetRefBonePose()[dstIndex].GetRelativeTransform(dstTrans);
+								dstIndex = RefSkeleton.GetParentIndex(dstIndex);
+								if (dstIndex < 0) {
+									break;
+								}
+							}
+
+							//DeltaRotation = LocalRefTransform.GetRotation().Inverse() * DeltaRotation * LocalRefTransform.GetRotation();
+							//DeltaRotation = LocalRefTransform.GetRotation() * DeltaRotation * LocalRefTransform.GetRotation().Inverse();
+							//DeltaRotation = dstTrans.GetRotation() * DeltaRotation * dstTrans.GetRotation().Inverse();
+							DeltaRotation = dstTrans.GetRotation().Inverse() * DeltaRotation * dstTrans.GetRotation();
+						}
+
+						const float DeltaAngle = FMath::RadiansToDegrees(DeltaRotation.GetAngle());
+						constexpr float MinAngleThreshold = 0.05f;
+						if (DeltaAngle >= MinAngleThreshold)
+						{
+							NewPose->SetDeltaRotationForBone(BoneName, DeltaRotation);
+#if UE_VERSION_OLDER_THAN(5,4,0)
+							NewPose->SortHierarchically(ikr->GetTargetIKRig()->GetSkeleton());
+#else
+							NewPose->SortHierarchically(ikr->GetIKRig(SourceOrTargetVRM)->GetSkeleton());
+#endif
+						}
 					}
 				}
 
-			}
+#if VRM4U_USE_AUTOALIGN
+				c.SetCurrentRetargetPose(UIKRetargeter::GetDefaultPoseName(), SourceOrTargetVRM);
+				c.SetCurrentRetargetPose(UIKRetargeter::GetDefaultPoseName(), SourceOrTargetMannequin);
 
+				c.AutoAlignAllBones(SourceOrTargetMannequin);
+				c.AutoAlignAllBones(SourceOrTargetVRM);
+#endif
+			}
+			c.SetChainSetting();
 		}
 #endif // 5.2
 #endif

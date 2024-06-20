@@ -1,4 +1,4 @@
-// VRM4U Copyright (c) 2021-2023 Haruyoshi Yamamoto. This software is released under the MIT License.
+// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "Factories/ImportSettings.h"
 #include "VrmConvert.h"
+#include "Vrm1LicenseObject.h"
 
 #include "VrmImportUI.generated.h"
 
@@ -38,6 +39,15 @@ public:
 	/** Materal Type */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	EVRMImportMaterialType MaterialType;
+
+#if UE_VERSION_OLDER_THAN(5,2,0)
+	static const bool VRM4U_UseUE5Mat = false;
+#else
+	static const bool VRM4U_UseUE5Mat = true;
+#endif
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Use UE5 Material"))
+	bool bUseUE5Material = VRM4U_UseUE5Mat;
 
 	/** Outline Material*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "GenerateOutlineMaterial"))
@@ -117,7 +127,7 @@ public:
 
 	/** Save as single uasset file */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "Single uasset file"))
-	bool bSingleUAssetFile = true;
+	bool bSingleUAssetFile = false;
 
 	/** Use GridTexture by Default */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Texture] Use DummyGrid by DefaultBaseTexture"))
@@ -137,7 +147,7 @@ public:
 
 	/** Merge primitives using same material */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Optimize] Merge primitive"))
-	bool bMergePrimitive = true;
+	bool bMergePrimitive = false;
 
 	/** Use optimized MaterialInstance */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName="[Optimize] use opt material"))
@@ -170,9 +180,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName="[Debug] One bone only"))
 	bool bDebugOneBone = false;
 
+	/** for DEBUG. No mesh. Bone only */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Debug] No Mesh"))
+	bool bDebugNoMesh = false;
+
+	/** for DEBUG. No mesh. Bone only */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = Mesh, meta = (ImportType = "StaticMesh|SkeletalMesh", DisplayName = "[Debug] No Material"))
+	bool bDebugNoMaterial = false;
+
 	/** Skeleton to use for imported asset. When importing a mesh, leaving this as "None" will create a new skeleton. When importing an animation this MUST be specified to import the asset. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category=Mesh, meta=(ImportType="SkeletalMesh"))
 	class USkeleton* Skeleton;
+
+	//
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRM1_License")
+	TArray<FLicenseBoolDataPair> LicenseBool;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRM1_License")
+	TArray<FLicenseStringDataPair> LicenseString;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VRM1_License")
+	TArray<FLicenseStringDataArray> LicenseStringArray;
 
 	//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "License_Personation/CharacterizationPermission")
