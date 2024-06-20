@@ -51,7 +51,7 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 		UE_LOG(LogEmergenceHttp, Verbose, TEXT("Got Emergence Singleton: %s"), *Manager->GetFName().ToString());
 		return Manager.Get();
 	}
-	UE_LOG(LogEmergenceHttp, Error, TEXT("Text %s"), "No manager avalible, whats going on?");
+	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: No manager avalible, whats going on?"));
 	return nullptr;
 }
 
@@ -71,7 +71,11 @@ void UEmergenceSingleton::Shutdown()
 	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
 
 	RemoveFromRoot();
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+	MarkAsGarbage();
+#else
 	MarkPendingKill();
+#endif
 }
 
 void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
@@ -295,11 +299,15 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 
 			Width = ImageWrapper->GetWidth();
 			Height = ImageWrapper->GetHeight();
-
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+			void* TextureData = LoadedT2D->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+			FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
+			LoadedT2D->GetPlatformData()->Mips[0].BulkData.Unlock();
+#else
 			void* TextureData = LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 			FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
 			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
-
+#endif
 			LoadedT2D->UpdateResource();
 			return true;
 		}

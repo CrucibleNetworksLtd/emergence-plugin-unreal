@@ -200,7 +200,9 @@ public:
 		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
-		
+#if (ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+		HttpRequest->SetActivityTimeout(Timeout);
+#endif
 		//Handle headers and logging of the headers
 		FString HeaderLogText;
 		if (Headers.Num() > 0) {
