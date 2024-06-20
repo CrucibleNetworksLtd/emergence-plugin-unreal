@@ -98,13 +98,19 @@ void UWriteMethod::Activate()
 		Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 			EErrorCode StatusCode;
 			FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
-			UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain_HttpRequestComplete: %s"), *res->GetContentAsString());
-			if (StatusCode == EErrorCode::EmergenceOk) {
-				CallWriteMethod();
-				return;
+			if (res.IsValid()) { //this was required here for 5.4?
+				UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain_HttpRequestComplete: %s"), *res->GetContentAsString());
+				if (StatusCode == EErrorCode::EmergenceOk) {
+					CallWriteMethod();
+					return;
+				}
+				else {
+					this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+					return;
+				}
 			}
 			else {
-				this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
+				this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceClientJsonParseFailed);
 				return;
 			}
 		});
