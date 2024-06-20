@@ -173,7 +173,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void GetQRCode();
 
-	bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
+	UFUNCTION()
+	static bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
 
 	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
 
