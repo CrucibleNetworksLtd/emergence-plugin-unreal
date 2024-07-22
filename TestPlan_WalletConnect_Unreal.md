@@ -27,7 +27,7 @@ Core user - engine player mechanics involving movement and base key commands.
 
 ### 2. Wallet System
 
-#### 3.1. FTUE UI 
+#### 2.1. FTUE UI 
 
 **Test Description**:
 Basic UI functionality. Makes sure the engine loads the Emergence login sequence UI correctly.
@@ -38,7 +38,7 @@ Basic UI functionality. Makes sure the engine loads the Emergence login sequence
 - [ ] Pressing ESC while the UI is open will close the UI.
 - [ ] Manually clicking on PRESS ESC TO QUIT button at the top left on the second UI page will close the UI.
 
-#### 3.2. Login Screen 
+#### 2.2. Login Screen 
 
 **Test Description**:
 Login sequence functionality. Makes sure the user can log in to Emergence.
@@ -59,7 +59,7 @@ Go to Content Drawer > Plugins > Emergence Content > Screens > Wallet Connection
 - [ ] The user can scan the QR code with their wallet app and get a sign in request.
 - [ ] The user can sign the request and be logged in to their Emergence account.
 
-#### 3.3. Sending WriteMethod
+#### 2.3. Sending WriteMethod
 
 **Test Description**:
 Makes sure the user is able to send a WriteMethod, sign it, and Emergence to confirm it.
@@ -69,12 +69,12 @@ Makes sure the user is able to send a WriteMethod, sign it, and Emergence to con
 - [ ] The user can CONFIRM the transaction in the wallet app.
 - [ ] The wallet app shows Transaction Complete after a given time (up to 120s)
 
-### 4. Persona System
+### 3. Persona System
 
 **Test Description**:
 Makes sure the Persona System works correctly.
 
-#### Unit 4.1. Basic functionality of the dashboard screen
+#### Unit 3.1. Basic functionality of the dashboard screen
 
 **Required Inputs**:
 - The user has at least four personas.
@@ -99,14 +99,14 @@ Makes sure the Persona System works correctly.
 - [ ] Are much smaller than the central hexagon.
 - [ ] Have a medium amount of blur.
 
-#### Unit 4.3. Correct display of the persona information
+#### Unit 3.3. Correct display of the persona information
 
 **Expected Output**:
 - [ ] Each hexagon has the correct icon
 - [ ] Each hexagon has the correct name
 - [ ] Each hexagon has the correct description
 
-#### Unit 4.4. Create persona screen basic functionality
+#### Unit 3.4. Create persona screen basic functionality
 
 **Expected Output**:
 - [ ] The user can see a plus in the top left corner.
@@ -115,14 +115,14 @@ Makes sure the Persona System works correctly.
 - [ ] The user can see a back button in the bottom left corner.
 - [ ] The user can see a persona information button in the bottom right corner.
 - [ ] Pressing the back button takes the user back to the dashboard screen, with no new persona created.
-- [ ] Using the flow in 4.5., the user can select an avatar.
+- [ ] Using the flow in 3.5., the user can select an avatar.
 - [ ] Pressing the persona information button:
-- [ ] Takes the user to the persona information screen. (see unit 4.6. for functionality here)
+- [ ] Takes the user to the persona information screen. (see unit 3.6. for functionality here)
 - [ ] The user can see a select avatar button in the bottom left corner.
 - [ ] Pressing the select avatar button takes the user to the avatar selection screen.
 - [ ] The user can see a create persona button in the bottom right corner.
 - [ ] The stages UI is showing 2 of 3.
-- [ ] Using flow in 4.6., the user can create a persona.
+- [ ] Using flow in 3.6., the user can create a persona.
 - [ ] Pressing the create persona button:
 - [ ] Takes the user to the dashboard screen.
 - [ ] The user can see a new persona in the dashboard screen.
@@ -132,7 +132,7 @@ Makes sure the Persona System works correctly.
 - [ ] The description is the description that was entered in the persona information screen.
 - [ ] The users avatar model will change to the avatar that was selected in the avatar selection screen (this may take up to 30s to change).
 
-#### Unit 4.5. Avatar selection screen basic functionality
+#### Unit 3.5. Avatar selection screen basic functionality
 
 **Expected Output**:
 - [ ] There should be an icon for each avatar arranged in a grid on the left.
@@ -143,7 +143,7 @@ Makes sure the Persona System works correctly.
 - [ ] Pressing the [back/cancel] button if the selected avatar was different to the active avatar, the active avatar is not changed.
 - [ ] Pressing the [next button/confirm avatar] button if the selected avatar was different to the active avatar, the active avatar is changed to the selected avatar.
 
-#### Unit 4.6. Persona information screen basic functionality
+#### Unit 3.6. Persona information screen basic functionality
 
 **Expected Output**:
 - [ ] The user can see a text box for the name.
@@ -154,7 +154,7 @@ Makes sure the Persona System works correctly.
 - [ ] When the user proceeds, the name and description are saved to the persona.
 - [ ] When the user proceeds, the users avatar is set to the one displayed on the right.
 
-#### Unit 4.7. Edit persona screen basic functionality
+#### Unit 3.7. Edit persona screen basic functionality
 
 **Required Inputs**:
 - The user has at least two avatars.
@@ -173,7 +173,7 @@ Makes sure the Persona System works correctly.
 - [ ] The persona is deleted.
 - [ ] If the persona is the active persona the user will see a greyed out delete trash icon.
 
-#### Unit 4.8. Edit/Create persona screen advanced functionality - correct flow
+#### Unit 3.8. Edit/Create persona screen advanced functionality - correct flow
 
 **Expected Output**:
 - [ ] The user is taken to the select avatar screen when pressing the top left plus button.
@@ -193,11 +193,11 @@ Makes sure the Persona System works correctly.
 - [ ] There is a status widget in the top left corner that says EDIT PERSONA > AVATAR SELECTION.
 - [ ] The user is taken to the dashboard screen when pressing delete persona from this screen (The persona must not be active for delete to work)
 
-#### Unit 4.9. Create persona screen advanced functionality - starting fresh
+#### Unit 3.9. Create persona screen advanced functionality - starting fresh
 
 **Expected Output**:
 - [ ] The user is taken to the create persona screen when pressing the central plus button.
-- [ ] The user can complete the flow in 4.4.
+- [ ] The user can complete the flow in 3.4.
 
 
 ---
