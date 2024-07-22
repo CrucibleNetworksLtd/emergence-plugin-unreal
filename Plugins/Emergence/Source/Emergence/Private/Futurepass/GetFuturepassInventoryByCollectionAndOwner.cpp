@@ -122,7 +122,7 @@ void UGetFuturepassInventoryByCollectionAndOwner::Activate() {
 						Item.meta.attributes.Add(FEmergenceInventoryItemsMetaAttribute("CollectionName", Collection->GetStringField("name")));
 
 						//add the entire item to our array
-						Item.OriginalData = NFTNode;
+						Item.OriginalData.JsonObject = NFTNode->AsObject();
 						Items.Add(Item);
 					}
 
