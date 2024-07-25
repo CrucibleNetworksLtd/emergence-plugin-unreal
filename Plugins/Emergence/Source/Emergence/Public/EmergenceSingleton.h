@@ -50,11 +50,11 @@ public:
 	static EFutureverseEnvironment GetFutureverseEnvironment();
 
 	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo);
 
 	//Clears the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to false)
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void ClearFuturepassInfomationCache();
 
 	//Cache of the last Futurepass information set as part of SetFuturepassInfomationCache
