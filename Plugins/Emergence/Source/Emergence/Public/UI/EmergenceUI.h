@@ -34,17 +34,8 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScreenSwitched, UUserWidget*, NewScreen);
 
-	UFUNCTION(BlueprintPure)
-	EmergenceLoginType GetProjectLoginType();
-
-	template<typename T>
-	inline static T StringToEnum(const FString& Name) {
-		UEnum* EnumClass = StaticEnum<T>();
-		if (!EnumClass) {
-			UE_LOG(LogTemp, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
-		}
-		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
-	}
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	EmergenceLoginType GetProjectLoginType(UObject* WorldContextObject);
 
 	//Called whenever the screen is changed
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers|Emergence UI")

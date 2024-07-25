@@ -31,6 +31,15 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 public:
 	UEmergenceSingleton();
 
+	template<typename T>
+	inline static T StringToEnum(const FString& Name) {
+		UEnum* EnumClass = StaticEnum<T>();
+		if (!EnumClass) {
+			UE_LOG(LogTemp, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
+		}
+		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
+	}
+
 	/** Get the global Emergence service */
 	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
@@ -48,6 +57,10 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
 	static EFutureverseEnvironment GetFutureverseEnvironment();
+
+	//Gets the project's Overlay Login Type from the project settings
+	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
+	EmergenceLoginType GetProjectLoginType();
 
 	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
