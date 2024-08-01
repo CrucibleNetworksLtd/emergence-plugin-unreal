@@ -103,10 +103,16 @@ const EEmergenceVRMImportMaterialType UEmergenceVRMMeshComponent::MaterialTypeFr
 
 void UEmergenceVRMMeshComponent::VRMLoadCompleted(int Linkage)
 {
+	UE_LOG(LogTemp, Display, TEXT("VRMLoadCompleted"));
 	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
+	UE_LOG(LogTemp, Display, TEXT("got ParentSkeletalMesh"));
 	ParentSkeletalMesh->SetSkeletalMesh(OutVrmAsset->SkeletalMesh, false);
+	UE_LOG(LogTemp, Display, TEXT("SetSkeletalMesh"));
 	ParentSkeletalMesh->SetAnimClass(UVrmAnimInstanceCopy::StaticClass());
+	UE_LOG(LogTemp, Display, TEXT("SetAnimClass"));
 	if (ParentSkeletalMesh->GetAnimInstance()) {
+		UE_LOG(LogTemp, Display, TEXT("got GetAnimInstance"));
 		Cast<UVrmAnimInstanceCopy>(ParentSkeletalMesh->GetAnimInstance())->SetSkeletalMeshCopyData(OutVrmAsset, this, nullptr, VRoidSimpleAssetList, nullptr);
+		UE_LOG(LogTemp, Display, TEXT("did SetSkeletalMeshCopyData"));
 	}
 }

@@ -1513,7 +1513,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					if (1) {
 						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
-								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
+								UE_LOG(LogVRM4ULoader, Warning, TEXT("less (1516)"));
 								warnCount++;
 							}
 						}
@@ -1781,7 +1781,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					if (f < VRM4U_MaxBoneWeight) {
 						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
-								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
+								UE_LOG(LogVRM4ULoader, Warning, TEXT("less (1784)"));
 								warnCount++;
 							}
 						}
