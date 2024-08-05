@@ -142,7 +142,7 @@ public class VRM4ULoader : ModuleRules
 			// static lib
 			string PlatformString = "Linux";
 			//PublicAdditionalLibraries.Add("stdc++");
-			CppStandard = CppStandardVersion.Cpp20;
+			CppStandard = CppStandardVersion.Cpp17;
 			PublicAdditionalLibraries.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", PlatformString, "libassimp.a"));
 		}
 

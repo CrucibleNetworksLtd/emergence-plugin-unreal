@@ -1028,6 +1028,9 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 				{
 					int vertexOffset = 0;
 					for (uint32_t meshNo = 0; meshNo < scene->mNumMeshes; ++meshNo) {
+						if (info.IsValidIndex(meshNo) == false) {
+							break;
+						}
 						auto* mesh = scene->mMeshes[meshNo];
 
 						for (int vertexNo = 0; vertexNo < info[meshNo].Vertices.Num(); ++vertexNo) {
@@ -1513,7 +1516,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					if (1) {
 						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
-								UE_LOG(LogVRM4ULoader, Warning, TEXT("less (1516)"));
+								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
 								warnCount++;
 							}
 						}
@@ -1781,7 +1784,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 					if (f < VRM4U_MaxBoneWeight) {
 						if (f <= (VRM4U_MaxBoneWeight - MAX_TOTAL_INFLUENCES)) {
 							if (warnCount < 50) {
-								UE_LOG(LogVRM4ULoader, Warning, TEXT("less (1784)"));
+								UE_LOG(LogVRM4ULoader, Warning, TEXT("less"));
 								warnCount++;
 							}
 						}
@@ -1799,7 +1802,7 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 				p->ActiveBoneIndices = rd.ActiveBoneIndices;
 				p->RequiredBones = rd.RequiredBones;
 			}
-#else
+#else // game
 
 #if	UE_VERSION_OLDER_THAN(4,25,0)
 #else
@@ -1835,14 +1838,18 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 #if	UE_VERSION_OLDER_THAN(5,4,0)
 				pRd->InitResources(false, 0, VRMGetMorphTargets(sk), sk);
 #else
-#if WITH_EDITOR
-				pRd->InitResources(false, 0, VRMGetMorphTargets(sk), sk);
-#endif
-#endif
+				{
+					TArray<UMorphTarget*> dummy;
+					for (auto& a : VRMGetMorphTargets(sk)) {
+						dummy.Add(a);
+					}
+					pRd->InitResources(false, 0, dummy, sk);
+				}
+#endif // 5.4
 			}
-#endif
+#endif // 4.25
 
-#endif
+#endif // editor
 
 			//rd.StaticVertexBuffers.StaticMeshVertexBuffer.TexcoordDataPtr;
 
@@ -2295,8 +2302,8 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 								pos *= Scale * VRMConverter::Options::Get().GetAnimationTranslateScale();
 							}
 							if (VRMConverter::Options::Get().IsPMXModel() || VRMConverter::Options::Get().IsBVHModel()) {
-									//pos.X *= -1.f;
-								//pos.Y *= -1.f;
+								pos.X *= -1.f;
+								pos.Y *= -1.f;
 							}
 							//if (VRMConverter::Options::Get().IsVRMAModel() ) {
 							//	if (isRootBone) {
@@ -2343,8 +2350,12 @@ bool VRMConverter::ConvertModel(UVrmAssetListObject *vrmAssetList) {
 #else
 								q = FQuat4f(-v.x, v.y, v.z, -v.w);
 
-								if (VRMConverter::Options::Get().IsVRM10Model()) {
+								if (VRMConverter::Options::Get().IsBVHModel()) {
+									auto d = FQuat4f(FVector3f(1, 0, 0), -PI / 2.f);
+									q = d * q * d.Inverse();
+								}
 
+								if (VRMConverter::Options::Get().IsVRM10Model()) {
 									q = FQuat4f(v.x, -v.z, v.y, v.w);
 								}
 #endif
