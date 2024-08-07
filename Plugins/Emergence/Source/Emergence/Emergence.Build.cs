@@ -35,10 +35,11 @@ public class Emergence : ModuleRules
 				"SlateCore",
 				"Projects",
 				"HTTP",
+				"HTTPServer"
 			}
 		);
 
-		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 4)
+        if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 4)
 		{
 			PublicDependencyModuleNames.AddRange(
 				new string[]
