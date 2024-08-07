@@ -35,6 +35,7 @@ public class Emergence : ModuleRules
 				"SlateCore",
 				"Projects",
 				"HTTP",
+				"HTTPServer"
 			}
 		);
 
