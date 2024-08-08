@@ -6,17 +6,19 @@
 #include "HttpServerResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "Misc/Base64.h"
+#include "Interfaces/IHttpResponse.h"
 
 
-UCustodialLogin* UCustodialLogin::CustodialLogin()
+UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 {
 	UCustodialLogin* BlueprintNode = NewObject<UCustodialLogin>();
-	//BlueprintNode->RegisterWithGameInstance(WorldContextObject);
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
 void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
+	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 }
 
 void UCustodialLogin::Activate()
@@ -58,13 +60,14 @@ void UCustodialLogin::Activate()
 		return;
 	}
 
-	FSHA256Signature Sig;
+	/*FSHA256Signature Sig;
 	if (!FPlatformMisc::GetSHA256Signature(*code, code.Len(), Sig)) {
 		UE_LOG(LogTemp, Error, TEXT("No GetSHA256Signature implementation"), ServerPort);
 		return;
 	};
 
-	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));
+	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
+	FString EncodedSig = "8734f600bc77044874826164d38c18af0e12eac3bec037b332bf0029530dbf52";
 
 	TArray<TPair<FString, FString>> UrlParams({ 
 		TPair<FString, FString>{"response_type", "code"},
@@ -101,10 +104,10 @@ bool UCustodialLogin::RequestGET(const FHttpServerRequest& Req, const FHttpResul
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"grant_type", "authorization_code"},
-		TPair<FString, FString>{"code", code},
+		TPair<FString, FString>{"code", *Req.QueryParams.Find("code")},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"client_id", clientid},
-		TPair<FString, FString>{"code_verifier", ""},
+		TPair<FString, FString>{"code_verifier", code},
 	});
 
 	FString URL = TEXT("https://login.futureverse.cloud/token?");
@@ -117,7 +120,9 @@ bool UCustodialLogin::RequestGET(const FHttpServerRequest& Req, const FHttpResul
 		}
 	}
 
-	auto GetTokensRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL);
+	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+
+	//auto GetTokensRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL);
 
 	return true;
 }
