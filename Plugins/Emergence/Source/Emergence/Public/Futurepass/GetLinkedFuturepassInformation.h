@@ -14,7 +14,7 @@ struct FLinkedFuturepassEOA
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
-	int proxyType;
+	int proxyType = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
 	FString eoa;

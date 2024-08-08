@@ -18,7 +18,8 @@
 	"bHasExplicitPlatforms": true,
 	"SupportedTargetPlatforms": [
 		"Win64",
-		"Mac"
+		"Mac",
+		"Linux"
 	],
 	"Modules": [
 		{

@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+Intermediate/
+Binaries/
+ThirdParty/assimp/lib/Mac/libassimp.a
