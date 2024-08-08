@@ -20,7 +20,7 @@ public:
 	bool _isServerStarted = false;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
-	static UCustodialLogin* CustodialLogin();
+	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
 
 	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
