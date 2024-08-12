@@ -7,6 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Misc/Base64.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Dom/JsonObject.h"
 
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
@@ -18,6 +19,12 @@ UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 
 void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
+	TSharedPtr<FJsonObject> JsonParsed;
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+	{
+
+	}
 	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 }
 
@@ -67,7 +74,7 @@ void UCustodialLogin::Activate()
 	};
 
 	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
-	FString EncodedSig = "8734f600bc77044874826164d38c18af0e12eac3bec037b332bf0029530dbf52";
+	FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
 
 	TArray<TPair<FString, FString>> UrlParams({ 
 		TPair<FString, FString>{"response_type", "code"},
@@ -78,6 +85,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"code_challenge_method", "S256"},
 		TPair<FString, FString>{"response_mode", "query"},
 		TPair<FString, FString>{"prompt", "login"},
+		//TPair<FString, FString>{"prompt", "none"},
 		TPair<FString, FString>{"state", state},
 		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
@@ -102,6 +110,27 @@ bool UCustodialLogin::RequestGET(const FHttpServerRequest& Req, const FHttpResul
 	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HttpServerExample GET"), TEXT("text/html"));
 	OnComplete(MoveTemp(response));
 
+
+	if (!Req.QueryParams.Contains("code")) {
+		return true;
+	}
+
+	if (*Req.QueryParams.Find("state") != state) {
+		return true;
+	}
+
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	JsonObject->SetStringField("grant_type", "authorization_code");
+	JsonObject->SetStringField("code", *Req.QueryParams.Find("code"));
+	JsonObject->SetStringField("redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback");
+	JsonObject->SetStringField("client_id", clientid);
+	JsonObject->SetStringField("code_verifier", code);
+
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+	
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"grant_type", "authorization_code"},
 		TPair<FString, FString>{"code", *Req.QueryParams.Find("code")},
@@ -111,19 +140,25 @@ bool UCustodialLogin::RequestGET(const FHttpServerRequest& Req, const FHttpResul
 	});
 
 	FString URL = TEXT("https://login.futureverse.cloud/token?");
+	
+	FString Params;
 	for (int i = 0; i < UrlParams.Num(); i++) {
-		URL += UrlParams[i].Key;
-		URL += "=";
-		URL += UrlParams[i].Value;
+		Params += UrlParams[i].Key;
+		Params += "=";
+		Params += UrlParams[i].Value;
 		if (i != UrlParams.Num() - 1) {
-			URL += "&";
+			Params += "&";
 		}
 	}
 
-	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+	TArray<TPair<FString, FString>> Headers({
+		TPair<FString, FString>{"Content-Type", "application/x-www-form-urlencoded"}
+	});
 
-	//auto GetTokensRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL);
 
+	//FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL, TEXT("POST"), 60.0F, Headers, Params);
 	return true;
 }
 

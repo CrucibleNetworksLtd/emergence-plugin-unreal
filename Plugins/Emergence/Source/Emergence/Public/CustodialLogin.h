@@ -30,9 +30,8 @@ public:
 	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
 
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P";
-	FString code = "Zx9j1PwATnAODKjd";
+	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest";
 	FString state = "Zx9j1PwATnAODKjd";
-
 	void Activate() override;
 	bool RequestGET(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 	bool RequestPOST(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
