@@ -8,6 +8,7 @@
 #include "Misc/Base64.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Dom/JsonObject.h"
+#include "WalletService/WriteMethod.h"
 
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
@@ -25,6 +26,44 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	{
 
 	}
+	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+
+	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
+	Contract->ABI = TEXT(R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])");
+	UEmergenceChain* Chain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
+	Chain->ChainID = 7672;
+	Chain->Name = FText::FromString("RootPorcini");
+	Chain->NodeURL = "https://porcini.rootnet.app/archive";
+	Chain->Symbol = "ROOT";
+	UEmergenceDeployment* DeployedContract = NewObject<UEmergenceDeployment>(UEmergenceDeployment::StaticClass());
+	DeployedContract->Address = "0x65245508479208091a92d53011c0d24AF28E4163";
+	DeployedContract->Blockchain = Chain;
+	DeployedContract->Contract = Contract;
+
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+
+	FString ContentString = "[]";
+
+	auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(
+		this,
+		&UCustodialLogin::WriteMethod_HttpRequestComplete,
+		"http://localhost:5173/api/getEncodedPayloadSC?contractAddress=" + 
+		DeployedContract->Address + "&nodeUrl=" + 
+		DeployedContract->Blockchain->NodeURL + 
+		"&abi=" + Contract->ABI +
+		"&contractAddress=" + DeployedContract->Address +
+		"&methodName=IncrementCount" + 
+		"&chainId=" + FString::Printf(TEXT("%lld"), DeployedContract->Blockchain->ChainID) + 
+		"&value=7500000000000",
+		"POST",
+		300.0F, //give the user lots of time to mess around setting high gas fees
+		Headers,
+		ContentString.ReplaceCharWithEscapedChar());
+}
+
+void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
 	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
 }
 
