@@ -55,7 +55,9 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 		"&contractAddress=" + DeployedContract->Address +
 		"&methodName=IncrementCount" + 
 		"&chainId=" + FString::Printf(TEXT("%lld"), DeployedContract->Blockchain->ChainID) + 
-		"&value=7500000000000",
+		"&value=7500000000000" +
+		"&nodeurl=https%3A%2F%2Fporcini.rootnet.app%2Farchive" +
+		"&useraddress=0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C",
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
@@ -65,6 +67,59 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+	
+	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
+	SignTransactionPayloadJsonObject->SetStringField("account", "0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C"); //@TODO change
+	SignTransactionPayloadJsonObject->SetStringField("transaction", *HttpResponse->GetContentAsString());
+	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
+
+	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
+	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
+	EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
+	EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
+
+	UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
+	FString Base64Encode = FBase64::Encode(OutputString);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *Base64Encode);
+	//FPlatformProcess::LaunchURL(*Base64Encode, nullptr, nullptr);
+
+	/*
+	auto CustodialRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(
+		this,
+		nullptr,
+		"http://localhost:5173/api/gettransactioncount?address=0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C&nodeURL=https%3A%2F%2Fporcini.rootnet.app%2Farchive");
+	CustodialRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+		UE_LOG(LogTemp, Display, TEXT("%s"), *res->GetContentAsString());
+		EErrorCode StatusCode;
+		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+		if (StatusCode == EErrorCode::EmergenceOk) {
+			FString Balance;
+			if (JsonObject.GetObjectField("message")->TryGetStringField("balance", Balance)) {
+
+				int NextTransaction = FCString::Atoi(*Balance) + 1;
+				TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
+				SignTransactionPayloadJsonObject->SetStringField("account", "0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C"); //@TODO change
+				SignTransactionPayloadJsonObject->SetStringField("transaction", FString::FromInt(NextTransaction));
+
+				TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
+				EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
+				EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
+				EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
+				FString OutputString;
+				TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+				FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
+
+				UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
+				
+
+			}
+		}
+	});*/
+
+	
 }
 
 void UCustodialLogin::Activate()
