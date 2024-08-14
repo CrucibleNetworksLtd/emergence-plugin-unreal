@@ -34,7 +34,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScreenSwitched, UUserWidget*, NewScreen);
 
-	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObject"), Category = "Emergence|UI")
 	EmergenceLoginType GetProjectLoginType(UObject* WorldContextObject);
 
 	//Called whenever the screen is changed

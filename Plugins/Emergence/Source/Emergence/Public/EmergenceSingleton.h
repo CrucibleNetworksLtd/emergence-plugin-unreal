@@ -71,11 +71,11 @@ public:
 	void ClearFuturepassInfomationCache();
 
 	//Cache of the last Futurepass information set as part of SetFuturepassInfomationCache
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Futureverse")
 	FLinkedFuturepassInformationResponse FuturepassInfoCache;
 
 	//Is FuturepassInfoCache valid?
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Futureverse")
 	bool FuturepassInfoCacheIsSet = false;
 
 	UPROPERTY()
