@@ -1,7 +1,8 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 #include "UI/EmergenceScreen.h"
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+#include "Misc/EngineVersionComparison.h"
+#if UE_VERSION_NEWER_THAN(5, 2, 0)
 #include "HAL/PlatformApplicationMisc.h"
 #else
 #include "GenericPlatform/GenericPlatformMisc.h"
@@ -21,7 +22,7 @@ UEmergenceUI* UEmergenceScreen::GetEmergenceUI() {
 
 void UEmergenceScreen::CopyStringToClipboard(FString StringToCopy)
 {
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+#if UE_VERSION_NEWER_THAN(5, 2, 0)
 	FPlatformApplicationMisc::ClipboardCopy(*StringToCopy);
 #else
 	FPlatformMisc::ClipboardCopy(*StringToCopy);

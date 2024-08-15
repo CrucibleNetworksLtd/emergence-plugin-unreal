@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "EmergenceEVMServerSubsystem.h"
 #include "Engine/Engine.h"
+#include "Misc/EngineVersionComparison.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**
@@ -262,7 +263,7 @@ public:
 		HttpRequest->SetURL(FinalURL);
 		HttpRequest->SetVerb(Verb);
 		HttpRequest->SetTimeout(Timeout);
-#if (ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+#if UE_VERSION_NEWER_THAN(5, 4, 0)
 		HttpRequest->SetActivityTimeout(Timeout);
 #endif
 		//Handle headers and logging of the headers

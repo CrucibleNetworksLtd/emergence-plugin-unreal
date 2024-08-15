@@ -38,7 +38,7 @@ public class Emergence : ModuleRules
 			}
 		);
 
-		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 4)
+		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)
 		{
 			PublicDependencyModuleNames.AddRange(
 				new string[]
