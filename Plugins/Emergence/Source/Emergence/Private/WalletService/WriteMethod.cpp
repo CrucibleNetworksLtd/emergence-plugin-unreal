@@ -8,6 +8,7 @@
 #include "EmergenceSingleton.h"
 #include "WalletService/LoadContractInternal.h"
 #include "Templates/SharedPointer.h"
+#include "TimerManager.h"
 
 UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString PrivateKey, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
 {
