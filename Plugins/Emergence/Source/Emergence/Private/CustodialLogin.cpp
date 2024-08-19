@@ -18,15 +18,155 @@ UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 	return BlueprintNode;
 }
 
+void UCustodialLogin::Activate()
+{
+	int ServerPort = 3000;
+
+	if (ServerPort <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
+		return;
+	}
+
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
+
+	// If port already binded by another process, then this check must be failed
+	// !!! BUT !!!
+	// this check always true
+	// I don't no why...
+	if (httpRouter.IsValid())
+	{
+		// You can bind as many routes as you need
+		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
+			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleRequestCallback(Req, OnComplete); });
+
+		httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
+			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+
+		httpServerModule.StartAllListeners();
+		
+		this->_isServerStarted = true;
+		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+	}
+	else
+	{
+		this->_isServerStarted = false;
+		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		return;
+	}
+
+	/*FSHA256Signature Sig;
+	if (!FPlatformMisc::GetSHA256Signature(*code, code.Len(), Sig)) {
+		UE_LOG(LogTemp, Error, TEXT("No GetSHA256Signature implementation"), ServerPort);
+		return;
+	};
+
+	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
+	FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
+
+	TArray<TPair<FString, FString>> UrlParams({
+		TPair<FString, FString>{"response_type", "code"},
+		TPair<FString, FString>{"client_id", clientid},
+		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
+		TPair<FString, FString>{"scope", "openid"},
+		TPair<FString, FString>{"code_challenge", EncodedSig},
+		TPair<FString, FString>{"code_challenge_method", "S256"},
+		TPair<FString, FString>{"response_mode", "query"},
+		TPair<FString, FString>{"prompt", "login"},
+		//TPair<FString, FString>{"prompt", "none"},
+		TPair<FString, FString>{"state", state},
+		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
+		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
+		});
+
+	FString URL = TEXT("https://login.futureverse.cloud/auth?");
+	for (int i = 0; i < UrlParams.Num(); i++) {
+		URL += UrlParams[i].Key;
+		URL += "=";
+		URL += UrlParams[i].Value;
+		if (i != UrlParams.Num() - 1) {
+			URL += "&";
+		}
+	}
+
+	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+}
+
+bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
+{
+	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
+	RequestPrint(Req);
+	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HandleRequestCallback GET"), TEXT("text/html"));
+	OnComplete(MoveTemp(response));
+
+
+	if (!Req.QueryParams.Contains("code")) {
+		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));
+		return true;
+	}
+
+	if (*Req.QueryParams.Find("state") != state) {
+		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"state\""));
+		return true;
+	}
+
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	JsonObject->SetStringField("grant_type", "authorization_code");
+	JsonObject->SetStringField("code", *Req.QueryParams.Find("code"));
+	JsonObject->SetStringField("redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback");
+	JsonObject->SetStringField("client_id", clientid);
+	JsonObject->SetStringField("code_verifier", code);
+
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
+
+	TArray<TPair<FString, FString>> UrlParams({
+		TPair<FString, FString>{"grant_type", "authorization_code"},
+		TPair<FString, FString>{"code",* Req.QueryParams.Find("code")},
+		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
+		TPair<FString, FString>{"client_id", clientid},
+		TPair<FString, FString>{"code_verifier", code},
+		});
+
+	FString URL = TEXT("https://login.futureverse.cloud/token?");
+
+	FString Params;
+	for (int i = 0; i < UrlParams.Num(); i++) {
+		Params += UrlParams[i].Key;
+		Params += "=";
+		Params += UrlParams[i].Value;
+		if (i != UrlParams.Num() - 1) {
+			Params += "&";
+		}
+	}
+
+	TArray<TPair<FString, FString>> Headers({
+		TPair<FString, FString>{"Content-Type", "application/x-www-form-urlencoded"}
+		});
+
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL, TEXT("POST"), 60.0F, Headers, Params);
+	return true;
+}
+
 void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
+	UE_LOG(LogTemp, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
 	if (FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
-
+		FString IdToken, IdTokenDecoded;
+		if (JsonParsed->TryGetStringField("id_token", IdToken)) {
+			UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
+			FBase64::Decode(IdToken, IdTokenDecoded);
+			UE_LOG(LogTemp, Display, TEXT("id_token decoded: %s"), *IdTokenDecoded);
+		}
 	}
-	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogTemp, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
 
 	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
 	Contract->ABI = TEXT(R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])");
@@ -66,7 +206,8 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 
 void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete"));
+	UE_LOG(LogTemp, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
 	
 	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
 	SignTransactionPayloadJsonObject->SetStringField("account", "0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C"); //@TODO change
@@ -84,191 +225,22 @@ void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpReques
 	UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
 	FString Base64Encode = FBase64::Encode(OutputString);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *Base64Encode);
-	//FPlatformProcess::LaunchURL(*Base64Encode, nullptr, nullptr);
-
-	/*
-	auto CustodialRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(
-		this,
-		nullptr,
-		"http://localhost:5173/api/gettransactioncount?address=0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C&nodeURL=https%3A%2F%2Fporcini.rootnet.app%2Farchive");
-	CustodialRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
-		UE_LOG(LogTemp, Display, TEXT("%s"), *res->GetContentAsString());
-		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
-		if (StatusCode == EErrorCode::EmergenceOk) {
-			FString Balance;
-			if (JsonObject.GetObjectField("message")->TryGetStringField("balance", Balance)) {
-
-				int NextTransaction = FCString::Atoi(*Balance) + 1;
-				TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
-				SignTransactionPayloadJsonObject->SetStringField("account", "0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C"); //@TODO change
-				SignTransactionPayloadJsonObject->SetStringField("transaction", FString::FromInt(NextTransaction));
-
-				TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
-				EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
-				EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
-				EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
-				FString OutputString;
-				TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-				FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
-
-				UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
-				
-
-			}
-		}
-	});*/
-
-	
-}
-
-void UCustodialLogin::Activate()
-{
-	int ServerPort = 3000;
-
-	if (ServerPort <= 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
-		return;
-	}
-
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
-
-	// If port already binded by another process, then this check must be failed
-	// !!! BUT !!!
-	// this check always true
-	// I don't no why...
-	if (httpRouter.IsValid())
-	{
-		// You can bind as many routes as you need
-		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
-			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return RequestGET(Req, OnComplete); });
-		/*httpRouter->BindRoute(FHttpPath(TEXT("/post")), EHttpServerRequestVerbs::VERB_POST,
-			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return RequestPOST(Req, OnComplete); });
-		httpRouter->BindRoute(FHttpPath(TEXT("/put")), EHttpServerRequestVerbs::VERB_PUT,
-			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return RequestPUT(Req, OnComplete); });*/
-
-		httpServerModule.StartAllListeners();
-
-		this->_isServerStarted = true;
-		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
-	}
-	else
-	{
-		this->_isServerStarted = false;
-		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
-		return;
-	}
-
-	/*FSHA256Signature Sig;
-	if (!FPlatformMisc::GetSHA256Signature(*code, code.Len(), Sig)) {
-		UE_LOG(LogTemp, Error, TEXT("No GetSHA256Signature implementation"), ServerPort);
-		return;
-	};
-
-	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
-	FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
-
-	TArray<TPair<FString, FString>> UrlParams({ 
-		TPair<FString, FString>{"response_type", "code"},
-		TPair<FString, FString>{"client_id", clientid},
-		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
-		TPair<FString, FString>{"scope", "openid"},
-		TPair<FString, FString>{"code_challenge", EncodedSig},
-		TPair<FString, FString>{"code_challenge_method", "S256"},
-		TPair<FString, FString>{"response_mode", "query"},
-		TPair<FString, FString>{"prompt", "login"},
-		//TPair<FString, FString>{"prompt", "none"},
-		TPair<FString, FString>{"state", state},
-		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
-		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
-	});
-
-	FString URL = TEXT("https://login.futureverse.cloud/auth?");
-	for (int i = 0; i < UrlParams.Num(); i++) {
-		URL += UrlParams[i].Key;
-		URL += "=";
-		URL += UrlParams[i].Value;
-		if (i != UrlParams.Num() - 1) {
-			URL += "&";
-		}
-	}
-
+	FString URL = "https://signer.futureverse.cloud?request=" + Base64Encode;
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
-}
 
-bool UCustodialLogin::RequestGET(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
-{
-	RequestPrint(Req);
-	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HttpServerExample GET"), TEXT("text/html"));
-	OnComplete(MoveTemp(response));
-
-
-	if (!Req.QueryParams.Contains("code")) {
-		return true;
-	}
-
-	if (*Req.QueryParams.Find("state") != state) {
-		return true;
-	}
-
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-
-	JsonObject->SetStringField("grant_type", "authorization_code");
-	JsonObject->SetStringField("code", *Req.QueryParams.Find("code"));
-	JsonObject->SetStringField("redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback");
-	JsonObject->SetStringField("client_id", clientid);
-	JsonObject->SetStringField("code_verifier", code);
-
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
 	
-	TArray<TPair<FString, FString>> UrlParams({
-		TPair<FString, FString>{"grant_type", "authorization_code"},
-		TPair<FString, FString>{"code", *Req.QueryParams.Find("code")},
-		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
-		TPair<FString, FString>{"client_id", clientid},
-		TPair<FString, FString>{"code_verifier", code},
-	});
-
-	FString URL = TEXT("https://login.futureverse.cloud/token?");
-	
-	FString Params;
-	for (int i = 0; i < UrlParams.Num(); i++) {
-		Params += UrlParams[i].Key;
-		Params += "=";
-		Params += UrlParams[i].Value;
-		if (i != UrlParams.Num() - 1) {
-			Params += "&";
-		}
-	}
-
-	TArray<TPair<FString, FString>> Headers({
-		TPair<FString, FString>{"Content-Type", "application/x-www-form-urlencoded"}
-	});
-
-
-	//FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
-
-	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL, TEXT("POST"), 60.0F, Headers, Params);
-	return true;
 }
 
-bool UCustodialLogin::RequestPOST(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
+bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
+	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback"));
 	RequestPrint(Req);
-	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HttpServerExample POST"), TEXT("text/html"));
+	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HandleSignatureCallback GET"), TEXT("text/html"));
 	OnComplete(MoveTemp(response));
-	return true;
-}
-
-bool UCustodialLogin::RequestPUT(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
-{
-	RequestPrint(Req);
-	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HttpServerExample PUT"), TEXT("text/html"));
-	OnComplete(MoveTemp(response));
+	FString ResponseBase64 = *Req.QueryParams.Find("response");
+	FString ResponseJsonString;
+	FBase64::Decode(ResponseBase64, ResponseJsonString);
+	UE_LOG(LogTemp, Display, TEXT("%s"), *ResponseJsonString);
 	return true;
 }
 

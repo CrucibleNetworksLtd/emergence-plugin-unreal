@@ -35,8 +35,7 @@ public:
 	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest";
 	FString state = "Zx9j1PwATnAODKjd";
 	void Activate() override;
-	bool RequestGET(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
-	bool RequestPOST(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
-	bool RequestPUT(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
+	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
+	bool HandleRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
 };
