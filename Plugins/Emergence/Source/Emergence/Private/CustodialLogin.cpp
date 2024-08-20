@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Dom/JsonObject.h"
 #include "WalletService/WriteMethod.h"
+#include "JwtVerifier.h"
 
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
@@ -107,7 +108,7 @@ bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const
 	}
 
 	if (*Req.QueryParams.Find("state") != state) {
-		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"state\""));
+		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match"));
 		return true;
 	}
 
@@ -155,19 +156,25 @@ bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const
 void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	UE_LOG(LogTemp, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
+	UE_LOG(LogTemp, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
-	if (FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
-		FString IdToken, IdTokenDecoded;
-		if (JsonParsed->TryGetStringField("id_token", IdToken)) {
-			UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
-			FBase64::Decode(IdToken, IdTokenDecoded);
-			UE_LOG(LogTemp, Display, TEXT("id_token decoded: %s"), *IdTokenDecoded);
-		}
+		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
+		return;
 	}
-	UE_LOG(LogTemp, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
 
+	FString IdToken;
+	if (!JsonParsed->TryGetStringField("id_token", IdToken)) {
+		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
+	TMap<FString, FString> IdTokenDecoded;
+	UCustodialLogin::DecodeJwt(IdToken, IdTokenDecoded);
+	FVUserAddress = *IdTokenDecoded.Find("futurepass");
 	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
 	Contract->ABI = TEXT(R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])");
 	UEmergenceChain* Chain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
@@ -176,7 +183,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	Chain->NodeURL = "https://porcini.rootnet.app/archive";
 	Chain->Symbol = "ROOT";
 	UEmergenceDeployment* DeployedContract = NewObject<UEmergenceDeployment>(UEmergenceDeployment::StaticClass());
-	DeployedContract->Address = "0x65245508479208091a92d53011c0d24AF28E4163";
+	DeployedContract->Address = "0x65245508479208091a92d53011c0d24AF28E4163"; //address of the contract we're talking to, not the user address
 	DeployedContract->Blockchain = Chain;
 	DeployedContract->Contract = Contract;
 
@@ -197,7 +204,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 		"&chainId=" + FString::Printf(TEXT("%lld"), DeployedContract->Blockchain->ChainID) + 
 		"&value=7500000000000" +
 		"&nodeurl=https%3A%2F%2Fporcini.rootnet.app%2Farchive" +
-		"&useraddress=0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C",
+		"&useraddress=" + *IdTokenDecoded.Find("futurepass"),
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
@@ -210,7 +217,7 @@ void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpReques
 	UE_LOG(LogTemp, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
 	
 	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
-	SignTransactionPayloadJsonObject->SetStringField("account", "0x238678df4F2CeeCC8b09C2b49eb94458682e6A4C"); //@TODO change
+	SignTransactionPayloadJsonObject->SetStringField("account", "0xB009d2c5d852FEd6C30511A8F50101957B4F4937"); //@TODO this needs to be the EOA of the custodial wallet, ethereum style
 	SignTransactionPayloadJsonObject->SetStringField("transaction", *HttpResponse->GetContentAsString());
 	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
 
@@ -242,6 +249,28 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
 	FBase64::Decode(ResponseBase64, ResponseJsonString);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *ResponseJsonString);
 	return true;
+
+	//CODE FROM SLACK
+	/*if (transactionSignature == null || fromAccount == null) {
+    return;
+  }
+
+  const rawTransactionWithSignature = {
+    ...rawTransactionWithoutSignature,
+    signature: transactionSignature,
+    from: fromAccount,
+    nonce,
+  };
+
+  const serializedSignedTransaction = ethers.Transaction.from(
+    rawTransactionWithSignature
+  ).serialized;
+
+  const transactionResponse = await provider.broadcastTransaction(
+    serializedSignedTransaction
+  );*/
+
+	//@TODO NOW, SEND THE TRANSACTION TO THE BLOCKCHAIN
 }
 
 void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody)
@@ -294,3 +323,10 @@ void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody
 
 	UE_LOG(LogTemp, Log, TEXT("Body = '%s'"), *strBodyData);
 };
+
+bool UCustodialLogin::DecodeJwt(FString input, TMap<FString, FString>& Output)
+{
+	FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
+	Output = JwtVerifier.GetClaims(input);
+	return true;
+}
