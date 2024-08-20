@@ -34,8 +34,12 @@ public:
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P";
 	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest";
 	FString state = "Zx9j1PwATnAODKjd";
+	FString FVUserAddress;
 	void Activate() override;
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 	bool HandleRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
+	
+	UFUNCTION()
+	static bool DecodeJwt(FString input, TMap<FString, FString>& Output);
 };
