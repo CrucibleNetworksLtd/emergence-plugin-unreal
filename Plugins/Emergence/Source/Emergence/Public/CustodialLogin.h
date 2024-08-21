@@ -17,10 +17,16 @@ class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 	GENERATED_BODY()
 public:
 
+	//@TODO split this into its own module
+	//@TODO split this into login and transaction
+	//@TODO add states
+
 	bool _isServerStarted = false;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
+
+	FString Base64UrlEncodeNoPadding(FString Input);
 
 	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
@@ -31,9 +37,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
 
-	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P";
-	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest";
-	FString state = "Zx9j1PwATnAODKjd";
+	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
+	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest"; //@TODO make this a random string
+	FString state = "Zx9j1PwATnAODKjd"; //@TODO make this a random string
 	FString FVUserAddress;
 	void Activate() override;
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
