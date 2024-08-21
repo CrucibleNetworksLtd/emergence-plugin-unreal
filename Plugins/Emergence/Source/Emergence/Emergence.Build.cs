@@ -23,10 +23,8 @@ public class Emergence : ModuleRules
 		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
-        //PublicIncludePaths.Add(Path.Combine(EngineDirectory, "/Source/ThirdParty/OpenSSL/1.1.1c/include/Win64/VS2015/..."));
-        PublicIncludePaths.Add(Path.Combine(PluginDirectory, "/ThirdParty/..."));
-        PublicIncludePaths.Add(Path.Combine(PluginDirectory, "/ThirdParty/jwt-cpp/..."));
-		PublicDependencyModuleNames.Add("OpenSSL");
+
+        PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "/ThirdParty/PicoSha2/...")));
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -41,7 +39,8 @@ public class Emergence : ModuleRules
 				"Projects",
 				"HTTP",
 				"HTTPServer",
-				"JwtVerifier"
+				"JwtVerifier",
+				"HashSHA256"
 			}
 		);
 
