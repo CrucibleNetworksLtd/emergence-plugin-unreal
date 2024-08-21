@@ -69,6 +69,14 @@
 				"Win64",
 				"Linux",
 			]
+		},
+		{
+			"Name": "HashSHA256",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
 		}
 	]
 }
