@@ -10,13 +10,28 @@
 #include "Dom/JsonObject.h"
 #include "WalletService/WriteMethod.h"
 #include "JwtVerifier.h"
-
+#include "SHA256Hash.h"
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 {
 	UCustodialLogin* BlueprintNode = NewObject<UCustodialLogin>();
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
+}
+
+FString UCustodialLogin::Base64UrlEncodeNoPadding(FString Input)
+{
+	FString Encoded = FBase64::Encode(Input);
+	Encoded.ReplaceCharInline('+', '-');
+	Encoded.ReplaceCharInline('/', '_');
+	for (int i = 0; i < Encoded.Len(); i++) {
+		if (Encoded[i] == '=') {
+			Encoded.RemoveAt(i);
+			i--;
+		}
+	}
+
+	return Encoded;
 }
 
 void UCustodialLogin::Activate()
@@ -29,16 +44,12 @@ void UCustodialLogin::Activate()
 		return;
 	}
 
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
 
-	// If port already binded by another process, then this check must be failed
-	// !!! BUT !!!
-	// this check always true
-	// I don't no why...
-	if (httpRouter.IsValid())
+	if (httpRouter.IsValid()) 
 	{
-		// You can bind as many routes as you need
+		//@TODO theres gotta be a better way of doing this than doing it every time
 		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleRequestCallback(Req, OnComplete); });
 
@@ -57,6 +68,15 @@ void UCustodialLogin::Activate()
 		return;
 	}
 
+	FSHA256Hash SHA256Hash;
+	TArray<uint8> ArraySig;
+	for(int i = 0; i < 16; i++){ //max length is 128 characters, and each these will come out to two characters
+		ArraySig.Add((uint8)FMath::RandHelper(255));
+	}
+	code = Base64UrlEncodeNoPadding(FString::FromHexBlob(ArraySig.GetData(), ArraySig.Num()));
+	SHA256Hash.FromString(code);
+	FString EncodedSig = SHA256Hash.GetHash();
+
 	/*FSHA256Signature Sig;
 	if (!FPlatformMisc::GetSHA256Signature(*code, code.Len(), Sig)) {
 		UE_LOG(LogTemp, Error, TEXT("No GetSHA256Signature implementation"), ServerPort);
@@ -64,7 +84,7 @@ void UCustodialLogin::Activate()
 	};
 
 	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
-	FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
+	//FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
@@ -76,7 +96,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"response_mode", "query"},
 		TPair<FString, FString>{"prompt", "login"},
 		//TPair<FString, FString>{"prompt", "none"},
-		TPair<FString, FString>{"state", state},
+		TPair<FString, FString>{"state", *new FString(state)}, //You have to use new here otherwise something overwrites state for some reason
 		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
@@ -107,7 +127,7 @@ bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const
 		return true;
 	}
 
-	if (*Req.QueryParams.Find("state") != state) {
+	if (*Req.QueryParams.Find("state") != this->state) {
 		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match"));
 		return true;
 	}
@@ -195,7 +215,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(
 		this,
 		&UCustodialLogin::WriteMethod_HttpRequestComplete,
-		"http://localhost:5173/api/getEncodedPayloadSC?contractAddress=" + 
+		UHttpHelperLibrary::APIBase + "getEncodedPayloadSC?contractAddress=" + 
 		DeployedContract->Address + "&nodeUrl=" + 
 		DeployedContract->Blockchain->NodeURL + 
 		"&abi=" + Contract->ABI +
@@ -248,6 +268,14 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
 	FString ResponseJsonString;
 	FBase64::Decode(ResponseBase64, ResponseJsonString);
 	UE_LOG(LogTemp, Display, TEXT("%s"), *ResponseJsonString);
+	TSharedPtr<FJsonObject> JsonParsed;
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseJsonString);
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+	{
+		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
+		return true;
+	}
+	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
 	return true;
 
 	//CODE FROM SLACK
