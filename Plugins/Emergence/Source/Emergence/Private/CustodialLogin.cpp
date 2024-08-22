@@ -70,14 +70,16 @@ void UCustodialLogin::Activate()
 
 	FSHA256Hash SHA256Hash;
 	TArray<uint8> ArraySig;
+
+	//Create a random string to be the "code"
 	for(int i = 0; i < 16; i++){ //max length is 128 characters, and each these will come out to two characters
 		ArraySig.Add((uint8)FMath::RandHelper(255));
 	}
 	code = Base64UrlEncodeNoPadding(FBase64::Encode(FString::FromHexBlob(ArraySig.GetData(), ArraySig.Num())));
-	//code = "NTRFMDA1NjhDMkM5MDE0RTkwQzgyRTI5Mjc5NkY0OTE";
 
+	//Create a SHA256 of code to be the "code_challange"
 	SHA256Hash.FromString(code);
-	
+	//convert the output of SHA256Hash.GetHash() from a hex number to a base64 number
 	TArray<uint8> UtfChar;
 	for (size_t Index_Chars = 0; Index_Chars < SHA256Hash.GetHash().Len(); Index_Chars += 2)
 	{
@@ -86,8 +88,8 @@ void UCustodialLogin::Activate()
 		UtfChar.Add(Character);
 	}
 
+	//reencode with the web style base64 stuff
 	EncodedSig = Base64UrlEncodeNoPadding(FBase64::Encode(UtfChar));
-	//"9YtmG5FwD4D3i6r-6Fi8LA5-clFvzhwWB2KDfOEOsbI";
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
