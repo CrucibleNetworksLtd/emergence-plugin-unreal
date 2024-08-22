@@ -26,6 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
 
+	UFUNCTION()
 	FString Base64UrlEncodeNoPadding(FString Input);
 
 	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -37,13 +38,25 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
 
+	UPROPERTY()
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
-	FString code = "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTest"; //@TODO make this a random string
+	
+	UPROPERTY()
+	FString code; //@TODO make this a random string
+		
+	UPROPERTY()
+	FString EncodedSig; 
+	
+	UPROPERTY()
 	FString state = "Zx9j1PwATnAODKjd"; //@TODO make this a random string
+
+	UPROPERTY()
 	FString FVUserAddress;
+
 	void Activate() override;
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 	bool HandleRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
+
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
 	
 	UFUNCTION()
