@@ -11,6 +11,7 @@
 #include "WalletService/WriteMethod.h"
 #include "JwtVerifier.h"
 #include "SHA256Hash.h"
+#include "Containers/ArrayView.h"
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 {
@@ -21,17 +22,16 @@ UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 
 FString UCustodialLogin::Base64UrlEncodeNoPadding(FString Input)
 {
-	FString Encoded = FBase64::Encode(Input);
-	Encoded.ReplaceCharInline('+', '-');
-	Encoded.ReplaceCharInline('/', '_');
-	for (int i = 0; i < Encoded.Len(); i++) {
-		if (Encoded[i] == '=') {
-			Encoded.RemoveAt(i);
+	Input.ReplaceCharInline('+', '-');
+	Input.ReplaceCharInline('/', '_');
+	for (int i = 0; i < Input.Len(); i++) {
+		if (Input[i] == '=') {
+			Input.RemoveAt(i);
 			i--;
 		}
 	}
 
-	return Encoded;
+	return Input;
 }
 
 void UCustodialLogin::Activate()
@@ -73,18 +73,21 @@ void UCustodialLogin::Activate()
 	for(int i = 0; i < 16; i++){ //max length is 128 characters, and each these will come out to two characters
 		ArraySig.Add((uint8)FMath::RandHelper(255));
 	}
-	code = Base64UrlEncodeNoPadding(FString::FromHexBlob(ArraySig.GetData(), ArraySig.Num()));
+	code = Base64UrlEncodeNoPadding(FBase64::Encode(FString::FromHexBlob(ArraySig.GetData(), ArraySig.Num())));
+	//code = "NTRFMDA1NjhDMkM5MDE0RTkwQzgyRTI5Mjc5NkY0OTE";
+
 	SHA256Hash.FromString(code);
-	FString EncodedSig = SHA256Hash.GetHash();
+	
+	TArray<uint8> UtfChar;
+	for (size_t Index_Chars = 0; Index_Chars < SHA256Hash.GetHash().Len(); Index_Chars += 2)
+	{
+		FString Part = SHA256Hash.GetHash().Mid(Index_Chars, 2);
+		char Character = std::stoul(TCHAR_TO_ANSI(*Part), nullptr, 16);
+		UtfChar.Add(Character);
+	}
 
-	/*FSHA256Signature Sig;
-	if (!FPlatformMisc::GetSHA256Signature(*code, code.Len(), Sig)) {
-		UE_LOG(LogTemp, Error, TEXT("No GetSHA256Signature implementation"), ServerPort);
-		return;
-	};
-
-	FString EncodedSig = FBase64::Encode(TArray<uint8>(Sig.Signature, 32));*/
-	//FString EncodedSig = "8t7T5W9J6npzIhQ4IatD5Kg0Tf10wukKAbIPPolsscI";
+	EncodedSig = Base64UrlEncodeNoPadding(FBase64::Encode(UtfChar));
+	//"9YtmG5FwD4D3i6r-6Fi8LA5-clFvzhwWB2KDfOEOsbI";
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
@@ -188,6 +191,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	FString IdToken;
 	if (!JsonParsed->TryGetStringField("id_token", IdToken)) {
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
+		UE_LOG(LogTemp, Display, TEXT("code was: %s, code_challenge: %s"), *code, *EncodedSig);
 		return;
 	}
 
