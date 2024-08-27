@@ -55,7 +55,13 @@ public:
 	FString state = "Zx9j1PwATnAODKjd"; //@TODO make this a random string
 
 	UPROPERTY()
-	FString FVUserAddress;
+	FString FVCustodialEOA;
+
+	UPROPERTY()
+	FString TransactionNonce;
+
+	UPROPERTY()
+	FString UnsignedTransaction;
 
 	void Activate() override;
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
