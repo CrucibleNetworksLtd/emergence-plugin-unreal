@@ -139,18 +139,6 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		return true;
 	}
 
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-
-	JsonObject->SetStringField("grant_type", "authorization_code");
-	JsonObject->SetStringField("code", *Req.QueryParams.Find("code"));
-	JsonObject->SetStringField("redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback");
-	JsonObject->SetStringField("client_id", clientid);
-	JsonObject->SetStringField("code_verifier", code);
-
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer);
-
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"grant_type", "authorization_code"},
 		TPair<FString, FString>{"code",* Req.QueryParams.Find("code")},
