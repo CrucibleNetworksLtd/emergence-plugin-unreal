@@ -375,3 +375,12 @@ bool UCustodialLogin::DecodeJwt(FString input, TMap<FString, FString>& Output)
 	Output = JwtVerifier.GetClaims(input);
 	return true;
 }
+
+TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
+{
+	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("You may now close this window..."), TEXT("text/html"));
+	//FTCHARToUTF8 ConvertToUtf8(TEXT(""));
+	//const uint8* ConvertToUtf8Bytes = (reinterpret_cast<const uint8*>(ConvertToUtf8.Get()));
+	//response->Body.Append(ConvertToUtf8Bytes, ConvertToUtf8.Length());
+	return response;
+}
