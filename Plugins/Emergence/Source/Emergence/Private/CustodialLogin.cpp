@@ -51,7 +51,7 @@ void UCustodialLogin::Activate()
 	{
 		//@TODO theres gotta be a better way of doing this than doing it every time
 		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
-			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleRequestCallback(Req, OnComplete); });
+			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 
 		httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
@@ -121,7 +121,7 @@ void UCustodialLogin::Activate()
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
-bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
+bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
 	RequestPrint(Req);
@@ -225,7 +225,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 
 	auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(
 		this,
-		&UCustodialLogin::WriteMethod_HttpRequestComplete,
+		&UCustodialLogin::GetEncodedPayload_HttpRequestComplete,
 		UHttpHelperLibrary::APIBase + "getEncodedPayloadSC?contractAddress=" + 
 		DeployedContract->Address + "&nodeUrl=" + 
 		DeployedContract->Blockchain->NodeURL + 
@@ -242,7 +242,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 		ContentString.ReplaceCharWithEscapedChar());
 }
 
-void UCustodialLogin::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+void UCustodialLogin::GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete"));
 	UE_LOG(LogTemp, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
