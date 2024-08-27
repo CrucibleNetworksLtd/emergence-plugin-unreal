@@ -125,7 +125,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
 	RequestPrint(Req);
-	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HandleRequestCallback GET"), TEXT("text/html"));
+	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	OnComplete(MoveTemp(response));
 
 
@@ -273,7 +273,7 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback"));
 	RequestPrint(Req);
-	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("HandleSignatureCallback GET"), TEXT("text/html"));
+	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	OnComplete(MoveTemp(response));
 	FString ResponseBase64 = *Req.QueryParams.Find("response");
 	FString ResponseJsonString;
