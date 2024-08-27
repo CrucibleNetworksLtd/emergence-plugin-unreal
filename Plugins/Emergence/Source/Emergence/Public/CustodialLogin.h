@@ -37,6 +37,8 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, Avatar, FString, StatusCode);
 
+	TUniquePtr<FHttpServerResponse> GetHttpPage();
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
 
