@@ -37,7 +37,7 @@ FString UCustodialLogin::Base64UrlEncodeNoPadding(FString Input)
 void UCustodialLogin::Activate()
 {
 	int ServerPort = 3000;
-
+	state = "Zx9j1PwATnAODKjd";
 	if (ServerPort <= 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
@@ -101,7 +101,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"response_mode", "query"},
 		TPair<FString, FString>{"prompt", "login"},
 		//TPair<FString, FString>{"prompt", "none"},
-		TPair<FString, FString>{"state", *new FString(state)}, //You have to use new here otherwise something overwrites state for some reason
+		TPair<FString, FString>{"state", FString(state)},
 		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
@@ -145,7 +145,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"client_id", clientid},
 		TPair<FString, FString>{"code_verifier", code},
-		});
+	});
 
 	FString URL = TEXT("https://login.futureverse.cloud/token?");
 
@@ -193,7 +193,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
 	TMap<FString, FString> IdTokenDecoded;
 	UCustodialLogin::DecodeJwt(IdToken, IdTokenDecoded);
-	FVUserAddress = *IdTokenDecoded.Find("futurepass");
+	FVCustodialEOA = *IdTokenDecoded.Find("eoa");
 	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
 	Contract->ABI = TEXT(R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])");
 	UEmergenceChain* Chain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
@@ -234,26 +234,32 @@ void UCustodialLogin::GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr Http
 {
 	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete"));
 	UE_LOG(LogTemp, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
-	
-	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
-	SignTransactionPayloadJsonObject->SetStringField("account", "0xB009d2c5d852FEd6C30511A8F50101957B4F4937"); //@TODO this needs to be the EOA of the custodial wallet, ethereum style
-	SignTransactionPayloadJsonObject->SetStringField("transaction", *HttpResponse->GetContentAsString());
-	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
 
-	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
-	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
-	EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
-	EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
+	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
+	FJsonObject GetEncodedPayloadSCResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString SerializedUnsignedTransaction = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("serializedUnsignedTransaction");
+		TransactionNonce = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("nonce");
+		UnsignedTransaction = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("rawUnsignedTransaction");
+		TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
+		SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
+		SignTransactionPayloadJsonObject->SetStringField("transaction", *SerializedUnsignedTransaction);
+		SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
 
-	UE_LOG(LogTemp, Display, TEXT("%s"), *OutputString);
-	FString Base64Encode = FBase64::Encode(OutputString);
-	UE_LOG(LogTemp, Display, TEXT("%s"), *Base64Encode);
-	FString URL = "https://signer.futureverse.cloud?request=" + Base64Encode;
-	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+		TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
+		EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
+		EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
+		EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
+		FString OutputString;
+		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+		FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
 
+		UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload OutputString: %s"), *OutputString);
+		FString Base64Encode = FBase64::Encode(OutputString);
+		UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
+		FString URL = "https://signer.futureverse.cloud?request=" + Base64Encode;
+		FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+	}
 	
 }
 
@@ -275,8 +281,28 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
 		return true;
 	}
 	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
-	return true;
+	
 
+	TSharedPtr<FJsonObject> RawTransactionObject;
+	TSharedRef<TJsonReader<TCHAR>> RawTransactionJsonReader = TJsonReaderFactory<TCHAR>::Create(UnsignedTransaction);
+	if (FJsonSerializer::Deserialize(RawTransactionJsonReader, RawTransactionObject))
+	{
+		RawTransactionObject->SetStringField("signature", *Signature);
+		RawTransactionObject->SetStringField("from", *FVCustodialEOA);
+		RawTransactionObject->SetStringField("nonce", *TransactionNonce);
+
+		FString OutputString;
+		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+		FJsonSerializer::Serialize(RawTransactionObject.ToSharedRef(), Writer);
+		UE_LOG(LogTemp, Display, TEXT("RawTransactionObject: %s"), *OutputString);
+	}
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+	Headers.Add(TPair<FString, FString>{"Accept", "application/json"});
+	FString Content = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_sendRawTransaction\",\"params\":[\"0x5884e6b26c9ab58efd4f380c3d942de02156a375256c89c9da9140bfd1e4898827578ebda4e6b1fb5eae1128aa3949a1062e4c72c5d588cd5d78417f418782821c\"],\"id\":1}";
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::SendTransaction_HttpRequestComplete, "https://porcini.rootnet.app/archive", "POST", 60.0F, Headers, Content);
+
+	return true;
 	//CODE FROM SLACK
 	/*if (transactionSignature == null || fromAccount == null) {
     return;
