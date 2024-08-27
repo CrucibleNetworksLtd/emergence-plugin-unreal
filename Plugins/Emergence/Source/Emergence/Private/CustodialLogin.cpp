@@ -106,6 +106,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
 
+	//Encode the params in a GET request style
 	FString URL = TEXT("https://login.futureverse.cloud/auth?");
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		URL += UrlParams[i].Key;
@@ -116,6 +117,7 @@ void UCustodialLogin::Activate()
 		}
 	}
 
+	//Open the auth URL with the params
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
@@ -159,6 +161,8 @@ bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const
 
 	FString URL = TEXT("https://login.futureverse.cloud/token?");
 
+
+	//for some reason, the parameters on this request are encoded like a GET url's parameters, but then sent in a POST as part of the content, don't ask me why lol
 	FString Params;
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		Params += UrlParams[i].Key;
@@ -168,13 +172,14 @@ bool UCustodialLogin::HandleRequestCallback(const FHttpServerRequest& Req, const
 			Params += "&";
 		}
 	}
-
+	
 	TArray<TPair<FString, FString>> Headers({
 		TPair<FString, FString>{"Content-Type", "application/x-www-form-urlencoded"}
 		});
 
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL, TEXT("POST"), 60.0F, Headers, Params);
+	UE_LOG(LogTemp, Display, TEXT("Sent Params Data: %s"), *Params);
 	return true;
 }
 
@@ -273,7 +278,7 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
 	FString ResponseBase64 = *Req.QueryParams.Find("response");
 	FString ResponseJsonString;
 	FBase64::Decode(ResponseBase64, ResponseJsonString);
-	UE_LOG(LogTemp, Display, TEXT("%s"), *ResponseJsonString);
+	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: %s"), *ResponseJsonString);
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseJsonString);
 	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
@@ -305,6 +310,12 @@ bool UCustodialLogin::HandleSignatureCallback(const FHttpServerRequest& Req, con
   );*/
 
 	//@TODO NOW, SEND THE TRANSACTION TO THE BLOCKCHAIN
+}
+
+void UCustodialLogin::SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete"));
+	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete data: %s"), *HttpResponse->GetContentAsString());
 }
 
 void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody)
