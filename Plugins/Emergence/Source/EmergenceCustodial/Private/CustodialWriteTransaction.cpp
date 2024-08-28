@@ -25,6 +25,12 @@ UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransactio
 
 void UCustodialWriteTransaction::Activate()
 {
+	if (FVCustodialEOA.IsEmpty() || Method.IsEmpty() || !DeployedContract) {
+		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialWriteTransaction, param invalid!"));
+		return;
+	}
+
+
 	int ServerPort = 3000;
 	if (ServerPort <= 0)
 	{
@@ -221,13 +227,6 @@ void UCustodialWriteTransaction::RequestPrint(const FHttpServerRequest& Req, boo
 
 	UE_LOG(LogTemp, Log, TEXT("Body = '%s'"), *strBodyData);
 };
-
-bool UCustodialWriteTransaction::DecodeJwt(FString input, TMap<FString, FString>& Output)
-{
-	FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
-	Output = JwtVerifier.GetClaims(input);
-	return true;
-}
 
 TUniquePtr<FHttpServerResponse> UCustodialWriteTransaction::GetHttpPage()
 {

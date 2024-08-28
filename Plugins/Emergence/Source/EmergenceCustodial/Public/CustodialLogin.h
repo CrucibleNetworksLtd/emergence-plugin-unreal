@@ -42,7 +42,7 @@ public:
 	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
 
 	UFUNCTION()
-	FString Base64UrlEncodeNoPadding(FString Input);
+	FString CleanupBase64ForWeb(FString Input);
 
 	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
@@ -61,16 +61,16 @@ public:
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
 	
 	UPROPERTY()
-	FString code; //@TODO make this a random string
+	FString code;
 	
 	UPROPERTY()
-	FString state = "Zx9j1PwATnAODKjd"; //@TODO make this a random string
+	FString state;
 
 	void Activate() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
-	
+
 	UFUNCTION()
-	static bool DecodeJwt(FString input, TMap<FString, FString>& Output);
+	FString GetSecureRandomBase64();
 };
