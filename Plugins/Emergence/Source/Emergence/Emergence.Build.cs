@@ -23,8 +23,6 @@ public class Emergence : ModuleRules
 		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
-
-        PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "/ThirdParty/PicoSha2/...")));
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -38,9 +36,6 @@ public class Emergence : ModuleRules
 				"SlateCore",
 				"Projects",
 				"HTTP",
-				"HTTPServer",
-				"JwtVerifier",
-				"HashSHA256"
 			}
 		);
 
