@@ -26,7 +26,8 @@ public class EmergenceCustodial : ModuleRules
 				"HTTP",
 				"HTTPServer",
 				"JwtVerifier",
-				"HashSHA256"
+				"HashSHA256",
+				"Emergence"
 			}
 		);
 
@@ -37,7 +38,8 @@ public class EmergenceCustodial : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"SlateCore",
-				"Json"
+				"Json",
+				"Emergence"
 			}
 		);
 	}
