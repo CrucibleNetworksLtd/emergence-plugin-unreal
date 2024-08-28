@@ -20,7 +20,7 @@ UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 	return BlueprintNode;
 }
 
-FString UCustodialLogin::Base64UrlEncodeNoPadding(FString Input)
+FString UCustodialLogin::CleanupBase64ForWeb(FString Input)
 {
 	Input.ReplaceCharInline('+', '-');
 	Input.ReplaceCharInline('/', '_');
@@ -37,7 +37,6 @@ FString UCustodialLogin::Base64UrlEncodeNoPadding(FString Input)
 void UCustodialLogin::Activate()
 {
 	int ServerPort = 3000;
-	state = "Zx9j1PwATnAODKjd";
 	if (ServerPort <= 0)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
@@ -49,7 +48,6 @@ void UCustodialLogin::Activate()
 
 	if (httpRouter.IsValid()) 
 	{
-		//@TODO theres gotta be a better way of doing this than doing it every time
 		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 
@@ -62,20 +60,22 @@ void UCustodialLogin::Activate()
 	{
 		this->_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		return;
 	}
 
-	FSHA256Hash SHA256Hash;
-	TArray<uint8> ArraySig;
+	
+	
+	//create a new state for this interaction
+	state = GetSecureRandomBase64();
 
 	//Create a random string to be the "code"
-	for(int i = 0; i < 16; i++){ //max length is 128 characters, and each these will come out to two characters
-		ArraySig.Add((uint8)FMath::RandHelper(255));
-	}
-	code = Base64UrlEncodeNoPadding(FBase64::Encode(FString::FromHexBlob(ArraySig.GetData(), ArraySig.Num())));
+	code = GetSecureRandomBase64();
 
 	//Create a SHA256 of code to be the "code_challange"
+	FSHA256Hash SHA256Hash;
 	SHA256Hash.FromString(code);
+
 	//convert the output of SHA256Hash.GetHash() from a hex number to a base64 number
 	TArray<uint8> UtfChar;
 	for (size_t Index_Chars = 0; Index_Chars < SHA256Hash.GetHash().Len(); Index_Chars += 2)
@@ -84,19 +84,20 @@ void UCustodialLogin::Activate()
 		char Character = std::stoul(TCHAR_TO_ANSI(*Part), nullptr, 16);
 		UtfChar.Add(Character);
 	}
+	FString CodeChallenge = CleanupBase64ForWeb(FBase64::Encode(UtfChar));
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
 		TPair<FString, FString>{"client_id", clientid},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"scope", "openid"},
-		TPair<FString, FString>{"code_challenge", Base64UrlEncodeNoPadding(FBase64::Encode(UtfChar))},
+		TPair<FString, FString>{"code_challenge", CodeChallenge},
 		TPair<FString, FString>{"code_challenge_method", "S256"},
 		TPair<FString, FString>{"response_mode", "query"},
 		TPair<FString, FString>{"prompt", "login"},
 		//TPair<FString, FString>{"prompt", "none"},
 		TPair<FString, FString>{"state", FString(state)},
-		TPair<FString, FString>{"nonce", "WuMLYhr4RUqVcL05"},
+		TPair<FString, FString>{"nonce", GetSecureRandomBase64(16)},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
 
@@ -118,18 +119,20 @@ void UCustodialLogin::Activate()
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
-	RequestPrint(Req);
 	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
+	RequestPrint(Req);
 	OnComplete(MoveTemp(response));
 
 
 	if (!Req.QueryParams.Contains("code")) {
-		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));
+		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));		
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		return true;
 	}
 
 	if (*Req.QueryParams.Find("state") != this->state) {
 		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), Req.QueryParams.Find("state"), *this->state);
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		return true;
 	}
 
@@ -174,6 +177,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
 		return;
 	}
 
@@ -181,13 +185,19 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	if (!JsonParsed->TryGetStringField("id_token", IdToken)) {
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
 		UE_LOG(LogTemp, Display, TEXT("code was: %s"), *code);
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
 		return;
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
 	TMap<FString, FString> IdTokenDecoded;
-	UCustodialLogin::DecodeJwt(IdToken, IdTokenDecoded);
-	
+	FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
+	IdTokenDecoded = JwtVerifier.GetClaims(IdToken);
+	if (IdTokenDecoded.Num() == 0) {
+		UE_LOG(LogTemp, Display, TEXT("IdTokenDecoded length was 0"));
+		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientInvalidResponse);
+		return;
+	}
 	OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(IdTokenDecoded), EErrorCode::EmergenceOk);
 }
 
@@ -242,13 +252,6 @@ void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody
 	UE_LOG(LogTemp, Log, TEXT("Body = '%s'"), *strBodyData);
 };
 
-bool UCustodialLogin::DecodeJwt(FString input, TMap<FString, FString>& Output)
-{
-	FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
-	Output = JwtVerifier.GetClaims(input);
-	return true;
-}
-
 TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 {
 	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("You may now close this window..."), TEXT("text/html"));
@@ -256,4 +259,15 @@ TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 	//const uint8* ConvertToUtf8Bytes = (reinterpret_cast<const uint8*>(ConvertToUtf8.Get()));
 	//response->Body.Append(ConvertToUtf8Bytes, ConvertToUtf8.Length());
 	return response;
+}
+
+FString UCustodialLogin::GetSecureRandomBase64()
+{
+	//This should be "cryptographically secure random data" that is base 64 url encoded. I don't know if this is secure enough.
+	//@TODO check this is secure enough
+	TArray<uint8> Data;
+	for (int i = 0; i < 16; i++) { //each these will come out to two characters, so half length
+		Data.Add((uint8)FMath::RandHelper(255));
+	}
+	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num())));
 }
