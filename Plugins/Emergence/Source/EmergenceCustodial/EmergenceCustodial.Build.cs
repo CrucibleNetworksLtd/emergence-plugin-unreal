@@ -16,13 +16,7 @@ public class EmergenceCustodial : ModuleRules
 			new string[]
 			{
 				"Core",
-				"UMG",
-				"Sockets",
-				"Networking",
 				"JsonUtilities",
-				"Slate",
-				"SlateCore",
-				"Projects",
 				"HTTP",
 				"HTTPServer",
 				"JwtVerifier",
@@ -37,7 +31,6 @@ public class EmergenceCustodial : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"SlateCore",
 				"Json",
 				"Emergence"
 			}
