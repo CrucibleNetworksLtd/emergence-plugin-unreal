@@ -61,7 +61,4 @@ public:
 	void Activate() override;
 
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
-	
-	UFUNCTION()
-	static bool DecodeJwt(FString input, TMap<FString, FString>& Output);
 };
