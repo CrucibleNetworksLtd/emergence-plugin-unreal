@@ -97,7 +97,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"prompt", "login"},
 		//TPair<FString, FString>{"prompt", "none"},
 		TPair<FString, FString>{"state", FString(state)},
-		TPair<FString, FString>{"nonce", GetSecureRandomBase64(16)},
+		TPair<FString, FString>{"nonce", GetSecureRandomBase64()},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
 
