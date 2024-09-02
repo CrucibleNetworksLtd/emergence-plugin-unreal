@@ -165,7 +165,7 @@ bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerReques
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 	Headers.Add(TPair<FString, FString>{"Accept", "application/json"});
-	FString Content = "{\"jsonrpc\":\"2.0\",\"method\":\"eth_sendRawTransaction\",\"params\":[\"0x5884e6b26c9ab58efd4f380c3d942de02156a375256c89c9da9140bfd1e4898827578ebda4e6b1fb5eae1128aa3949a1062e4c72c5d588cd5d78417f418782821c\"],\"id\":1}";
+	FString Content = "{\"jsonrpc\":\"2.0\",\"method\":\"author_submitExtrinsic\",\"params\":[\"0x5884e6b26c9ab58efd4f380c3d942de02156a375256c89c9da9140bfd1e4898827578ebda4e6b1fb5eae1128aa3949a1062e4c72c5d588cd5d78417f418782821c\"],\"id\":1}";
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(this, &UCustodialWriteTransaction::SendTransaction_HttpRequestComplete, "https://porcini.rootnet.app/archive", "POST", 60.0F, Headers, Content);
 
 	return true;
