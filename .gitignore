@@ -84,3 +84,4 @@ package/
 .idea/
 .vsconfig
 !Plugins/EmergenceDllTest/Binaries/ThirdParty/EmergenceDllTestLibrary/Win64/*.*
+UnrealSampleProject.zip

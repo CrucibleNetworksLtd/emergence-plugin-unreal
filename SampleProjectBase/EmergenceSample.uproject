@@ -1,0 +1,31 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{BD8CCFE6-4796-47A8-5E64-20A335C8EE32}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "EmergenceSample",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EmergenceVRMSupport",
+			"Enabled": true
+		},
+		{
+			"Name": "VRM4U",
+			"Enabled": true
+		},
+		{
+			"Name": "Emergence",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/2a2ac549e90440b59cc331c53de19e88"
+		}
+	]
+}
