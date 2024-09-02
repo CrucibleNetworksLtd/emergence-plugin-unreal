@@ -3,8 +3,8 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);
+#include "Emergence.h" //for the log categories
+//DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);
 
 class FEmergenceCustodialModule : public IModuleInterface
 {
