@@ -33,15 +33,6 @@
 			]
 		},
 		{
-			"Name": "EmergenceCustodial",
-			"Type": "Runtime",
-			"LoadingPhase": "PreDefault",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Mac"
-			]
-		},
-		{
 			"Name": "EmergenceEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default",
