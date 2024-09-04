@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "WebLogin/CustodialSignMessage.h"
 
 URequestToSign* URequestToSign::RequestToSign(UObject* WorldContextObject, const FString& MessageToSign)
 {
@@ -18,11 +19,20 @@ URequestToSign* URequestToSign::RequestToSign(UObject* WorldContextObject, const
 
 void URequestToSign::Activate()
 {
+	auto Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	if (Singleton->UsingWebLoginFlow) {
+		UCustodialSignMessage* CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(), MessageToSign);
+		//CustodialSignMessage = CustodialSignMessage->Request;
+		//CustodialSignMessage->OnLoadContractCompleted.AddDynamic(this, &UWriteMethod::LoadContractCompleted);
+		//CustodialSignMessage->Activate();
+		return;
+	}
+
 	FString Content = "{\"message\": \"" + MessageToSign + "\"}";
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>("Content-Type", "application/json"));
 	Headers.Add(TPair<FString, FString>("accept", "text/plain"));
-	auto Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
+	
 	if (!Singleton->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", Singleton->DeviceID));
 	}
