@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class EMERGENCECUSTODIAL_API UCustodialWriteTransaction : public UEmergenceAsyncSingleRequestBase
+class EMERGENCE_API UCustodialWriteTransaction : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
@@ -33,7 +33,7 @@ public:
 
 	void SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, Avatar, FString, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, TransactionHash, EErrorCode, StatusCode);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 

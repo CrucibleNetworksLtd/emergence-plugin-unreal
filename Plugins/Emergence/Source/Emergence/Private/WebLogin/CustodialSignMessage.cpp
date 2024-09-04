@@ -1,4 +1,4 @@
-#include "CustodialSignMessage.h"
+#include "WebLogin/CustodialSignMessage.h"
 #include "HttpPath.h"
 #include "IHttpRouter.h"
 #include "HttpServerHttpVersion.h"
@@ -13,11 +13,12 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 
-UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA)
+UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
 	UCustodialSignMessage* BlueprintNode = NewObject<UCustodialSignMessage>();
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	BlueprintNode->FVCustodialEOA = FVCustodialEOA;
+	BlueprintNode->Message = Message;
 	return BlueprintNode;
 }
 
@@ -56,8 +57,6 @@ void UCustodialSignMessage::Activate()
 		return;
 	}
 
-
-	FString Message = "Message";
 	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
 	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
 	SignTransactionPayloadJsonObject->SetStringField("message", *Message);

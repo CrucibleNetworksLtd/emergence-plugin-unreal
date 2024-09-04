@@ -26,7 +26,7 @@ struct FEmergenceCustodialLoginOutput
 };
 
 UCLASS()
-class EMERGENCECUSTODIAL_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
+class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

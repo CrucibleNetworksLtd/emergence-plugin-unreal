@@ -38,6 +38,16 @@ public class Emergence : ModuleRules
 				"HTTP",
 			}
 		);
+		
+		PrivateDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"CoreUObject",
+				"Engine",
+				"SlateCore",
+				"Json"	
+			}
+		);
 
 		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)
 		{
@@ -49,15 +59,19 @@ public class Emergence : ModuleRules
 			);
 		}	
 		
-		PrivateDependencyModuleNames.AddRange(
+
+		
+		//Stuff added for WebLogin
+		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
-				"SlateCore",
-				"Json"
-				// ... add private dependencies that you statically link with here ...	
+				"HTTPServer",
+				"JwtVerifier",
+				"HashSHA256",
+				"Emergence"
 			}
 		);
+		PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "/ThirdParty/PicoSha2/...")));
+		
 	}
 }

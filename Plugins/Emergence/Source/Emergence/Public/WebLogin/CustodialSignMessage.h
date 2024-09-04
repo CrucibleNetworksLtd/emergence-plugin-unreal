@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class EMERGENCECUSTODIAL_API UCustodialSignMessage : public UEmergenceAsyncSingleRequestBase
+class EMERGENCE_API UCustodialSignMessage : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
@@ -21,11 +21,11 @@ public:
 	bool _isServerStarted = false;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
-	static UCustodialSignMessage* CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA);
+	static UCustodialSignMessage* CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message);
 
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, Avatar, FString, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, SignedMessage, EErrorCode, StatusCode);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY()
 	FString FVCustodialEOA;
+
+	UPROPERTY()
+	FString Message;
 
 	void Activate() override;
 
