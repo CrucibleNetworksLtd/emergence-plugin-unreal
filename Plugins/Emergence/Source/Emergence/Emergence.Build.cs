@@ -67,8 +67,7 @@ public class Emergence : ModuleRules
 			{
 				"HTTPServer",
 				"JwtVerifier",
-				"HashSHA256",
-				"Emergence"
+				"HashSHA256"
 			}
 		);
 		PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "/ThirdParty/PicoSha2/...")));
