@@ -60,15 +60,14 @@ void UCustodialSignMessage::Activate()
 		return;
 	}
 
+	//this segment is to do the same thing as ""0x" + Encoding.UTF8.GetBytes(value).ToHex()" in C#. Make sure if you implement this that it matches that output exactly.
 	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
 	std::ostringstream oss;
-
 	for (size_t i = 0; i < Message.Len(); ++i) {
-		// Convert each character to hex and append to the string stream
 		oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(UTF8Message[i]);
 	}
-
 	std::string UTF8MessageHex = "0x" + oss.str();
+	
 	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
 	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
 	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
