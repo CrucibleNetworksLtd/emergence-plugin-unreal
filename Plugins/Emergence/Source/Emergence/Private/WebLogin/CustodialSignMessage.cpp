@@ -27,8 +27,10 @@ UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* Worl
 
 void UCustodialSignMessage::Activate()
 {
-	if (FVCustodialEOA.IsEmpty()) {
+	if (FVCustodialEOA.IsEmpty() || Message.IsEmpty()) {
 		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid!"));
+		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -51,6 +53,8 @@ void UCustodialSignMessage::Activate()
 	{
 		this->_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -98,11 +102,13 @@ bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Re
 	{
 		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
 		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientJsonParseFailed);
+		SetReadyToDestroy();
 		return true;
 	}
 	TSharedPtr<FJsonObject> ResultObject;
 	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
 	OnCustodialSignMessageComplete.Broadcast(Signature, EErrorCode::EmergenceOk);
+	SetReadyToDestroy();
 	return true;
 }
 

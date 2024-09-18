@@ -56,11 +56,10 @@ void UCustodialLogin::Activate()
 		this->_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
 		return;
 	}
 
-	
-	
 	//create a new state for this interaction
 	state = GetSecureRandomBase64();
 
@@ -122,12 +121,14 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 	if (!Req.QueryParams.Contains("code")) {
 		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));		
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
 		return true;
 	}
 
-	if (*Req.QueryParams.Find("state") != this->state) {
+	if (*Req.QueryParams.Find("state") != state) {
 		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), Req.QueryParams.Find("state"), *this->state);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
 		return true;
 	}
 
@@ -173,6 +174,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	{
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -181,6 +183,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
 		UE_LOG(LogTemp, Display, TEXT("code was: %s"), *code);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
+		SetReadyToDestroy();
 		return;
 	}
 
@@ -191,6 +194,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	if (IdTokenDecoded.Num() == 0) {
 		UE_LOG(LogTemp, Display, TEXT("IdTokenDecoded length was 0"));
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientInvalidResponse);
+		SetReadyToDestroy();
 		return;
 	}
 	OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(IdTokenDecoded), EErrorCode::EmergenceOk);
