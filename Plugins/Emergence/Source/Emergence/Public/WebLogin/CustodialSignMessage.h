@@ -25,12 +25,12 @@ public:
 
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, SignedMessage, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialSignMessageComplete, const FString, SignedMessage, EErrorCode, StatusCode);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
 	UPROPERTY(BlueprintAssignable)
-	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
+	FOnCustodialSignMessageComplete OnCustodialSignMessageComplete;
 
 	UPROPERTY()
 	FString FVCustodialEOA;

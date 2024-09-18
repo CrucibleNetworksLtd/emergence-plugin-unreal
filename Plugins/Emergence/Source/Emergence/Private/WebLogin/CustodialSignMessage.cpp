@@ -12,6 +12,9 @@
 #include "JwtVerifier.h"
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
+#include <sstream>
+#include <iomanip>
+#include <string>
 
 UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
@@ -57,9 +60,18 @@ void UCustodialSignMessage::Activate()
 		return;
 	}
 
+	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
+	std::ostringstream oss;
+
+	for (size_t i = 0; i < Message.Len(); ++i) {
+		// Convert each character to hex and append to the string stream
+		oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(UTF8Message[i]);
+	}
+
+	std::string UTF8MessageHex = "0x" + oss.str();
 	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
 	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
-	SignTransactionPayloadJsonObject->SetStringField("message", *Message);
+	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
 	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
 
 	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
@@ -92,8 +104,12 @@ bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Re
 	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
 		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
-		
+		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientJsonParseFailed);
+		return true;
 	}
+	TSharedPtr<FJsonObject> ResultObject;
+	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
+	OnCustodialSignMessageComplete.Broadcast(Signature, EErrorCode::EmergenceOk);
 	return true;
 }
 
