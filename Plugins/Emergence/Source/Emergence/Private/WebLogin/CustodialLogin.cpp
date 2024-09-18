@@ -37,11 +37,6 @@ FString UCustodialLogin::CleanupBase64ForWeb(FString Input)
 void UCustodialLogin::Activate()
 {
 	int ServerPort = 3000;
-	if (ServerPort <= 0)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
-		return;
-	}
 
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
@@ -255,9 +250,6 @@ void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody
 TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 {
 	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("You may now close this window..."), TEXT("text/html"));
-	//FTCHARToUTF8 ConvertToUtf8(TEXT(""));
-	//const uint8* ConvertToUtf8Bytes = (reinterpret_cast<const uint8*>(ConvertToUtf8.Get()));
-	//response->Body.Append(ConvertToUtf8Bytes, ConvertToUtf8.Length());
 	return response;
 }
 
