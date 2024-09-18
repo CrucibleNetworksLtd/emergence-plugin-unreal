@@ -33,5 +33,8 @@ public:
 private:
 	void RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	
+	UFUNCTION()
+	void OnInternalCustodialSignMessageComplete(const FString SignedMessage, EErrorCode StatusCode);
+
 	FString MessageToSign;
 };
