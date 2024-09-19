@@ -30,11 +30,6 @@ class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
-
-	//@TODO split this into its own module
-	//@TODO split this into login and transaction
-	//@TODO add states
-
 	UPROPERTY()
 	bool _isServerStarted = false;
 
@@ -45,10 +40,6 @@ public:
 	FString CleanupBase64ForWeb(FString Input);
 
 	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	void GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	void SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
