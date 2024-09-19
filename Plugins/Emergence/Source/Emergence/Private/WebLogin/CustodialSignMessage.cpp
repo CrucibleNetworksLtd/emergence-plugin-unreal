@@ -1,3 +1,5 @@
+// Copyright Crucible Networks Ltd 2024. All Rights Reserved.
+
 #include "WebLogin/CustodialSignMessage.h"
 #include "HttpPath.h"
 #include "IHttpRouter.h"
