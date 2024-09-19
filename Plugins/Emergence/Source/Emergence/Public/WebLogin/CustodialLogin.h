@@ -6,6 +6,7 @@
 #include "EmergenceAsyncSingleRequestBase.h"
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
+#include "HttpRouteHandle.h"
 #include "CustodialLogin.generated.h"
 
 //This only exists because I can't output a tmap from a dynamic multicast deligate
@@ -30,9 +31,6 @@ class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY()
-	bool _isServerStarted = false;
-
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
 
@@ -50,12 +48,6 @@ public:
 
 	UPROPERTY()
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
-	
-	UPROPERTY()
-	FString code;
-	
-	UPROPERTY()
-	FString state;
 
 	void Activate() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
@@ -64,4 +56,9 @@ public:
 
 	UFUNCTION()
 	FString GetSecureRandomBase64();
+
+	static bool _isServerStarted;
+private:
+	static FString code;
+	static FString state;
 };
