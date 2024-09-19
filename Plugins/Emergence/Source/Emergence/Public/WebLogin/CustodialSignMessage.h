@@ -6,6 +6,7 @@
 #include "EmergenceAsyncSingleRequestBase.h"
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
+#include "HttpRouteHandle.h"
 #include "CustodialSignMessage.generated.h"
 
 /**
@@ -16,10 +17,6 @@ class EMERGENCE_API UCustodialSignMessage : public UEmergenceAsyncSingleRequestB
 {
 	GENERATED_BODY()
 public:
-
-	UPROPERTY()
-	bool _isServerStarted = false;
-
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialSignMessage* CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message);
 
@@ -41,4 +38,6 @@ public:
 	void Activate() override;
 
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
+
+	static bool _isServerStarted;
 };

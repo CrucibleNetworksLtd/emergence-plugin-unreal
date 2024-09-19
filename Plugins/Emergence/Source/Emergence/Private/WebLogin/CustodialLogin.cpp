@@ -15,6 +15,8 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 
+bool UCustodialLogin::_isServerStarted = false;
+
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 {
 	UCustodialLogin* BlueprintNode = NewObject<UCustodialLogin>();
@@ -44,19 +46,22 @@ void UCustodialLogin::Activate()
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
 
-	if (httpRouter.IsValid()) 
+	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted)
 	{
 		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
 		
-		this->_isServerStarted = true;
+		UCustodialLogin::_isServerStarted = true;
 		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+	}
+	else if (UCustodialLogin::_isServerStarted) {
+		UE_LOG(LogTemp, Log, TEXT("Web already started on port = %d"), ServerPort);
 	}
 	else
 	{
-		this->_isServerStarted = false;
+		UCustodialLogin::_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
@@ -64,14 +69,14 @@ void UCustodialLogin::Activate()
 	}
 
 	//create a new state for this interaction
-	state = GetSecureRandomBase64();
+	UCustodialLogin::state = GetSecureRandomBase64();
 
 	//Create a random string to be the "code"
-	code = GetSecureRandomBase64();
+	UCustodialLogin::code = GetSecureRandomBase64();
 
 	//Create a SHA256 of code to be the "code_challange"
 	FSHA256Hash SHA256Hash;
-	SHA256Hash.FromString(code);
+	SHA256Hash.FromString(UCustodialLogin::code);
 
 	//convert the output of SHA256Hash.GetHash() from a hex number to a base64 number
 	TArray<uint8> UtfChar;
@@ -93,7 +98,7 @@ void UCustodialLogin::Activate()
 		TPair<FString, FString>{"response_mode", "query"},
 		TPair<FString, FString>{"prompt", "login"},
 		//TPair<FString, FString>{"prompt", "none"},
-		TPair<FString, FString>{"state", FString(state)},
+		TPair<FString, FString>{"state", FString(UCustodialLogin::state)},
 		TPair<FString, FString>{"nonce", GetSecureRandomBase64()},
 		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
@@ -113,12 +118,15 @@ void UCustodialLogin::Activate()
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
+FString UCustodialLogin::code;
+FString UCustodialLogin::state;
+
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
 	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	RequestPrint(Req);
-	OnComplete(MoveTemp(response));
+	
 
 
 	if (!Req.QueryParams.Contains("code")) {
@@ -128,8 +136,8 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		return true;
 	}
 
-	if (*Req.QueryParams.Find("state") != state) {
-		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), Req.QueryParams.Find("state"), *this->state);
+	if (Req.QueryParams.FindRef("state") != UCustodialLogin::state) {
+		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), *Req.QueryParams.FindRef("state"), *UCustodialLogin::state);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return true;
@@ -140,7 +148,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"code",* Req.QueryParams.Find("code")},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"client_id", clientid},
-		TPair<FString, FString>{"code_verifier", code},
+		TPair<FString, FString>{"code_verifier", UCustodialLogin::code},
 	});
 
 	FString URL = TEXT("https://login.futureverse.cloud/token?");
@@ -164,6 +172,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(this, &UCustodialLogin::GetTokensRequest_HttpRequestComplete, URL, TEXT("POST"), 60.0F, Headers, Params);
 	UE_LOG(LogTemp, Display, TEXT("Sent Params Data: %s"), *Params);
+	OnComplete(MoveTemp(response));
 	return true;
 }
 
@@ -184,7 +193,7 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 	FString IdToken;
 	if (!JsonParsed->TryGetStringField("id_token", IdToken)) {
 		UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
-		UE_LOG(LogTemp, Display, TEXT("code was: %s"), *code);
+		UE_LOG(LogTemp, Display, TEXT("code was: %s"), *UCustodialLogin::code);
 		OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
 		SetReadyToDestroy();
 		return;

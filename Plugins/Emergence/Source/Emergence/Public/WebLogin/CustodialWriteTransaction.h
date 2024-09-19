@@ -6,6 +6,7 @@
 #include "EmergenceAsyncSingleRequestBase.h"
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
+#include "HttpRouteHandle.h"
 #include "CustodialWriteTransaction.generated.h"
 
 /**
@@ -20,9 +21,6 @@ public:
 	//@TODO split this into its own module
 	//@TODO split this into login and transaction
 	//@TODO add states
-
-	UPROPERTY()
-	bool _isServerStarted = false;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method);
@@ -61,4 +59,6 @@ public:
 	void Activate() override;
 
 	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
+
+	static bool _isServerStarted;
 };

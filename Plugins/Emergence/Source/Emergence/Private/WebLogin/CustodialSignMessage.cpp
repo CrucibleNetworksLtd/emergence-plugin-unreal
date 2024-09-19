@@ -18,6 +18,8 @@
 #include <iomanip>
 #include <string>
 
+bool UCustodialSignMessage::_isServerStarted = false;
+
 UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
 	UCustodialSignMessage* BlueprintNode = NewObject<UCustodialSignMessage>();
@@ -42,19 +44,22 @@ void UCustodialSignMessage::Activate()
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
 
-	if (httpRouter.IsValid())
+	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
 	{
 		httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
 
-		this->_isServerStarted = true;
+		UCustodialSignMessage::_isServerStarted = true;
 		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+	}
+	else if (UCustodialSignMessage::_isServerStarted) {
+		UE_LOG(LogTemp, Log, TEXT("Web already started on port = %d"), ServerPort);
 	}
 	else
 	{
-		this->_isServerStarted = false;
+		UCustodialSignMessage::_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
 		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
@@ -111,6 +116,7 @@ bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Re
 	TSharedPtr<FJsonObject> ResultObject;
 	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
 	OnCustodialSignMessageComplete.Broadcast(Signature, EErrorCode::EmergenceOk);
+
 	SetReadyToDestroy();
 	return true;
 }
