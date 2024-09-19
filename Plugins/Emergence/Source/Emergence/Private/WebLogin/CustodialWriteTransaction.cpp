@@ -61,21 +61,6 @@ void UCustodialWriteTransaction::Activate()
 		return;
 	}
 
-
-	/*
-	UEmergenceContract* Contract = NewObject<UEmergenceContract>(UEmergenceContract::StaticClass());
-	Contract->ABI = TEXT(R"([{"inputs":[{"internalType":"address","name":"countOf","type":"address"}],"name":"GetCurrentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"IncrementCount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"currentCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}])");
-	UEmergenceChain* Chain = NewObject<UEmergenceChain>(UEmergenceChain::StaticClass());
-	Chain->ChainID = 7672;
-	Chain->Name = FText::FromString("RootPorcini");
-	Chain->NodeURL = "https://porcini.rootnet.app/archive";
-	Chain->Symbol = "ROOT";
-	UEmergenceDeployment* DeployedContract = NewObject<UEmergenceDeployment>(UEmergenceDeployment::StaticClass());
-	DeployedContract->Address = "0x65245508479208091a92d53011c0d24AF28E4163"; //address of the contract we're talking to, not the user address
-	DeployedContract->Blockchain = Chain;
-	DeployedContract->Contract = Contract;
-	*/
-
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
@@ -128,6 +113,9 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 		UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
 		FString URL = "https://signer.futureverse.cloud?request=" + Base64Encode;
 		FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+	}
+	else {
+		//@TODO ADD ERROR CODE HERE
 	}
 	
 }
@@ -234,8 +222,5 @@ void UCustodialWriteTransaction::RequestPrint(const FHttpServerRequest& Req, boo
 TUniquePtr<FHttpServerResponse> UCustodialWriteTransaction::GetHttpPage()
 {
 	TUniquePtr<FHttpServerResponse> response = FHttpServerResponse::Create(TEXT("You may now close this window..."), TEXT("text/html"));
-	//FTCHARToUTF8 ConvertToUtf8(TEXT(""));
-	//const uint8* ConvertToUtf8Bytes = (reinterpret_cast<const uint8*>(ConvertToUtf8.Get()));
-	//response->Body.Append(ConvertToUtf8Bytes, ConvertToUtf8.Length());
 	return response;
 }
