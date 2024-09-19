@@ -19,6 +19,7 @@
 UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
 	UCustodialSignMessage* BlueprintNode = NewObject<UCustodialSignMessage>();
+	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	BlueprintNode->FVCustodialEOA = FVCustodialEOA;
 	BlueprintNode->Message = Message;
@@ -28,7 +29,7 @@ UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* Worl
 void UCustodialSignMessage::Activate()
 {
 	if (FVCustodialEOA.IsEmpty() || Message.IsEmpty()) {
-		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid!"));
+		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid! EOA was \"%s\", message was \"%s\""), *FVCustodialEOA, *Message);
 		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return;
