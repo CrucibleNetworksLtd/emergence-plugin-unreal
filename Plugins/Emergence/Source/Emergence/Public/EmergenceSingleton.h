@@ -80,7 +80,7 @@ public:
 
 	//Is FuturepassInfoCache valid?
 	UPROPERTY(BlueprintReadOnly)
-	bool UsingWebLoginFlow = false;
+	bool UsingWebLoginFlow = true;
 
 	UPROPERTY()
 	FString DeviceID;
