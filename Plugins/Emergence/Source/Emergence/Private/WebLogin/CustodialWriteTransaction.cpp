@@ -16,6 +16,7 @@
 UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method)
 {
 	UCustodialWriteTransaction* BlueprintNode = NewObject<UCustodialWriteTransaction>();
+	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	BlueprintNode->FVCustodialEOA = FVCustodialEOA;
 	BlueprintNode->DeployedContract = DeployedContract;

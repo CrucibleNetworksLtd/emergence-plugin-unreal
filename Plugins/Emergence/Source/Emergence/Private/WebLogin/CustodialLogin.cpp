@@ -16,6 +16,7 @@
 UCustodialLogin* UCustodialLogin::CustodialLogin(UObject* WorldContextObject)
 {
 	UCustodialLogin* BlueprintNode = NewObject<UCustodialLogin>();
+	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
@@ -197,7 +198,16 @@ void UCustodialLogin::GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpR
 		SetReadyToDestroy();
 		return;
 	}
+
+	//@TODO replace this code with some sort of multi-login handler in the singleton
+	FString NewAddress = IdTokenDecoded.FindRef(L"eoa");
+	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CurrentAddress = NewAddress;
+	//@TODO FUCK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	//@TODO MAKE SURE ALL UPDATES TO EXTERNAL DATA HAPPEN BEFORE YOU CALL BROADCAST OTHERWISE SHIT WILL GET FUCKED UP
+	//@TODO REMOVE THIS COMMENT ^^^
 	OnLoginCompleted.Broadcast(FEmergenceCustodialLoginOutput(IdTokenDecoded), EErrorCode::EmergenceOk);
+	SetReadyToDestroy();
+	return;
 }
 
 void UCustodialLogin::RequestPrint(const FHttpServerRequest& Req, bool PrintBody)
