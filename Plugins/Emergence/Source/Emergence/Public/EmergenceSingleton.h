@@ -129,10 +129,10 @@ private:
 
 	UPROPERTY()
 	FString CurrentAccessToken = "";
-
+public://@TODO remove this hack
 	UPROPERTY()
 	FString CurrentAddress = "";
-
+private://@TODO remove this hack
 	UPROPERTY()
 	FString CurrentChecksummedAddress = "";
 
