@@ -15,6 +15,8 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 
+bool UCustodialWriteTransaction::_isServerStarted = false;
+
 UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method)
 {
 	UCustodialWriteTransaction* BlueprintNode = NewObject<UCustodialWriteTransaction>();
@@ -44,19 +46,22 @@ void UCustodialWriteTransaction::Activate()
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
 
-	if (httpRouter.IsValid())
+	if (httpRouter.IsValid() && !UCustodialWriteTransaction::_isServerStarted)
 	{
-		httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
+		httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
 
-		this->_isServerStarted = true;
+		UCustodialWriteTransaction::_isServerStarted = true;
 		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+	}
+	else if (UCustodialWriteTransaction::_isServerStarted) {
+		UE_LOG(LogTemp, Log, TEXT("Web already started on port = %d"), ServerPort);
 	}
 	else
 	{
-		this->_isServerStarted = false;
+		UCustodialWriteTransaction::_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
 		return;
 	}
@@ -98,7 +103,7 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 		TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
 		SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
 		SignTransactionPayloadJsonObject->SetStringField("transaction", *SerializedUnsignedTransaction);
-		SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
+		SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/write-callback");
 
 		TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
 		EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
