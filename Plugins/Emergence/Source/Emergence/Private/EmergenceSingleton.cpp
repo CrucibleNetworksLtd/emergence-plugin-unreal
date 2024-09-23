@@ -26,6 +26,9 @@
 #include "Engine/GameViewportClient.h"
 #include "TextureResource.h"
 
+#include "WalletService/RequestToSign.h"
+#include "Misc/DateTime.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
@@ -58,6 +61,16 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 UEmergenceSingleton* UEmergenceSingleton::ForceInitialize(const UObject* ContextObject)
 {
 	return GetEmergenceManager(ContextObject);
+}
+
+void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
+{
+	if (ErrorCode == EErrorCode::EmergenceOk) {
+		FString Address = LoginData.TokenData.FindRef(L"eoa");
+		this->CurrentAddress = Address;
+		this->UsingWebLoginFlow = true;
+	}
+	GetAccessToken();
 }
 
 void UEmergenceSingleton::Init()
@@ -600,10 +613,31 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		OutputString.ReplaceInline(TEXT("\"accessToken\":"), TEXT(""), ESearchCase::CaseSensitive);
 		OutputString.LeftChopInline(1);
 		OutputString.RightChopInline(1);
-		this->CurrentAccessToken = OutputString;
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token! It is: %s"), *this->CurrentAccessToken);
-		OnGetAccessTokenCompleted.Broadcast(StatusCode);
+		//this->CurrentAccessToken = OutputString;
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token! It is: %s"), *OutputString);
+		//OnGetAccessTokenCompleted.Broadcast(StatusCode);
 		return;
+	}
+	OnGetAccessTokenCompleted.Broadcast(StatusCode);
+	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
+}
+
+void UEmergenceSingleton::OnRequestToSignForAccessTokenComplete(FString SignedMessage, EErrorCode StatusCode)
+{
+	if (AccessTokenTimestamp.IsEmpty()) {
+		UE_LOG(LogEmergence, Error, TEXT("AccessTokenTimestamp was somehow empty in OnRequestToSignForAccessTokenComplete."));
+		StatusCode = EErrorCode::EmergenceClientFailed;
+	}
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		TSharedPtr<FJsonObject> AccessToken = MakeShareable(new FJsonObject);
+		AccessToken->SetStringField("signedMessage", SignedMessage);
+		AccessToken->SetStringField("message", TEXT("{\"expires-on\":" + AccessTokenTimestamp + "}")); //SetStringField seemingly addeds the escape chars for us, so we don't need em here
+		AccessToken->SetStringField("address", GetCachedAddress());
+		FString OutputString;
+		TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutputString);
+		FJsonSerializer::Serialize(AccessToken.ToSharedRef(), Writer);
+		this->CurrentAccessToken = OutputString;
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token (new)! It is: %s"), *this->CurrentAccessToken);
 	}
 	OnGetAccessTokenCompleted.Broadcast(StatusCode);
 	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
@@ -611,12 +645,20 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 
 void UEmergenceSingleton::GetAccessToken()
 {
-	TArray<TPair<FString, FString>> Headers;
+	/*TArray<TPair<FString, FString>> Headers;
 	if (!this->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
 	}
 	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token", "GET", 60.0F, Headers);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling GetAccessToken_HttpRequestComplete on request completed"));
+	*/
+
+	FDateTime OneDayFromNow = FDateTime::UtcNow() + FTimespan(1, 0, 0, 0);
+	AccessTokenTimestamp = FString::Printf(TEXT("%lld"), OneDayFromNow.ToUnixTimestamp());
+	FString AccessTokenMessage = "{\\\"expires-on\\\":" + AccessTokenTimestamp + "}";
+	URequestToSign* RequestToSign = URequestToSign::RequestToSign(this, AccessTokenMessage);
+	RequestToSign->OnRequestToSignCompleted.AddDynamic(this, &UEmergenceSingleton::OnRequestToSignForAccessTokenComplete);
+	RequestToSign->Activate();
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling OnRequestToSignForAccessTokenComplete on request completed"));
 }
 
 bool UEmergenceSingleton::GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar)
