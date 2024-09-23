@@ -32,19 +32,12 @@ class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
-	static UCustodialLogin* CustodialLogin(UObject* WorldContextObject);
+	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
 
 	UFUNCTION()
 	FString CleanupBase64ForWeb(FString Input);
 
-	void GetTokensRequest_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
-
-	UPROPERTY(BlueprintAssignable)
-	FOnCustodialLoginCompleted OnLoginCompleted;
 
 	UPROPERTY()
 	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
@@ -58,7 +51,12 @@ public:
 	FString GetSecureRandomBase64();
 
 	static bool _isServerStarted;
+
+	UPROPERTY()
+	const UObject* ContextObject;
+
 private:
 	static FString code;
+
 	static FString state;
 };

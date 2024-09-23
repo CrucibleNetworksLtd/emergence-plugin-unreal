@@ -18,6 +18,7 @@
 #include "Brushes/SlateDynamicImageBrush.h"
 #include "Futurepass/GetLinkedFuturepassInformation.h"
 #include "Environment.h"
+#include "WebLogin/CustodialLogin.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -48,12 +49,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods", meta = (WorldContext = "ContextObject"))
 	static UEmergenceSingleton* ForceInitialize(const UObject* ContextObject);
 
+	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
+	UFUNCTION()
+	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
+
 	void Init();
 	void Shutdown();
 
 	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
+
+	UFUNCTION()
+	void OnRequestToSignForAccessTokenComplete(FString SignedMessage, EErrorCode StatusCode);
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCustodialLoginCompleted OnWebLoginCompleted;
 
 	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
 	static EFutureverseEnvironment GetFutureverseEnvironment();
@@ -78,9 +91,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Futureverse")
 	bool FuturepassInfoCacheIsSet = false;
 
-	//Is FuturepassInfoCache valid?
+	//Are we logged in via a web login flow, rather than WC
 	UPROPERTY(BlueprintReadOnly)
-	bool UsingWebLoginFlow = true;
+	bool UsingWebLoginFlow = false;
+
+	UPROPERTY()
+	FString AccessTokenTimestamp;
 
 	UPROPERTY()
 	FString DeviceID;
@@ -281,8 +297,9 @@ public:
 	UFUNCTION()
 	void OnOverlayClosed();
 
-private:
 	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
+private:
+	
 	TWeakObjectPtr<UGameInstance> OwningGameInstance;
 
 	bool PreviousMouseShowState;

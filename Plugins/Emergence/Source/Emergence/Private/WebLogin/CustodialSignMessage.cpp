@@ -86,7 +86,7 @@ void UCustodialSignMessage::Activate()
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
-
+	UE_LOG(LogTemp, Display, TEXT("Message to sign is: %s"), *Message);
 	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload OutputString: %s"), *OutputString);
 	FString Base64Encode = FBase64::Encode(OutputString);
 	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
