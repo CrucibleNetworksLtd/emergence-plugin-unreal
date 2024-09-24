@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.5.0",
+	"FriendlyName": "Emergence Samples",
+	"Description": "",
+	"Category": "Metaverse",
+	"CreatedBy": "Crucible",
+	"CreatedByURL": "https://crucible.network/",
+	"DocsURL": "https://docs.openmetadao.com/",
+	"SupportURL": "https://discord.gg/openmetadao",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"bHasExplicitPlatforms": true,
+	"SupportedTargetPlatforms": [
+		"Win64",
+		"Mac",
+		"Linux"
+	]
+}
