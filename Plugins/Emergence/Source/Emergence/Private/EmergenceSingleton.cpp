@@ -67,10 +67,14 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 {
 	if (ErrorCode == EErrorCode::EmergenceOk) {
 		FString Address = LoginData.TokenData.FindRef(L"eoa");
-		this->CurrentAddress = Address;
+		this->CurrentChecksummedAddress = Address;
+		this->CurrentAddress = Address.ToLower();
 		this->UsingWebLoginFlow = true;
+		GetAccessToken();
 	}
-	GetAccessToken();
+	else {
+		UE_LOG(LogEmergence, Error, TEXT("CompleteLoginViaWebLoginFlow failed with code: %d"), (int)ErrorCode);
+	}
 }
 
 void UEmergenceSingleton::Init()
@@ -287,13 +291,23 @@ bool UEmergenceSingleton::HasCachedAddress()
 	return this->CurrentAddress != FString("");
 }
 
-FString UEmergenceSingleton::GetCachedAddress()
+FString UEmergenceSingleton::GetCachedAddress(bool Checksummed)
 {
-	if (this->CurrentAddress.Len() > 0) {
-		return this->CurrentAddress;
+	if (Checksummed) {
+		if (this->CurrentChecksummedAddress.Len() > 0) {
+			return this->CurrentChecksummedAddress;
+		}
+		else {
+			return FString("-1");
+		}
 	}
 	else {
-		return FString("-1");
+		if (this->CurrentAddress.Len() > 0) {
+			return this->CurrentAddress;
+		}
+		else {
+			return FString("-1");
+		}
 	}
 }
 
@@ -632,7 +646,7 @@ void UEmergenceSingleton::OnRequestToSignForAccessTokenComplete(FString SignedMe
 		TSharedPtr<FJsonObject> AccessToken = MakeShareable(new FJsonObject);
 		AccessToken->SetStringField("signedMessage", SignedMessage);
 		AccessToken->SetStringField("message", TEXT("{\"expires-on\":" + AccessTokenTimestamp + "}")); //SetStringField seemingly addeds the escape chars for us, so we don't need em here
-		AccessToken->SetStringField("address", GetCachedAddress());
+		AccessToken->SetStringField("address", GetCachedAddress(true));
 		FString OutputString;
 		TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutputString);
 		FJsonSerializer::Serialize(AccessToken.ToSharedRef(), Writer);

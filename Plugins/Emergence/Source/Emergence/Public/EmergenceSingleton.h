@@ -206,7 +206,7 @@ public:
 
 	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
-	FString GetCachedAddress();
+	FString GetCachedAddress(bool Checksummed = false);
 
 	UFUNCTION()
 	FString GetCachedChecksummedAddress();
