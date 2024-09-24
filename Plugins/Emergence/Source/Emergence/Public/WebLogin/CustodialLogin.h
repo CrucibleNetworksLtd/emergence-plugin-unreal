@@ -45,8 +45,6 @@ public:
 	void Activate() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
-	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
-
 	UFUNCTION()
 	FString GetSecureRandomBase64();
 

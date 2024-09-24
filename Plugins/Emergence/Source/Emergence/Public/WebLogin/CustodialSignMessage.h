@@ -37,7 +37,5 @@ public:
 
 	void Activate() override;
 
-	void RequestPrint(const FHttpServerRequest& Request, bool PrintBody = true);
-
 	static bool _isServerStarted;
 };

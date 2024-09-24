@@ -14,6 +14,7 @@
 #include "EmergenceEVMServerSubsystem.h"
 #include "Engine/Engine.h"
 #include "Misc/EngineVersionComparison.h"
+#include "HttpServerModule.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**
@@ -223,6 +224,57 @@ public:
 	static FString IPFSURLToHTTP(FString IPFSURL) {
 		return UHttpHelperLibrary::InternalIPFSURLToHTTP(IPFSURL);
 	}
+
+	static void RequestPrint(const FHttpServerRequest& Req, bool PrintBody = true)
+	{
+		FString strRequestType;
+		switch (Req.Verb)
+		{
+		case EHttpServerRequestVerbs::VERB_GET:
+			strRequestType = TEXT("GET");
+			break;
+		case EHttpServerRequestVerbs::VERB_POST:
+			strRequestType = TEXT("POST");
+			break;
+		case EHttpServerRequestVerbs::VERB_PUT:
+			strRequestType = TEXT("PUT");
+			break;
+		default:
+			strRequestType = TEXT("Invalid");
+		}
+		UE_LOG(LogTemp, Log, TEXT("RequestType = '%s'"), *strRequestType);
+
+		HttpVersion::EHttpServerHttpVersion httpVersion{ Req.HttpVersion };
+		UE_LOG(LogTemp, Log, TEXT("HttpVersion = '%s'"), *HttpVersion::ToString(httpVersion));
+
+		UE_LOG(LogTemp, Log, TEXT("RelativePath = '%s'"), *Req.RelativePath.GetPath());
+
+		for (const auto& header : Req.Headers)
+		{
+			FString strHeaderVals;
+			for (const auto& val : header.Value)
+			{
+				strHeaderVals += "'" + val + "' ";
+			}
+			UE_LOG(LogTemp, Log, TEXT("Header = '%s' : %s"), *header.Key, *strHeaderVals);
+		}
+
+		for (const auto& pathParam : Req.PathParams)
+		{
+			UE_LOG(LogTemp, Log, TEXT("PathParam = '%s' : '%s'"), *pathParam.Key, *pathParam.Value);
+		}
+
+		for (const auto& queryParam : Req.QueryParams)
+		{
+			UE_LOG(LogTemp, Log, TEXT("QueryParam = '%s' : '%s'"), *queryParam.Key, *queryParam.Value);
+		}
+
+		// Convert UTF8 to FString
+		FUTF8ToTCHAR bodyTCHARData(reinterpret_cast<const ANSICHAR*>(Req.Body.GetData()), Req.Body.Num());
+		FString strBodyData{ bodyTCHARData.Length(), bodyTCHARData.Get() };
+
+		UE_LOG(LogTemp, Log, TEXT("Body = '%s'"), *strBodyData);
+	};
 
 	template<typename T>
 	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
