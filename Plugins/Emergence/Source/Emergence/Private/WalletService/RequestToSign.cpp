@@ -23,7 +23,7 @@ void URequestToSign::Activate()
 	
 	//"Web login" flow stuff
 	if (Singleton->UsingWebLoginFlow) {
-		UCustodialSignMessage* CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(), MessageToSign);
+		UCustodialSignMessage* CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(true), MessageToSign);
 		CustodialSignMessage->OnCustodialSignMessageComplete.AddDynamic(this, &URequestToSign::OnInternalCustodialSignMessageComplete);
 		CustodialSignMessage->Activate();
 		UE_LOG(LogEmergenceHttp, Display, TEXT("RequestToSign request started via web login flow, calling OnInternalCustodialSignMessageComplete on request completed"));
