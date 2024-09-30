@@ -1,0 +1,134 @@
+// Copyright Crucible Networks Ltd 2023. All Rights Reserved.
+
+
+#include "IAS/GetInteroperableAssetsByFilterAndElements.h"
+#include "Interfaces/IHttpResponse.h"
+#include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
+
+UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs)
+{
+	UGetInteroperableAssetsByFilterAndElements* BlueprintNode = NewObject<UGetInteroperableAssetsByFilterAndElements>();
+	BlueprintNode->CollectionID = FString(CollectionID);
+	BlueprintNode->WalletAddress = FString(WalletAddress);
+	BlueprintNode->NFTIDs = NFTIDs;
+	BlueprintNode->DesiredElements = DesiredElements;
+	BlueprintNode->WorldContextObject = WorldContextObject;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
+	return BlueprintNode;
+}
+
+void UGetInteroperableAssetsByFilterAndElements::Activate()
+{
+	FString requestURL = "http://interoperableassetsystem-dev.eba-xcksw4pw.us-east-1.elasticbeanstalk.com/InteroperableAsset/GetByFilterAndElements";
+	
+
+	if (DesiredElements.Num() == 0 || (CollectionID.IsEmpty() && WalletAddress.IsEmpty() && NFTIDs.Num() == 0)) {
+		UE_LOG(LogEmergenceHttp, Error, TEXT("You must supply at least one Desired Element, and least one of the following, a CollectionID, a WalletAddress or an NFTID"));
+		OnGetInteroperableAssetsByFilterAndElementsCompleted.Broadcast(TArray<FEmergenceInteroperableAsset>(), EErrorCode::EmergenceClientWrongType);
+		return;
+	}
+	
+	requestURL += "?iasDsrdElmnts=";
+	for (int i = 0; i < DesiredElements.Array().Num(); i++) {
+		
+		
+		requestURL += Cast<UEmergenceInteroperableAssetElement>(DesiredElements.Array()[i]->GetDefaultObject(true))->ElementName;
+		//Gets the class from the array, constructs it to find its element name
+
+		if (i + 1 != DesiredElements.Num()) {
+			requestURL += ",";
+		}
+	}
+	
+	if (!CollectionID.IsEmpty()) {
+		requestURL += "&collectionId=" + CollectionID;
+	}
+
+	if (!WalletAddress.IsEmpty()) {
+		requestURL += "&walletAddress=" + WalletAddress;
+	}
+
+	if (NFTIDs.Num() > 0) {
+		requestURL += "&nftIds=";
+		for (int i = 0; i < NFTIDs.Num(); i++) {
+			requestURL += NFTIDs[i];
+			if (i + 1 != NFTIDs.Num()) {
+				requestURL += ",";
+			}
+		}
+	}
+
+	
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Host", "interoperableassetsystem-dev.eba-xcksw4pw.us-east-1.elasticbeanstalk.com"});
+
+	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetInteroperableAssetsByFilterAndElements>(
+		this,
+		&UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilterAndElements_HttpRequestComplete,
+		requestURL,
+		"GET",
+		60.0F,
+		Headers
+		);
+	UE_LOG(LogEmergenceHttp, Display, TEXT("GetInteroperableAssetsByFilterAndElements request started, calling OnGetInteroperableAssetsByFilterAndElements_HttpRequestComplete on request completed"));
+}
+
+void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilterAndElements_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	TSharedPtr<FJsonValue> JsonValue;
+	TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonValue) && JsonValue.IsValid())
+	{
+		auto JsonAsIAArray = JsonValue->AsArray();
+
+		TArray<FEmergenceInteroperableAsset> OutputIAs;
+		for (auto JsonAsIAArrayMember : JsonAsIAArray)
+		{
+			auto IAObject = JsonAsIAArrayMember->AsObject();
+			FEmergenceInteroperableAsset OutputIA;
+			OutputIA.Id = IAObject->GetStringField("Id");
+			auto ElementsArray = IAObject->GetArrayField("Elements");
+			for (auto ElementsArrayMember : ElementsArray) {
+				auto ElementObject = ElementsArrayMember->AsObject();
+				
+				FString ElementObjectAsString;
+				TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&ElementObjectAsString);
+				FJsonSerializer::Serialize(ElementObject.ToSharedRef(), Writer);
+
+				FString ElementType = ElementObject->GetStringField("ElementName");
+				if (ElementType == "NFT") {
+					auto NFTElement = NewObject<UEmergenceInteroperableAssetNFTElement>(WorldContextObject);
+					NFTElement->EmergenceInteroperableAssetNFTElement = FEmergenceInteroperableAssetNFTElementInner(ElementObjectAsString);
+					OutputIA.Elements.Add(NFTElement);
+				}
+			}
+			OutputIAs.Add(OutputIA);
+		}
+		OnGetInteroperableAssetsByFilterAndElementsCompleted.Broadcast(OutputIAs, EErrorCode::EmergenceOk);
+	}
+	else {
+		OnGetInteroperableAssetsByFilterAndElementsCompleted.Broadcast(TArray<FEmergenceInteroperableAsset>(), EErrorCode::EmergenceClientJsonParseFailed);
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpRequest->GetURL());
+	UE_LOG(LogTemp, Display, TEXT("%s"), *HttpResponse->GetContentAsString());
+	
+	
+	
+	
+	
+	
+	/*EErrorCode StatusCode;
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		
+
+		//OnGetInteroperableAssetsByFilterAndElementsCompleted.Broadcast(TArray<FEmergenceInteroperableAsset(HttpResponse->GetContentAsString())>, StatusCode);
+	}
+	else {
+		//OnGetInteroperableAssetsByFilterAndElementsCompleted.Broadcast(FEmergenceInteroperableAsset(), StatusCode);
+	}*/
+	SetReadyToDestroy();
+}

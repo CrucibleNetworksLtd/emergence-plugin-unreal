@@ -7,231 +7,193 @@
 #include "Dom/JsonValue.h"
 #include "InteroperableAsset.generated.h"
 
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetSubTypeChain
-{
 
-  GENERATED_BODY()
 
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Chain", EditAnywhere, BlueprintReadWrite)
-  bool IsTestnet;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Chain", EditAnywhere, BlueprintReadWrite)
-  FString ChainName;
-
-  FEmergenceInteroperableAssetSubTypeChain() {};
-
-  FEmergenceInteroperableAssetSubTypeChain( bool _IsTestnet, FString _ChainName ){
-
-    IsTestnet = _IsTestnet;
-    ChainName = _ChainName;
-  
-  }
-  
-};
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetSubTypeAttribute
-{
-
-  GENERATED_BODY()
-
-  FEmergenceInteroperableAssetSubTypeAttribute() {};
-  
-};
-
-UCLASS(Abstract, Category = "JSON|EmergenceInteroperableAsset")
-class EMERGENCE_API UEmergenceInteroperableAssetSubType : public UObject
+UCLASS(Abstract, HideDropdown, Category = "JSON|EmergenceInteroperableAsset")
+class EMERGENCE_API UEmergenceInteroperableAssetElement : public UObject
 {
     GENERATED_BODY()
+public:
+    FString ElementName;
 };
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetNFTSubTypeInner
+USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FString SubTypeName;
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|MediaType", EditAnywhere, BlueprintReadWrite)
+    FString Type;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|MediaType", EditAnywhere, BlueprintReadWrite)
+    FString Element;
+
+    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType() {};
+
+    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType(FString _Type, FString _Element) {
+
+        Type = _Type;
+        Element = _Element;
+
+    }
+
+};
+
+USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+struct FEmergenceInteroperableAssetNFTElementInnerAsset
+{
+
+    GENERATED_BODY()
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Asset", EditAnywhere, BlueprintReadWrite)
+    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType MediaType;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Asset", EditAnywhere, BlueprintReadWrite)
+    FString AssetLocation;
+
+    FEmergenceInteroperableAssetNFTElementInnerAsset() {};
+
+    FEmergenceInteroperableAssetNFTElementInnerAsset(FEmergenceInteroperableAssetNFTElementInnerAssetMediaType _MediaType, FString _AssetLocation) {
+
+        MediaType = _MediaType;
+        AssetLocation = _AssetLocation;
+
+    }
+
+};
+
+USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+struct FEmergenceInteroperableAssetNFTElementInnerChain
+{
+
+    GENERATED_BODY()
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Chain", EditAnywhere, BlueprintReadWrite)
+    bool IsTestnet;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Chain", EditAnywhere, BlueprintReadWrite)
+    FString ChainName;
+
+    FEmergenceInteroperableAssetNFTElementInnerChain() {};
+
+    FEmergenceInteroperableAssetNFTElementInnerChain(bool _IsTestnet, FString _ChainName) {
+
+        IsTestnet = _IsTestnet;
+        ChainName = _ChainName;
+
+    }
+
+};
+
+USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+struct FEmergenceInteroperableAssetNFTElementInner
+{
+
+    GENERATED_BODY()
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FString Address;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
     FString NFTName;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
     FString Description;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FString Creator;
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    TMap<FString, FString> Attributes;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FString Owner;
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FEmergenceInteroperableAssetNFTElementInnerChain Chain;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FString MintDate;
-
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetSubTypeAttribute Attributes;
-
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetSubTypeChain Chain;
-
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
     FString TokenNumber;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
     int32 TokenType;
 
-    FEmergenceInteroperableAssetNFTSubTypeInner() {};
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FString CollectionName;
 
-    FEmergenceInteroperableAssetNFTSubTypeInner(FString _NFTName, FString _Description, FString _Creator, FString _Owner, FString _MintDate, FEmergenceInteroperableAssetSubTypeAttribute _Attributes, FEmergenceInteroperableAssetSubTypeChain _Chain, FString _TokenNumber, int32 _TokenType, FString _SubTypeName) {
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    int32 PrimaryAsset;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FString ElementName;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FString Creator;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    FString Owner;
+
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    TArray<FEmergenceInteroperableAssetNFTElementInnerAsset> Assets;
+
+    FEmergenceInteroperableAssetNFTElementInner() {};
+
+    FEmergenceInteroperableAssetNFTElementInner(FString _Address, FString _NFTName, FString _Description, TMap<FString,FString> _Attributes, FEmergenceInteroperableAssetNFTElementInnerChain _Chain, FString _TokenNumber, int32 _TokenType, FString _CollectionName, int32 _PrimaryAsset, FString _ElementName, FString _Creator, FString _Owner, TArray<FEmergenceInteroperableAssetNFTElementInnerAsset> _Assets) {
+
+        Address = _Address;
         NFTName = _NFTName;
         Description = _Description;
-        Creator = _Creator;
-        Owner = _Owner;
-        MintDate = _MintDate;
         Attributes = _Attributes;
         Chain = _Chain;
         TokenNumber = _TokenNumber;
         TokenType = _TokenType;
-        SubTypeName = _SubTypeName;
+        CollectionName = _CollectionName;
+        PrimaryAsset = _PrimaryAsset;
+        ElementName = _ElementName;
+        Creator = _Creator;
+        Owner = _Owner;
+        Assets = _Assets;
+
+    }
+
+    /* Don't Forget to setup your project
+    Add #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h" in
+    file with this structs.
+    Also you need add "Json", "JsonUtilities" in Build.cs */
+
+    FEmergenceInteroperableAssetNFTElementInner(FString _json_) {
+        FEmergenceInteroperableAssetNFTElementInner _tmpEmergenceInteroperableAssetNFTElementInner;
+
+        FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAssetNFTElementInner>(
+            _json_,
+            &_tmpEmergenceInteroperableAssetNFTElementInner,
+            0, 0);
+
+        Address = _tmpEmergenceInteroperableAssetNFTElementInner.Address;
+        NFTName = _tmpEmergenceInteroperableAssetNFTElementInner.NFTName;
+        Description = _tmpEmergenceInteroperableAssetNFTElementInner.Description;
+        //Attributes = _tmpEmergenceInteroperableAssetNFTElementInner.Attributes; //@TODO deal with attributes
+        Chain = _tmpEmergenceInteroperableAssetNFTElementInner.Chain;
+        TokenNumber = _tmpEmergenceInteroperableAssetNFTElementInner.TokenNumber;
+        TokenType = _tmpEmergenceInteroperableAssetNFTElementInner.TokenType;
+        CollectionName = _tmpEmergenceInteroperableAssetNFTElementInner.CollectionName;
+        PrimaryAsset = _tmpEmergenceInteroperableAssetNFTElementInner.PrimaryAsset;
+        ElementName = _tmpEmergenceInteroperableAssetNFTElementInner.ElementName;
+        Creator = _tmpEmergenceInteroperableAssetNFTElementInner.Creator;
+        Owner = _tmpEmergenceInteroperableAssetNFTElementInner.Owner;
+        Assets = _tmpEmergenceInteroperableAssetNFTElementInner.Assets;
     }
 
 };
 
 UCLASS(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-class EMERGENCE_API UEmergenceInteroperableAssetNFTSubType : public UEmergenceInteroperableAssetSubType
+class EMERGENCE_API UEmergenceInteroperableAssetNFTElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 
 public:
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|SubType", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetNFTSubTypeInner EmergenceInteroperableAssetNFTSubType;
-  
-};
+    UEmergenceInteroperableAssetNFTElement() {
+        ElementName = "NFT";
+    }
 
-
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetAssetAssetTypeMetadatum
-{
-
-  GENERATED_BODY()
-
-  FEmergenceInteroperableAssetAssetAssetTypeMetadatum() {};
-  
-};
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetAssetMediaType
-{
-
-  GENERATED_BODY()
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|MediaType", EditAnywhere, BlueprintReadWrite)
-  FString Type;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|MediaType", EditAnywhere, BlueprintReadWrite)
-  FString SubType;
-
-  FEmergenceInteroperableAssetAssetMediaType() {};
-
-  FEmergenceInteroperableAssetAssetMediaType( FString _Type, FString _SubType ){
-
-    Type = _Type;
-    SubType = _SubType;
-  
-  }
-  
-};
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetAsset
-{
-
-  GENERATED_BODY()
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Asset", EditAnywhere, BlueprintReadWrite)
-  FEmergenceInteroperableAssetAssetMediaType MediaType;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Asset", EditAnywhere, BlueprintReadWrite)
-  FString AssetLocation;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Asset", EditAnywhere, BlueprintReadWrite)
-  FEmergenceInteroperableAssetAssetAssetTypeMetadatum AssetTypeMetadata;
-
-  FEmergenceInteroperableAssetAsset() {};
-
-  FEmergenceInteroperableAssetAsset( FEmergenceInteroperableAssetAssetMediaType _MediaType, FString _AssetLocation, FEmergenceInteroperableAssetAssetAssetTypeMetadatum _AssetTypeMetadata ){
-
-    MediaType = _MediaType;
-    AssetLocation = _AssetLocation;
-    AssetTypeMetadata = _AssetTypeMetadata;
-  
-  }
-  
-};
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetThumbnailSet
-{
-
-  GENERATED_BODY()
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|ThumbnailSet", EditAnywhere, BlueprintReadWrite)
-  FString SmallThumbnail;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|ThumbnailSet", EditAnywhere, BlueprintReadWrite)
-  FString MediumThumbnail;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|ThumbnailSet", EditAnywhere, BlueprintReadWrite)
-  FString LargeThumbnail;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|ThumbnailSet", EditAnywhere, BlueprintReadWrite)
-  bool IsEmpty;
-
-  FEmergenceInteroperableAssetThumbnailSet() {};
-
-  FEmergenceInteroperableAssetThumbnailSet( FString _SmallThumbnail, FString _MediumThumbnail, FString _LargeThumbnail, bool _IsEmpty ){
-
-    SmallThumbnail = _SmallThumbnail;
-    MediumThumbnail = _MediumThumbnail;
-    LargeThumbnail = _LargeThumbnail;
-    IsEmpty = _IsEmpty;
-  
-  }
-  
-};
-
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-struct FEmergenceInteroperableAssetMetadata
-{
-
-  GENERATED_BODY()
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Metadatum", EditAnywhere, BlueprintReadWrite)
-  FString Name;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Metadatum", EditAnywhere, BlueprintReadWrite)
-  FString Description;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Metadatum", EditAnywhere, BlueprintReadWrite)
-  FString Creator;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset|Metadatum", EditAnywhere, BlueprintReadWrite)
-  FString Owner;
-
-  FEmergenceInteroperableAssetMetadata() {};
-
-  FEmergenceInteroperableAssetMetadata( FString _Name, FString _Description, FString _Creator, FString _Owner ){
-
-    Name = _Name;
-    Description = _Description;
-    Creator = _Creator;
-    Owner = _Owner;
-  
-  }
-  
+    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|Element", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
+    FEmergenceInteroperableAssetNFTElementInner EmergenceInteroperableAssetNFTElement;
+    
 };
 
 USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
@@ -241,34 +203,13 @@ struct FEmergenceInteroperableAsset
   GENERATED_BODY()
 
   UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
-  FEmergenceInteroperableAssetMetadata Metadata;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
-  FEmergenceInteroperableAssetAsset PrimaryAsset;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
-  FEmergenceInteroperableAssetThumbnailSet ThumbnailSet;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
-  TArray<FEmergenceInteroperableAssetAsset> Assets;
-
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
-  TArray<UEmergenceInteroperableAssetSubType*> SubTypeObjects;
+  TArray<UEmergenceInteroperableAssetElement*> Elements;
 
   UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
   FString Id;
 
   FEmergenceInteroperableAsset() {};
 
-  FEmergenceInteroperableAsset( FEmergenceInteroperableAssetMetadata _Metadata, FEmergenceInteroperableAssetAsset _PrimaryAsset, FEmergenceInteroperableAssetThumbnailSet _ThumbnailSet, TArray<FEmergenceInteroperableAssetAsset> _Assets, FString _Id ){
-
-    Metadata = _Metadata;
-    PrimaryAsset = _PrimaryAsset;
-    ThumbnailSet = _ThumbnailSet;
-    Assets = _Assets;
-    Id = _Id;
-  
-  }
 
   FEmergenceInteroperableAsset(FString _json_) {
       UE_LOG(LogTemp, Display, TEXT("%s"), *_json_);
@@ -276,23 +217,19 @@ struct FEmergenceInteroperableAsset
 
       FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAsset>(_json_, &_tmpEmergenceInteroperableAsset, 0, 0);
 
-      Metadata = _tmpEmergenceInteroperableAsset.Metadata;
-      PrimaryAsset = _tmpEmergenceInteroperableAsset.PrimaryAsset;
-      ThumbnailSet = _tmpEmergenceInteroperableAsset.ThumbnailSet;
-      Assets = _tmpEmergenceInteroperableAsset.Assets;
       Id = _tmpEmergenceInteroperableAsset.Id;
 
       TSharedPtr<FJsonObject> JsonObject;
       auto Reader = TJsonReaderFactory<>::Create(_json_);
       if (FJsonSerializer::Deserialize(Reader, JsonObject))
       {
-          TArray<TSharedPtr<FJsonValue>> SubTypesJSONValues;
-          SubTypesJSONValues = JsonObject->GetArrayField("SubTypes");
-          for (auto Value : SubTypesJSONValues) {
-              if (Value->AsObject()->GetStringField("SubTypeName") == "NFT") {
-                  UEmergenceInteroperableAssetNFTSubType* SubType = NewObject<UEmergenceInteroperableAssetNFTSubType>();
-                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetNFTSubTypeInner>(Value->AsObject().ToSharedRef(), &SubType->EmergenceInteroperableAssetNFTSubType, 0, 0);
-                  SubTypeObjects.Add(SubType);
+          TArray<TSharedPtr<FJsonValue>> ElementsJSONValues;
+          ElementsJSONValues = JsonObject->GetArrayField("Elements");
+          for (auto Value : ElementsJSONValues) {
+              if (Value->AsObject()->GetStringField("ElementName") == "NFT") {
+                  UEmergenceInteroperableAssetNFTElement* Element = NewObject<UEmergenceInteroperableAssetNFTElement>();
+                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetNFTElementInner>(Value->AsObject().ToSharedRef(), &Element->EmergenceInteroperableAssetNFTElement, 0, 0);
+                  Elements.Add(Element);
               }
           }
       }
@@ -304,8 +241,8 @@ class EMERGENCE_API UEmergenceInteroperableAssetLibrary : public UBlueprintFunct
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="SubtypeClass"))
-    static UEmergenceInteroperableAssetSubType* GetInteroperableAssetSubType(TArray<UEmergenceInteroperableAssetSubType*> Array, UPARAM(meta = (AllowAbstract = false))TSubclassOf<UEmergenceInteroperableAssetSubType> SubtypeClass, bool& success);
+    UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="ElementClass"))
+    static UEmergenceInteroperableAssetElement* GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, UPARAM(meta = (AllowAbstract = false))TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success);
 
     UFUNCTION(BlueprintPure)
     static FEmergenceInteroperableAsset GetTestIA();
