@@ -39,9 +39,6 @@ public:
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
-	UPROPERTY()
-	FString clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get an actual client ID
-
 	void Activate() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
@@ -50,10 +47,11 @@ public:
 
 	static bool _isServerStarted;
 
-	UPROPERTY()
-	const UObject* ContextObject;
-
 private:
+	static FString clientid;
+
+	static const UObject* ContextObject;
+
 	static FString code;
 
 	static FString state;

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/IHttpRequest.h"
+#include "HttpRouteHandle.h"
 #include "EmergenceEVMServerSubsystem.generated.h"
 
 /**
@@ -20,4 +21,6 @@ public:
 
 	//holds a list of active requests for closing when the game ends
 	TArray<TSharedRef<IHttpRequest, ESPMode::ThreadSafe>> ActiveRequests;
+
+	FHttpRouteHandle LoginCallback;
 };

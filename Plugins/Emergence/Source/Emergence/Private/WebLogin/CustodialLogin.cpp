@@ -14,13 +14,18 @@
 #include "JwtVerifier.h"
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
+#include "EmergenceEVMServerSubsystem.h"
 
 bool UCustodialLogin::_isServerStarted = false;
+const UObject* UCustodialLogin::ContextObject = nullptr;
+FString UCustodialLogin::code;
+FString UCustodialLogin::state;
+FString UCustodialLogin::clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get a client ID
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(const UObject* WorldContextObject)
 {
 	UCustodialLogin* BlueprintNode = NewObject<UCustodialLogin>();
-	BlueprintNode->ContextObject = WorldContextObject;
+	UCustodialLogin::ContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(const_cast<UObject*>(WorldContextObject));
 	return BlueprintNode;
 }
@@ -42,14 +47,16 @@ FString UCustodialLogin::CleanupBase64ForWeb(FString Input)
 void UCustodialLogin::Activate()
 {
 	int ServerPort = 3000;
-
+	AddToRoot();
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
-	auto Singleton = UEmergenceSingleton::GetEmergenceManager(ContextObject);
+	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
+	
+	auto EmergenceSub = UGameplayStatics::GetGameInstance(UCustodialLogin::ContextObject)->GetSubsystem<UEmergenceEVMServerSubsystem>();
 
 	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted)
 	{
-		httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
+		EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
@@ -91,7 +98,7 @@ void UCustodialLogin::Activate()
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
-		TPair<FString, FString>{"client_id", clientid},
+		TPair<FString, FString>{"client_id", UCustodialLogin::clientid},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"scope", "openid"},
 		TPair<FString, FString>{"code_challenge", CodeChallenge},
@@ -119,16 +126,13 @@ void UCustodialLogin::Activate()
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
-FString UCustodialLogin::code;
-FString UCustodialLogin::state;
-
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
 	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
 	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	UHttpHelperLibrary::RequestPrint(Req); //debug logging for the request sent to our local server
 
-	auto Singleton = UEmergenceSingleton::GetEmergenceManager(ContextObject);
+	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
 
 	if (!Req.QueryParams.Contains("code")) {
 		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));		
@@ -148,7 +152,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"grant_type", "authorization_code"},
 		TPair<FString, FString>{"code",* Req.QueryParams.Find("code")},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
-		TPair<FString, FString>{"client_id", clientid},
+		TPair<FString, FString>{"client_id", UCustodialLogin::clientid},
 		TPair<FString, FString>{"code_verifier", UCustodialLogin::code},
 	});
 
@@ -169,7 +173,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 	TArray<TPair<FString, FString>> Headers({
 		TPair<FString, FString>{"Content-Type", "application/x-www-form-urlencoded"}
 	});
-	const UObject* Context = this->ContextObject;
+	const UObject* Context = UCustodialLogin::ContextObject;
 	auto HttpRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialLogin>(nullptr, nullptr, URL, TEXT("POST"), 60.0F, Headers, Params);
 	HttpRequest->OnProcessRequestComplete().BindLambda([Context](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
 		auto Singleton = UEmergenceSingleton::GetEmergenceManager(Context);
