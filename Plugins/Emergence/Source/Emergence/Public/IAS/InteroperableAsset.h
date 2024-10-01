@@ -235,15 +235,3 @@ struct FEmergenceInteroperableAsset
       }
   };
 };
-
-UCLASS()
-class EMERGENCE_API UEmergenceInteroperableAssetLibrary : public UBlueprintFunctionLibrary
-{
-    GENERATED_BODY()
-public:
-    UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="ElementClass"))
-    static UEmergenceInteroperableAssetElement* GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, UPARAM(meta = (AllowAbstract = false))TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success);
-
-    UFUNCTION(BlueprintPure)
-    static FEmergenceInteroperableAsset GetTestIA();
-};
