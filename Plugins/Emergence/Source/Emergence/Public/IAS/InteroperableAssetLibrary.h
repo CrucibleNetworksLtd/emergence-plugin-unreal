@@ -3,6 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "IAS/InteroperableAsset.h"
+#include "IAS/Element.h"
 #include "InteroperableAssetLibrary.generated.h"
 
 UCLASS()
