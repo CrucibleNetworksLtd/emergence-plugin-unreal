@@ -16,6 +16,7 @@
 #include "Containers/ArrayView.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
+FHttpRouteHandle UCustodialWriteTransaction::RouteHandle = nullptr;
 
 UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method)
 {
@@ -48,7 +49,7 @@ void UCustodialWriteTransaction::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialWriteTransaction::_isServerStarted)
 	{
-		httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
+		UCustodialWriteTransaction::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
@@ -87,6 +88,20 @@ void UCustodialWriteTransaction::Activate()
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
 		ContentString.ReplaceCharWithEscapedChar());
+}
+
+void UCustodialWriteTransaction::BeginDestroy()
+{
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+
+	if (httpRouter.IsValid() && UCustodialWriteTransaction::_isServerStarted)
+	{
+		httpRouter->UnbindRoute(UCustodialWriteTransaction::RouteHandle);
+		UCustodialWriteTransaction::_isServerStarted = false;
+	}
+
+	UEmergenceAsyncSingleRequestBase::BeginDestroy();
 }
 
 void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

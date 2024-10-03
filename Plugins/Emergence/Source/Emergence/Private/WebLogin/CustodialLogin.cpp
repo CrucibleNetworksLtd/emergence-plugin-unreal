@@ -17,6 +17,7 @@
 #include "EmergenceEVMServerSubsystem.h"
 
 bool UCustodialLogin::_isServerStarted = false;
+FHttpRouteHandle UCustodialLogin::RouteHandle = nullptr;
 const UObject* UCustodialLogin::ContextObject = nullptr;
 FString UCustodialLogin::code;
 FString UCustodialLogin::state;
@@ -47,7 +48,7 @@ FString UCustodialLogin::CleanupBase64ForWeb(FString Input)
 void UCustodialLogin::Activate()
 {
 	int ServerPort = 3000;
-	AddToRoot();
+	
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
@@ -56,7 +57,7 @@ void UCustodialLogin::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted)
 	{
-		EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
+		UCustodialLogin::RouteHandle = EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();
@@ -124,6 +125,20 @@ void UCustodialLogin::Activate()
 
 	//Open the auth URL with the params
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+}
+
+void UCustodialLogin::BeginDestroy()
+{
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+
+	if (httpRouter.IsValid() && UCustodialLogin::_isServerStarted)
+	{
+		httpRouter->UnbindRoute(UCustodialLogin::RouteHandle);
+		UCustodialLogin::_isServerStarted = false;
+	}
+
+	UEmergenceAsyncSingleRequestBase::BeginDestroy();
 }
 
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
