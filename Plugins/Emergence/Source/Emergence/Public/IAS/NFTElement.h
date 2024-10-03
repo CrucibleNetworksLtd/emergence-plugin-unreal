@@ -141,11 +141,6 @@ struct FEmergenceInteroperableAssetNFTElementInner
 
     }
 
-    /* Don't Forget to setup your project
-    Add #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h" in
-    file with this structs.
-    Also you need add "Json", "JsonUtilities" in Build.cs */
-
     FEmergenceInteroperableAssetNFTElementInner(FString _json_) {
         FEmergenceInteroperableAssetNFTElementInner _tmpEmergenceInteroperableAssetNFTElementInner;
 
@@ -157,7 +152,7 @@ struct FEmergenceInteroperableAssetNFTElementInner
         Address = _tmpEmergenceInteroperableAssetNFTElementInner.Address;
         NFTName = _tmpEmergenceInteroperableAssetNFTElementInner.NFTName;
         Description = _tmpEmergenceInteroperableAssetNFTElementInner.Description;
-        //Attributes = _tmpEmergenceInteroperableAssetNFTElementInner.Attributes; //@TODO deal with attributes
+        //Attributes are delt with below
         Chain = _tmpEmergenceInteroperableAssetNFTElementInner.Chain;
         TokenNumber = _tmpEmergenceInteroperableAssetNFTElementInner.TokenNumber;
         TokenType = _tmpEmergenceInteroperableAssetNFTElementInner.TokenType;
@@ -167,6 +162,17 @@ struct FEmergenceInteroperableAssetNFTElementInner
         Creator = _tmpEmergenceInteroperableAssetNFTElementInner.Creator;
         Owner = _tmpEmergenceInteroperableAssetNFTElementInner.Owner;
         Assets = _tmpEmergenceInteroperableAssetNFTElementInner.Assets;
+		
+		TSharedPtr<FJsonValue> JsonValue;
+		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*_json_);
+		if (FJsonSerializer::Deserialize(JsonReader, JsonValue) && JsonValue.IsValid())
+		{
+            for (auto AttributeKeyValue : JsonValue->AsObject()->GetObjectField("Attributes")->Values) { //for some reason attributes is a object, not an array
+                FString Key = AttributeKeyValue.Key;
+                FString Value = AttributeKeyValue.Value->AsString();
+                Attributes.Add(Key, Value);
+            }
+		}
     }
 
 };

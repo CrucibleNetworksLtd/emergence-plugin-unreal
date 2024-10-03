@@ -102,6 +102,11 @@ void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilte
 					NFTElement->EmergenceInteroperableAssetNFTElement = FEmergenceInteroperableAssetNFTElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(NFTElement);
 				}
+				if (ElementType == "avatar") {
+					auto NFTElement = NewObject<UEmergenceInteroperableAssetAvatarElement>(WorldContextObject);
+					NFTElement->EmergenceInteroperableAssetAvatarElement = FEmergenceInteroperableAssetAvatarElementInner(ElementObjectAsString);
+					OutputIA.Elements.Add(NFTElement);
+				}
 			}
 			OutputIAs.Add(OutputIA);
 		}

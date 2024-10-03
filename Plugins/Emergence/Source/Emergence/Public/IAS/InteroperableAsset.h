@@ -5,6 +5,7 @@
 #include "JsonObjectConverter.h"
 #include "Serialization/JsonSerializer.h"
 #include "IAS/NFTElement.h"
+#include "IAS/AvatarElement.h"
 #include "InteroperableAsset.generated.h"
 
 USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
@@ -40,6 +41,11 @@ struct FEmergenceInteroperableAsset
               if (Value->AsObject()->GetStringField("ElementName") == "NFT") {
                   UEmergenceInteroperableAssetNFTElement* Element = NewObject<UEmergenceInteroperableAssetNFTElement>();
                   FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetNFTElementInner>(Value->AsObject().ToSharedRef(), &Element->EmergenceInteroperableAssetNFTElement, 0, 0);
+                  Elements.Add(Element);
+              }
+              if (Value->AsObject()->GetStringField("ElementName") == "avatar") {
+                  UEmergenceInteroperableAssetAvatarElement* Element = NewObject<UEmergenceInteroperableAssetAvatarElement>();
+                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetAvatarElementInner>(Value->AsObject().ToSharedRef(), &Element->EmergenceInteroperableAssetAvatarElement, 0, 0);
                   Elements.Add(Element);
               }
           }
