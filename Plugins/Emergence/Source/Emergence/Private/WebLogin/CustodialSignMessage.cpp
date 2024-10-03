@@ -60,7 +60,7 @@ void UCustodialSignMessage::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
 	{
-		RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
+		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 
 		httpServerModule.StartAllListeners();

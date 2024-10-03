@@ -17,9 +17,6 @@ class EMERGENCE_API UCustodialWriteTransaction : public UEmergenceAsyncSingleReq
 {
 	GENERATED_BODY()
 public:
-
-	//@TODO split this into its own module
-	//@TODO split this into login and transaction
 	//@TODO add states
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
@@ -57,6 +54,8 @@ public:
 	FString UnsignedTransaction;
 
 	void Activate() override;
+	void BeginDestroy() override;
+	static FHttpRouteHandle RouteHandle;
 
 	static bool _isServerStarted;
 };

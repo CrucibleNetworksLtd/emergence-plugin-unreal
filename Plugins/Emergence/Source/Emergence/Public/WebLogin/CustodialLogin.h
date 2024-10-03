@@ -40,12 +40,15 @@ public:
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
 	void Activate() override;
+	void BeginDestroy() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
 	UFUNCTION()
 	FString GetSecureRandomBase64();
 
 	static bool _isServerStarted;
+
+	static FHttpRouteHandle RouteHandle;
 
 private:
 	static FString clientid;
