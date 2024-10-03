@@ -559,21 +559,42 @@ void UEmergenceSingleton::KillSession()
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but there is no access token, so probably no session."));
 		return;
 	}
-	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
 
-#if UNREAL_MARKETPLACE_BUILD
-	if (this->DeviceID.IsEmpty()) {
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but there is no device ID, so probably no session."));
+	if(this->UsingWebLoginFlow){
+		this->CurrentAddress = "";
+		this->CurrentChecksummedAddress = "";
+		this->CurrentAccessToken = "";
+		this->DeviceID = "";
+		
+
+		FTimerDelegate TimerCallback;
+		TimerCallback.BindLambda([&] //fake a small amount of time so the UI doesn't mess up @TODO fix this up in the UI so its no longer needed
+		{
+			OnKillSessionCompleted.Broadcast(true, EErrorCode::EmergenceOk);
+		});
+		FTimerHandle Handle;
+		GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 0.2f, false);
+	
 		return;
 	}
+	else {
 
-	//we need to send the device ID if we have one, we won't have one for local EVM servers
-	Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
+		TArray<TPair<FString, FString>> Headers;
+		Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
+
+#if UNREAL_MARKETPLACE_BUILD
+		if (this->DeviceID.IsEmpty()) {
+			UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but there is no device ID, so probably no session."));
+			return;
+		}
+
+		//we need to send the device ID if we have one, we won't have one for local EVM servers
+		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
 #endif
 
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
-	UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
+		UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
+	}
 }
 
 void UEmergenceSingleton::ForceLoginViaAccessToken(FString AccessToken)
