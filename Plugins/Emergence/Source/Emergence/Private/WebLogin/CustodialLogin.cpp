@@ -237,7 +237,7 @@ TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 	return response;
 }
 
-FString UCustodialLogin::GetSecureRandomBase64()
+FString UCustodialLogin::GetSecureRandomBase64(int Length)
 {
 	//partially inspired by https://stackoverflow.com/a/19666713
 	std::random_device rd; //get a good random from the OS's random system
@@ -245,8 +245,8 @@ FString UCustodialLogin::GetSecureRandomBase64()
 	std::uniform_int_distribution<unsigned short> dist(MIN_uint8, MAX_uint8); //make a distrobution of all the possible uint8s
 
 	TArray<uint8> Data;
-	for (int i = 0; i < 16; i++) { //each these will come out to two characters, so half length
+	for (int i = 0; i < (Length/2); i++) { //each these will come out to two characters, so half length
 		Data.Add((uint8)dist(mt));
 	}
-	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num())));
+	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num()))).Left(Length);
 }
