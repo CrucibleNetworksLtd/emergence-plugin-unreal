@@ -15,6 +15,7 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 #include "EmergenceEVMServerSubsystem.h"
+#include <random>
 
 bool UCustodialLogin::_isServerStarted = false;
 FHttpRouteHandle UCustodialLogin::RouteHandle = nullptr;
@@ -238,11 +239,14 @@ TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 
 FString UCustodialLogin::GetSecureRandomBase64()
 {
-	//This should be "cryptographically secure random data" that is base 64 url encoded. I don't know if this is secure enough.
-	//@TODO check this is secure enough
+	//partially inspired by https://stackoverflow.com/a/19666713
+	std::random_device rd; //get a good random from the OS's random system
+	std::mt19937 mt(rd()); //good mersenne_twister_engine
+	std::uniform_int_distribution<unsigned short> dist(MIN_uint8, MAX_uint8); //make a distrobution of all the possible uint8s
+
 	TArray<uint8> Data;
 	for (int i = 0; i < 16; i++) { //each these will come out to two characters, so half length
-		Data.Add((uint8)FMath::RandHelper(255));
+		Data.Add((uint8)dist(mt));
 	}
 	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num())));
 }
