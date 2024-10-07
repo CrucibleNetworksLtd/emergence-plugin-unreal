@@ -44,7 +44,7 @@ public:
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
 	UFUNCTION()
-	FString GetSecureRandomBase64();
+	FString GetSecureRandomBase64(int Length = 128);
 
 	static bool _isServerStarted;
 
