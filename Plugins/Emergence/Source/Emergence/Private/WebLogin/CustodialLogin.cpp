@@ -110,7 +110,7 @@ void UCustodialLogin::Activate()
 		//TPair<FString, FString>{"prompt", "none"},
 		TPair<FString, FString>{"state", FString(UCustodialLogin::state)},
 		TPair<FString, FString>{"nonce", GetSecureRandomBase64()},
-		TPair<FString, FString>{"login_hint", "social%3Agoogle"},
+		//TPair<FString, FString>{"login_hint", "social%3Agoogle"},
 		});
 
 	//Encode the params in a GET request style
