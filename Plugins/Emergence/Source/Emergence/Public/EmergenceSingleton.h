@@ -65,7 +65,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FOnCustodialLoginCompleted OnWebLoginCompleted;
 
 	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
