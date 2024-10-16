@@ -20,7 +20,7 @@ UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndEl
 
 void UGetInteroperableAssetsByFilterAndElements::Activate()
 {
-	FString requestURL = "http://interoperableassetsystem-dev.eba-xcksw4pw.us-east-1.elasticbeanstalk.com/InteroperableAsset/GetByFilterAndElements";
+	FString requestURL = "https://ias-staging.openmeta.xyz/InteroperableAsset/GetByFilterAndElements";
 	
 
 	if (DesiredElements.Num() == 0 || (CollectionID.IsEmpty() && WalletAddress.IsEmpty() && NFTIDs.Num() == 0)) {
