@@ -16,7 +16,9 @@
 #include "Containers/ArrayView.h"
 #include "EmergenceEVMServerSubsystem.h"
 #include <random>
-
+THIRD_PARTY_INCLUDES_START
+#include <openssl/rand.h>
+THIRD_PARTY_INCLUDES_END
 bool UCustodialLogin::_isServerStarted = false;
 FHttpRouteHandle UCustodialLogin::RouteHandle = nullptr;
 const UObject* UCustodialLogin::ContextObject = nullptr;
@@ -240,13 +242,22 @@ TUniquePtr<FHttpServerResponse> UCustodialLogin::GetHttpPage()
 FString UCustodialLogin::GetSecureRandomBase64(int Length)
 {
 	//partially inspired by https://stackoverflow.com/a/19666713
-	std::random_device rd; //get a good random from the OS's random system
+	/*std::random_device rd; //get a good random from the OS's random system
 	std::mt19937 mt(rd()); //good mersenne_twister_engine
 	std::uniform_int_distribution<unsigned short> dist(MIN_uint8, MAX_uint8); //make a distrobution of all the possible uint8s
+	*/
+	
+	//Generate some random bytes
+	unsigned char randomBytes[1024];
+	if (RAND_bytes(randomBytes, sizeof(randomBytes)) != 1) {
+		std::cerr << "Error generating random bytes." << std::endl;
+	}
 
 	TArray<uint8> Data;
-	for (int i = 0; i < (Length/2); i++) { //each these will come out to two characters, so half length
-		Data.Add((uint8)dist(mt));
+	for (int i = 0; i < (Length / 2); i++) { //each these will come out to two characters, so half length
+		//Data.Add((uint8)dist(mt));
+		Data.Add(randomBytes[i]);
 	}
+
 	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num()))).Left(Length);
 }
