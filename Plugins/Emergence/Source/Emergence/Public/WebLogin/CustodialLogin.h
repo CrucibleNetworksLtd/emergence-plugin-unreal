@@ -9,14 +9,13 @@
 #include "HttpRouteHandle.h"
 #include "CustodialLogin.generated.h"
 
-//This only exists because I can't output a tmap from a dynamic multicast deligate
-//@TODO Hide this from blueprint when we're done
-USTRUCT(BlueprintType)
-struct FEmergenceCustodialLoginOutput
+
+USTRUCT()
+struct FEmergenceCustodialLoginOutput //This only exists because I can't output a tmap from a dynamic multicast deligate
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TMap<FString, FString> TokenData;
 
 	FEmergenceCustodialLoginOutput() {};
