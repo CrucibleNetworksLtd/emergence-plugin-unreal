@@ -20,7 +20,7 @@ public:
 	 * 
 	 * @param AvatarIdString 
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Interoperable Asset Service")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "NFTIDs"), Category = "Emergence|Interoperable Asset Service")
 	static UGetInteroperableAssetsByFilterAndElements* GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs);
 
 	virtual void Activate() override;
