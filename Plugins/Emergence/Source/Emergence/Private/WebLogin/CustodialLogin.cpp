@@ -24,7 +24,37 @@ FHttpRouteHandle UCustodialLogin::RouteHandle = nullptr;
 const UObject* UCustodialLogin::ContextObject = nullptr;
 FString UCustodialLogin::code;
 FString UCustodialLogin::state;
-FString UCustodialLogin::clientid = "8XPY4Vnc6BBn_4XNBYk0P"; //@TODO get a client ID
+
+FString UCustodialLogin::GetClientID()
+{
+	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
+	
+	check(Singleton);
+
+	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
+	if (Env == EFutureverseEnvironment::Development || Env == EFutureverseEnvironment::Staging) {
+		FString DefaultFutureverseWebLoginStagingEnvClientID = "3KMMFCuY59SA4DDV8ggwc"; //default staging client id to be overriden
+		FString FutureverseWebLoginStagingEnvClientID;
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseWebLoginStagingEnvClientID"), FutureverseWebLoginStagingEnvClientID, GGameIni);
+		if (FutureverseWebLoginStagingEnvClientID.IsEmpty()) {
+			return DefaultFutureverseWebLoginStagingEnvClientID;
+		}
+		else {
+			return FutureverseWebLoginStagingEnvClientID;
+		}
+	}
+	else {
+		FString DefaultFutureverseWebLoginProductionEnvClientID = "G9mOSDHNklm_dCN0DHvfX"; //default production client id to be overriden
+		FString FutureverseWebLoginProductionEnvClientID;
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseWebLoginStagingEnvClientID"), FutureverseWebLoginProductionEnvClientID, GGameIni);
+		if (FutureverseWebLoginProductionEnvClientID.IsEmpty()) {
+			return DefaultFutureverseWebLoginProductionEnvClientID;
+		}
+		else {
+			return FutureverseWebLoginProductionEnvClientID;
+		}
+	}
+}
 
 UCustodialLogin* UCustodialLogin::CustodialLogin(const UObject* WorldContextObject)
 {
@@ -102,7 +132,7 @@ void UCustodialLogin::Activate()
 
 	TArray<TPair<FString, FString>> UrlParams({
 		TPair<FString, FString>{"response_type", "code"},
-		TPair<FString, FString>{"client_id", UCustodialLogin::clientid},
+		TPair<FString, FString>{"client_id", UCustodialLogin::GetClientID()},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
 		TPair<FString, FString>{"scope", "openid"},
 		TPair<FString, FString>{"code_challenge", CodeChallenge},
@@ -116,7 +146,15 @@ void UCustodialLogin::Activate()
 		});
 
 	//Encode the params in a GET request style
-	FString URL = TEXT("https://login.futureverse.cloud/auth?");
+	FString URL;
+	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
+	if (Env == EFutureverseEnvironment::Production) {
+		URL = TEXT("https://login.futureverse.app/auth?");
+	}
+	else {
+		URL = TEXT("https://login.futureverse.cloud/auth?");
+	}
+	
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		URL += UrlParams[i].Key;
 		URL += "=";
@@ -170,12 +208,18 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"grant_type", "authorization_code"},
 		TPair<FString, FString>{"code",* Req.QueryParams.Find("code")},
 		TPair<FString, FString>{"redirect_uri", "http%3A%2F%2Flocalhost%3A3000%2Fcallback"},
-		TPair<FString, FString>{"client_id", UCustodialLogin::clientid},
+		TPair<FString, FString>{"client_id", UCustodialLogin::GetClientID()},
 		TPair<FString, FString>{"code_verifier", UCustodialLogin::code},
 	});
 
-	FString URL = TEXT("https://login.futureverse.cloud/token?");
-
+	FString URL;
+	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
+	if (Env == EFutureverseEnvironment::Production) {
+		URL = TEXT("https://login.futureverse.app/token?");
+	}
+	else {
+		URL = TEXT("https://login.futureverse.cloud/token?");
+	}
 
 	//for some reason, the parameters on this request are encoded like a GET url's parameters, but then sent in a POST as part of the content, don't ask me why lol
 	FString Params;
@@ -261,3 +305,5 @@ FString UCustodialLogin::GetSecureRandomBase64(int Length)
 
 	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num()))).Left(Length);
 }
+
+
