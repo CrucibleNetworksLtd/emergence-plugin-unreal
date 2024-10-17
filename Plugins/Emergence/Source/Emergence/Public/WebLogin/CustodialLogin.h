@@ -57,4 +57,6 @@ private:
 	static FString code;
 
 	static FString state;
+
+	static FString GetClientID();
 };
