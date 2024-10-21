@@ -299,7 +299,6 @@ FString UCustodialLogin::GetSecureRandomBase64(int Length)
 
 	TArray<uint8> Data;
 	for (int i = 0; i < (Length / 2); i++) { //each these will come out to two characters, so half length
-		//Data.Add((uint8)dist(mt));
 		Data.Add(randomBytes[i]);
 	}
 

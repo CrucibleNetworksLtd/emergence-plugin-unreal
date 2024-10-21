@@ -648,9 +648,7 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		OutputString.ReplaceInline(TEXT("\"accessToken\":"), TEXT(""), ESearchCase::CaseSensitive);
 		OutputString.LeftChopInline(1);
 		OutputString.RightChopInline(1);
-		//this->CurrentAccessToken = OutputString;
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token! It is: %s"), *OutputString);
-		//OnGetAccessTokenCompleted.Broadcast(StatusCode);
 		return;
 	}
 	OnGetAccessTokenCompleted.Broadcast(StatusCode);
@@ -680,14 +678,8 @@ void UEmergenceSingleton::OnRequestToSignForAccessTokenComplete(FString SignedMe
 
 void UEmergenceSingleton::GetAccessToken()
 {
-	/*TArray<TPair<FString, FString>> Headers;
-	if (!this->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
-		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
-	}
-	GetAccessTokenRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetAccessToken_HttpRequestComplete, UHttpHelperLibrary::APIBase + "get-access-token", "GET", 60.0F, Headers);
-	*/
+	FDateTime OneDayFromNow = FDateTime::UtcNow() + FTimespan(1, 0, 0, 0); //Get one day from now, when the token should expire
 
-	FDateTime OneDayFromNow = FDateTime::UtcNow() + FTimespan(1, 0, 0, 0);
 	AccessTokenTimestamp = FString::Printf(TEXT("%lld"), OneDayFromNow.ToUnixTimestamp());
 	FString AccessTokenMessage;
 	AccessTokenMessage = "{\\\"expires-on\\\":" + AccessTokenTimestamp + "}";
