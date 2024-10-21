@@ -690,12 +690,7 @@ void UEmergenceSingleton::GetAccessToken()
 	FDateTime OneDayFromNow = FDateTime::UtcNow() + FTimespan(1, 0, 0, 0);
 	AccessTokenTimestamp = FString::Printf(TEXT("%lld"), OneDayFromNow.ToUnixTimestamp());
 	FString AccessTokenMessage;
-	if (this->UsingWebLoginFlow) {
-		AccessTokenMessage = "{\"expires-on\":" + AccessTokenTimestamp + "}"; //if you're implementing this, you might need to figure out yourself how the encoding should be because it might be different in your engine or language 
-	}
-	else {
-		AccessTokenMessage = "{\\\"expires-on\\\":" + AccessTokenTimestamp + "}";
-	}
+	AccessTokenMessage = "{\\\"expires-on\\\":" + AccessTokenTimestamp + "}";
 	URequestToSign* RequestToSign = URequestToSign::RequestToSign(this, AccessTokenMessage);
 	RequestToSign->OnRequestToSignCompleted.AddDynamic(this, &UEmergenceSingleton::OnRequestToSignForAccessTokenComplete);
 	RequestToSign->Activate();

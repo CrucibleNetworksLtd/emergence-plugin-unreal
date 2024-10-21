@@ -23,6 +23,7 @@ void URequestToSign::Activate()
 	
 	//"Web login" flow stuff
 	if (Singleton->UsingWebLoginFlow) {
+		MessageToSign.ReplaceInline(TEXT("\\\""), TEXT("\"")); //unescape double layered json
 		UCustodialSignMessage* CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(true), MessageToSign);
 		CustodialSignMessage->OnCustodialSignMessageComplete.AddDynamic(this, &URequestToSign::OnInternalCustodialSignMessageComplete);
 		CustodialSignMessage->Activate();
