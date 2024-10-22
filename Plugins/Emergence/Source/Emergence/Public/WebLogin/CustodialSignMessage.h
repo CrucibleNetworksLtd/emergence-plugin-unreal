@@ -9,10 +9,8 @@
 #include "HttpRouteHandle.h"
 #include "CustodialSignMessage.generated.h"
 
-/**
- * 
- */
-UCLASS()
+//This class should only be called by Request To Sign
+UCLASS(meta=(HasDedicatedAsyncNode))
 class EMERGENCE_API UCustodialSignMessage : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()

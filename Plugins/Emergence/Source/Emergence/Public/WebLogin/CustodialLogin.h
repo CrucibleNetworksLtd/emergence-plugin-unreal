@@ -25,6 +25,9 @@ struct FEmergenceCustodialLoginOutput //This only exists because I can't output 
 	};
 };
 
+/**
+* Starts a web login attempt.
+*/
 UCLASS()
 class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 {
