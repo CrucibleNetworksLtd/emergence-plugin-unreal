@@ -90,9 +90,15 @@ void UCustodialLogin::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted)
 	{
+#if(ENGINE_MINOR_VERSION >= 2) && (ENGINE_MAJOR_VERSION >= 5)
+		FHttpRequestHandler Handler;
+		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
+		UCustodialLogin::RouteHandle = EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
+
+#else
 		UCustodialLogin::RouteHandle = EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
-
+#endif
 		httpServerModule.StartAllListeners();
 		
 		UCustodialLogin::_isServerStarted = true;

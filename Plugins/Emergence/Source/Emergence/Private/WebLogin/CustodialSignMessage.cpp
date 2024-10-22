@@ -60,8 +60,16 @@ void UCustodialSignMessage::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
 	{
+
+#if(ENGINE_MINOR_VERSION >= 2) && (ENGINE_MAJOR_VERSION >= 5)
+		FHttpRequestHandler Handler;
+		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+		UCustodialLogin::RouteHandle = EmergenceSub->LoginCallback = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
+
+#else
 		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+#endif
 
 		httpServerModule.StartAllListeners();
 
