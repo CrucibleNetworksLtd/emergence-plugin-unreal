@@ -49,8 +49,16 @@ void UCustodialWriteTransaction::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialWriteTransaction::_isServerStarted)
 	{
+
+#if(ENGINE_MINOR_VERSION >= 2) && (ENGINE_MAJOR_VERSION >= 5)
+		FHttpRequestHandler Handler;
+		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+		UCustodialWriteTransaction::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
+
+#else
 		UCustodialWriteTransaction::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+#endif
 
 		httpServerModule.StartAllListeners();
 
@@ -70,9 +78,18 @@ void UCustodialWriteTransaction::Activate()
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
-	FString ContentString = "[]";
+	FString ContentString = "{\"eoa\": \"0xB009d2c5d852FEd6C30511A8F50101957B4F4937\"}";
 
-	auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
+		this,
+		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
+		"http://localhost:3002/encode-transaction",
+		"POST",
+		300.0F,
+		Headers,
+		ContentString);
+
+	/*auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
 		UHttpHelperLibrary::APIBase + 
@@ -87,7 +104,7 @@ void UCustodialWriteTransaction::Activate()
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		Headers,
-		ContentString.ReplaceCharWithEscapedChar());
+		ContentString.ReplaceCharWithEscapedChar());*/
 }
 
 void UCustodialWriteTransaction::BeginDestroy()
@@ -112,36 +129,14 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject GetEncodedPayloadSCResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString SerializedUnsignedTransaction = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("serializedUnsignedTransaction");
-		TransactionNonce = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("nonce");
-		UnsignedTransaction = GetEncodedPayloadSCResponse.GetObjectField("message")->GetStringField("rawUnsignedTransaction");
-		TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
-		SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
-		SignTransactionPayloadJsonObject->SetStringField("transaction", *SerializedUnsignedTransaction);
-		SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/write-callback");
-
-		TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
-		EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
-		EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-tx"); //do not change this
-		EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
-		FString OutputString;
-		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-		FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
-
-		UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload OutputString: %s"), *OutputString);
-		FString Base64Encode = FBase64::Encode(OutputString);
-		UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
-		FString URL;
-		auto Singleton = UEmergenceSingleton::GetEmergenceManager(this->WorldContextObject);
-		check(Singleton);
-		EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-		if (Env == EFutureverseEnvironment::Production) {
-			URL = TEXT("https://signer.futureverse.app?request=") + Base64Encode;
+		FString SignerUrl = GetEncodedPayloadSCResponse.GetStringField("fullSignerUrl");
+		RawTransactionWithoutSignature = GetEncodedPayloadSCResponse.GetObjectField("rawTransactionWithoutSignature");
+		if (!SignerUrl.IsEmpty()) {
+			FPlatformProcess::LaunchURL(*SignerUrl, nullptr, nullptr);
 		}
 		else {
-			URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
+			//@TODO ADD ERROR CODE HERE
 		}
-		FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 	}
 	else {
 		//@TODO ADD ERROR CODE HERE
@@ -167,26 +162,27 @@ bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerReques
 		return true;
 	}
 	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
-	
+	FString EOA = JsonParsed->GetObjectField("payload")->GetStringField("account");
 
-	TSharedPtr<FJsonObject> RawTransactionObject;
-	TSharedRef<TJsonReader<TCHAR>> RawTransactionJsonReader = TJsonReaderFactory<TCHAR>::Create(UnsignedTransaction);
-	if (FJsonSerializer::Deserialize(RawTransactionJsonReader, RawTransactionObject))
-	{
-		RawTransactionObject->SetStringField("signature", *Signature);
-		RawTransactionObject->SetStringField("from", *FVCustodialEOA);
-		RawTransactionObject->SetStringField("nonce", *TransactionNonce);
+	TSharedPtr<FJsonObject> RawTransactionObject= MakeShared<FJsonObject>();
+	RawTransactionObject->SetObjectField("rawTransactionWithoutSignature", RawTransactionWithoutSignature);
+	RawTransactionObject->SetStringField("transactionSignature", Signature);
+	RawTransactionObject->SetStringField("fromEoa", EOA);
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(RawTransactionObject.ToSharedRef(), Writer);
+	UE_LOG(LogTemp, Display, TEXT("RawTransactionObject: %s"), *OutputString);
 
-		FString OutputString;
-		TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-		FJsonSerializer::Serialize(RawTransactionObject.ToSharedRef(), Writer);
-		UE_LOG(LogTemp, Display, TEXT("RawTransactionObject: %s"), *OutputString);
-	}
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-	Headers.Add(TPair<FString, FString>{"Accept", "application/json"});
-	FString Content = "{\"jsonrpc\":\"2.0\",\"method\":\"author_submitExtrinsic\",\"params\":[\"0x5884e6b26c9ab58efd4f380c3d942de02156a375256c89c9da9140bfd1e4898827578ebda4e6b1fb5eae1128aa3949a1062e4c72c5d588cd5d78417f418782821c\"],\"id\":1}";
-	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(this, &UCustodialWriteTransaction::SendTransaction_HttpRequestComplete, "https://porcini.rootnet.app/archive", "POST", 60.0F, Headers, Content);
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
+		this, 
+		&UCustodialWriteTransaction::SendTransaction_HttpRequestComplete, 
+		"http://localhost:3002/send-transaction", 
+		"POST", 
+		60.0F, 
+		Headers, 
+		OutputString);
 
 	return true;
 }

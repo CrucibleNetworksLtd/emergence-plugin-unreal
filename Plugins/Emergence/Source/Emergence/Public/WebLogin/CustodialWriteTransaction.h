@@ -53,6 +53,8 @@ public:
 	UPROPERTY()
 	FString UnsignedTransaction;
 
+	TSharedPtr<FJsonObject> RawTransactionWithoutSignature;
+
 	void Activate() override;
 	void BeginDestroy() override;
 	static FHttpRouteHandle RouteHandle;
