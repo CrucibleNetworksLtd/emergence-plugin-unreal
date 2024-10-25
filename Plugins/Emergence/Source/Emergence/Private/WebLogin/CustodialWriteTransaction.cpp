@@ -78,7 +78,15 @@ void UCustodialWriteTransaction::Activate()
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 
-	FString ContentString = "{\"eoa\": \"0xB009d2c5d852FEd6C30511A8F50101957B4F4937\"}";
+	TSharedPtr<FJsonObject> JsonInputs = MakeShared<FJsonObject>();
+	JsonInputs->SetStringField("eoa", "0xB009d2c5d852FEd6C30511A8F50101957B4F4937");
+	JsonInputs->SetStringField("chainId", "7672");
+	JsonInputs->SetStringField("toAddress", "0xa4593663bD1c96dc04799b4f21f2F8ef6834f874");
+	JsonInputs->SetStringField("value", "0.001");
+	FString JsonInputsString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonInputsString);
+	FJsonSerializer::Serialize(JsonInputs.ToSharedRef(), Writer);
+	UE_LOG(LogTemp, Display, TEXT("JsonInputsString: %s"), *JsonInputsString);
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
@@ -87,7 +95,7 @@ void UCustodialWriteTransaction::Activate()
 		"POST",
 		300.0F,
 		Headers,
-		ContentString);
+		JsonInputsString);
 
 	/*auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
