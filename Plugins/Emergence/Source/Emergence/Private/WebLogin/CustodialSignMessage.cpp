@@ -19,31 +19,74 @@
 #include <string>
 
 bool UCustodialSignMessage::_isServerStarted = false;
-FHttpRouteHandle UCustodialSignMessage::RouteHandle =  nullptr;
+FHttpRouteHandle UCustodialSignMessage::RouteHandle = nullptr;
 
 
 UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
 	UCustodialSignMessage* BlueprintNode = NewObject<UCustodialSignMessage>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	BlueprintNode->FVCustodialEOA = FVCustodialEOA;
 	BlueprintNode->Message = Message;
+	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
 }
 
 void UCustodialSignMessage::BeginDestroy()
 {
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+	//if (!this->HasAnyFlags(RF_StrongRefOnFrame)) {
+		/*FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+		TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
-	if (httpRouter.IsValid() && UCustodialSignMessage::_isServerStarted)
-	{
-		httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
-		UCustodialSignMessage::_isServerStarted = false;
+		if (httpRouter.IsValid() && UCustodialSignMessage::_isServerStarted)
+		{
+			httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
+			UCustodialSignMessage::_isServerStarted = false;
+		}
+		*/
+		UEmergenceAsyncSingleRequestBase::BeginDestroy();
+	//}
+}
+
+void UCustodialSignMessage::LaunchSignMessageURL()
+{
+	//this segment is to do the same thing as ""0x" + Encoding.UTF8.GetBytes(value).ToHex()" in C#. Make sure if you implement this that it matches that output exactly.
+	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
+	std::ostringstream oss;
+	for (size_t i = 0; i < Message.Len(); ++i) {
+		oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(UTF8Message[i]);
+	}
+	std::string UTF8MessageHex = "0x" + oss.str();
+
+	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
+	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
+	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
+	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
+
+	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
+	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
+	EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-msg"); //do not change this
+	EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
+	UE_LOG(LogTemp, Display, TEXT("Message to sign is: %s"), *Message);
+	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload OutputString: %s"), *OutputString);
+	FString Base64Encode = FBase64::Encode(OutputString);
+	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
+
+	FString URL;
+	auto Singleton = UEmergenceSingleton::GetEmergenceManager(this->WorldContextObject);
+	check(Singleton);
+	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
+	if (Env == EFutureverseEnvironment::Production) {
+		URL = TEXT("https://signer.futureverse.app?request=") + Base64Encode;
+	}
+	else {
+		URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
 	}
 
-	UEmergenceAsyncSingleRequestBase::BeginDestroy();
+	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
 void UCustodialSignMessage::Activate()
@@ -61,7 +104,7 @@ void UCustodialSignMessage::Activate()
 	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
 	{
 
-#if(ENGINE_MINOR_VERSION >= 2) && (ENGINE_MAJOR_VERSION >= 5)
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
 		FHttpRequestHandler Handler;
 		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
@@ -72,12 +115,26 @@ void UCustodialSignMessage::Activate()
 #endif
 
 		httpServerModule.StartAllListeners();
+		
+		FTimerDelegate TimerCallback;
+		/*since we seemingly need to wait for the port to open (its async)
+		but theres no way to know when thats happened without rewriting the whole
+		of the httpserver module, adding a 1 second delay to make fully sure its open.
+		1 second should be way more than is nessacery.*/
+		TimerCallback.BindLambda([&]
+			{
+				LaunchSignMessageURL();
+			});
+		FTimerHandle Handle;
+		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 1.0f, false);
 
 		UCustodialSignMessage::_isServerStarted = true;
 		UE_LOG(LogTemp, Log, TEXT("Web server started on port = 3000"));
+
 	}
 	else if (UCustodialSignMessage::_isServerStarted) {
 		UE_LOG(LogTemp, Log, TEXT("Web already started on port = 3000"));
+		LaunchSignMessageURL();
 	}
 	else
 	{
@@ -88,43 +145,7 @@ void UCustodialSignMessage::Activate()
 		return;
 	}
 
-	//this segment is to do the same thing as ""0x" + Encoding.UTF8.GetBytes(value).ToHex()" in C#. Make sure if you implement this that it matches that output exactly.
-	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
-	std::ostringstream oss;
-	for (size_t i = 0; i < Message.Len(); ++i) {
-		oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(UTF8Message[i]);
-	}
-	std::string UTF8MessageHex = "0x" + oss.str();
-	
-	TSharedPtr<FJsonObject> SignTransactionPayloadJsonObject = MakeShareable(new FJsonObject);
-	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
-	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
-	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
 
-	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
-	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
-	EncodedPayloadJsonObject->SetStringField("tag", "fv/sign-msg"); //do not change this
-	EncodedPayloadJsonObject->SetObjectField("payload", SignTransactionPayloadJsonObject);
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(EncodedPayloadJsonObject.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("Message to sign is: %s"), *Message);
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload OutputString: %s"), *OutputString);
-	FString Base64Encode = FBase64::Encode(OutputString);
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
-	
-	FString URL;
-	auto Singleton = UEmergenceSingleton::GetEmergenceManager(this->WorldContextObject);
-	check(Singleton);
-	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-	if (Env == EFutureverseEnvironment::Production) {
-		URL = TEXT("https://signer.futureverse.app?request=") + Base64Encode;
-	}
-	else {
-		URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
-	}
-	
-	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
 }
 
 bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)

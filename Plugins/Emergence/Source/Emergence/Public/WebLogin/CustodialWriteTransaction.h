@@ -19,10 +19,12 @@ class EMERGENCE_API UCustodialWriteTransaction : public UEmergenceAsyncSingleReq
 public:
 	//@TODO add states
 
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
-	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Custodial Login")
+	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
 
 	void GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+	void GetEncodedData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
@@ -40,6 +42,12 @@ public:
 
 	UPROPERTY()
 	FString Method;
+	
+	UPROPERTY()
+	FString Value;
+	
+	UPROPERTY()
+	TArray<FString> Content;
 		
 	UPROPERTY()
 	FString EncodedSig; 
@@ -53,7 +61,17 @@ public:
 	UPROPERTY()
 	FString UnsignedTransaction;
 
-	TSharedPtr<FJsonObject> RawTransactionWithoutSignature;
+	static FJsonObject RawTransactionWithoutSignature;
+
+	static bool TransactionInProgress;
+
+	void EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString Value, FString Data);
+
+	void CleanupHttpRoute();
+
+	void GetEncodedData();
+
+	void TransactionEnded();
 
 	void Activate() override;
 	void BeginDestroy() override;

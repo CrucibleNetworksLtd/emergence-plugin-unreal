@@ -90,7 +90,7 @@ void UCustodialLogin::Activate()
 
 	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted)
 	{
-#if(ENGINE_MINOR_VERSION >= 2) && (ENGINE_MAJOR_VERSION >= 5)
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
 		FHttpRequestHandler Handler;
 		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleAuthRequestCallback(Req, OnComplete); });
 		UCustodialLogin::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
@@ -176,16 +176,18 @@ void UCustodialLogin::Activate()
 
 void UCustodialLogin::BeginDestroy()
 {
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+	//if (!this->HasAnyFlags(RF_StrongRefOnFrame)) {
+		/*FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+		TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
-	if (httpRouter.IsValid() && UCustodialLogin::_isServerStarted)
-	{
-		httpRouter->UnbindRoute(UCustodialLogin::RouteHandle);
-		UCustodialLogin::_isServerStarted = false;
-	}
-
-	UEmergenceAsyncSingleRequestBase::BeginDestroy();
+		if (httpRouter.IsValid() && UCustodialLogin::_isServerStarted)
+		{
+			httpRouter->UnbindRoute(UCustodialLogin::RouteHandle);
+			UCustodialLogin::_isServerStarted = false;
+		}
+		*/
+		UEmergenceAsyncSingleRequestBase::BeginDestroy();
+	//}
 }
 
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)

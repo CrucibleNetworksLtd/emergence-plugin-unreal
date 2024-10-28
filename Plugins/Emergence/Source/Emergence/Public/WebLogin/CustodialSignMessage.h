@@ -20,6 +20,8 @@ public:
 
 	void BeginDestroy() override;
 
+	void LaunchSignMessageURL();
+
 	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialSignMessageComplete, const FString, SignedMessage, EErrorCode, StatusCode);
