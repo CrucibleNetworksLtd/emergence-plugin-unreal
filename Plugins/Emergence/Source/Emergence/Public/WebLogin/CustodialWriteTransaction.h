@@ -20,7 +20,7 @@ public:
 	//@TODO add states
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Custodial Login")
-	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
+	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
 
 	void GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
@@ -50,10 +50,7 @@ public:
 	TArray<FString> Content;
 		
 	UPROPERTY()
-	FString EncodedSig; 
-
-	UPROPERTY()
-	FString FVCustodialEOA;
+	FString EncodedSig;
 
 	UPROPERTY()
 	FString TransactionNonce;

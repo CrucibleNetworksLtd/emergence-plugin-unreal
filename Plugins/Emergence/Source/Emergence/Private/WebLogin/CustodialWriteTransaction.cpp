@@ -20,11 +20,10 @@ FHttpRouteHandle UCustodialWriteTransaction::RouteHandle = nullptr;
 FJsonObject UCustodialWriteTransaction::RawTransactionWithoutSignature = FJsonObject();
 bool UCustodialWriteTransaction::TransactionInProgress = false;
 
-UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, FString FVCustodialEOA, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content)
+UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content)
 {
 	UCustodialWriteTransaction* BlueprintNode = NewObject<UCustodialWriteTransaction>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	BlueprintNode->FVCustodialEOA = FVCustodialEOA;
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->Method = Method;
 	BlueprintNode->Value = Value;
@@ -35,7 +34,7 @@ UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransactio
 
 void UCustodialWriteTransaction::Activate()
 {
-	if (FVCustodialEOA.IsEmpty() || Method.IsEmpty() || !DeployedContract) {
+	if (Method.IsEmpty() || !DeployedContract) {
 		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialWriteTransaction, param invalid!"));
 		return;
 	}
