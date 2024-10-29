@@ -30,12 +30,12 @@ public:
 
 	void SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAvatarByIdCompleted, const FString, TransactionHash, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialWriteTransactionCompleted, const FString, TransactionHash, EErrorCode, StatusCode);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
 	UPROPERTY(BlueprintAssignable)
-	FOnAvatarByIdCompleted OnAvatarByIdCompleted;
+	FOnCustodialWriteTransactionCompleted OnCustodialWriteTransactionCompleted;
 
 	UPROPERTY()
 	UEmergenceDeployment* DeployedContract;
@@ -59,10 +59,11 @@ public:
 	FString UnsignedTransaction;
 
 	static FJsonObject RawTransactionWithoutSignature;
+	static FString RpcUrl;
 
 	static bool TransactionInProgress;
 
-	void EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString Value, FString Data);
+	void EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString Value, FString Data, FString RpcUrl);
 
 	void CleanupHttpRoute();
 
@@ -73,6 +74,6 @@ public:
 	void Activate() override;
 	void BeginDestroy() override;
 	static FHttpRouteHandle RouteHandle;
-
+	static UObject* ContextObject;
 	static bool _isServerStarted;
 };

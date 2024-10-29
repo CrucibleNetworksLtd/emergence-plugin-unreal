@@ -77,6 +77,9 @@ private:
 	void GetTransactionStatus();
 
 	UFUNCTION()
+	void CustodialWriteTransactionCompleted(FString TransactionHash, EErrorCode StatusCode);
+
+	UFUNCTION()
 	void TransactionStatusReturns(FEmergenceTransaction Transaction, EErrorCode StatusCode);
 
 	UFUNCTION()

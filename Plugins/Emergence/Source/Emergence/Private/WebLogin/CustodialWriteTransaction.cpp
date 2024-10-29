@@ -17,13 +17,16 @@
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
 FHttpRouteHandle UCustodialWriteTransaction::RouteHandle = nullptr;
+UObject* UCustodialWriteTransaction::ContextObject = nullptr;
 FJsonObject UCustodialWriteTransaction::RawTransactionWithoutSignature = FJsonObject();
 bool UCustodialWriteTransaction::TransactionInProgress = false;
+FString UCustodialWriteTransaction::RpcUrl = FString();
 
 UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content)
 {
 	UCustodialWriteTransaction* BlueprintNode = NewObject<UCustodialWriteTransaction>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
+	UCustodialWriteTransaction::ContextObject = WorldContextObject;
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->Method = Method;
 	BlueprintNode->Value = Value;
@@ -92,7 +95,56 @@ void UCustodialWriteTransaction::Activate()
 	}
 }
 
-void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString InputValue, FString Data)
+void UCustodialWriteTransaction::GetEncodedData()
+{
+	TSharedPtr<FJsonObject> JsonToSend = MakeShared<FJsonObject>();
+	JsonToSend->SetStringField("ABI", DeployedContract->Contract->ABI);
+	JsonToSend->SetStringField("ContractAddress", DeployedContract->Address);
+	JsonToSend->SetStringField("MethodName", Method);
+	TArray<TSharedPtr<FJsonValue>> CallInputsJsonArray;
+	for (FString Param : Content) {
+		CallInputsJsonArray.Add(MakeShared<FJsonValueString>(Param));
+	}
+	JsonToSend->SetArrayField("CallInputs", CallInputsJsonArray);
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(JsonToSend.ToSharedRef(), Writer);
+	UE_LOG(LogTemp, Display, TEXT("GetEncodedData()\n%s"), *OutputString);
+
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+
+	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
+		this,
+		&UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete,
+		UHttpHelperLibrary::APIBase + "getEncodedData",
+		"POST",
+		60.0F,
+		Headers,
+		OutputString);
+}
+
+void UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+{
+	UE_LOG(LogTemp, Display, TEXT("GetEncodedData_HttpRequestComplete:\n%s"), *HttpResponse->GetContentAsString());
+
+	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
+	FJsonObject GetEncodedDataJson = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString Data = GetEncodedDataJson.GetObjectField("message")->GetStringField("Data");
+		FString ChainID = FString::FromInt(DeployedContract->Blockchain->ChainID);
+		FString ContractAddress = DeployedContract->Address;
+		auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialWriteTransaction::ContextObject);
+		if (Singleton) {
+			EncodeTransaction(Singleton->GetCachedAddress(true), ChainID, ContractAddress, Value, Data, DeployedContract->Blockchain->NodeURL);
+		}
+	}
+	else {
+		//@TODO ADD ERROR CODE HERE
+	}
+}
+
+void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString InputValue, FString Data, FString InputRpcUrl)
 {
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
@@ -103,6 +155,8 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	JsonInputs->SetStringField("toAddress", ToAddress);
 	JsonInputs->SetStringField("value", InputValue);
 	JsonInputs->SetStringField("data", Data);
+	JsonInputs->SetStringField("rpcUrl", InputRpcUrl);
+	UCustodialWriteTransaction::RpcUrl = InputRpcUrl;
 	FString JsonInputsString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonInputsString);
 	FJsonSerializer::Serialize(JsonInputs.ToSharedRef(), Writer);
@@ -157,35 +211,6 @@ void UCustodialWriteTransaction::CleanupHttpRoute()
 	}
 }
 
-void UCustodialWriteTransaction::GetEncodedData()
-{
-	TSharedPtr<FJsonObject> JsonToSend = MakeShared<FJsonObject>();
-	JsonToSend->SetStringField("ABI", DeployedContract->Contract->ABI);
-	JsonToSend->SetStringField("ContractAddress", DeployedContract->Address);
-	JsonToSend->SetStringField("MethodName", Method);
-	TArray<TSharedPtr<FJsonValue>> CallInputsJsonArray;
-	for (FString Param : Content) {
-		CallInputsJsonArray.Add(MakeShared<FJsonValueString>(Param));
-	}
-	JsonToSend->SetArrayField("CallInputs", CallInputsJsonArray);
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(JsonToSend.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedData()\n%s"), *OutputString);
-
-	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
-
-	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
-		this,
-		&UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete,
-		"http://localhost:5173/api/getEncodedData",
-		"POST",
-		60.0F,
-		Headers,
-		OutputString);
-}
-
 void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete"));
@@ -207,23 +232,6 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 		//@TODO ADD ERROR CODE HERE
 	}
 	
-}
-
-void UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
-{
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedData_HttpRequestComplete:\n%s"), *HttpResponse->GetContentAsString());
-
-	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject GetEncodedDataJson = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString Data = GetEncodedDataJson.GetObjectField("message")->GetStringField("Data");
-		FString ChainID = FString::FromInt(DeployedContract->Blockchain->ChainID);
-		FString ContractAddress = DeployedContract->Address;
-		EncodeTransaction("0xB009d2c5d852FEd6C30511A8F50101957B4F4937", ChainID, ContractAddress, Value, Data);
-	}
-	else {
-		//@TODO ADD ERROR CODE HERE
-	}
 }
 
 bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
@@ -253,9 +261,10 @@ bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerReques
 	}
 
 	TSharedPtr<FJsonObject> RawTransactionObject= MakeShared<FJsonObject>();
-	RawTransactionObject->SetObjectField("rawTransactionWithoutSignature", MakeShared<FJsonObject>(RawTransactionWithoutSignature));
+	RawTransactionObject->SetObjectField("rawTransactionWithoutSignature", MakeShared<FJsonObject>(UCustodialWriteTransaction::RawTransactionWithoutSignature));
 	RawTransactionObject->SetStringField("transactionSignature", Signature);
 	RawTransactionObject->SetStringField("fromEoa", EOA);
+	RawTransactionObject->SetStringField("rpcUrl", UCustodialWriteTransaction::RpcUrl);
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(RawTransactionObject.ToSharedRef(), Writer);
@@ -279,15 +288,22 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 {
 	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete"));
 	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete data: %s"), *HttpResponse->GetContentAsString());
-	TSharedPtr<FJsonObject> JsonParsed;
-	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
-	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
-	{
-		UE_LOG(LogTemp, Error, TEXT("SendTransaction_HttpRequestComplete: Deserialize failed!"));
+	if (bSucceeded) {
+		TSharedPtr<FJsonObject> JsonParsed;
+		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
+		if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+		{
+			UE_LOG(LogTemp, Error, TEXT("SendTransaction_HttpRequestComplete: Deserialize failed!"));
+			return; //@TODO ADD ERROR HANDLING
+		}
+		FString Hash = JsonParsed->GetStringField("hash");
+		UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
+		OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk);
+		TransactionEnded();
 	}
-	FString hash = JsonParsed->GetStringField("hash");
-	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *hash);
-	TransactionEnded();
+	else {
+		//@TODO ADD ERROR HANDLING
+	}
 }
 
 TUniquePtr<FHttpServerResponse> UCustodialWriteTransaction::GetHttpPage()
