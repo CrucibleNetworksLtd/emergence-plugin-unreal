@@ -7,6 +7,7 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
+#include "WebLogin/CustodialSignMessage.h"
 #include "RequestToSign.generated.h"
 
 /**
@@ -35,6 +36,9 @@ private:
 	
 	UFUNCTION()
 	void OnInternalCustodialSignMessageComplete(const FString SignedMessage, EErrorCode StatusCode);
+
+	UPROPERTY()
+	UCustodialSignMessage* CustodialSignMessage;
 
 	FString MessageToSign;
 };
