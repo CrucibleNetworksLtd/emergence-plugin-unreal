@@ -4,11 +4,7 @@
 #include "WalletConnectCode.h"
 
 TSharedRef<SWidget> UWalletConnectCode::RebuildWidget() {
-	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
-	if (Singleton) {
-		this->GetOwningPlayer()->GetWorld()->GetTimerManager().SetTimer(TimeRemainingTimerHandle, this, &UWalletConnectCode::UpdateTimeRemaining, 1.0F, true, 1.0F);
-		this->StartAttempt();
-	}
+	StartAll();
 	return Super::RebuildWidget();
 }
 
@@ -53,6 +49,21 @@ void UWalletConnectCode::GetHandshakeCompleted(FString Address, EErrorCode Statu
 	if (StatusCode != EErrorCode::EmergenceOk) {
 		this->OnSignInFailure.Broadcast(EEmergenceWalletConnectStepError::HandshakeFail);
 		this->CancelAllAndRestartAttempt();
+	}
+}
+
+void UWalletConnectCode::CancelAll()
+{
+	Singleton->CancelSignInRequest();
+	this->GetOwningPlayer()->GetWorld()->GetTimerManager().ClearTimer(TimeRemainingTimerHandle);
+}
+
+void UWalletConnectCode::StartAll()
+{
+	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
+	if (Singleton) {
+		this->GetOwningPlayer()->GetWorld()->GetTimerManager().SetTimer(TimeRemainingTimerHandle, this, &UWalletConnectCode::UpdateTimeRemaining, 1.0F, true, 1.0F);
+		this->StartAttempt();
 	}
 }
 
