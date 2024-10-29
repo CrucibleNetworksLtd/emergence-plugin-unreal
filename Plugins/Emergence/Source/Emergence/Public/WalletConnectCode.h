@@ -35,7 +35,7 @@ private:
 	UFUNCTION()
 	void GetHandshakeCompleted(FString Address, EErrorCode StatusCode);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Wallet Connect")
 	void StartAttempt();
 
 	UPROPERTY()
