@@ -24,10 +24,19 @@ void URequestToSign::Activate()
 	if (Singleton->UsingWebLoginFlow) {
 		MessageToSign.ReplaceInline(TEXT("\\\""), TEXT("\"")); //unescape double layered json
 		CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(true), MessageToSign);
-		CustodialSignMessage->OnCustodialSignMessageComplete.AddDynamic(this, &URequestToSign::OnInternalCustodialSignMessageComplete);
+		CustodialSignMessage->OnCustodialSignMessageComplete.BindLambda([&](const FString SignedMessage, EErrorCode StatusCode){
+			if (StatusCode == EErrorCode::EmergenceOk) {
+				UE_LOG(LogTemp, Display, TEXT("OnInternalCustodialSignMessageComplete sucessfully"));
+				OnRequestToSignCompleted.Broadcast(SignedMessage, StatusCode);
+			}
+			else {
+				OnRequestToSignCompleted.Broadcast("", StatusCode);
+				UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("RequestToSign", StatusCode);
+			}
+			SetReadyToDestroy();
+		});
 		CustodialSignMessage->Activate();
 		UE_LOG(LogEmergenceHttp, Display, TEXT("RequestToSign request started via web login flow, calling OnInternalCustodialSignMessageComplete on request completed"));
-		return;
 	}
 	//wallet connect flow
 	else {
@@ -43,6 +52,11 @@ void URequestToSign::Activate()
 		Request = UHttpHelperLibrary::ExecuteHttpRequest<URequestToSign>(this, &URequestToSign::RequestToSign_HttpRequestComplete, UHttpHelperLibrary::APIBase + "request-to-sign", "POST", 60.0F, Headers, Content);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("RequestToSign request started, calling RequestToSign_HttpRequestComplete on request completed"));
 	}
+}
+
+void URequestToSign::BeginDestroy()
+{
+	UEmergenceAsyncSingleRequestBase::BeginDestroy();
 }
 
 void URequestToSign::RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -70,13 +84,5 @@ void URequestToSign::RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpReque
 
 void URequestToSign::OnInternalCustodialSignMessageComplete(const FString SignedMessage, EErrorCode StatusCode)
 {
-	if (StatusCode == EErrorCode::EmergenceOk) {
-		UE_LOG(LogTemp, Display, TEXT("OnInternalCustodialSignMessageComplete sucessfully"));
-		OnRequestToSignCompleted.Broadcast(SignedMessage, StatusCode);
-	}
-	else {
-		OnRequestToSignCompleted.Broadcast("", StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("RequestToSign", StatusCode);
-	}
-	SetReadyToDestroy();
+
 }

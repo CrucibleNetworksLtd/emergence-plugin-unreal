@@ -26,6 +26,8 @@ public:
 	static URequestToSign* RequestToSign(UObject* WorldContextObject, const FString& MessageToSign);
 
 	virtual void Activate() override;
+	void BeginDestroy() override;
+
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRequestToSignCompleted, FString, SignedMessage, EErrorCode, StatusCode);
 
@@ -40,5 +42,6 @@ private:
 	UPROPERTY()
 	UCustodialSignMessage* CustodialSignMessage;
 
+	UPROPERTY()
 	FString MessageToSign;
 };

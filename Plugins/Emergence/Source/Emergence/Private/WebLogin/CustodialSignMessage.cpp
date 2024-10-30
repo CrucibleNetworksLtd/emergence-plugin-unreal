@@ -20,7 +20,7 @@
 
 bool UCustodialSignMessage::_isServerStarted = false;
 FHttpRouteHandle UCustodialSignMessage::RouteHandle = nullptr;
-
+TDelegate<void(FString, EErrorCode)> UCustodialSignMessage::CallbackComplete;
 
 UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message)
 {
@@ -34,18 +34,79 @@ UCustodialSignMessage* UCustodialSignMessage::CustodialSignMessage(UObject* Worl
 
 void UCustodialSignMessage::BeginDestroy()
 {
-	//if (!this->HasAnyFlags(RF_StrongRefOnFrame)) {
-		/*FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-		TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
-		if (httpRouter.IsValid() && UCustodialSignMessage::_isServerStarted)
-		{
-			httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
-			UCustodialSignMessage::_isServerStarted = false;
-		}
-		*/
-		UEmergenceAsyncSingleRequestBase::BeginDestroy();
-	//}
+	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
+	{
+		httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
+		UCustodialSignMessage::_isServerStarted = false;
+	}
+
+	OnCustodialSignMessageComplete.Unbind();
+	UEmergenceAsyncSingleRequestBase::BeginDestroy();
+}
+
+void UCustodialSignMessage::SetReadyToDestroy()
+{
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+
+	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
+	{
+		httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
+		UCustodialSignMessage::_isServerStarted = false;
+	}
+
+	OnCustodialSignMessageComplete.Unbind();
+	UEmergenceAsyncSingleRequestBase::SetReadyToDestroy();
+}
+
+void UCustodialSignMessage::Activate()
+{
+	if (FVCustodialEOA.IsEmpty() || Message.IsEmpty()) {
+		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid! EOA was \"%s\", message was \"%s\""), *FVCustodialEOA, *Message);
+		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
+		return;
+	}
+
+	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
+
+	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
+	{
+
+#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
+		FHttpRequestHandler Handler;
+		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
+
+#else
+		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
+			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
+#endif
+
+		httpServerModule.StartAllListeners();
+		
+		LaunchSignMessageURL();
+
+		UCustodialSignMessage::_isServerStarted = true;
+		UE_LOG(LogTemp, Log, TEXT("Web server started on port = 3000"));
+
+	}
+	else if (UCustodialSignMessage::_isServerStarted) {
+		UE_LOG(LogTemp, Log, TEXT("Web already started on port = 3000"));
+		LaunchSignMessageURL();
+	}
+	else
+	{
+		UCustodialSignMessage::_isServerStarted = false;
+		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = 3000"));
+		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
+		return;
+	}
 }
 
 void UCustodialSignMessage::LaunchSignMessageURL()
@@ -85,67 +146,11 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	else {
 		URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
 	}
-
+	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) {
+		OnCustodialSignMessageComplete.Execute(SignedMessage, Error);
+		SetReadyToDestroy();
+	});
 	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
-}
-
-void UCustodialSignMessage::Activate()
-{
-	if (FVCustodialEOA.IsEmpty() || Message.IsEmpty()) {
-		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid! EOA was \"%s\", message was \"%s\""), *FVCustodialEOA, *Message);
-		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
-		SetReadyToDestroy();
-		return;
-	}
-
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
-
-	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
-	{
-
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
-		FHttpRequestHandler Handler;
-		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
-		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
-
-#else
-		UCustodialSignMessage::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/signature-callback")), EHttpServerRequestVerbs::VERB_GET,
-			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
-#endif
-
-		httpServerModule.StartAllListeners();
-		
-		FTimerDelegate TimerCallback;
-		/*since we seemingly need to wait for the port to open (its async)
-		but theres no way to know when thats happened without rewriting the whole
-		of the httpserver module, adding a 1 second delay to make fully sure its open.
-		1 second should be way more than is nessacery.*/
-		TimerCallback.BindLambda([&]
-			{
-				LaunchSignMessageURL();
-			});
-		FTimerHandle Handle;
-		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 1.0f, false);
-
-		UCustodialSignMessage::_isServerStarted = true;
-		UE_LOG(LogTemp, Log, TEXT("Web server started on port = 3000"));
-
-	}
-	else if (UCustodialSignMessage::_isServerStarted) {
-		UE_LOG(LogTemp, Log, TEXT("Web already started on port = 3000"));
-		LaunchSignMessageURL();
-	}
-	else
-	{
-		UCustodialSignMessage::_isServerStarted = false;
-		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = 3000"));
-		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
-		SetReadyToDestroy();
-		return;
-	}
-
-
 }
 
 bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
@@ -160,16 +165,30 @@ bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Re
 	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: %s"), *ResponseJsonString);
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseJsonString);
-	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+	if (FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
-		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
-		OnCustodialSignMessageComplete.Broadcast(FString(), EErrorCode::EmergenceClientJsonParseFailed);
-		return true;
+		TSharedPtr<FJsonObject> ResultObject;
+		if (JsonParsed->GetObjectField("result")->GetStringField("status") != "error") { //if this wasn't an error
+			FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
+			UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: OnCustodialSignMessageComplete"));
+			CallbackComplete.Execute(Signature, EErrorCode::EmergenceOk);
+		}
+		else { //if this was an error
+			FString ErrorString = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("error");
+			UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback error: %s"), *ErrorString);
+			if (ErrorString == "USER_REJECTED") {
+				CallbackComplete.Execute(FString(), EErrorCode::EmergenceClientUserRejected);
+			}
+			else {
+				CallbackComplete.Execute(FString(), EErrorCode::ServerError);
+			}
+		}
 	}
-	TSharedPtr<FJsonObject> ResultObject;
-	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
-	OnCustodialSignMessageComplete.Broadcast(Signature, EErrorCode::EmergenceOk);
-
+	else {
+		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
+		CallbackComplete.Execute(FString(), EErrorCode::EmergenceClientJsonParseFailed);
+	}
+	//SetReadyToDestroy();
 	return true;
 }
 

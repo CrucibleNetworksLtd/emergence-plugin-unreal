@@ -26,7 +26,6 @@
 #include "Engine/GameViewportClient.h"
 #include "TextureResource.h"
 
-#include "WalletService/RequestToSign.h"
 #include "Misc/DateTime.h"
 
 UEmergenceSingleton::UEmergenceSingleton() {
@@ -677,7 +676,7 @@ void UEmergenceSingleton::GetAccessToken()
 	AccessTokenTimestamp = FString::Printf(TEXT("%lld"), OneDayFromNow.ToUnixTimestamp());
 	FString AccessTokenMessage;
 	AccessTokenMessage = "{\\\"expires-on\\\":" + AccessTokenTimestamp + "}";
-	URequestToSign* RequestToSign = URequestToSign::RequestToSign(this, AccessTokenMessage);
+	RequestToSign = URequestToSign::RequestToSign(this, AccessTokenMessage);
 	RequestToSign->OnRequestToSignCompleted.AddDynamic(this, &UEmergenceSingleton::OnRequestToSignForAccessTokenComplete);
 	RequestToSign->Activate();
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAccessToken request started, calling OnRequestToSignForAccessTokenComplete on request completed"));

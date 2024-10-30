@@ -7,6 +7,7 @@
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
 #include "HttpRouteHandle.h"
+#include "ErrorCodeFunctionLibrary.h"
 #include "CustodialSignMessage.generated.h"
 
 //This class should only be called by Request To Sign
@@ -20,16 +21,20 @@ public:
 
 	void BeginDestroy() override;
 
+	void SetReadyToDestroy() override;
+
 	void LaunchSignMessageURL();
 
-	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
+	static bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialSignMessageComplete, const FString, SignedMessage, EErrorCode, StatusCode);
+	 //FOnCustodialSignMessageComplete;
+	//DECLARE_DELEGATE_TwoParams(FOnCustodialSignMessageComplete, FString, EErrorCode);
 
-	TUniquePtr<FHttpServerResponse> GetHttpPage();
+	static TUniquePtr<FHttpServerResponse> GetHttpPage();
 
-	UPROPERTY(BlueprintAssignable)
-	FOnCustodialSignMessageComplete OnCustodialSignMessageComplete;
+	TDelegate<void(FString, EErrorCode)> OnCustodialSignMessageComplete;
+
+	static TDelegate<void(FString, EErrorCode)> CallbackComplete;
 
 	UPROPERTY()
 	FString FVCustodialEOA;
