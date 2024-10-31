@@ -36,13 +36,16 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
 
+	void Activate() override;
+
+	void BeginDestroy() override;
+private:
+
 	UFUNCTION()
 	FString CleanupBase64ForWeb(FString Input);
 
 	TUniquePtr<FHttpServerResponse> GetHttpPage();
 
-	void Activate() override;
-	void BeginDestroy() override;
 	bool HandleAuthRequestCallback(const FHttpServerRequest& Request, const FHttpResultCallback& OnComplete);
 
 	UFUNCTION()
@@ -52,7 +55,6 @@ public:
 
 	static FHttpRouteHandle RouteHandle;
 
-private:
 	static FString clientid;
 
 	static const UObject* ContextObject;
