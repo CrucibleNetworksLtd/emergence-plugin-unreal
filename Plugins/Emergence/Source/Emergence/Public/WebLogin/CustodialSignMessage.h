@@ -23,16 +23,15 @@ public:
 
 	void SetReadyToDestroy() override;
 
+	void Activate() override;
+
+	TDelegate<void(FString, EErrorCode)> OnCustodialSignMessageComplete;
+private:
 	void LaunchSignMessageURL();
 
 	static bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
-	 //FOnCustodialSignMessageComplete;
-	//DECLARE_DELEGATE_TwoParams(FOnCustodialSignMessageComplete, FString, EErrorCode);
-
 	static TUniquePtr<FHttpServerResponse> GetHttpPage();
-
-	TDelegate<void(FString, EErrorCode)> OnCustodialSignMessageComplete;
 
 	static TDelegate<void(FString, EErrorCode)> CallbackComplete;
 
@@ -41,8 +40,6 @@ public:
 
 	UPROPERTY()
 	FString Message;
-
-	void Activate() override;
 
 	static bool _isServerStarted;
 
