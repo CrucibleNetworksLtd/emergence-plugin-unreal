@@ -9,16 +9,12 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "CustodialWriteTransaction.generated.h"
 
-/**
- * 
- */
-UCLASS()
+//This class should only be called by WriteMethod
+UCLASS(meta = (HasDedicatedAsyncNode))
 class EMERGENCE_API UCustodialWriteTransaction : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
-	//@TODO add states
-
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Custodial Login")
 	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
 
