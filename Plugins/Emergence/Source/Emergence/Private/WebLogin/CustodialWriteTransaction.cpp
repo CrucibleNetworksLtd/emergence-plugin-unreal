@@ -16,17 +16,12 @@
 #include "Containers/ArrayView.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
-FHttpRouteHandle UCustodialWriteTransaction::RouteHandle = nullptr;
-UObject* UCustodialWriteTransaction::ContextObject = nullptr;
-FJsonObject UCustodialWriteTransaction::RawTransactionWithoutSignature = FJsonObject();
-bool UCustodialWriteTransaction::TransactionInProgress = false;
-FString UCustodialWriteTransaction::RpcUrl = FString();
+TDelegate<void(FString, FString, EErrorCode)> UCustodialWriteTransaction::CallbackComplete;
 
 UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content)
 {
 	UCustodialWriteTransaction* BlueprintNode = NewObject<UCustodialWriteTransaction>();
 	BlueprintNode->WorldContextObject = WorldContextObject;
-	UCustodialWriteTransaction::ContextObject = WorldContextObject;
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->Method = Method;
 	BlueprintNode->Value = Value;
@@ -38,7 +33,8 @@ UCustodialWriteTransaction* UCustodialWriteTransaction::CustodialWriteTransactio
 void UCustodialWriteTransaction::Activate()
 {
 	if (Method.IsEmpty() || !DeployedContract) {
-		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialWriteTransaction, param invalid!"));
+		UE_LOG(LogEmergence, Error, TEXT("Could not do CustodialWriteTransaction, param invalid!"));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceClientFailed);
 		return;
 	}
 
@@ -46,7 +42,7 @@ void UCustodialWriteTransaction::Activate()
 	int ServerPort = 3000;
 	if (ServerPort <= 0)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
+		UE_LOG(LogEmergence, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
 		return;
 	}
 
@@ -59,17 +55,17 @@ void UCustodialWriteTransaction::Activate()
 #if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
 		FHttpRequestHandler Handler;
 		Handler.BindLambda([this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
-		UCustodialWriteTransaction::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
+		httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET, Handler);
 
 #else
-		UCustodialWriteTransaction::RouteHandle = httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
+		httpRouter->BindRoute(FHttpPath(TEXT("/write-callback")), EHttpServerRequestVerbs::VERB_GET,
 			[this](const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete) { return HandleSignatureCallback(Req, OnComplete); });
 #endif
 
 		httpServerModule.StartAllListeners();
 
 		UCustodialWriteTransaction::_isServerStarted = true;
-		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Log, TEXT("Web server started on port = %d"), ServerPort);
 
 		FTimerDelegate TimerCallback;
 		/*since we seemingly need to wait for the port to open (its async) 
@@ -84,13 +80,14 @@ void UCustodialWriteTransaction::Activate()
 		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 1.0f, false);
 	}
 	else if (UCustodialWriteTransaction::_isServerStarted) {
-		UE_LOG(LogTemp, Log, TEXT("Web already started on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Log, TEXT("Web already started on port = %d"), ServerPort);
 		GetEncodedData();
 	}
 	else
 	{
 		UCustodialWriteTransaction::_isServerStarted = false;
-		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 		return;
 	}
 }
@@ -109,7 +106,7 @@ void UCustodialWriteTransaction::GetEncodedData()
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(JsonToSend.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedData()\n%s"), *OutputString);
+	UE_LOG(LogEmergence, Display, TEXT("GetEncodedData()\n%s"), *OutputString);
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
@@ -126,7 +123,7 @@ void UCustodialWriteTransaction::GetEncodedData()
 
 void UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	UE_LOG(LogTemp, Display, TEXT("GetEncodedData_HttpRequestComplete:\n%s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergence, Display, TEXT("GetEncodedData_HttpRequestComplete:\n%s"), *HttpResponse->GetContentAsString());
 
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject GetEncodedDataJson = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
@@ -134,13 +131,15 @@ void UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete(FHttpRequest
 		FString Data = GetEncodedDataJson.GetObjectField("message")->GetStringField("Data");
 		FString ChainID = FString::FromInt(DeployedContract->Blockchain->ChainID);
 		FString ContractAddress = DeployedContract->Address;
-		auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialWriteTransaction::ContextObject);
+		auto Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 		if (Singleton) {
 			EncodeTransaction(Singleton->GetCachedAddress(true), ChainID, ContractAddress, Value, Data, DeployedContract->Blockchain->NodeURL);
 		}
 	}
 	else {
-		//@TODO ADD ERROR CODE HERE
+		UE_LOG(LogEmergence, Error, TEXT("GetEncodedData_HttpRequestComplete: Failed!"));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), StatusCode);
+		return;
 	}
 }
 
@@ -148,6 +147,23 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 {
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
+
+	if (Eoa.IsEmpty() ||
+		ChainId.IsEmpty() ||
+		ToAddress.IsEmpty() ||
+		InputValue.IsEmpty() ||
+		Data.IsEmpty() ||
+		InputRpcUrl.IsEmpty()) {
+		UE_LOG(LogEmergence, Error, TEXT("One of the required inputs to EncodeTransaction() was empty."));
+		UE_LOG(LogEmergence, Error, TEXT("Eoa = %s"), *Eoa);
+		UE_LOG(LogEmergence, Error, TEXT("ChainId = %s"), *ChainId);
+		UE_LOG(LogEmergence, Error, TEXT("ToAddress = %s"), *ToAddress);
+		UE_LOG(LogEmergence, Error, TEXT("InputValue = %s"), *InputValue);
+		UE_LOG(LogEmergence, Error, TEXT("Data = %s"), *Data);
+		UE_LOG(LogEmergence, Error, TEXT("InputRpcUrl = %s"), *InputRpcUrl);
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+		return;
+	}
 
 	TSharedPtr<FJsonObject> JsonInputs = MakeShared<FJsonObject>();
 	JsonInputs->SetStringField("eoa", Eoa);
@@ -160,68 +176,42 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	FString JsonInputsString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonInputsString);
 	FJsonSerializer::Serialize(JsonInputs.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("JsonInputsString: %s"), *JsonInputsString);
+	UE_LOG(LogEmergence, Display, TEXT("JsonInputsString: %s"), *JsonInputsString);
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
-		"http://localhost:3002/encode-transaction",
+		"https://fvhelperservice.openmeta.xyz/encode-transaction",
 		"POST",
 		300.0F,
 		Headers,
 		JsonInputsString);
-
-	/*auto WriteMethodRequest = UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
-		this,
-		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
-		UHttpHelperLibrary::APIBase +
-		"getEncodedPayloadSC?contractAddress=" + DeployedContract->Address +
-		"&nodeUrl=" + DeployedContract->Blockchain->NodeURL +
-		"&abi=" + DeployedContract->Contract->ABI +
-		"&contractAddress=" + DeployedContract->Address +
-		"&methodName=" + Method +
-		"&chainId=" + FString::Printf(TEXT("%lld"), DeployedContract->Blockchain->ChainID) +
-		"&value=7500000000000" +
-		"&useraddress=" + *FVCustodialEOA,
-		"POST",
-		300.0F, //give the user lots of time to mess around setting high gas fees
-		Headers,
-		ContentString.ReplaceCharWithEscapedChar());*/
 }
 
 void UCustodialWriteTransaction::TransactionEnded()
 {
-	TransactionInProgress = false;
 	SetReadyToDestroy();
-}
-
-void UCustodialWriteTransaction::BeginDestroy()
-{
-	UEmergenceAsyncSingleRequestBase::BeginDestroy();
-}
-
-void UCustodialWriteTransaction::CleanupHttpRoute()
-{
-	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
-
-	if (httpRouter.IsValid() && UCustodialWriteTransaction::_isServerStarted)
-	{
-		httpRouter->UnbindRoute(UCustodialWriteTransaction::RouteHandle);
-		UCustodialWriteTransaction::_isServerStarted = false;
-	}
 }
 
 void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	UE_LOG(LogTemp, Display, TEXT("WriteMethod_HttpRequestComplete"));
-	UE_LOG(LogTemp, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
+	UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete"));
+	UE_LOG(LogEmergence, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
 
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject GetEncodedPayloadSCResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString SignerUrl = GetEncodedPayloadSCResponse.GetStringField("fullSignerUrl");
-		RawTransactionWithoutSignature = *GetEncodedPayloadSCResponse.GetObjectField("rawTransactionWithoutSignature").Get();
+		FString SignerUrl = GetEncodedPayloadResponse.GetStringField("fullSignerUrl");
+		RawTransactionWithoutSignature = *GetEncodedPayloadResponse.GetObjectField("rawTransactionWithoutSignature").Get();
 		if (!SignerUrl.IsEmpty()) {
+			CallbackComplete.BindLambda([&](FString Signature, FString EOA, EErrorCode ErrorCode) { //this is the callback triggered by the handler of the below launchURL
+				if(ErrorCode == EErrorCode::EmergenceOk){
+					SendTranscation(Signature, EOA);
+				}
+				else {
+					UE_LOG(LogEmergence, Warning, TEXT("GetEncodedPayload_HttpRequestComplete: failed."));
+					OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+				}
+			});
 			FString Error;
 			FPlatformProcess::LaunchURL(*SignerUrl, nullptr, &Error);
 			if (!Error.IsEmpty()) {
@@ -231,84 +221,114 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 			}
 		}
 		else {
-			//@TODO ADD ERROR CODE HERE
+			UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed, signer URL empty."));
+			OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+			return;
 		}
 	}
 	else {
-		//@TODO ADD ERROR CODE HERE
+		UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed"));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), StatusCode);
+		return;
 	}
 	
 }
 
 bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
-	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback"));
+	UE_LOG(LogEmergence, Display, TEXT("HandleSignatureCallback"));
 	UHttpHelperLibrary::RequestPrint(Req); //debug logging for the request sent to our local server
 	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	OnComplete(MoveTemp(response));
-	CleanupHttpRoute();
+
 	FString ResponseBase64 = *Req.QueryParams.Find("response");
 	FString ResponseJsonString;
 	FBase64::Decode(ResponseBase64, ResponseJsonString);
-	UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: %s"), *ResponseJsonString);
+	UE_LOG(LogEmergence, Display, TEXT("HandleSignatureCallback ResponseJsonString: %s"), *ResponseJsonString);
 	TSharedPtr<FJsonObject> JsonParsed;
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseJsonString);
 	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 	{
-		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
+		UE_LOG(LogEmergence, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
+		CallbackComplete.Execute(FString(), FString(), EErrorCode::EmergenceClientJsonParseFailed);
 		return true;
 	}
-	FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
-	FString EOA = JsonParsed->GetObjectField("payload")->GetStringField("account");
 
+	if (JsonParsed->GetObjectField("result")->GetStringField("status") != "error") { //if this wasn't an error
+		FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
+		FString EOA = JsonParsed->GetObjectField("payload")->GetStringField("account");
+
+		UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: OnCustodialSignMessageComplete"));
+		CallbackComplete.Execute(Signature, EOA, EErrorCode::EmergenceOk);
+	}
+	else { //if this was an error
+		FString ErrorString = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("error");
+		UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback error: %s"), *ErrorString);
+		if (ErrorString == "USER_REJECTED") {
+			CallbackComplete.Execute(FString(), FString(), EErrorCode::EmergenceClientUserRejected);
+		}
+		else {
+			CallbackComplete.Execute(FString(), FString(), EErrorCode::ServerError);
+		}
+	}
+	return true;
+}
+
+void UCustodialWriteTransaction::SendTranscation(FString Signature, FString EOA)
+{
 	if (RawTransactionWithoutSignature.Values.Num() == 0) {
-		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: RawTransactionWithoutSignature was null"));
-		return true;
+		UE_LOG(LogEmergence, Error, TEXT("HandleSignatureCallback: RawTransactionWithoutSignature was null."));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+		return;
 	}
 
-	TSharedPtr<FJsonObject> RawTransactionObject= MakeShared<FJsonObject>();
-	RawTransactionObject->SetObjectField("rawTransactionWithoutSignature", MakeShared<FJsonObject>(UCustodialWriteTransaction::RawTransactionWithoutSignature));
+	if (Signature.IsEmpty() || EOA.IsEmpty() || RpcUrl.IsEmpty()) {
+		UE_LOG(LogEmergence, Error, TEXT("HandleSignatureCallback: one of Signature, EOA or RpcUrl was empty."));
+		UE_LOG(LogEmergence, Error, TEXT("Signature = %s"), *Signature);
+		UE_LOG(LogEmergence, Error, TEXT("EOA = %s"), *EOA);
+		UE_LOG(LogEmergence, Error, TEXT("RpcUrl = %s"), *RpcUrl);
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+		return;
+	}
+
+	TSharedPtr<FJsonObject> RawTransactionObject = MakeShared<FJsonObject>();
+	RawTransactionObject->SetObjectField("rawTransactionWithoutSignature", MakeShared<FJsonObject>(RawTransactionWithoutSignature));
 	RawTransactionObject->SetStringField("transactionSignature", Signature);
 	RawTransactionObject->SetStringField("fromEoa", EOA);
-	RawTransactionObject->SetStringField("rpcUrl", UCustodialWriteTransaction::RpcUrl);
+	RawTransactionObject->SetStringField("rpcUrl", RpcUrl);
 	FString OutputString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
 	FJsonSerializer::Serialize(RawTransactionObject.ToSharedRef(), Writer);
-	UE_LOG(LogTemp, Display, TEXT("RawTransactionObject: %s"), *OutputString);
+	UE_LOG(LogEmergence, Display, TEXT("RawTransactionObject: %s"), *OutputString);
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Content-Type", "application/json"});
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
-		this, 
-		&UCustodialWriteTransaction::SendTransaction_HttpRequestComplete, 
-		"http://localhost:3002/send-transaction", 
-		"POST", 
+		this,
+		&UCustodialWriteTransaction::SendTransaction_HttpRequestComplete,
+		"https://fvhelperservice.openmeta.xyz/send-transaction",
+		"POST",
 		300.0F, //Give the server a bit longer to send it, as we're waiting for the blockchain here
-		Headers, 
+		Headers,
 		OutputString);
-
-	return true;
 }
 
 void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete"));
-	UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete data: %s"), *HttpResponse->GetContentAsString());
-	if (bSucceeded) {
-		TSharedPtr<FJsonObject> JsonParsed;
-		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
-		if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
-		{
-			UE_LOG(LogTemp, Error, TEXT("SendTransaction_HttpRequestComplete: Deserialize failed!"));
-			return; //@TODO ADD ERROR HANDLING
-		}
-		FString Hash = JsonParsed->GetStringField("hash");
-		UE_LOG(LogTemp, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
+	UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete"));
+	UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete data: %s"), *HttpResponse->GetContentAsString());
+	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
+	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		FString Hash = GetEncodedPayloadResponse.GetStringField("hash");
+		UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
 		OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk);
 		TransactionEnded();
 	}
 	else {
-		//@TODO ADD ERROR HANDLING
+		UE_LOG(LogEmergence, Error, TEXT("SendTransaction_HttpRequestComplete: failed!"));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), StatusCode);
+		return;
 	}
 }
 

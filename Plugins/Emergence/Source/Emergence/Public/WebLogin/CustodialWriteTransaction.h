@@ -6,7 +6,7 @@
 #include "EmergenceAsyncSingleRequestBase.h"
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
-#include "HttpRouteHandle.h"
+#include "ErrorCodeFunctionLibrary.h"
 #include "CustodialWriteTransaction.generated.h"
 
 /**
@@ -22,20 +22,22 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Custodial Login")
 	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialWriteTransactionCompleted, const FString, TransactionHash, EErrorCode, StatusCode);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCustodialWriteTransactionCompleted OnCustodialWriteTransactionCompleted;
+
+	void Activate() override;
+private:
 	void GetEncodedPayload_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetEncodedData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
+	static bool HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete);
 
 	void SendTransaction_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialWriteTransactionCompleted, const FString, TransactionHash, EErrorCode, StatusCode);
-
-	TUniquePtr<FHttpServerResponse> GetHttpPage();
-
-	UPROPERTY(BlueprintAssignable)
-	FOnCustodialWriteTransactionCompleted OnCustodialWriteTransactionCompleted;
+	static TUniquePtr<FHttpServerResponse> GetHttpPage();
 
 	UPROPERTY()
 	UEmergenceDeployment* DeployedContract;
@@ -57,23 +59,24 @@ public:
 
 	UPROPERTY()
 	FString UnsignedTransaction;
+	
+	FJsonObject RawTransactionWithoutSignature;
+	
+	UPROPERTY()
+	FString RpcUrl;
 
-	static FJsonObject RawTransactionWithoutSignature;
-	static FString RpcUrl;
-
-	static bool TransactionInProgress;
+	static TDelegate<void(FString /*Signature*/, FString /*EOA*/, EErrorCode)> CallbackComplete;
+	static bool _isServerStarted;
 
 	void EncodeTransaction(FString Eoa, FString ChainId, FString ToAddress, FString Value, FString Data, FString RpcUrl);
 
-	void CleanupHttpRoute();
-
+	UFUNCTION()
 	void GetEncodedData();
 
+	UFUNCTION()
 	void TransactionEnded();
 
-	void Activate() override;
-	void BeginDestroy() override;
-	static FHttpRouteHandle RouteHandle;
-	static UObject* ContextObject;
-	static bool _isServerStarted;
+	UFUNCTION()
+	void SendTranscation(FString Signature, FString EOA);
+	
 };

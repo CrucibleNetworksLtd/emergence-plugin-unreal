@@ -254,9 +254,15 @@ void UWriteMethod::GetTransactionStatus()
 
 void UWriteMethod::CustodialWriteTransactionCompleted(FString Hash, EErrorCode StatusCode)
 {
-	this->TransactionHash = Hash;
-	GetTransactionStatus();
-	OnTransactionSent.Broadcast();
+	if (StatusCode == EErrorCode::EmergenceOk) {
+		this->TransactionHash = Hash;
+		GetTransactionStatus();
+		OnTransactionSent.Broadcast();
+	}
+	else {
+		UE_LOG(LogEmergence, Warning, TEXT("CustodialWriteTransactionCompleted: Failed"));
+		this->OnTransactionConfirmed.Broadcast(FString(), StatusCode);
+	}
 }
 
 void UWriteMethod::TransactionStatusReturns(FEmergenceTransaction Transaction, EErrorCode StatusCode)
