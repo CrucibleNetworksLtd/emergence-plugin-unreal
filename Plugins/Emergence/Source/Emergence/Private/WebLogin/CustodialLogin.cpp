@@ -171,7 +171,14 @@ void UCustodialLogin::Activate()
 	}
 
 	//Open the auth URL with the params
-	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+	FString Error;
+	FPlatformProcess::LaunchURL(*URL, nullptr, &Error);
+	if (!Error.IsEmpty()) {
+		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
+		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
+		SetReadyToDestroy();
+		return;
+	}
 }
 
 void UCustodialLogin::BeginDestroy()

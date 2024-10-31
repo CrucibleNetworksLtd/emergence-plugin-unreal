@@ -222,7 +222,13 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 		FString SignerUrl = GetEncodedPayloadSCResponse.GetStringField("fullSignerUrl");
 		RawTransactionWithoutSignature = *GetEncodedPayloadSCResponse.GetObjectField("rawTransactionWithoutSignature").Get();
 		if (!SignerUrl.IsEmpty()) {
-			FPlatformProcess::LaunchURL(*SignerUrl, nullptr, nullptr);
+			FString Error;
+			FPlatformProcess::LaunchURL(*SignerUrl, nullptr, &Error);
+			if (!Error.IsEmpty()) {
+				UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
+				OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+				return;
+			}
 		}
 		else {
 			//@TODO ADD ERROR CODE HERE

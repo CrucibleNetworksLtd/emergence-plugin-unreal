@@ -150,7 +150,15 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 		OnCustodialSignMessageComplete.Execute(SignedMessage, Error);
 		SetReadyToDestroy();
 	});
-	FPlatformProcess::LaunchURL(*URL, nullptr, nullptr);
+
+	FString Error;
+	FPlatformProcess::LaunchURL(*URL, nullptr, &Error);
+	if (!Error.IsEmpty()) {
+		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
+		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceInternalError);
+		SetReadyToDestroy();
+		return;
+	}
 }
 
 bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
