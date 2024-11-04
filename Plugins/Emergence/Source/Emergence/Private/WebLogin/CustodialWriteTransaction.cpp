@@ -14,6 +14,7 @@
 #include "JwtVerifier.h"
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
+#include "HttpService/HttpHelperLibrary.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
 TDelegate<void(FString, FString, EErrorCode)> UCustodialWriteTransaction::CallbackComplete;
@@ -180,7 +181,7 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
-		"https://fvhelperservice.openmeta.xyz/encode-transaction",
+		UHttpHelperLibrary::GetFVHelperServiceURL() + "encode-transaction",
 		"POST",
 		300.0F,
 		Headers,
@@ -308,7 +309,7 @@ void UCustodialWriteTransaction::SendTranscation(FString Signature, FString EOA)
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::SendTransaction_HttpRequestComplete,
-		"https://fvhelperservice.openmeta.xyz/send-transaction",
+		UHttpHelperLibrary::GetFVHelperServiceURL() + "send-transaction",
 		"POST",
 		300.0F, //Give the server a bit longer to send it, as we're waiting for the blockchain here
 		Headers,

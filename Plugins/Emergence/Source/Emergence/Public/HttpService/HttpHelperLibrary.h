@@ -48,6 +48,10 @@ public:
 		}
 	}
 
+	inline static FString GetFVHelperServiceURL() {
+		return "https://fvhelperservice.openmeta.xyz/";
+	}
+
 	inline static FString GetInventoryServiceAPIURL() {
 		return "https://" + GetInventoryServiceHostURL() + "/InventoryService/";
 	}
