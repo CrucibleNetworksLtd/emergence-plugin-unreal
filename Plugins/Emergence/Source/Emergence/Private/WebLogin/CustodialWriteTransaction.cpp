@@ -206,10 +206,12 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 			CallbackComplete.BindLambda([&](FString Signature, FString EOA, EErrorCode ErrorCode) { //this is the callback triggered by the handler of the below launchURL
 				if(ErrorCode == EErrorCode::EmergenceOk){
 					SendTranscation(Signature, EOA);
+					return;
 				}
 				else {
 					UE_LOG(LogEmergence, Warning, TEXT("GetEncodedPayload_HttpRequestComplete: failed."));
 					OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+					return;
 				}
 			});
 			FString Error;
@@ -320,10 +322,20 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
-		FString Hash = GetEncodedPayloadResponse.GetStringField("hash");
-		UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
-		OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk);
-		TransactionEnded();
+		TSharedPtr<FJsonValue> HashField = GetEncodedPayloadResponse.TryGetField("hash");
+		if (HashField->Type == EJson::String){ //if its not an error
+			FString Hash = HashField->AsString();
+			UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
+			OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk);
+			TransactionEnded();
+			return;
+		}
+		else { //we caught an error
+			FString Reason = HashField->AsObject()->GetStringField("reason");
+			UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete failed: %s"), *Reason);
+			OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+			return;
+		}
 	}
 	else {
 		UE_LOG(LogEmergence, Error, TEXT("SendTransaction_HttpRequestComplete: failed!"));
