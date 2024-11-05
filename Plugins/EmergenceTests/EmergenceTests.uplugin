@@ -24,5 +24,11 @@
 				"Mac"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "Emergence",
+			"Enabled": true
+		}
 	]
 }
