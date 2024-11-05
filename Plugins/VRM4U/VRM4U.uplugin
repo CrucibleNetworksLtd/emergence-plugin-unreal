@@ -52,7 +52,12 @@
     {
       "Name": "LevelSequenceEditor",
       "Enabled": true
-    }
+    },
+	{
+	  "Name": "IKRig",
+	  "Enabled": true,
+	  "Optional": true
+	}
   ],
   "_comment_vrm4u_dummy": "comment"
 }
