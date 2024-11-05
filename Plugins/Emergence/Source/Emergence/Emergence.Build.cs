@@ -60,8 +60,6 @@ public class Emergence : ModuleRules
 			);
 		}	
 		
-
-		
 		//Stuff added for WebLogin
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -71,7 +69,5 @@ public class Emergence : ModuleRules
 				"HashSHA256"
 			}
 		);
-		PublicIncludePaths.Add(Path.GetFullPath(Path.Combine(PluginDirectory, "/ThirdParty/PicoSha2/...")));
-		
 	}
 }
