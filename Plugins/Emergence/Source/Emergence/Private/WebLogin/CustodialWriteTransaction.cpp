@@ -324,7 +324,7 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		TSharedPtr<FJsonValue> HashField = GetEncodedPayloadResponse.TryGetField("hash");
-		if (HashField->Type == EJson::String){ //if its not an error
+		if (HashField.IsValid() && HashField->Type == EJson::String){ //if its not an error
 			FString Hash = HashField->AsString();
 			UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
 			OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk);
@@ -332,7 +332,8 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 			return;
 		}
 		else { //we caught an error
-			FString Reason = HashField->AsObject()->GetStringField("reason");
+			TSharedPtr<FJsonValue> ErrorField = GetEncodedPayloadResponse.TryGetField("error");
+			FString Reason = ErrorField->AsObject()->GetObjectField("error")->GetStringField("reason");
 			UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete failed: %s"), *Reason);
 			OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 			return;
