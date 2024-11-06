@@ -37,7 +37,7 @@ void UCustodialSignMessage::BeginDestroy()
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
-	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
+	if (httpRouter.IsValid() && UCustodialSignMessage::RouteHandle && !UCustodialSignMessage::_isServerStarted)
 	{
 		httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
 		UCustodialSignMessage::_isServerStarted = false;
@@ -52,7 +52,7 @@ void UCustodialSignMessage::SetReadyToDestroy()
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
-	if (httpRouter.IsValid() && !UCustodialSignMessage::_isServerStarted)
+	if (httpRouter.IsValid() && UCustodialSignMessage::RouteHandle && !UCustodialSignMessage::_isServerStarted)
 	{
 		httpRouter->UnbindRoute(UCustodialSignMessage::RouteHandle);
 		UCustodialSignMessage::_isServerStarted = false;
