@@ -66,7 +66,7 @@ void UCustodialSignMessage::Activate()
 {
 	if (FVCustodialEOA.IsEmpty() || Message.IsEmpty()) {
 		UE_LOG(LogTemp, Error, TEXT("Could not do CustodialSignMessage, param invalid! EOA was \"%s\", message was \"%s\""), *FVCustodialEOA, *Message);
-		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceClientFailed);
+		OnCustodialSignMessageComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return;
 	}
@@ -103,7 +103,7 @@ void UCustodialSignMessage::Activate()
 	{
 		UCustodialSignMessage::_isServerStarted = false;
 		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = 3000"));
-		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceClientFailed);
+		OnCustodialSignMessageComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return;
 	}
@@ -147,7 +147,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 		URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
 	}
 	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) {
-		OnCustodialSignMessageComplete.Execute(SignedMessage, Error);
+		OnCustodialSignMessageComplete.ExecuteIfBound(SignedMessage, Error);
 		SetReadyToDestroy();
 	});
 
@@ -155,7 +155,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	FPlatformProcess::LaunchURL(*URL, nullptr, &Error);
 	if (!Error.IsEmpty()) {
 		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
-		OnCustodialSignMessageComplete.Execute(FString(), EErrorCode::EmergenceInternalError);
+		OnCustodialSignMessageComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceInternalError);
 		SetReadyToDestroy();
 		return;
 	}
@@ -179,22 +179,22 @@ bool UCustodialSignMessage::HandleSignatureCallback(const FHttpServerRequest& Re
 		if (JsonParsed->GetObjectField("result")->GetStringField("status") != "error") { //if this wasn't an error
 			FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
 			UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: OnCustodialSignMessageComplete"));
-			CallbackComplete.Execute(Signature, EErrorCode::EmergenceOk);
+			CallbackComplete.ExecuteIfBound(Signature, EErrorCode::EmergenceOk);
 		}
 		else { //if this was an error
 			FString ErrorString = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("error");
 			UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback error: %s"), *ErrorString);
 			if (ErrorString == "USER_REJECTED") {
-				CallbackComplete.Execute(FString(), EErrorCode::EmergenceClientUserRejected);
+				CallbackComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceClientUserRejected);
 			}
 			else {
-				CallbackComplete.Execute(FString(), EErrorCode::ServerError);
+				CallbackComplete.ExecuteIfBound(FString(), EErrorCode::ServerError);
 			}
 		}
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("HandleSignatureCallback: Deserialize failed!"));
-		CallbackComplete.Execute(FString(), EErrorCode::EmergenceClientJsonParseFailed);
+		CallbackComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceClientJsonParseFailed);
 	}
 	//SetReadyToDestroy();
 	return true;
