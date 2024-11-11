@@ -19,7 +19,7 @@ class EMERGENCE_API URequestToSign : public UEmergenceAsyncSingleRequestBase
 	GENERATED_BODY()
 public:
 	/**
-	 * Sends a request to sign a message to the user's WalletConnect'd wallet.
+	 * Sends a request to sign a message to the user's WalletConnect'd wallet / Futureverse custodial wallet.
 	 * @param MessageToSign The message that they will be presented to sign.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|WalletConnect Requests")

@@ -277,7 +277,7 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
-	//Called when the Emergence session ends and a new WalletConnect connection can be started
+	//Called when the Emergence session ends and a new WalletConnect / Futureverse custodial wallet connection can be started
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
@@ -287,7 +287,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
 
-	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect requiring stuff).
+	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect / Futureverse custodial wallet requiring stuff).
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Debug Commands")
 	void ForceLoginViaAccessToken(FString AccessToken);
 
