@@ -48,6 +48,18 @@ public:
 		}
 	}
 
+	inline static FString GetFVEnvironment() {
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#endif
+		return Environment;
+	}
+
+	//Our service for helping sending custodial transactions
 	inline static FString GetFVHelperServiceURL() {
 		return "https://fvhelperservice.openmeta.xyz/";
 	}
@@ -60,15 +72,25 @@ public:
 		return "https://" + GetAvatarServiceHostURL() + "/AvatarSystem/";
 	}
 
+	//The URL to send the user to to create a futurepass depending on environment
+	UFUNCTION(BlueprintPure, Category="Emergence Internal|UI")
+	static FString GetFutureverseCreateFuturepassURL() {
+
+		FString Environment = GetFVEnvironment();
+
+		if (Environment == "Production") {
+			//Production Env URL
+			return "https://futurepass.futureverse.app/";
+		}
+
+		//Staging Env URL
+		return "https://identity-dashboard.futureverse.cloud/";
+	}
+
+	//the graphQL of the futureverse asset registery depending on environment
 	inline static FString GetFutureverseAssetRegistryAPIURL() {
 
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#endif
+		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
 			//Production Env URL
@@ -84,15 +106,10 @@ public:
 		return "https://ar-api.futureverse.cloud/graphql";
 	}
 
+	//the chain id to use with futurepasses depending on environment
 	inline static FString GetFutureverseFuturepassChainId() {
 
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#endif
+		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
 			//Production Env URL
@@ -103,15 +120,10 @@ public:
 		return "11155111";
 	}
 
+	//the location of the futurepass API  depending on environment
 	inline static FString GetFutureverseFuturepassAPIURL() {
 
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#endif
+		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
 			//Production Env URL
@@ -122,6 +134,33 @@ public:
 		return "https://account-indexer.passonline.dev/api/v1";
 	}
 
+	//the futureverse signer url depending on environment
+	inline static FString GetFutureverseSignerURL() {
+		
+		FString Environment = GetFVEnvironment();
+
+		if (Environment == "Production") {
+			return TEXT("https://signer.futureverse.app");
+		}
+		else {
+			return TEXT("https://signer.futureverse.cloud");
+		}
+	}
+
+	//the futureverse auth url depending on environment
+	inline static FString GetFutureverseAuthURL() {
+
+		FString Environment = GetFVEnvironment();
+
+		if (Environment == "Production") {
+			return TEXT("https://login.futureverse.app/auth?");
+		}
+		else {
+			return TEXT("https://login.futureverse.cloud/auth?");
+		}
+	}
+
+	//our persona API depending on environment
 	inline static FString GetPersonaAPIURL() {
 
 #if UE_BUILD_SHIPPING
@@ -146,38 +185,7 @@ public:
 		return "https://x8iq9e5fq1.execute-api.us-east-1.amazonaws.com/staging/";
 	}
 
-	inline static FString GetFutureverseSignerURL() {
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#endif
-		if (Environment == "Production") {
-			return TEXT("https://signer.futureverse.app");
-		}
-		else {
-			return TEXT("https://signer.futureverse.cloud");
-		}
-	}
-
-	inline static FString GetFutureverseAuthURL() {
-#if UE_BUILD_SHIPPING
-		FString Environment = "Production"; //Shipping defaults to production
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
-#else
-		FString Environment = "Staging"; //Everything else defaults to staging
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
-#endif
-		if (Environment == "Production") {
-			return TEXT("https://login.futureverse.app/auth?");
-		}
-		else {
-			return TEXT("https://login.futureverse.cloud/auth?");
-		}
-	}
-
+	//our inventory service depending on environment
 	inline static FString GetInventoryServiceHostURL() {
 
 #if UE_BUILD_SHIPPING
@@ -202,6 +210,7 @@ public:
 		return "dysaw5zhak.us-east-1.awsapprunner.com";
 	}
 
+	//our avatar service depending on environment
 	inline static FString GetAvatarServiceHostURL() {
 
 #if UE_BUILD_SHIPPING
