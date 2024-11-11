@@ -136,16 +136,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	FString Base64Encode = FBase64::Encode(OutputString);
 	UE_LOG(LogTemp, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
 
-	FString URL;
-	auto Singleton = UEmergenceSingleton::GetEmergenceManager(this->WorldContextObject);
-	check(Singleton);
-	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-	if (Env == EFutureverseEnvironment::Production) {
-		URL = TEXT("https://signer.futureverse.app?request=") + Base64Encode;
-	}
-	else {
-		URL = TEXT("https://signer.futureverse.cloud?request=") + Base64Encode;
-	}
+	FString URL = UHttpHelperLibrary::GetFutureverseSignerURL() + "?request=" + Base64Encode;
 	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) {
 		OnCustodialSignMessageComplete.ExecuteIfBound(SignedMessage, Error);
 		SetReadyToDestroy();

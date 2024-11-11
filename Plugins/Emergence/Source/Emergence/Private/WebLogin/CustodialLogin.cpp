@@ -152,14 +152,7 @@ void UCustodialLogin::Activate()
 		});
 
 	//Encode the params in a GET request style
-	FString URL;
-	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-	if (Env == EFutureverseEnvironment::Production) {
-		URL = TEXT("https://login.futureverse.app/auth?");
-	}
-	else {
-		URL = TEXT("https://login.futureverse.cloud/auth?");
-	}
+	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL();
 	
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		URL += UrlParams[i].Key;

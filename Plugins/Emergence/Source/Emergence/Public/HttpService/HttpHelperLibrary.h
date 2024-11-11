@@ -146,6 +146,38 @@ public:
 		return "https://x8iq9e5fq1.execute-api.us-east-1.amazonaws.com/staging/";
 	}
 
+	inline static FString GetFutureverseSignerURL() {
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#endif
+		if (Environment == "Production") {
+			return TEXT("https://signer.futureverse.app");
+		}
+		else {
+			return TEXT("https://signer.futureverse.cloud");
+		}
+	}
+
+	inline static FString GetFutureverseAuthURL() {
+#if UE_BUILD_SHIPPING
+		FString Environment = "Production"; //Shipping defaults to production
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseDevelopmentEnvironment"), Environment, GGameIni);
+#else
+		FString Environment = "Staging"; //Everything else defaults to staging
+		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseShippingEnvironment"), Environment, GGameIni);
+#endif
+		if (Environment == "Production") {
+			return TEXT("https://login.futureverse.app/auth?");
+		}
+		else {
+			return TEXT("https://login.futureverse.cloud/auth?");
+		}
+	}
+
 	inline static FString GetInventoryServiceHostURL() {
 
 #if UE_BUILD_SHIPPING
