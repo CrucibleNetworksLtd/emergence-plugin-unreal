@@ -18,5 +18,20 @@
 		"Win64",
 		"Mac",
 		"Linux"
+	],
+	"Plugins": [
+		{
+			"Name": "VRM4U",
+			"Enabled": true
+		},
+		{
+			"Name": "EmergenceVRMSupport",
+			"Enabled": true
+		},
+		{
+			"Name": "Emergence",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/2a2ac549e90440b59cc331c53de19e88"
+		}
 	]
 }
