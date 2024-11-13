@@ -62,9 +62,9 @@ void UEmergenceTopBarComponent::StartGetBalanceTextAsync() {
 
 bool UEmergenceTopBarComponent::ShouldDisplayBalanceText()
 {
-	bool ShouldShowBalance;
+	bool ShouldShowBalance = false;
 	if (!GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShowBalance"), ShouldShowBalance, GGameIni)) {
-		ShouldShowBalance = true; //if we failed to get the config, default to true
+		ShouldShowBalance = false; //if we failed to get the config, default to false
 	}
 	return ShouldShowBalance;
 }

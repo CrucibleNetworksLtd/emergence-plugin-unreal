@@ -61,7 +61,7 @@ public:
 
 	//Should the overlay UI show the user's balance?
 	UPROPERTY(config, EditAnywhere, Category = "UI Overlay")
-	bool ShowBalance = true;
+	bool ShowBalance = false;
 
 	//The blockchain used in the overlay UI to show the user's balance.
 	UPROPERTY(config, NoClear, EditAnywhere, Category = "UI Overlay", meta = (EditCondition = "ShowBalance", DisplayName = "Blockchain used in UI for balance"))
