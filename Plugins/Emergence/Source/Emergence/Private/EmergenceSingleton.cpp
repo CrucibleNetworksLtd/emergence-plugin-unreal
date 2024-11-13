@@ -69,7 +69,13 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 		this->CurrentChecksummedAddress = Address;
 		this->CurrentAddress = Address.ToLower();
 		this->UsingWebLoginFlow = true;
-		GetAccessToken();
+		if (UseAccessToken) {
+			GetAccessToken();
+		}
+		else { //skip access token
+			OnGetAccessTokenCompleted.Broadcast(EErrorCode::EmergenceOk);
+			OnAnyRequestError.Broadcast("GetAccessToken", EErrorCode::EmergenceOk);
+		}
 	}
 	else {
 		UE_LOG(LogEmergence, Error, TEXT("CompleteLoginViaWebLoginFlow failed with code: %d"), (int)ErrorCode);
@@ -214,7 +220,9 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 		return this->CurrentAccessToken;
 	}
 	else {
-		GetAccessToken();
+		if (UseAccessToken) {
+			GetAccessToken();
+		}
 		return FString("-1");
 	}
 }
@@ -423,7 +431,13 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 			if (JsonObject.GetObjectField("message")->TryGetStringField("checksummedAddress", ChecksummedAddress)) {
 				this->CurrentChecksummedAddress = ChecksummedAddress;
 			}
-			GetAccessToken();
+			if (UseAccessToken) {
+				GetAccessToken();
+			}
+			else { //skip access token
+				OnGetAccessTokenCompleted.Broadcast(EErrorCode::EmergenceOk);
+				OnAnyRequestError.Broadcast("GetAccessToken", EErrorCode::EmergenceOk);
+			}
 		}
 		else {
 			OnGetHandshakeCompleted.Broadcast(Address, EErrorCode::EmergenceClientWrongType);

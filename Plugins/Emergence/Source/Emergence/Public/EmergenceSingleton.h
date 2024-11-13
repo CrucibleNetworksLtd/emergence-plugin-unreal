@@ -96,6 +96,10 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool UsingWebLoginFlow = false;
 
+	//Should we use the access token system, which is required by the Emergence Overlay, or skip it?
+	UPROPERTY(BlueprintReadWrite)
+	bool UseAccessToken = true;
+
 	UPROPERTY()
 	FString AccessTokenTimestamp;
 
