@@ -211,7 +211,7 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 				}
 				else {
 					UE_LOG(LogEmergence, Warning, TEXT("GetEncodedPayload_HttpRequestComplete: failed."));
-					OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+					OnCustodialWriteTransactionCompleted.Broadcast(FString(), ErrorCode);
 					return;
 				}
 			});
