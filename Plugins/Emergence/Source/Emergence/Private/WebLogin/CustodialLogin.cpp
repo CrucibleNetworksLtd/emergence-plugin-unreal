@@ -102,15 +102,15 @@ void UCustodialLogin::Activate()
 		httpServerModule.StartAllListeners();
 		
 		UCustodialLogin::_isServerStarted = true;
-		UE_LOG(LogTemp, Log, TEXT("Web server started on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Web server started on port = %d"), ServerPort);
 	}
 	else if (UCustodialLogin::_isServerStarted) {
-		UE_LOG(LogTemp, Log, TEXT("Web already started on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Web already started on port = %d"), ServerPort);
 	}
 	else
 	{
 		UCustodialLogin::_isServerStarted = false;
-		UE_LOG(LogTemp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
 		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return;
@@ -192,21 +192,21 @@ void UCustodialLogin::BeginDestroy()
 
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
-	UE_LOG(LogTemp, Display, TEXT("HandleRequestCallback"));
+	UE_LOG(LogEmergence, Display, TEXT("HandleRequestCallback"));
 	TUniquePtr<FHttpServerResponse> response = GetHttpPage();
 	UHttpHelperLibrary::RequestPrint(Req); //debug logging for the request sent to our local server
 
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
 
 	if (!Req.QueryParams.Contains("code")) {
-		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: No \"code\""));		
+		UE_LOG(LogEmergence, Error, TEXT("HandleRequestCallback: No \"code\""));
 		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return true;
 	}
 
 	if (Req.QueryParams.FindRef("state") != UCustodialLogin::state) {
-		UE_LOG(LogTemp, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), *Req.QueryParams.FindRef("state"), *UCustodialLogin::state);
+		UE_LOG(LogEmergence, Error, TEXT("HandleRequestCallback: \"state\" doesn't match. Returned state was \"%s\", we think it should be \"%s\"."), *Req.QueryParams.FindRef("state"), *UCustodialLogin::state);
 		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return true;
@@ -248,31 +248,31 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 	HttpRequest->OnProcessRequestComplete().BindLambda([Context](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
 		auto Singleton = UEmergenceSingleton::GetEmergenceManager(Context);
 		
-		UE_LOG(LogTemp, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
-		UE_LOG(LogTemp, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
+		UE_LOG(LogEmergence, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
+		UE_LOG(LogEmergence, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
 		TSharedPtr<FJsonObject> JsonParsed;
 		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
 		if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed))
 		{
-			UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
+			UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
 			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
 			return;
 		}
 
 		FString IdToken;
 		if (!JsonParsed->TryGetStringField("id_token", IdToken)) {
-			UE_LOG(LogTemp, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
-			UE_LOG(LogTemp, Display, TEXT("code was: %s"), *UCustodialLogin::code);
+			UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
+			UE_LOG(LogEmergence, Error, TEXT("code was: %s"), *UCustodialLogin::code);
 			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
 			return;
 		}
 
-		UE_LOG(LogTemp, Display, TEXT("id_token: %s"), *IdToken);
+		UE_LOG(LogEmergence, Display, TEXT("id_token: %s"), *IdToken);
 		TMap<FString, FString> IdTokenDecoded;
 		FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
 		IdTokenDecoded = JwtVerifier.GetClaims(IdToken);
 		if (IdTokenDecoded.Num() == 0) {
-			UE_LOG(LogTemp, Display, TEXT("IdTokenDecoded length was 0"));
+			UE_LOG(LogEmergence, Error, TEXT("IdTokenDecoded length was 0"));
 			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientInvalidResponse);
 			return;
 		}
@@ -280,7 +280,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(IdTokenDecoded), EErrorCode::EmergenceOk);
 		return;
 	});
-	UE_LOG(LogTemp, Display, TEXT("Sent Params Data: %s"), *Params);
+	UE_LOG(LogEmergence, Display, TEXT("Sent Params Data: %s"), *Params);
 	OnComplete(MoveTemp(response));
 	return true;
 }

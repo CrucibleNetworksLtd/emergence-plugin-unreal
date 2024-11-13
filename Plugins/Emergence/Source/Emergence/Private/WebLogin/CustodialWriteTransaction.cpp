@@ -261,12 +261,12 @@ bool UCustodialWriteTransaction::HandleSignatureCallback(const FHttpServerReques
 		FString Signature = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("signature");
 		FString EOA = JsonParsed->GetObjectField("payload")->GetStringField("account");
 
-		UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback ResponseJsonString: OnCustodialSignMessageComplete"));
+		UE_LOG(LogEmergence, Display, TEXT("HandleSignatureCallback ResponseJsonString: OnCustodialSignMessageComplete"));
 		CallbackComplete.Execute(Signature, EOA, EErrorCode::EmergenceOk);
 	}
 	else { //if this was an error
 		FString ErrorString = JsonParsed->GetObjectField("result")->GetObjectField("data")->GetStringField("error");
-		UE_LOG(LogTemp, Display, TEXT("HandleSignatureCallback error: %s"), *ErrorString);
+		UE_LOG(LogEmergence, Display, TEXT("HandleSignatureCallback error: %s"), *ErrorString);
 		if (ErrorString == "USER_REJECTED") {
 			CallbackComplete.Execute(FString(), FString(), EErrorCode::EmergenceClientUserRejected);
 		}

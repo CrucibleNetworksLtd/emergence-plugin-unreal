@@ -287,12 +287,12 @@ public:
 		default:
 			strRequestType = TEXT("Invalid");
 		}
-		UE_LOG(LogTemp, Log, TEXT("RequestType = '%s'"), *strRequestType);
+		UE_LOG(LogEmergenceHttp, Log, TEXT("RequestType = '%s'"), *strRequestType);
 
 		HttpVersion::EHttpServerHttpVersion httpVersion{ Req.HttpVersion };
-		UE_LOG(LogTemp, Log, TEXT("HttpVersion = '%s'"), *HttpVersion::ToString(httpVersion));
+		UE_LOG(LogEmergenceHttp, Log, TEXT("HttpVersion = '%s'"), *HttpVersion::ToString(httpVersion));
 
-		UE_LOG(LogTemp, Log, TEXT("RelativePath = '%s'"), *Req.RelativePath.GetPath());
+		UE_LOG(LogEmergenceHttp, Log, TEXT("RelativePath = '%s'"), *Req.RelativePath.GetPath());
 
 		for (const auto& header : Req.Headers)
 		{
@@ -301,24 +301,24 @@ public:
 			{
 				strHeaderVals += "'" + val + "' ";
 			}
-			UE_LOG(LogTemp, Log, TEXT("Header = '%s' : %s"), *header.Key, *strHeaderVals);
+			UE_LOG(LogEmergenceHttp, Log, TEXT("Header = '%s' : %s"), *header.Key, *strHeaderVals);
 		}
 
 		for (const auto& pathParam : Req.PathParams)
 		{
-			UE_LOG(LogTemp, Log, TEXT("PathParam = '%s' : '%s'"), *pathParam.Key, *pathParam.Value);
+			UE_LOG(LogEmergenceHttp, Log, TEXT("PathParam = '%s' : '%s'"), *pathParam.Key, *pathParam.Value);
 		}
 
 		for (const auto& queryParam : Req.QueryParams)
 		{
-			UE_LOG(LogTemp, Log, TEXT("QueryParam = '%s' : '%s'"), *queryParam.Key, *queryParam.Value);
+			UE_LOG(LogEmergenceHttp, Log, TEXT("QueryParam = '%s' : '%s'"), *queryParam.Key, *queryParam.Value);
 		}
 
 		// Convert UTF8 to FString
 		FUTF8ToTCHAR bodyTCHARData(reinterpret_cast<const ANSICHAR*>(Req.Body.GetData()), Req.Body.Num());
 		FString strBodyData{ bodyTCHARData.Length(), bodyTCHARData.Get() };
 
-		UE_LOG(LogTemp, Log, TEXT("Body = '%s'"), *strBodyData);
+		UE_LOG(LogEmergenceHttp, Log, TEXT("Body = '%s'"), *strBodyData);
 	};
 
 	template<typename T>

@@ -37,7 +37,7 @@ public:
 	inline static T StringToEnum(const FString& Name) {
 		UEnum* EnumClass = StaticEnum<T>();
 		if (!EnumClass) {
-			UE_LOG(LogTemp, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
+			UE_LOG(LogEmergence, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
 		}
 		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
 	}

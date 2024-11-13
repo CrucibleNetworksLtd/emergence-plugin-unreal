@@ -26,7 +26,7 @@ void URequestToSign::Activate()
 		CustodialSignMessage = UCustodialSignMessage::CustodialSignMessage(WorldContextObject, Singleton->GetCachedAddress(true), MessageToSign);
 		CustodialSignMessage->OnCustodialSignMessageComplete.BindLambda([&](const FString SignedMessage, EErrorCode StatusCode){
 			if (StatusCode == EErrorCode::EmergenceOk) {
-				UE_LOG(LogTemp, Display, TEXT("OnInternalCustodialSignMessageComplete sucessfully"));
+				UE_LOG(LogEmergence, Display, TEXT("OnInternalCustodialSignMessageComplete sucessfully"));
 				OnRequestToSignCompleted.Broadcast(SignedMessage, StatusCode);
 			}
 			else {
