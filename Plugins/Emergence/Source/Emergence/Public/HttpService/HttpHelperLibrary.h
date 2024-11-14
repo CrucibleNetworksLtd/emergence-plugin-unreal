@@ -140,10 +140,10 @@ public:
 		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
-			return TEXT("https://signer.futureverse.app");
+			return TEXT("https://signer.pass.online");
 		}
 		else {
-			return TEXT("https://signer.futureverse.cloud");
+			return TEXT("https://signer.passonline.cloud");
 		}
 	}
 
@@ -153,10 +153,10 @@ public:
 		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
-			return TEXT("https://login.futureverse.app/auth?");
+			return TEXT("https://login.pass.online/auth?");
 		}
 		else {
-			return TEXT("https://login.futureverse.cloud/auth?");
+			return TEXT("https://login.passonline.cloud/auth?");
 		}
 	}
 
