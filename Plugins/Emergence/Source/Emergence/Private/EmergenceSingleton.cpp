@@ -455,7 +455,7 @@ void UEmergenceSingleton::GetHandshake(int Timeout)
 	if (!this->DeviceID.IsEmpty()) { //we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
 	}
-	Headers.Add(TPair<FString, FString>("timeout", FString::FromInt(Timeout)));
+	Headers.Add(TPair<FString, FString>("timeout", FString::FromInt(Timeout + 10))); //ask for the desired timeout plus buffer time to load the next one
 	
 	GetHandshakeRequest = UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(
 		this,&UEmergenceSingleton::GetHandshake_HttpRequestComplete, 
