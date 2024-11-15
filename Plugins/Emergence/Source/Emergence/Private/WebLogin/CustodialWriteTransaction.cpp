@@ -173,6 +173,7 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	JsonInputs->SetStringField("value", InputValue);
 	JsonInputs->SetStringField("data", Data);
 	JsonInputs->SetStringField("rpcUrl", InputRpcUrl);
+	JsonInputs->SetStringField("environment", UHttpHelperLibrary::GetFVEnvironment());
 	UCustodialWriteTransaction::RpcUrl = InputRpcUrl;
 	FString JsonInputsString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonInputsString);
