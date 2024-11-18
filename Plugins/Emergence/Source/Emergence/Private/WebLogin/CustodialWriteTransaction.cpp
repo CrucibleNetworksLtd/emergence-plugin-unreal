@@ -39,16 +39,8 @@ void UCustodialWriteTransaction::Activate()
 		return;
 	}
 
-
-	int ServerPort = 3000;
-	if (ServerPort <= 0)
-	{
-		UE_LOG(LogEmergence, Error, TEXT("Could not start HttpServer, port number must be greater than zero!"));
-		return;
-	}
-
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get();
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 
 	if (httpRouter.IsValid() && !UCustodialWriteTransaction::_isServerStarted)
 	{
@@ -66,7 +58,7 @@ void UCustodialWriteTransaction::Activate()
 		httpServerModule.StartAllListeners();
 
 		UCustodialWriteTransaction::_isServerStarted = true;
-		UE_LOG(LogEmergence, Log, TEXT("Web server started on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Log, TEXT("Web server started on port = 3000"));
 
 		FTimerDelegate TimerCallback;
 		/*since we seemingly need to wait for the port to open (its async) 
@@ -81,13 +73,13 @@ void UCustodialWriteTransaction::Activate()
 		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 1.0f, false);
 	}
 	else if (UCustodialWriteTransaction::_isServerStarted) {
-		UE_LOG(LogEmergence, Log, TEXT("Web already started on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Log, TEXT("Web already started on port = 3000"));
 		GetEncodedData();
 	}
 	else
 	{
 		UCustodialWriteTransaction::_isServerStarted = false;
-		UE_LOG(LogEmergence, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		UE_LOG(LogEmergence, Error, TEXT("Could not start web server on port = 3000"));
 		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 		return;
 	}

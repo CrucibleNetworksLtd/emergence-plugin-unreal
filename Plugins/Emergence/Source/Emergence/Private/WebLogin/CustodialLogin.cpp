@@ -79,11 +79,9 @@ FString UCustodialLogin::CleanupBase64ForWeb(FString Input)
 }
 
 void UCustodialLogin::Activate()
-{
-	int ServerPort = 3000;
-	
+{	
 	FHttpServerModule& httpServerModule = FHttpServerModule::Get(); 
-	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(ServerPort);
+	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
 	
 	auto EmergenceSub = UGameplayStatics::GetGameInstance(UCustodialLogin::ContextObject)->GetSubsystem<UEmergenceEVMServerSubsystem>();
@@ -102,15 +100,15 @@ void UCustodialLogin::Activate()
 		httpServerModule.StartAllListeners();
 		
 		UCustodialLogin::_isServerStarted = true;
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Web server started on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Web server started on port = 3000"));
 	}
 	else if (UCustodialLogin::_isServerStarted) {
-		UE_LOG(LogEmergenceHttp, Display, TEXT("Web already started on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Web already started on port = 3000"));
 	}
 	else
 	{
 		UCustodialLogin::_isServerStarted = false;
-		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not start web server on port = %d"), ServerPort);
+		UE_LOG(LogEmergenceHttp, Error, TEXT("Could not start web server on port = 3000"));
 		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientFailed);
 		SetReadyToDestroy();
 		return;
