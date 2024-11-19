@@ -4,7 +4,14 @@
 #include "WalletConnectCode.h"
 
 TSharedRef<SWidget> UWalletConnectCode::RebuildWidget() {
-	StartAll();
+	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
+
+	//start the ticking for the countdown timer. Keep in mind, this is visual ONLY and doesn't affact the requests themselves
+	if (Singleton) {
+		this->GetOwningPlayer()->GetWorld()->GetTimerManager().SetTimer(TimeRemainingTimerHandle, this, &UWalletConnectCode::UpdateTimeRemaining, 1.0F, true, 1.0F);
+
+		this->StartAttempt();
+	}
 	return Super::RebuildWidget();
 }
 
@@ -37,9 +44,7 @@ void UWalletConnectCode::AccessTokenCompleted(EErrorCode StatusCode) {
 }
 
 void UWalletConnectCode::CancelAllAndRestartAttempt() {
-	//Singleton->OnReinitializeWalletConnectCompleted.AddDynamic(this, &UWalletConnectCode::ReinitializeWalletConnectCompleted);
 	Singleton->CancelSignInRequest();
-	//Singleton->ReinitializeWalletConnect();
 	this->StartAttempt();
 }
 
@@ -48,6 +53,9 @@ void UWalletConnectCode::GetHandshakeCompleted(FString Address, EErrorCode Statu
 	Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 	if (StatusCode != EErrorCode::EmergenceOk) {
 		this->OnSignInFailure.Broadcast(EEmergenceWalletConnectStepError::HandshakeFail);
+		if (StatusCode == EErrorCode::EmergenceClientFailed) { //@TODO this currently happens if the request was cancelled. We need a better way to detect intentionally cancelled statuses
+			return;
+		}
 		this->CancelAllAndRestartAttempt();
 	}
 }
@@ -60,11 +68,6 @@ void UWalletConnectCode::CancelAll()
 
 void UWalletConnectCode::StartAll()
 {
-	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
-	if (Singleton) {
-		this->GetOwningPlayer()->GetWorld()->GetTimerManager().SetTimer(TimeRemainingTimerHandle, this, &UWalletConnectCode::UpdateTimeRemaining, 1.0F, true, 1.0F);
-		this->StartAttempt();
-	}
 }
 
 void UWalletConnectCode::StartAttempt()
@@ -76,8 +79,11 @@ void UWalletConnectCode::StartAttempt()
 	Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 
 	Singleton->OnGetQRCodeCompleted.AddDynamic(this, &UWalletConnectCode::QRCodeCompleted);
+	
 	Singleton->GetQRCode();
-	Singleton->OnGetAccessTokenCompleted.AddDynamic(this, &UWalletConnectCode::AccessTokenCompleted);	
+	this->SetBrush(FSlateBrush()); //Clear out this widget so the user doesn't try to scan an old QR code if one has been downloaded already
+
+	Singleton->OnGetAccessTokenCompleted.AddDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
 	Singleton->OnGetHandshakeCompleted.AddDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 }
 
