@@ -141,6 +141,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
 	bool OwnedAvatarNFTCached = false;
 
+	/*
+	This used to return false if we were a non - marketplace build, e.g. the version shipped with a locally
+	run .exe to handle blockchain interaction called LocalEVM. LocalEVM was depricated a while ago so this will now 
+	always return true. This function should be removed from any blueprints it is found in and any code on the "false"
+	branch should also be removed.
+	*/
 	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
 	const bool IsMarketplaceBuild();
 

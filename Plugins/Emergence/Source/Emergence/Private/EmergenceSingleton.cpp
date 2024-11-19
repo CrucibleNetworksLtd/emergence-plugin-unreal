@@ -166,11 +166,7 @@ void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
 
 const bool UEmergenceSingleton::IsMarketplaceBuild()
 {
-#if UNREAL_MARKETPLACE_BUILD
-	return true;
-#else
-	return false;
-#endif
+	return true; 
 }
 
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
@@ -347,9 +343,8 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	TArray<uint8> ResponseBytes = HttpResponse->GetContent();
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponseBytes, QRCodeTexture)) {
-#if UNREAL_MARKETPLACE_BUILD
+
 		this->DeviceID = HttpResponse->GetHeader("deviceId");
-#endif
 		FString WalletConnectString = HttpResponse->GetHeader("walletconnecturi");
 		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, WalletConnectString, EErrorCode::EmergenceOk);
 		return;
@@ -511,12 +506,10 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::IsConnected()
 {
-#if UNREAL_MARKETPLACE_BUILD
 	if (this->DeviceID.IsEmpty()) {
 		OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceOk);
 		return;
 	}
-#endif
 
 	//part of a debugging method
 	if (ForceIsConnected) {
@@ -583,7 +576,6 @@ void UEmergenceSingleton::KillSession()
 		TArray<TPair<FString, FString>> Headers;
 		Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
 
-#if UNREAL_MARKETPLACE_BUILD
 		if (this->DeviceID.IsEmpty()) {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but there is no device ID, so probably no session."));
 			return;
@@ -591,7 +583,6 @@ void UEmergenceSingleton::KillSession()
 
 		//we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
-#endif
 
 		UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
