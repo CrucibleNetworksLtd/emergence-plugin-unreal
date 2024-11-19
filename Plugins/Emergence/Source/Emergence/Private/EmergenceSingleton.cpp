@@ -28,10 +28,16 @@
 
 #include "Misc/DateTime.h"
 
-UEmergenceSingleton::UEmergenceSingleton() {
+
+void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
+{
+	UGameInstanceSubsystem::Initialize(Collection);
 }
 
-TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmergenceSingleton::GlobalManagers{};
+void UEmergenceSingleton::Deinitialize()
+{
+	UGameInstanceSubsystem::Deinitialize();
+}
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
@@ -43,24 +49,17 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
 	if (GameInstance)
 	{
-		TWeakObjectPtr<UEmergenceSingleton>& Manager = GlobalManagers.FindOrAdd(GameInstance);
-		if (!Manager.IsValid())
-		{
-			Manager = NewObject<UEmergenceSingleton>(GameInstance);
-			Manager->SetGameInstance(GameInstance);
-			Manager->Init();
-		}
-		UE_LOG(LogEmergenceHttp, Verbose, TEXT("Got Emergence Singleton: %s"), *Manager->GetFName().ToString());
-		return Manager.Get();
+		return GameInstance->GetSubsystem<UEmergenceSingleton>();
 	}
-	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: No manager avalible, whats going on?"));
+	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: no game instance"));
 	return nullptr;
 }
 
 UEmergenceSingleton* UEmergenceSingleton::ForceInitialize(const UObject* ContextObject)
 {
-	return GetEmergenceManager(ContextObject);
+	return UEmergenceSingleton::GetEmergenceManager(ContextObject);
 }
+
 
 void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
 {
@@ -80,24 +79,6 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 	else {
 		UE_LOG(LogEmergence, Error, TEXT("CompleteLoginViaWebLoginFlow failed with code: %d"), (int)ErrorCode);
 	}
-}
-
-void UEmergenceSingleton::Init()
-{
-	FGameDelegates::Get().GetEndPlayMapDelegate().AddUObject(this, &UEmergenceSingleton::Shutdown);
-	AddToRoot();
-}
-
-void UEmergenceSingleton::Shutdown()
-{
-	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
-
-	RemoveFromRoot();
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
-	MarkAsGarbage();
-#else
-	MarkPendingKill();
-#endif
 }
 
 void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
