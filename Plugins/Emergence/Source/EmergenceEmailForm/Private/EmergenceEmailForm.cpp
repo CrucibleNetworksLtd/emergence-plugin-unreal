@@ -282,28 +282,16 @@ void FEmergenceEmailFormModule::RegisterMenus()
 	// Owner will be used for cleanup in call to UToolMenus::UnregisterOwner
 	FToolMenuOwnerScoped OwnerScoped(this);
 
+	UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Help");
 	{
-		UToolMenu* Menu = UToolMenus::Get()->ExtendMenu("LevelEditor.MainMenu.Help");
-		{
-			FToolMenuSection& Section = Menu->FindOrAddSection("Emergence");
-			Section.AddMenuEntryWithCommandList(FEmergenceEmailFormCommands::Get().OpenPluginWindow, PluginCommands, FText::FromString("Emergence Email Form"));
-		}
+		FToolMenuSection& Section = Menu->FindOrAddSection("Emergence");
+		Section.AddMenuEntryWithCommandList(FEmergenceEmailFormCommands::Get().OpenPluginWindow, PluginCommands, FText::FromString("Emergence Email Form"));
 	}
 
-	{
-		/*UToolMenu* ToolbarMenu = UToolMenus::Get()->ExtendMenu("LevelEditor.LevelEditorToolBar");
-		{
-			FToolMenuSection& Section = ToolbarMenu->FindOrAddSection("Settings");
-			{
-				FToolMenuEntry& Entry = Section.AddEntry(FToolMenuEntry::InitToolBarButton(FEmergenceEmailFormCommands::Get().OpenPluginWindow));
-				Entry.SetCommandList(PluginCommands);
-			}
-		}*/
-	}
 	FModuleManager::GetModuleChecked<FLevelEditorModule>(FName("LevelEditor")).OnRegisterTabs().AddLambda([&](TSharedPtr<FTabManager> TabManager)
-		{
-			ActivateFormChecked(false);
-		});
+	{
+		ActivateFormChecked(false);
+	});
 }
 
 #undef LOCTEXT_NAMESPACE
