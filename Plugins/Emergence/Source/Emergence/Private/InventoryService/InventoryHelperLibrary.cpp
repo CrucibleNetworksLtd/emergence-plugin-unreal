@@ -86,9 +86,6 @@ FString UInventoryHelperLibrary::GetBestModel(TArray<FEmergenceInventoryItemsMet
         if (Contents[i].mimeType == "model/gltf-binary") { //the favourite
             return Contents[i].url;
         }
-        /*else if (Contents[i].mimeType == "image/jpeg") { //the other option
-            BestFoundURL = Contents[i].url;
-        }*/
     }
     return BestFoundURL;
 }

@@ -7,7 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata/*, const bool OnlyUpdate*/)
+UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(UObject* WorldContextObject, const FString& Network, const FString& AuthorizationHeader, const FString& Contract, const FString& TokenID, const FString& Metadata)
 {
 	UWriteDynamicMetadata* BlueprintNode = NewObject<UWriteDynamicMetadata>();
 	BlueprintNode->AuthorizationHeader = AuthorizationHeader;
@@ -15,7 +15,7 @@ UWriteDynamicMetadata* UWriteDynamicMetadata::WriteDynamicMetadata(UObject* Worl
 	BlueprintNode->Contract = Contract;
 	BlueprintNode->TokenID = TokenID;
 	BlueprintNode->Metadata = Metadata;
-	BlueprintNode->OnlyUpdate = true/*OnlyUpdate*/;
+	BlueprintNode->OnlyUpdate = true;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
