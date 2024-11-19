@@ -244,11 +244,7 @@ void FEmergenceEmailFormModule::SendEmail(FString email)
 	TemplateParams->SetStringField("from_email", email);
 	TemplateParams->SetStringField("from_engine", FGenericPlatformHttp::EscapeUserAgentString(FApp::GetBuildVersion()));
 	TemplateParams->SetStringField("from_emergenceversion", FGenericPlatformHttp::EscapeUserAgentString(UHttpHelperLibrary::GetEmergenceVersionNumber()));
-#if UNREAL_MARKETPLACE_BUILD
 	TemplateParams->SetStringField("from_emergenceevmtype", "EVMOnline");
-#else
-	TemplateParams->SetStringField("from_emergenceevmtype", "LocalEVM");
-#endif
 	TemplateParams->SetStringField("from_os", FGenericPlatformHttp::EscapeUserAgentString(FString(FPlatformProperties::IniPlatformName()) + " " + FPlatformMisc::GetOSVersion()));
 
 	TSharedPtr<FJsonObject> SendEmailContent = MakeShareable(new FJsonObject);

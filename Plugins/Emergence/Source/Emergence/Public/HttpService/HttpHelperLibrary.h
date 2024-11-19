@@ -26,7 +26,7 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	inline static FString APIBase;
+	inline static FString APIBase = "https://evm6.openmeta.xyz/api/";
 
 	inline static FString EmergenceVersionNumberCache;
 
@@ -372,11 +372,8 @@ public:
 				HeaderLogText.Append(Headers[i].Key + ": " + Headers[i].Value + "\n");
 			}
 		}
-#if UNREAL_MARKETPLACE_BUILD
+
 		FString Version = "Emergence " + GetEmergenceVersionNumber() + " EVMOnline";
-#else
-		FString Version = "Emergence " + GetEmergenceVersionNumber() + " LocalEVM";
-#endif
 		HttpRequest->SetHeader("User-Agent", FPlatformHttp::GetDefaultUserAgent() + " " + Version);
 
 		if (Content.Len() > 0 && HttpRequest->GetHeader("Content-Type").Len() > 0) {
