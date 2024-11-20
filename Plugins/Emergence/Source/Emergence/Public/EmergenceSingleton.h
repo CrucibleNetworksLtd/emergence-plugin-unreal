@@ -47,10 +47,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
-	//This is depricated, as now the EmergenceSingleton is a Subsystem so this doesn't actually do anything. @TODO remove all references to this from the blueprints.
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods", meta = (WorldContext = "ContextObject"))
-	static UEmergenceSingleton* ForceInitialize(const UObject* ContextObject);
-
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
 	UFUNCTION()
 	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
@@ -136,15 +132,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
 	bool OwnedAvatarNFTCached = false;
-
-	/*
-	This used to return false if we were a non - marketplace build, e.g. the version shipped with a locally
-	run .exe to handle blockchain interaction called LocalEVM. LocalEVM was depricated a while ago so this will now 
-	always return true. This function should be removed from any blueprints it is found in and any code on the "false"
-	branch should also be removed.
-	*/
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
-	const bool IsMarketplaceBuild();
 
 	//HTTPService Functions
 private:

@@ -55,11 +55,6 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 	return nullptr;
 }
 
-UEmergenceSingleton* UEmergenceSingleton::ForceInitialize(const UObject* ContextObject)
-{
-	return UEmergenceSingleton::GetEmergenceManager(ContextObject);
-}
-
 
 void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
 {
@@ -143,11 +138,6 @@ void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
 {
 	this->OwnedAvatarNFTCache.Empty();
 	this->OwnedAvatarNFTCached = false;
-}
-
-const bool UEmergenceSingleton::IsMarketplaceBuild()
-{
-	return true; 
 }
 
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
