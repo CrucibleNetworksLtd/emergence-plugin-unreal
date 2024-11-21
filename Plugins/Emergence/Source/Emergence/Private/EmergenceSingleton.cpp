@@ -531,14 +531,7 @@ void UEmergenceSingleton::KillSession()
 		this->CurrentAccessToken = "";
 		this->DeviceID = "";
 		
-
-		FTimerDelegate TimerCallback;
-		TimerCallback.BindLambda([&] //fake a small amount of time so the UI doesn't mess up @TODO fix this up in the UI so its no longer needed
-		{
-			OnKillSessionCompleted.Broadcast(true, EErrorCode::EmergenceOk);
-		});
-		FTimerHandle Handle;
-		GetWorld()->GetTimerManager().SetTimer(Handle, TimerCallback, 0.2f, false);
+		OnKillSessionCompleted.Broadcast(true, EErrorCode::EmergenceOk);
 	
 		return;
 	}
