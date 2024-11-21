@@ -216,14 +216,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"code_verifier", UCustodialLogin::code},
 	});
 
-	FString URL; //URL changes depending on FV environment
-	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-	if (Env == EFutureverseEnvironment::Production) {
-		URL = TEXT("https://login.futureverse.app/token?");
-	}
-	else {
-		URL = TEXT("https://login.futureverse.cloud/token?");
-	}
+	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL() + "/token?"; //URL changes depending on FV environment
 
 	//for some reason, the parameters on this request are encoded like a GET url's parameters, but then sent in a POST as part of the content, don't ask me why lol
 	FString Params;
