@@ -35,7 +35,7 @@ void UGetTokenURIData::Activate()
 void UGetTokenURIData::GetTokenURIData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	StatusCode = EErrorCode::EmergenceOk; //FORCE IT, ONLY FOR TESTING
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnGetTokenURIDataCompleted.Broadcast(*HttpResponse->GetContentAsString(), EErrorCode::EmergenceOk);

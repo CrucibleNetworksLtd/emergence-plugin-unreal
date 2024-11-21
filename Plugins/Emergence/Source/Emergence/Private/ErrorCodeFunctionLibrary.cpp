@@ -57,9 +57,9 @@ const TMap <int32, EErrorCode> UErrorCodeFunctionLibrary::StatusCodeIntToErrorCo
 	{512, EErrorCode::EmergenceInternalError}
 };
 
-FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
+FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
 
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		ReturnResponseCode = ResponseCode;
 		return FJsonObject();
@@ -84,8 +84,23 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpResponsePtr H
 	return FJsonObject();
 }
 
-EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded)
+EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
+	//if the elapsed time is greater than the timeout, we've hit the timeout
+	if (HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
+		return EErrorCode::EmergenceClientRequestTimeout;
+	}
+
+	//if we didn't succeed, and we are less than the timeout, and the response code is 0
+	//it was probably a cancelled request
+	int jeff = HttpResponse->GetResponseCode();
+	if (!bSucceeded && 
+		(HttpRequest->GetElapsedTime() < HttpRequest->GetTimeout().GetValue()) &&
+		HttpRequest->GetStatus() == EHttpRequestStatus::Failed &&
+		HttpResponse->GetResponseCode() == 0) {
+		return EErrorCode::EmergenceClientRequestCancelled;
+	}
+
 	//If we didn't even get a http response, give failed
 	if (!bSucceeded) return EErrorCode::EmergenceClientFailed;
 

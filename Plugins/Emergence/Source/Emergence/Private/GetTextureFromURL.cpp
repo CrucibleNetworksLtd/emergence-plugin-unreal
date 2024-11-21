@@ -33,7 +33,7 @@ void UGetTextureFromUrl::Activate()
 
 void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		OnGetTextureFromUrlCompleted.Broadcast(nullptr, ResponseCode);
 		return;
@@ -91,7 +91,7 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 
 void UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (!bSucceeded || (ResponseCode != EErrorCode::Ok)) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Failed to get converted GIF, reason number: %d"), (int)ResponseCode);
 		OnGetTextureFromUrlCompleted.Broadcast(nullptr, UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode()));

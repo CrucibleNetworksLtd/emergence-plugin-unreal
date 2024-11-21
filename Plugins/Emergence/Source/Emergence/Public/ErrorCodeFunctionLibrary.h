@@ -66,7 +66,9 @@ enum class EErrorCode : uint8 {
 	EmergenceClientInvalidErrorCode = 203,
 	EmergenceClientJsonParseFailed = 204,
 	EmergenceClientWrongType = 205,
-	EmergenceClientUserRejected = 206
+	EmergenceClientUserRejected = 206,
+	EmergenceClientRequestTimeout = 207,
+	EmergenceClientRequestCancelled = 208,
 };
 
 UCLASS()
@@ -75,10 +77,10 @@ class EMERGENCE_API UErrorCodeFunctionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	//tries to parse a response as json, calls GetResponseErrors automagically
-	static FJsonObject TryParseResponseAsJson(FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& JsonObject);
+	static FJsonObject TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& JsonObject);
 
 	//Gets any pre-content parse errors
-	static EErrorCode GetResponseErrors(FHttpResponsePtr HttpResponse, bool bSucceeded);
+	static EErrorCode GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	/**
 	 * Converts an interger to an error code enum.
