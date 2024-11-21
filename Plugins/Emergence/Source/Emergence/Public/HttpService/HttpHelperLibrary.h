@@ -153,10 +153,10 @@ public:
 		FString Environment = GetFVEnvironment();
 
 		if (Environment == "Production") {
-			return TEXT("https://login.pass.online/auth?");
+			return TEXT("https://login.pass.online");
 		}
 		else {
-			return TEXT("https://login.passonline.cloud/auth?");
+			return TEXT("https://login.passonline.cloud");
 		}
 	}
 

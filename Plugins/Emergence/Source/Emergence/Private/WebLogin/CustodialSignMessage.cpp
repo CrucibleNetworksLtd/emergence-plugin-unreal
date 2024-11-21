@@ -130,6 +130,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
 	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
 	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
+	SignTransactionPayloadJsonObject->SetStringField("idpUrl", UHttpHelperLibrary::GetFutureverseAuthURL());
 
 	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
 	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`

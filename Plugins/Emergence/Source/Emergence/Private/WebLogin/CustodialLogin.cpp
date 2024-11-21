@@ -160,7 +160,7 @@ void UCustodialLogin::Activate()
 		});
 
 	//Encode the params in a GET request style
-	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL();
+	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL() + "/auth?";
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		URL += UrlParams[i].Key;
 		URL += "=";
