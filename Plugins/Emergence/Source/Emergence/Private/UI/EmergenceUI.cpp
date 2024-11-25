@@ -45,7 +45,10 @@ void UEmergenceUI::SwitchCurrentScreen(UUserWidget* NewScreen) {
 
 void UEmergenceUI::SwitchCurrentScreenByClass(TSubclassOf<UUserWidget> NewScreenClass)
 {
-	SwitchCurrentScreen(CreateWidget<UUserWidget>(this, NewScreenClass));
+	//Check the world isn't mid-teardown before trying to "create widget"
+	if (GetOwningLocalPlayer() && GetOwningLocalPlayer()->GetWorld() && !GetOwningLocalPlayer()->GetWorld()->bIsTearingDown) {
+		SwitchCurrentScreen(CreateWidget<UUserWidget>(this, NewScreenClass));
+	}
 }
 
 void UEmergenceUI::ShowLoadingMessage(FName MessageId, FText Reason)
