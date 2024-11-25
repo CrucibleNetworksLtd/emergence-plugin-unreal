@@ -305,7 +305,7 @@ void UEmergenceSingleton::CallRequestError(FString ConnectionName, EErrorCode St
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
-	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
+	if (ResponseCode != EErrorCode::Ok) { //this endpoint responds Http Ok rather than emergence ok, because its an image rather than emergence status json
 		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), ResponseCode);
 		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
 		return;
@@ -321,8 +321,8 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 		return;
 	}
 	else {
-		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), EErrorCode::EmergenceClientWrongType);
-		OnAnyRequestError.Broadcast("GetQRCode", EErrorCode::EmergenceClientWrongType);
+		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), EErrorCode::EmergenceClientFailed);
+		OnAnyRequestError.Broadcast("GetQRCode", EErrorCode::EmergenceClientFailed);
 	}
 }
 
