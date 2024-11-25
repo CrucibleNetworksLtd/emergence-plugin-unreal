@@ -47,7 +47,7 @@ void UGetFuturepassInventoryByCollectionAndOwner::Activate() {
 		//that this bit of code below is pretty much the same as that in GetFuturepassInventory.
 		
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetFuturepassInventory_HttpRequestComplete: %s"), *res->GetContentAsString());
 
 		if (StatusCode == EErrorCode::EmergenceOk) {

@@ -28,10 +28,16 @@
 
 #include "Misc/DateTime.h"
 
-UEmergenceSingleton::UEmergenceSingleton() {
+
+void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
+{
+	UGameInstanceSubsystem::Initialize(Collection);
 }
 
-TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> UEmergenceSingleton::GlobalManagers{};
+void UEmergenceSingleton::Deinitialize()
+{
+	UGameInstanceSubsystem::Deinitialize();
+}
 
 UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* ContextObject)
 {
@@ -43,24 +49,12 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 	UGameInstance* GameInstance = World ? World->GetGameInstance() : nullptr;
 	if (GameInstance)
 	{
-		TWeakObjectPtr<UEmergenceSingleton>& Manager = GlobalManagers.FindOrAdd(GameInstance);
-		if (!Manager.IsValid())
-		{
-			Manager = NewObject<UEmergenceSingleton>(GameInstance);
-			Manager->SetGameInstance(GameInstance);
-			Manager->Init();
-		}
-		UE_LOG(LogEmergenceHttp, Verbose, TEXT("Got Emergence Singleton: %s"), *Manager->GetFName().ToString());
-		return Manager.Get();
+		return GameInstance->GetSubsystem<UEmergenceSingleton>();
 	}
-	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: No manager avalible, whats going on?"));
+	UE_LOG(LogEmergenceHttp, Error, TEXT("Emergence singleton error: no game instance"));
 	return nullptr;
 }
 
-UEmergenceSingleton* UEmergenceSingleton::ForceInitialize(const UObject* ContextObject)
-{
-	return GetEmergenceManager(ContextObject);
-}
 
 void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
 {
@@ -80,24 +74,6 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 	else {
 		UE_LOG(LogEmergence, Error, TEXT("CompleteLoginViaWebLoginFlow failed with code: %d"), (int)ErrorCode);
 	}
-}
-
-void UEmergenceSingleton::Init()
-{
-	FGameDelegates::Get().GetEndPlayMapDelegate().AddUObject(this, &UEmergenceSingleton::Shutdown);
-	AddToRoot();
-}
-
-void UEmergenceSingleton::Shutdown()
-{
-	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
-
-	RemoveFromRoot();
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
-	MarkAsGarbage();
-#else
-	MarkPendingKill();
-#endif
 }
 
 void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
@@ -164,15 +140,6 @@ void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
 	this->OwnedAvatarNFTCached = false;
 }
 
-const bool UEmergenceSingleton::IsMarketplaceBuild()
-{
-#if UNREAL_MARKETPLACE_BUILD
-	return true;
-#else
-	return false;
-#endif
-}
-
 bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::Denied) {
@@ -199,8 +166,8 @@ void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPt
 			return;
 		}
 	}
-	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
-	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded));
+	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded));
+	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded));
 }
 
 void UEmergenceSingleton::CancelSignInRequest()
@@ -337,7 +304,7 @@ void UEmergenceSingleton::CallRequestError(FString ConnectionName, EErrorCode St
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
 		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), ResponseCode);
 		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
@@ -347,9 +314,8 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	TArray<uint8> ResponseBytes = HttpResponse->GetContent();
 	UTexture2D* QRCodeTexture;
 	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponseBytes, QRCodeTexture)) {
-#if UNREAL_MARKETPLACE_BUILD
+
 		this->DeviceID = HttpResponse->GetHeader("deviceId");
-#endif
 		FString WalletConnectString = HttpResponse->GetHeader("walletconnecturi");
 		OnGetQRCodeCompleted.Broadcast(QRCodeTexture, WalletConnectString, EErrorCode::EmergenceOk);
 		return;
@@ -421,7 +387,7 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
@@ -467,7 +433,7 @@ void UEmergenceSingleton::GetHandshake(int Timeout)
 
 void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
 		return;
@@ -485,7 +451,7 @@ void UEmergenceSingleton::ReinitializeWalletConnect()
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool IsConnected;
@@ -511,12 +477,10 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 
 void UEmergenceSingleton::IsConnected()
 {
-#if UNREAL_MARKETPLACE_BUILD
 	if (this->DeviceID.IsEmpty()) {
 		OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceOk);
 		return;
 	}
-#endif
 
 	//part of a debugging method
 	if (ForceIsConnected) {
@@ -536,7 +500,7 @@ void UEmergenceSingleton::IsConnected()
 void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool Disconnected;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {
@@ -583,7 +547,6 @@ void UEmergenceSingleton::KillSession()
 		TArray<TPair<FString, FString>> Headers;
 		Headers.Add(TPair<FString, FString>("Auth", this->CurrentAccessToken));
 
-#if UNREAL_MARKETPLACE_BUILD
 		if (this->DeviceID.IsEmpty()) {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but there is no device ID, so probably no session."));
 			return;
@@ -591,7 +554,6 @@ void UEmergenceSingleton::KillSession()
 
 		//we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
-#endif
 
 		UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
@@ -641,7 +603,7 @@ void UEmergenceSingleton::OnOverlayClosed()
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;	
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);	
+	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString OutputString;
 		TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > Writer = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutputString);

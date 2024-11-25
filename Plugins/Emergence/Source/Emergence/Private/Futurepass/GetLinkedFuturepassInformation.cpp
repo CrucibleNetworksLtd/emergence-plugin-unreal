@@ -28,7 +28,7 @@ void UGetLinkedFuturepassInformation::Activate(){
 
 	LinkedFuturepassRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetLinkedFuturepassInformation part 1: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk) {	
 			TSharedPtr<FJsonValue> JsonValue;

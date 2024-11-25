@@ -26,12 +26,13 @@
 #pragma warning( disable : 4996 )
 
 UCLASS()
-class EMERGENCE_API UEmergenceSingleton : public UObject
+class EMERGENCE_API UEmergenceSingleton : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 	
 public:
-	UEmergenceSingleton();
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	template<typename T>
 	inline static T StringToEnum(const FString& Name) {
@@ -42,22 +43,13 @@ public:
 		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
 	}
 
-	/** Get the global Emergence service */
+	//Get the global Emergence service
 	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods", meta = (WorldContext = "ContextObject"))
-	static UEmergenceSingleton* ForceInitialize(const UObject* ContextObject);
-
-	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
 	UFUNCTION()
 	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
-
-	void Init();
-	void Shutdown();
-
-	void SetGameInstance(UGameInstance* GameInstance) { OwningGameInstance = GameInstance; }
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
 
@@ -140,9 +132,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
 	bool OwnedAvatarNFTCached = false;
-
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
-	const bool IsMarketplaceBuild();
 
 	//HTTPService Functions
 private:
@@ -305,11 +294,7 @@ public:
 	UPROPERTY()
 	URequestToSign* RequestToSign;
 
-	static TMap<TWeakObjectPtr<UGameInstance>, TWeakObjectPtr<UEmergenceSingleton>> GlobalManagers;
 private:
-	
-	TWeakObjectPtr<UGameInstance> OwningGameInstance;
-
 	bool PreviousMouseShowState;
 	int PreviousGameInputMode;
 };
