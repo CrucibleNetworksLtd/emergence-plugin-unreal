@@ -4,7 +4,14 @@
 #include "WalletConnectCode.h"
 
 TSharedRef<SWidget> UWalletConnectCode::RebuildWidget() {
-	StartAll();
+	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
+	if (Singleton) {
+		//start the ticking for the countdown timer. Keep in mind, this is visual ONLY and doesn't affact the requests themselves
+		this->GetOwningPlayer()->GetWorld()->GetTimerManager().SetTimer(TimeRemainingTimerHandle, this, &UWalletConnectCode::UpdateTimeRemaining, 1.0F, true, 1.0F);
+		if (ActivateOnConstruct) {
+			this->StartAttempt();
+		}
+	}
 	return Super::RebuildWidget();
 }
 
