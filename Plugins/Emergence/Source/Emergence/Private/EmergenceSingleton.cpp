@@ -73,7 +73,7 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 			GetAccessToken();
 		}
 		else { //skip access token
-			OnGetAccessTokenCompleted.Broadcast(EErrorCode::EmergenceOk);
+			OnLoginFinished.Broadcast(EErrorCode::EmergenceOk);
 			OnAnyRequestError.Broadcast("GetAccessToken", EErrorCode::EmergenceOk);
 		}
 	}
@@ -435,7 +435,7 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 				GetAccessToken();
 			}
 			else { //skip access token
-				OnGetAccessTokenCompleted.Broadcast(EErrorCode::EmergenceOk);
+				OnLoginFinished.Broadcast(EErrorCode::EmergenceOk);
 				OnAnyRequestError.Broadcast("GetAccessToken", EErrorCode::EmergenceOk);
 			}
 		}
@@ -614,7 +614,7 @@ void UEmergenceSingleton::ForceLoginViaAccessToken(FString AccessToken)
 
 	this->CurrentAccessToken = AccessToken; //if it is given as an object string it can go right in, in theory
 	this->ForceIsConnected = true;
-	OnGetAccessTokenCompleted.Broadcast(EErrorCode::EmergenceOk);
+	OnLoginFinished.Broadcast(EErrorCode::EmergenceOk);
 	UE_LOG(LogEmergence, Display, TEXT("Did a ForceLoginViaAccessToken"));
 	UE_LOG(LogEmergence, Display, TEXT("Current Address: %s"), *this->CurrentAddress);
 	UE_LOG(LogEmergence, Display, TEXT("Current Access Token: %s"), *this->CurrentAccessToken);
@@ -652,7 +652,7 @@ void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr Htt
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token! It is: %s"), *OutputString);
 		return;
 	}
-	OnGetAccessTokenCompleted.Broadcast(StatusCode);
+	OnLoginFinished.Broadcast(StatusCode);
 	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
 }
 
@@ -673,7 +673,7 @@ void UEmergenceSingleton::OnRequestToSignForAccessTokenComplete(FString SignedMe
 		this->CurrentAccessToken = OutputString;
 		UE_LOG(LogEmergenceHttp, Display, TEXT("Got access token (new)! It is: %s"), *this->CurrentAccessToken);
 	}
-	OnGetAccessTokenCompleted.Broadcast(StatusCode);
+	OnLoginFinished.Broadcast(StatusCode);
 	OnAnyRequestError.Broadcast("GetAccessToken", StatusCode);
 }
 
