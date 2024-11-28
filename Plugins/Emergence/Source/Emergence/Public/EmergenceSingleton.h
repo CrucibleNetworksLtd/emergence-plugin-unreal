@@ -274,11 +274,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnKillSessionCompleted OnKillSessionCompleted;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetAccessTokenCompleted, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLoginFinished, EErrorCode, StatusCode);
 	
-	//Called when the user has done the last step of the login process to Emergence
+	//Called when the user has done the last step of a login process, or the process has had an error that causes it to finish.
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
-	FOnGetAccessTokenCompleted OnGetAccessTokenCompleted;
+	FOnLoginFinished OnLoginFinished;
 
 	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect / Futureverse custodial wallet requiring stuff).
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Debug Commands")

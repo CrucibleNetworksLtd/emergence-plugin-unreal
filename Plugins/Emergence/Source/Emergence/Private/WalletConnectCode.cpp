@@ -31,7 +31,7 @@ void UWalletConnectCode::QRCodeCompleted(UTexture2D* _Icon, FString _WalletConne
 }
 
 void UWalletConnectCode::AccessTokenCompleted(EErrorCode StatusCode) {
-	Singleton->OnGetAccessTokenCompleted.RemoveDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
+	Singleton->OnLoginFinished.RemoveDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
 	if (StatusCode == EErrorCode::EmergenceOk) { //EVERYTHING IS DONE, CLEANUP AND SAY SUCCESS
 		this->GetOwningPlayer()->GetWorld()->GetTimerManager().ClearTimer(TimeRemainingTimerHandle);
 		Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
@@ -77,7 +77,7 @@ void UWalletConnectCode::StartAttempt()
 	this->TimeRemaining = ConnectionRefreshTime;
 
 	Singleton->OnGetQRCodeCompleted.RemoveDynamic(this, &UWalletConnectCode::QRCodeCompleted);
-	Singleton->OnGetAccessTokenCompleted.RemoveDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
+	Singleton->OnLoginFinished.RemoveDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
 	Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 
 	Singleton->OnGetQRCodeCompleted.AddDynamic(this, &UWalletConnectCode::QRCodeCompleted);
@@ -85,7 +85,7 @@ void UWalletConnectCode::StartAttempt()
 	Singleton->GetQRCode();
 	this->SetBrush(FSlateBrush()); //Clear out this widget so the user doesn't try to scan an old QR code if one has been downloaded already
 
-	Singleton->OnGetAccessTokenCompleted.AddDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
+	Singleton->OnLoginFinished.AddDynamic(this, &UWalletConnectCode::AccessTokenCompleted);
 	Singleton->OnGetHandshakeCompleted.AddDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 }
 
