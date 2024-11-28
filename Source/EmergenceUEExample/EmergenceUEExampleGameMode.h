@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "ErrorCodeFunctionLibrary.h"
 #include "EmergenceUEExampleGameMode.generated.h"
 
 UCLASS(minimalapi)
@@ -13,6 +14,12 @@ class AEmergenceUEExampleGameMode : public AGameModeBase
 
 public:
 	AEmergenceUEExampleGameMode();
+
+	UFUNCTION(BlueprintCallable)
+	void PerformCustodialLogin();
+
+	UFUNCTION()
+	void OnLoginFinalized(EErrorCode StatusCode);
 };
 
 
