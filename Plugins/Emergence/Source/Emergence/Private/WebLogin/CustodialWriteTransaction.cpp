@@ -352,9 +352,8 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 
 	if (StatusCode == EErrorCode::EmergenceOk) { //if the response is valid json
-		TSharedPtr<FJsonValue> HashField = GetEncodedPayloadResponse.TryGetField("hash"); //try to get the field called "hash"
-		if (HashField.IsValid() && HashField->Type == EJson::String){ //if its not an error (@TODO potentially rewrite this now it will always come back as a string)
-			FString Hash = HashField->AsString(); //get it as a string
+		FString Hash;
+		if (GetEncodedPayloadResponse.TryGetStringField("hash", Hash)){ //hash exists and its a string field
 			UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete hash: %s"), *Hash);
 			OnCustodialWriteTransactionCompleted.Broadcast(Hash, EErrorCode::EmergenceOk); //broadcast a success
 			TransactionEnded(); //call transaction ended to close up this UObject
