@@ -26,7 +26,7 @@ class EMERGENCE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	inline static FString APIBase = "https://evm6.openmeta.xyz/api/";
+	inline static FString APIBase = "https://evm7.openmeta.xyz/api/";
 
 	inline static FString EmergenceVersionNumberCache;
 
