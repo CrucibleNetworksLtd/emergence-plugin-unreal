@@ -131,8 +131,11 @@ void UWriteMethod::Activate()
 	}
 	//if we're working with a local wallet 
 	else {
-		//switching networks isn't allowed
-		//CallWriteMethod();
+		if(!DeployedContract->Blockchain->NodeURL.Contains("http")) {
+			UE_LOG(LogEmergenceHttp, Error, TEXT("If you are using a local wallet you can't use Emergence proxy RPC URLs, such as \"%s\""), *DeployedContract->Blockchain->NodeURL);
+			return;
+		}
+
 		auto EmergenceModule = FModuleManager::GetModuleChecked<FEmergenceModule>("Emergence");
 
 		FString TransactionResponse;
