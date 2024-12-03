@@ -20,10 +20,10 @@ public:
 	 * Calls a "read" method on the given contract.
 	 * @param DeployedContract The deployed contract.
 	 * @param MethodName The method to call.
-	 * @param Content The parameters to call the method with.
+	 * @param Parameters The parameters to call the method with.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
-	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Parameters"), Category = "Emergence|Blockchain Interactions")
+	static UReadMethod* ReadMethod(UObject * WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Parameters);
 
 	virtual void Activate() override;
 
@@ -46,5 +46,5 @@ private:
 	
 	FEmergenceContractMethod MethodName;
 	UEmergenceDeployment* DeployedContract;
-	TArray<FString> Content;
+	TArray<FString> Parameters;
 };

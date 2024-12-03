@@ -10,12 +10,12 @@
 #include "WalletService/LoadContractInternal.h"
 #include "EmergenceSingleton.h"
 
-UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Content)
+UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Parameters)
 {
 	UReadMethod* BlueprintNode = NewObject<UReadMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->MethodName = MethodName;
-	BlueprintNode->Content = Content;
+	BlueprintNode->Parameters = Parameters;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
@@ -76,9 +76,9 @@ void UReadMethod::Activate()
 
 	FString ContentString;
 	ContentString.Append("[");
-	for (int i = 0; i < Content.Num(); i++) {
-		ContentString.Append("\"" + Content[i] + "\"");
-		if (i != Content.Num() - 1) {
+	for (int i = 0; i < Parameters.Num(); i++) {
+		ContentString.Append("\"" + Parameters[i] + "\"");
+		if (i != Parameters.Num() - 1) {
 			ContentString.Append(",");
 		}
 	}

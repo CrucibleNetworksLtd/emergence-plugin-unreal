@@ -23,14 +23,14 @@ public:
 	 * @param DeployedContract The deployed contract.
 	 * @param MethodName The method to call.
 	 * @param Value The amount to transfer from sender to recipient (in Wei, or equivelent).
-	 * @param Content The parameters to call the method with.
+	 * @param Parameters The parameters to call the method with.
 	 * @param PrivateKey (Optional) The private key of the account to call the method with. Leave blank to call with the WalletConnect'd wallet / Futureverse custodial wallet.
 	 * @param GasPrice (Optional) The gas price to use if we're calling with a local account.
 	 * @param NumberOfConfirmations The number of confirmations to wait for before deciding this transaction "confirmed".
 	 * @param TimeBetweenChecks The amount of time between checks in seconds.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Blockchain Interactions")
-	static UWriteMethod* WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString PrivateKey, FString GasPrice, int NumberOfConfirmations = 5, float TimeBetweenChecks = 5.0F);
+	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Parameters"), Category = "Emergence|Blockchain Interactions")
+	static UWriteMethod* WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Parameters, FString PrivateKey, FString GasPrice, int NumberOfConfirmations = 5, float TimeBetweenChecks = 5.0F);
 
 	virtual void Activate() override;
 
@@ -64,7 +64,7 @@ private:
 	
 	UEmergenceDeployment* DeployedContract;
 	FEmergenceContractMethod MethodName;
-	TArray<FString> Content;
+	TArray<FString> Parameters;
 	FString LocalAccountName;
 	FString GasPrice;
 	FString Value;

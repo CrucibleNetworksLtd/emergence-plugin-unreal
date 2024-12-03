@@ -11,12 +11,12 @@
 #include "TimerManager.h"
 #include "WebLogin/CustodialWriteTransaction.h"
 
-UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Content, FString PrivateKey, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
+UWriteMethod* UWriteMethod::WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Parameters, FString PrivateKey, FString GasPrice, int NumberOfConfirmations, float TimeBetweenChecks)
 {
 	UWriteMethod* BlueprintNode = NewObject<UWriteMethod>();
 	BlueprintNode->DeployedContract = DeployedContract;
 	BlueprintNode->MethodName = MethodName;
-	BlueprintNode->Content = Content;
+	BlueprintNode->Parameters = Parameters;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->LocalAccountName = PrivateKey;
 	BlueprintNode->GasPrice = GasPrice;
@@ -59,7 +59,7 @@ void UWriteMethod::Activate()
 	//"Web login" flow stuff
 	if (Singleton->UsingWebLoginFlow) {
 		UCustodialWriteTransaction* CustodialWriteTransaction = UCustodialWriteTransaction::CustodialWriteTransaction(
-			WorldContextObject, DeployedContract, MethodName.MethodName, Value, Content);
+			WorldContextObject, DeployedContract, MethodName.MethodName, Value, Parameters);
 		CustodialWriteTransaction->OnCustodialWriteTransactionCompleted.AddDynamic(this, &UWriteMethod::CustodialWriteTransactionCompleted);
 		CustodialWriteTransaction->Activate();
 		return;
@@ -152,9 +152,9 @@ void UWriteMethod::CallWriteMethod()
 
 	FString ContentString;
 	ContentString.Append("[");
-	for (int i = 0; i < Content.Num(); i++) {
-		ContentString.Append("\"" + Content[i] + "\"");
-		if (i != Content.Num() - 1) {
+	for (int i = 0; i < Parameters.Num(); i++) {
+		ContentString.Append("\"" + Parameters[i] + "\"");
+		if (i != Parameters.Num() - 1) {
 			ContentString.Append(",");
 		}
 	}
