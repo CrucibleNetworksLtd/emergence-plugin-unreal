@@ -38,10 +38,6 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Wallet Connect")
 	void CancelAll();
 
-	//@TODO this no longer does anything. Make sure its removed from Blueprints, the delete this
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Wallet Connect")
-	void StartAll();
-
 	//Starts a new attempt at showing the user a QR code and getting a handshake. Only manually call this if you're using ActivateOnConstruct = false
 	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
 	void StartAttempt();

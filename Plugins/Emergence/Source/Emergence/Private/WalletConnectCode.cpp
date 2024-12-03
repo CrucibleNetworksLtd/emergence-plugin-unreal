@@ -68,10 +68,6 @@ void UWalletConnectCode::CancelAll()
 	this->GetOwningPlayer()->GetWorld()->GetTimerManager().ClearTimer(TimeRemainingTimerHandle);
 }
 
-void UWalletConnectCode::StartAll()
-{
-}
-
 void UWalletConnectCode::StartAttempt()
 {
 	this->TimeRemaining = ConnectionRefreshTime;
