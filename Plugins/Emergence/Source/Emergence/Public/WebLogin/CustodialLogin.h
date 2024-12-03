@@ -37,8 +37,6 @@ public:
 	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
 
 	void Activate() override;
-
-	void BeginDestroy() override;
 private:
 
 	UFUNCTION()

@@ -181,11 +181,6 @@ void UCustodialLogin::Activate()
 	}
 }
 
-void UCustodialLogin::BeginDestroy() //@TODO this function in theory shouldn't be necessary 
-{
-	UEmergenceAsyncSingleRequestBase::BeginDestroy(); //call parent destroy
-}
-
 bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, const FHttpResultCallback& OnComplete)
 {
 	UE_LOG(LogEmergence, Display, TEXT("HandleRequestCallback"));
