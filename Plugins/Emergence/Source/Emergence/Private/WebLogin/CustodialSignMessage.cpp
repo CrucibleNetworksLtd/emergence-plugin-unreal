@@ -148,7 +148,6 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	FString URL = UHttpHelperLibrary::GetFutureverseSignerURL() + "?request=" + Base64Encode;
 	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) { //bind something for when we get a callback from the users browser
 		OnCustodialSignMessageComplete.ExecuteIfBound(SignedMessage, Error);
-		SetReadyToDestroy();
 	});
 
 	FString Error;
@@ -156,7 +155,6 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	if (!Error.IsEmpty()) { //if there was an error launching the browser (I've never actually seen this happen, but its good to handle the error)
 		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
 		OnCustodialSignMessageComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceInternalError);
-		SetReadyToDestroy();
 		return;
 	}
 }
