@@ -181,9 +181,6 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	JsonInputs->SetStringField("rpcUrl", InputRpcUrl);
 	JsonInputs->SetStringField("environment", UHttpHelperLibrary::GetFVEnvironment());
 
-	//save the RPC url for later
-	UCustodialWriteTransaction::RpcUrl = InputRpcUrl; //@TODO see if we can switch this back to DeployedContract->Blockchain->NodeURL now this entire method is more reliable from a non-static context
-
 	//serialize the JSON into a string
 	FString JsonInputsString;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonInputsString);
@@ -307,6 +304,8 @@ void UCustodialWriteTransaction::SendTranscation(FString Signature, FString EOA)
 		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 		return;
 	}
+
+	FString RpcUrl = DeployedContract->Blockchain->NodeURL;
 
 	//if other required values are blank, stop early and error
 	if (Signature.IsEmpty() || EOA.IsEmpty() || RpcUrl.IsEmpty()) {

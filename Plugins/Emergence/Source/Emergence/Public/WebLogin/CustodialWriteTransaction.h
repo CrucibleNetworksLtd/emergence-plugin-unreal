@@ -57,9 +57,6 @@ private:
 	FString UnsignedTransaction;
 	
 	FJsonObject RawTransactionWithoutSignature;
-	
-	UPROPERTY()
-	FString RpcUrl;
 
 	static TDelegate<void(FString /*Signature*/, FString /*EOA*/, EErrorCode)> CallbackComplete;
 	static bool _isServerStarted;
