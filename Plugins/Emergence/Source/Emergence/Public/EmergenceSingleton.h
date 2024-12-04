@@ -34,6 +34,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
+	friend class UHotjoinSessionLibrary;
+
 	template<typename T>
 	inline static T StringToEnum(const FString& Name) {
 		UEnum* EnumClass = StaticEnum<T>();
@@ -94,6 +96,10 @@ public:
 
 	UPROPERTY()
 	FString AccessTokenTimestamp;
+
+	//Should we prevent the session being killed in EVMCloud when KillSession is called? This is useful if you're trying to pass the session somewhere else.
+	UPROPERTY(Category = "Emergence Internal")
+	bool PreventEVMServerSessionKilling = false;
 
 	UPROPERTY()
 	FString DeviceID;
