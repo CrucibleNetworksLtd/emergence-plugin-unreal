@@ -96,11 +96,11 @@ public:
 
 	UPROPERTY()
 	FString AccessTokenTimestamp;
-
+private:
 	//Should we prevent the session being killed in EVMCloud when KillSession is called? This is useful if you're trying to pass the session somewhere else.
-	UPROPERTY(Category = "Emergence Internal")
+	UPROPERTY()
 	bool PreventEVMServerSessionKilling = false;
-
+public:
 	UPROPERTY()
 	FString DeviceID;
 

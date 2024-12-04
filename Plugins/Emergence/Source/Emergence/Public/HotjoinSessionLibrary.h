@@ -16,7 +16,7 @@ class EMERGENCE_API UHotjoinSessionLibrary : public UBlueprintFunctionLibrary
 public:
 	//Gets the data about the current session
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ContextObject"))
-	static FString PrepareSessionForHotjoin(const UObject* ContextObject);
+	static bool PrepareSessionForHotjoin(const UObject* ContextObject, FString& SessionData);
 
 	//Given a session data string, join the session. Returns true if everything went as expected
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ContextObject"))

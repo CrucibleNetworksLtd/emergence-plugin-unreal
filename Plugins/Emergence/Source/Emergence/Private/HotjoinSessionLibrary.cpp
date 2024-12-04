@@ -4,18 +4,18 @@
 #include "HotjoinSessionLibrary.h"
 #include "EmergenceSingleton.h"
 
-FString UHotjoinSessionLibrary::PrepareSessionForHotjoin(const UObject* ContextObject)
+bool UHotjoinSessionLibrary::PrepareSessionForHotjoin(const UObject* ContextObject, FString& SessionData)
 {
 	if (!ContextObject) {
 		UE_LOG(LogEmergence, Error, TEXT("PrepareSessionForHotjoin Error: no context object."));
-		return FString(); //error no context object
+		return false; //error no context object
 	}
 
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(ContextObject);
 
 	if (!Singleton) {
 		UE_LOG(LogEmergence, Error, TEXT("PrepareSessionForHotjoin Error: couldn't get singleton."));
-		return FString(); //error couldn't get singleton
+		return false; //error couldn't get singleton
 	}
 
 	TSharedPtr<FJsonObject> SessionDataJson = MakeShared<FJsonObject>();
@@ -26,7 +26,7 @@ FString UHotjoinSessionLibrary::PrepareSessionForHotjoin(const UObject* ContextO
 	}
 	else {
 		UE_LOG(LogEmergence, Error, TEXT("PrepareSessionForHotjoin Error: You can't prepare a session for hotjoin if you don't have a session!"));
-		return FString(); //No session, terminate now!
+		return false; //No session, terminate now!
 	}
 
 	if (!Singleton->DeviceID.IsEmpty()) { //if we have a device id, 
@@ -36,7 +36,7 @@ FString UHotjoinSessionLibrary::PrepareSessionForHotjoin(const UObject* ContextO
 	//however, if we don't have the bool set, something terrible has happened and we shouldn't try to pass along this session
 	else if (!Singleton->UsingWebLoginFlow) { 
 		UE_LOG(LogEmergence, Error, TEXT("PrepareSessionForHotjoin Error: Emergence in weird state. If you see this error, contact Crucible."));
-		return FString(); //No session, terminate now!
+		return false; //No session, terminate now!
 	}
 
 	//set the access token field if we have one in the current session
@@ -51,8 +51,10 @@ FString UHotjoinSessionLibrary::PrepareSessionForHotjoin(const UObject* ContextO
 	FJsonSerializer::Serialize(SessionDataJson.ToSharedRef(), Writer);
 
 	Singleton->PreventEVMServerSessionKilling = true; //don't let the singleton kill the session, as it needs to exist after this program exits
+	
+	SessionData = FBase64::Encode(OutputString); //return out data
 
-	return FBase64::Encode(OutputString);
+	return true;
 }
 
 bool UHotjoinSessionLibrary::HotjoinSessionFromData(const UObject* ContextObject, FString EncodedSessionData)
