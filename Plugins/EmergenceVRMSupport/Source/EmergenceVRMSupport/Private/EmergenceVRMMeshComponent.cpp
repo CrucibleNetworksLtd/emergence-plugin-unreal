@@ -9,6 +9,7 @@
 #include "LoaderBPFunctionLibrary.h"
 #include "Engine/LatentActionManager.h"
 #include "Animation/Skeleton.h"
+#include "Materials/Material.h"
 
 UEmergenceVRMMeshComponent::UEmergenceVRMMeshComponent()
 {
@@ -48,10 +49,10 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 	else {
 		if (MaterialType == EEmergenceVRMImportMaterialType::VRMIMT_EmergenceMToonUnlit && MaterialOverride) {
 			VrmImportMaterialSet = NewObject<UVrmImportMaterialSet>();
-			VrmImportMaterialSet->Opaque = MaterialOverride;
-			VrmImportMaterialSet->OpaqueTwoSided = MaterialOverride;
-			VrmImportMaterialSet->Translucent = MaterialOverride;
-			VrmImportMaterialSet->TranslucentTwoSided = MaterialOverride;
+			VrmImportMaterialSet->Opaque = Cast<UMaterialInterface>(MaterialOverride);
+			VrmImportMaterialSet->OpaqueTwoSided = Cast<UMaterialInterface>(MaterialOverride);
+			VrmImportMaterialSet->Translucent = Cast<UMaterialInterface>(MaterialOverride);
+			VrmImportMaterialSet->TranslucentTwoSided = Cast<UMaterialInterface>(MaterialOverride);
 			VrmAssetListObject->MtoonUnlitSet = VrmImportMaterialSet;
 			OptionForRuntimeLoad.MaterialType = EVRMImportMaterialType::VRMIMT_MToonUnlit;
 		}

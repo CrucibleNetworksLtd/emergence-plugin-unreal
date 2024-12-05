@@ -7,7 +7,10 @@ public class EmergenceUEExample : ModuleRules
 	public EmergenceUEExample(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		CppStandard = CppStandardVersion.Cpp17;
+		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion < 5)
+		{
+			CppStandard = CppStandardVersion.Cpp17;
+		}
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", 
 			"CoreUObject", 
