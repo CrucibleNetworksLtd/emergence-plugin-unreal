@@ -5,6 +5,7 @@
 #include "EmergenceSingleton.h"
 #include "InventoryService/InventoryScreen.h"
 #include "Blueprint/UserWidget.h"
+#include "Engine/GameViewportClient.h"
 
 UOpenNFTPicker* UOpenNFTPicker::OpenNFTPicker(UObject* WorldContextObject, APlayerController* PlayerController, const FEmergenceInventoryFilterSet& Filters, const FString OverrideAddress)
 {

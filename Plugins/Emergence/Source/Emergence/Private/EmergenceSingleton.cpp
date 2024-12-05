@@ -28,6 +28,8 @@
 
 #include "Misc/DateTime.h"
 
+#include "TimerManager.h"
+
 UEmergenceSingleton::UEmergenceSingleton() {
 }
 
