@@ -210,39 +210,40 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
 	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
-	if (StatusCode == EErrorCode::EmergenceOk) { //if there were no HTTP error codes and the response was parsable as JSON
-		FString SignerUrl = GetEncodedPayloadResponse.GetStringField("fullSignerUrl"); //get the full signer URL
-		RawTransactionWithoutSignature = *GetEncodedPayloadResponse.GetObjectField("rawTransactionWithoutSignature").Get(); //and the raw transaction
-		if (!SignerUrl.IsEmpty()) { //if we have a signer URL
-			//bind to the callback which will be called back by the URL we're about to launch in the users browser
-			CallbackComplete.BindLambda([&](FString Signature, FString EOA, EErrorCode ErrorCode) { //this is the callback triggered by the handler of the below launchURL
-				if(ErrorCode == EErrorCode::EmergenceOk){ //if the callback came back alright
-					SendTranscation(Signature, EOA); //send the transaction
-					return;
-				}
-				else { //if the callback comes back with an error
-					UE_LOG(LogEmergence, Warning, TEXT("GetEncodedPayload_HttpRequestComplete: failed."));
-					OnCustodialWriteTransactionCompleted.Broadcast(FString(), ErrorCode);
-					return;
-				}
-			});
-			FString Error;
-			FPlatformProcess::LaunchURL(*SignerUrl, nullptr, &Error); //launch the URL in the users browser
-			if (!Error.IsEmpty()) { //if it fails to launch (this has never happened but its good to try to handle the error)
-				UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
-				OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
-				return;
-			}
-		}
-		else {
-			UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed, signer URL empty."));
-			OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
-			return;
-		}
-	}
-	else {
+	
+	if (StatusCode != EErrorCode::EmergenceOk) { //if there were HTTP error codes and the response wasn't parsable as JSON
 		UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed"));
 		OnCustodialWriteTransactionCompleted.Broadcast(FString(), StatusCode);
+		return;
+	}
+
+	FString SignerUrl = GetEncodedPayloadResponse.GetStringField("fullSignerUrl"); //get the full signer URL
+	RawTransactionWithoutSignature = *GetEncodedPayloadResponse.GetObjectField("rawTransactionWithoutSignature").Get(); //and the raw transaction
+	if (SignerUrl.IsEmpty()) //if we don't have a signer URL
+	{
+		UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed, signer URL empty."));
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
+		return;
+	}
+		
+	//bind to the callback which will be called back by the URL we're about to launch in the users browser
+	CallbackComplete.BindLambda([&](FString Signature, FString EOA, EErrorCode ErrorCode) { //this is the callback triggered by the handler of the below launchURL
+		if(ErrorCode == EErrorCode::EmergenceOk){ //if the callback came back alright
+			SendTranscation(Signature, EOA); //send the transaction
+			return;
+		}
+		else { //if the callback comes back with an error
+			UE_LOG(LogEmergence, Warning, TEXT("GetEncodedPayload_HttpRequestComplete: failed."));
+			OnCustodialWriteTransactionCompleted.Broadcast(FString(), ErrorCode);
+			return;
+		}
+	});
+
+	FString Error;
+	FPlatformProcess::LaunchURL(*SignerUrl, nullptr, &Error); //launch the URL in the users browser
+	if (!Error.IsEmpty()) { //if it fails to launch (this has never happened but its good to try to handle the error)
+		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
+		OnCustodialWriteTransactionCompleted.Broadcast(FString(), EErrorCode::EmergenceInternalError);
 		return;
 	}
 	
