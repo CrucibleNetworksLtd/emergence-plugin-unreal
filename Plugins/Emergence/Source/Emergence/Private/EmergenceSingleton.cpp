@@ -151,25 +151,6 @@ bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
 	}
 }
 
-//HTTP Services
-void UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
-{
-	FString ResponseStr, ErrorStr;
-
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		ResponseStr = HttpResponse->GetContentAsString();
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			UE_LOG(LogEmergenceHttp, Display, TEXT("GetWalletConnectURI request complete. url=%s code=%d response=%s"), *HttpRequest->GetURL(), HttpResponse->GetResponseCode(), *ResponseStr);
-			OnGetWalletConnectURIRequestCompleted.Broadcast(*ResponseStr, EErrorCode::EmergenceOk);
-			return;
-		}
-	}
-	OnGetWalletConnectURIRequestCompleted.Broadcast(FString(), UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded));
-	OnAnyRequestError.Broadcast("GetWalletConnectURI", UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded));
-}
-
 void UEmergenceSingleton::CancelSignInRequest()
 {
 	if (GetAccessTokenRequest && GetAccessTokenRequest->GetStatus() == EHttpRequestStatus::Processing) {
@@ -287,14 +268,6 @@ FString UEmergenceSingleton::GetCachedChecksummedAddress()
 	else {
 		return FString("-1");
 	}
-}
-
-void UEmergenceSingleton::GetWalletConnectURI()
-{
-	this->DeviceID = ""; //clear the device ID, we'll be getting a new one so we don't want to be able to accidently send an old header
-
-	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetWalletConnectURI_HttpRequestComplete, UHttpHelperLibrary::APIBase + "getwalletconnecturi");
-	UE_LOG(LogEmergenceHttp, Display, TEXT("GetWalletConnectURI request started, calling GetWalletConnectURI_HttpRequestComplete on request completed"));
 }
 
 void UEmergenceSingleton::CallRequestError(FString ConnectionName, EErrorCode StatusCode)
