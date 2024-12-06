@@ -65,7 +65,7 @@ UEmergenceSingleton* UEmergenceSingleton::ForceInitialize(const UObject* Context
 void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::EmergenceOk) {
-		FString Address = LoginData.TokenData.FindRef(L"eoa");
+		FString Address = LoginData.TokenData.FindRef(TEXT("eoa"));
 		this->CurrentChecksummedAddress = Address;
 		this->CurrentAddress = Address.ToLower();
 		this->UsingWebLoginFlow = true;

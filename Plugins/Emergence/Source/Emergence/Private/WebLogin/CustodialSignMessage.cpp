@@ -118,6 +118,9 @@ void UCustodialSignMessage::Activate()
 void UCustodialSignMessage::LaunchSignMessageURL()
 {
 	//this segment is to do the same thing as ""0x" + Encoding.UTF8.GetBytes(value).ToHex()" in C#. Make sure if you implement this that it matches that output exactly.
+	#ifdef __llvm__
+	#pragma GCC diagnostic ignored "-Wdangling"
+	#endif
 	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
 	std::ostringstream oss;
 	for (size_t i = 0; i < Message.Len(); ++i) {
