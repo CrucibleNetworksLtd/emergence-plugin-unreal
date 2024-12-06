@@ -93,11 +93,11 @@ public:
 	bool FuturepassInfoCacheIsSet = false;
 
 	//Are we logged in via a web login flow, rather than WC
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Login Flow")
 	bool UsingWebLoginFlow = false;
 
 	//Should we use the access token system, which is required by the Emergence Overlay, or skip it?
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Category = "Emergence|Login Flow")
 	bool UseAccessToken = true;
 
 	UPROPERTY()
