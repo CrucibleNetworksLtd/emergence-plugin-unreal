@@ -15,6 +15,6 @@ class VRM4U_API UVrmAssetUserData : public UAssetUserData
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VRM4U")
-	TObjectPtr<UVrmAssetListObject> VrmAssetListObject = nullptr;
+	UVrmAssetListObject* VrmAssetListObject = nullptr;
 
 };
