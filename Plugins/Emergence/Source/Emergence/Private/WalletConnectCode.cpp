@@ -2,6 +2,7 @@
 
 
 #include "WalletConnectCode.h"
+#include "TimerManager.h"
 
 TSharedRef<SWidget> UWalletConnectCode::RebuildWidget() {
 	Singleton = UEmergenceSingleton::GetEmergenceManager(this->GetOwningPlayer());
