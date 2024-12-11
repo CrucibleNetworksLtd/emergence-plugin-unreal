@@ -22,7 +22,15 @@ public class Emergence : ModuleRules
 		}
 		
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		CppStandard = CppStandardVersion.Cpp17;
+        
+		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 5)
+        {
+            CppStandard = CppStandardVersion.Latest;
+        }
+		else
+		{
+            CppStandard = CppStandardVersion.Cpp17;
+        }
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
