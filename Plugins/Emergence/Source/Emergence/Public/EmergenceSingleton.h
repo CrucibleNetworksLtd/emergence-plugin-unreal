@@ -33,6 +33,8 @@ class EMERGENCE_API UEmergenceSingleton : public UObject
 public:
 	UEmergenceSingleton();
 
+	friend class UHotjoinSessionLibrary;
+
 	template<typename T>
 	inline static T StringToEnum(const FString& Name) {
 		UEnum* EnumClass = StaticEnum<T>();
@@ -102,6 +104,10 @@ public:
 
 	UPROPERTY()
 	FString AccessTokenTimestamp;
+
+	//Should we prevent the session being killed in EVMCloud when KillSession is called? This is useful if you're trying to pass the session somewhere else.
+	UPROPERTY()
+	bool PreventEVMServerSessionKilling = false;
 
 	UPROPERTY()
 	FString DeviceID;

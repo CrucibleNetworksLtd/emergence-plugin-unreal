@@ -563,6 +563,11 @@ void UEmergenceSingleton::KillSession()
 		return;
 	}
 
+	if (PreventEVMServerSessionKilling) {
+		UE_LOG(LogEmergenceHttp, Display, TEXT("Tried to KillSession but PreventEVMServerSessionKilling = true."));
+		return;
+	}
+
 	if(this->UsingWebLoginFlow){
 		this->CurrentAddress = "";
 		this->CurrentChecksummedAddress = "";
