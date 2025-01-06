@@ -874,7 +874,6 @@ namespace jwt {
 			ecdsa(const std::string& public_key, const std::string& private_key, const std::string& public_key_password,
 				  const std::string& private_key_password, const EVP_MD* (*md)(), std::string name, size_t siglen)
 				: md(md), alg_name(std::move(name)), signature_length(siglen) {
-				try {
 					if (!public_key.empty()) {
 						std::unique_ptr<BIO, decltype(&BIO_free_all)> pubkey_bio(BIO_new(BIO_s_mem()), BIO_free_all);
 						if (!pubkey_bio) throw ecdsa_exception(error::ecdsa_error::create_mem_bio_failed);
@@ -918,7 +917,6 @@ namespace jwt {
 					if (!pkey) throw ecdsa_exception(error::ecdsa_error::no_key_provided);
 
 					if (EC_KEY_check_key(pkey.get()) == 0) throw ecdsa_exception(error::ecdsa_error::invalid_key);
-				}catch(...) {}
 			}
 			/**
 			 * Sign jwt data
