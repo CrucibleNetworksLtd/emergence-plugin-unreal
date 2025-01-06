@@ -241,47 +241,14 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 	HttpRequest->OnProcessRequestComplete().BindLambda([Context](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
 		//Due to the architecture of the singleton, we're going to call some functions in the singleton when this token request is completed
 		auto Singleton = UEmergenceSingleton::GetEmergenceManager(Context);
-		
-		UE_LOG(LogEmergence, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
-		UE_LOG(LogEmergence, Display, TEXT("Tokens Data: %s"), *HttpResponse->GetContentAsString());
-		TSharedPtr<FJsonObject> JsonParsed;
-		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*HttpResponse->GetContentAsString());
-
-		if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed)) //if we fail to deserialize
-		{
-			UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
-			//tell the singleton this custodial login has failed
-			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
-			return;
+		FEmergenceCustodialLoginOutput Claims;
+		if (GetClaimsFromFutureverseAuthToken(Claims, HttpResponse->GetContentAsString())) {
+			Singleton->CompleteLoginViaWebLoginFlow(Claims, EErrorCode::EmergenceOk);
 		}
-
-		FString IdToken;
-		if (!JsonParsed->TryGetStringField("id_token", IdToken)) { //if we didn't get an ID token
-			UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
-			UE_LOG(LogEmergence, Error, TEXT("code was: %s"), *UCustodialLogin::code);
-			//tell the singleton this custodial login has failed
-			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientJsonParseFailed);
-			return;
-		}
-
-		//try to decode the id token as a JWT
-		UE_LOG(LogEmergence, Display, TEXT("id_token: %s"), *IdToken);
-		TMap<FString, FString> IdTokenDecoded;
-		FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
-		IdTokenDecoded = JwtVerifier.GetClaims(IdToken);
-
-		//if the JWT has 0 claims, meaning that it wasn't the JWT we're looking for / it failed
-		if (IdTokenDecoded.Num() == 0) {
-
-			UE_LOG(LogEmergence, Error, TEXT("IdTokenDecoded length was 0"));
-			//tell the singleton this custodial login has failed
+		else {
 			Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(), EErrorCode::EmergenceClientInvalidResponse);
-			return;
 		}
-
-		//it succeeded to get a JWT. Tell the singleton
-		Singleton->CompleteLoginViaWebLoginFlow(FEmergenceCustodialLoginOutput(IdTokenDecoded), EErrorCode::EmergenceOk);
-		return;
+		
 	});
 	UE_LOG(LogEmergence, Display, TEXT("Sent Params Data: %s"), *Params);
 	OnComplete(MoveTemp(response)); //send the HTML to the user
@@ -310,6 +277,43 @@ FString UCustodialLogin::GetSecureRandomBase64(int Length)
 
 	//Make a hex string, base64 encode that, then run it through the base64 cleanup function
 	return CleanupBase64ForWeb(FBase64::Encode(FString::FromHexBlob(Data.GetData(), Data.Num()))).Left(Length);
+}
+
+bool UCustodialLogin::GetClaimsFromFutureverseAuthToken(FEmergenceCustodialLoginOutput& Claims, FString AuthToken)
+{
+	UE_LOG(LogEmergence, Display, TEXT("GetTokensRequest_HttpRequestComplete"));
+	UE_LOG(LogEmergence, Display, TEXT("Tokens Data: %s"), *AuthToken);
+	TSharedPtr<FJsonObject> JsonParsed;
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(*AuthToken);
+
+	if (!FJsonSerializer::Deserialize(JsonReader, JsonParsed)) //if we fail to deserialize
+	{
+		UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Deserialize failed!"));
+		return false;
+	}
+
+	FString IdToken;
+	if (!JsonParsed->TryGetStringField("id_token", IdToken)) { //if we didn't get an ID token
+		UE_LOG(LogEmergence, Error, TEXT("GetTokensRequest_HttpRequestComplete: Could not get id_token!"));
+		UE_LOG(LogEmergence, Error, TEXT("code was: %s"), *UCustodialLogin::code);
+		return false;
+	}
+
+	//try to decode the id token as a JWT
+	UE_LOG(LogEmergence, Display, TEXT("id_token: %s"), *IdToken);
+	TMap<FString, FString> IdTokenDecoded;
+	FJwtVerifierModule JwtVerifier = FJwtVerifierModule::Get();
+	IdTokenDecoded = JwtVerifier.GetClaims(IdToken);
+
+	//if the JWT has 0 claims, meaning that it wasn't the JWT we're looking for / it failed
+	if (IdTokenDecoded.Num() == 0) {
+
+		UE_LOG(LogEmergence, Error, TEXT("IdTokenDecoded length was 0"));
+		return false;
+	}
+
+	Claims = FEmergenceCustodialLoginOutput(IdTokenDecoded);
+	return true;
 }
 
 

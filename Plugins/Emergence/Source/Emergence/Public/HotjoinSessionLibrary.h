@@ -14,11 +14,12 @@ class EMERGENCE_API UHotjoinSessionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	//Gets the data about the current session
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ContextObject"))
-	static FString PrepareSessionForHotjoin(const UObject* ContextObject);
 
 	//Given a session data string, join the session. Returns true if everything went as expected
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ContextObject"))
 	static bool HotjoinSessionFromData(const UObject* ContextObject, FString EncodedSessionData);
+
+	//Reads the application launch arguments to find the FV token to hotjoin to
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "ContextObject"))
+	static void HotjoinSessionFromAppLaunchArgs(const UObject* ContextObject);
 };

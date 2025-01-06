@@ -39,6 +39,9 @@ public:
 	void Activate() override;
 
 	void BeginDestroy() override;
+
+	UFUNCTION()
+	static bool GetClaimsFromFutureverseAuthToken(FEmergenceCustodialLoginOutput& Claims, FString AuthToken);
 private:
 
 	UFUNCTION()
