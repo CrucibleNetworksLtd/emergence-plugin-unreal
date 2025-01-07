@@ -87,7 +87,7 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpRequestPtr Ht
 EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	//if the elapsed time is greater than the timeout, we've hit the timeout
-	if (HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
+	if (HttpRequest->GetTimeout().IsSet() && HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
 		return EErrorCode::EmergenceClientRequestTimeout;
 	}
 
