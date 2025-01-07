@@ -28,6 +28,8 @@
 
 #include "Misc/DateTime.h"
 
+#include "TimerManager.h"
+
 
 void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -59,7 +61,7 @@ UEmergenceSingleton* UEmergenceSingleton::GetEmergenceManager(const UObject* Con
 void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode)
 {
 	if (ErrorCode == EErrorCode::EmergenceOk) {
-		FString Address = LoginData.TokenData.FindRef(L"eoa");
+		FString Address = LoginData.TokenData.FindRef(TEXT("eoa"));
 		this->CurrentChecksummedAddress = Address;
 		this->CurrentAddress = Address.ToLower();
 		this->UsingWebLoginFlow = true;

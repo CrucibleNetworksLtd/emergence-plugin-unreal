@@ -25,14 +25,14 @@ struct FEmergenceCustodialLoginOutput //This only exists because I can't output 
 	};
 };
 
-/**
-* Starts a web login attempt.
-*/
 UCLASS()
 class EMERGENCE_API UCustodialLogin : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Begins a Futurepass custodial web login by opening the user's browser. When they complete this, EmergenceSingleton->OnLoginFinished will be called.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
 

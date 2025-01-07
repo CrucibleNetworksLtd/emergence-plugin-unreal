@@ -118,6 +118,9 @@ void UCustodialSignMessage::Activate()
 void UCustodialSignMessage::LaunchSignMessageURL()
 {
 	//this segment is to do the same thing as ""0x" + Encoding.UTF8.GetBytes(value).ToHex()" in C#. Make sure if you implement this that it matches that output exactly.
+	#ifdef __llvm__
+	#pragma GCC diagnostic ignored "-Wdangling"
+	#endif
 	const char* UTF8Message = TCHAR_TO_UTF8(*Message);
 	std::ostringstream oss;
 	for (size_t i = 0; i < Message.Len(); ++i) {
@@ -148,7 +151,6 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	FString URL = UHttpHelperLibrary::GetFutureverseSignerURL() + "?request=" + Base64Encode;
 	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) { //bind something for when we get a callback from the users browser
 		OnCustodialSignMessageComplete.ExecuteIfBound(SignedMessage, Error);
-		SetReadyToDestroy();
 	});
 
 	FString Error;
@@ -156,7 +158,6 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	if (!Error.IsEmpty()) { //if there was an error launching the browser (I've never actually seen this happen, but its good to handle the error)
 		UE_LOG(LogEmergence, Display, TEXT("LaunchURL: failed, %s"), *Error);
 		OnCustodialSignMessageComplete.ExecuteIfBound(FString(), EErrorCode::EmergenceInternalError);
-		SetReadyToDestroy();
 		return;
 	}
 }
