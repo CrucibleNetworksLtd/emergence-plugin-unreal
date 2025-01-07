@@ -38,9 +38,10 @@ void UHotjoinSessionLibrary::HotjoinSessionFromAppLaunchArgs(const UObject* Cont
 	TArray<FString> Args;
 	CommandLine.ParseIntoArray(Args, TEXT(" "), false);
 	if (Args.Num() >= 1) {
+		FString EncodedToken = Args[Args.Num() - 1].Replace(TEXT("--auth-token="), TEXT(""), ESearchCase::IgnoreCase);
 		FString DecodedToken;
-		if (FBase64::Decode(Args[Args.Num() - 1], DecodedToken)) { //always the last one for simplicity @TODO make it so it has something to flag it as the argument that needs processing as idk if we can garentee it will be the last argument 
-			UHotjoinSessionLibrary::HotjoinSessionFromData(ContextObject, Args[1]);
+		if (FBase64::Decode(EncodedToken, DecodedToken)) { //always the last one for simplicity @TODO make it so it has something to flag it as the argument that needs processing as idk if we can garentee it will be the last argument 
+			UHotjoinSessionLibrary::HotjoinSessionFromData(ContextObject, DecodedToken);
 		}
 		else {
 			UE_LOG(LogEmergence, Error, TEXT("HotjoinSessionFromAppLaunchArgs - Failed to decode provided base64'd FV token."))
