@@ -6,13 +6,16 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 
-UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs)
+UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs, const TArray<FString>& Blockchains, const int PageNumber, const int PageSize)
 {
 	UGetInteroperableAssetsByFilterAndElements* BlueprintNode = NewObject<UGetInteroperableAssetsByFilterAndElements>();
 	BlueprintNode->CollectionID = FString(CollectionID);
 	BlueprintNode->WalletAddress = FString(WalletAddress);
 	BlueprintNode->NFTIDs = NFTIDs;
 	BlueprintNode->DesiredElements = DesiredElements;
+	BlueprintNode->Blockchains = Blockchains;
+	BlueprintNode->PageNumber = PageNumber;
+	BlueprintNode->PageSize = PageSize;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	BlueprintNode->RegisterWithGameInstance(WorldContextObject);
 	return BlueprintNode;
@@ -59,6 +62,19 @@ void UGetInteroperableAssetsByFilterAndElements::Activate()
 		}
 	}
 
+	if (Blockchains.Num() > 0) {
+		requestURL += "&chains=";
+		for (int i = 0; i < Blockchains.Num(); i++) {
+			requestURL += Blockchains[i];
+			if (i + 1 != Blockchains.Num()) {
+				requestURL += ",";
+			}
+		}
+	}
+
+	requestURL += "&pageSize=" + FString::FromInt(PageSize);
+
+	requestURL += "&pageNumber=" + FString::FromInt(PageNumber);
 	
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"Host", "interoperableassetsystem-dev.eba-xcksw4pw.us-east-1.elasticbeanstalk.com"});
