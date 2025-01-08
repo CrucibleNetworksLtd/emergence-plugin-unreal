@@ -40,12 +40,12 @@ struct FEmergenceInteroperableAsset
           for (auto Value : ElementsJSONValues) {
               if (Value->AsObject()->GetStringField("ElementName") == "NFT") {
                   UEmergenceInteroperableAssetNFTElement* Element = NewObject<UEmergenceInteroperableAssetNFTElement>();
-                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetNFTElementInner>(Value->AsObject().ToSharedRef(), &Element->EmergenceInteroperableAssetNFTElement, 0, 0);
+                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetNFTElementInner>(Value->AsObject().ToSharedRef(), &Element->NFTElementData, 0, 0);
                   Elements.Add(Element);
               }
               if (Value->AsObject()->GetStringField("ElementName") == "avatar") {
                   UEmergenceInteroperableAssetAvatarElement* Element = NewObject<UEmergenceInteroperableAssetAvatarElement>();
-                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetAvatarElementInner>(Value->AsObject().ToSharedRef(), &Element->EmergenceInteroperableAssetAvatarElement, 0, 0);
+                  FJsonObjectConverter::JsonObjectToUStruct<FEmergenceInteroperableAssetAvatarElementInner>(Value->AsObject().ToSharedRef(), &Element->AvatarElementData, 0, 0);
                   Elements.Add(Element);
               }
           }

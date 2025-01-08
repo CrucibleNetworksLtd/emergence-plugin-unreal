@@ -118,18 +118,18 @@ void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilte
 				FString ElementType = ElementObject->GetStringField("ElementName");
 				if (ElementType == "NFT") {
 					auto NFTElement = NewObject<UEmergenceInteroperableAssetNFTElement>(WorldContextObject);
-					NFTElement->EmergenceInteroperableAssetNFTElement = FEmergenceInteroperableAssetNFTElementInner(ElementObjectAsString);
+					NFTElement->NFTElementData = FEmergenceInteroperableAssetNFTElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(NFTElement);
 				}
 				if (ElementType == "avatar") {
-					auto NFTElement = NewObject<UEmergenceInteroperableAssetAvatarElement>(WorldContextObject);
-					NFTElement->EmergenceInteroperableAssetAvatarElement = FEmergenceInteroperableAssetAvatarElementInner(ElementObjectAsString);
-					OutputIA.Elements.Add(NFTElement);
+					auto AvatarElement = NewObject<UEmergenceInteroperableAssetAvatarElement>(WorldContextObject);
+					AvatarElement->AvatarElementData = FEmergenceInteroperableAssetAvatarElementInner(ElementObjectAsString);
+					OutputIA.Elements.Add(AvatarElement);
 				}
 				if (ElementType == "thumbnails") {
-					auto NFTElement = NewObject<UEmergenceInteroperableAssetThumbnailsElement>(WorldContextObject);
-					NFTElement->EmergenceInteroperableAssetThumbnailsElement = FEmergenceInteroperableAssetThumbnailsElementInner(ElementObjectAsString);
-					OutputIA.Elements.Add(NFTElement);
+					auto ThumbnailsElement = NewObject<UEmergenceInteroperableAssetThumbnailsElement>(WorldContextObject);
+					ThumbnailsElement->ThumbnailsElementData = FEmergenceInteroperableAssetThumbnailsElementInner(ElementObjectAsString);
+					OutputIA.Elements.Add(ThumbnailsElement);
 				}
 
 			}

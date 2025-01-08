@@ -188,6 +188,6 @@ public:
     }
 
     UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|Element", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetNFTElementInner EmergenceInteroperableAssetNFTElement;
+    FEmergenceInteroperableAssetNFTElementInner NFTElementData;
     
 };
