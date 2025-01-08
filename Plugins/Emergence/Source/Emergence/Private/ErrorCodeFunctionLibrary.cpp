@@ -86,6 +86,10 @@ FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpRequestPtr Ht
 
 EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
+	if (!HttpResponse) {
+		return EErrorCode::EmergenceClientRequestCancelled;
+	}
+
 	//if the elapsed time is greater than the timeout, we've hit the timeout
 	if (HttpRequest->GetTimeout().IsSet() && HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
 		return EErrorCode::EmergenceClientRequestTimeout;
@@ -93,7 +97,6 @@ EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRequestPtr HttpRequ
 
 	//if we didn't succeed, and we are less than the timeout, and the response code is 0
 	//it was probably a cancelled request
-	int jeff = HttpResponse->GetResponseCode();
 	if (!bSucceeded && 
 		(HttpRequest->GetElapsedTime() < HttpRequest->GetTimeout().GetValue()) &&
 		HttpRequest->GetStatus() == EHttpRequestStatus::Failed &&

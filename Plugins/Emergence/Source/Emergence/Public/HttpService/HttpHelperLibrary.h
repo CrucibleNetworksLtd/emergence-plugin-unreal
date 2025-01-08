@@ -349,7 +349,6 @@ public:
 
 		if (URL.IsEmpty()) {
 			UE_LOG(LogEmergenceHttp, Warning, TEXT("Tried to ExecuteHttpRequest but URL was empty"));
-			HttpRequest->CancelRequest();
 			return HttpRequest;
 		}
 
