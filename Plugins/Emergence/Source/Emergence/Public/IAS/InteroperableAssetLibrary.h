@@ -11,6 +11,6 @@ class EMERGENCE_API UEmergenceInteroperableAssetLibrary : public UBlueprintFunct
 {
     GENERATED_BODY()
 public:
-    UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="ElementClass"))
+    UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="ElementClass"), Category = "Emergence|Interoperable Asset System")
     static UEmergenceInteroperableAssetElement* GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, UPARAM(meta = (AllowAbstract = false))TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success);
 };

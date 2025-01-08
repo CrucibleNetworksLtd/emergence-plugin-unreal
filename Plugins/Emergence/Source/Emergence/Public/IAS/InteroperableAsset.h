@@ -8,16 +8,16 @@
 #include "IAS/AvatarElement.h"
 #include "InteroperableAsset.generated.h"
 
-USTRUCT(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
+USTRUCT(Category="Emergence|Interoperable Asset System", BlueprintType)
 struct FEmergenceInteroperableAsset
 {
 
   GENERATED_BODY()
 
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
+  UPROPERTY(Category="Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
   TArray<UEmergenceInteroperableAssetElement*> Elements;
 
-  UPROPERTY(Category="JSON|EmergenceInteroperableAsset", EditAnywhere, BlueprintReadWrite)
+  UPROPERTY(Category="Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
   FString Id;
 
   FEmergenceInteroperableAsset() {};

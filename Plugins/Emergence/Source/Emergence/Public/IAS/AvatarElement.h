@@ -6,13 +6,13 @@
 #include "IAS/Element.h"
 #include "AvatarElement.generated.h"
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAssetAvatarElementInner", BlueprintType)
 struct FEmergenceInteroperableAssetAvatarElementInner
+USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetAvatarElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString ElementName;
 
     FEmergenceInteroperableAssetAvatarElementInner() {};
@@ -30,7 +30,7 @@ struct FEmergenceInteroperableAssetAvatarElementInner
 
 };
 
-UCLASS(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
+UCLASS(Category= "Emergence|Interoperable Asset System", BlueprintType)
 class EMERGENCE_API UEmergenceInteroperableAssetAvatarElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
@@ -40,7 +40,7 @@ public:
         ElementName = "NFT";
     }
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|Element", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
     FEmergenceInteroperableAssetAvatarElementInner EmergenceInteroperableAssetAvatarElement;
     
 };

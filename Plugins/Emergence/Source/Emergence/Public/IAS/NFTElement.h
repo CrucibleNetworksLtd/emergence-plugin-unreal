@@ -7,16 +7,16 @@
 #include "NFTElement.generated.h"
 
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
 struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|MediaType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|MediaType", EditAnywhere, BlueprintReadWrite)
     FString Type;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|MediaType", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|MediaType", EditAnywhere, BlueprintReadWrite)
     FString Element;
 
     FEmergenceInteroperableAssetNFTElementInnerAssetMediaType() {};
@@ -30,16 +30,16 @@ struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
 
 };
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
 struct FEmergenceInteroperableAssetNFTElementInnerAsset
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Asset", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|Asset", EditAnywhere, BlueprintReadWrite)
     FEmergenceInteroperableAssetNFTElementInnerAssetMediaType MediaType;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Asset", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|Asset", EditAnywhere, BlueprintReadWrite)
     FString AssetLocation;
 
     FEmergenceInteroperableAssetNFTElementInnerAsset() {};
@@ -53,16 +53,16 @@ struct FEmergenceInteroperableAssetNFTElementInnerAsset
 
 };
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
 struct FEmergenceInteroperableAssetNFTElementInnerChain
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Chain", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|Chain", EditAnywhere, BlueprintReadWrite)
     bool IsTestnet;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner|Chain", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System|Chain", EditAnywhere, BlueprintReadWrite)
     FString ChainName;
 
     FEmergenceInteroperableAssetNFTElementInnerChain() {};
@@ -76,49 +76,49 @@ struct FEmergenceInteroperableAssetNFTElementInnerChain
 
 };
 
-USTRUCT(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", BlueprintType)
+USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
 struct FEmergenceInteroperableAssetNFTElementInner
 {
 
     GENERATED_BODY()
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString Address;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString NFTName;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString Description;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     TMap<FString, FString> Attributes;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FEmergenceInteroperableAssetNFTElementInnerChain Chain;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString TokenNumber;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     int32 TokenType;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString CollectionName;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     int32 PrimaryAsset;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString ElementName;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString Creator;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString Owner;
 
-    UPROPERTY(Category = "JSON|EmergenceInteroperableAssetNFTElementInner", EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     TArray<FEmergenceInteroperableAssetNFTElementInnerAsset> Assets;
 
     FEmergenceInteroperableAssetNFTElementInner() {};
