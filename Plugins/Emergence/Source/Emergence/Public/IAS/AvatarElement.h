@@ -6,8 +6,8 @@
 #include "IAS/Element.h"
 #include "AvatarElement.generated.h"
 
-struct FEmergenceInteroperableAssetAvatarElementInner
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
+struct FEmergenceInteroperableAssetAvatarElementInner
 {
 
     GENERATED_BODY()
