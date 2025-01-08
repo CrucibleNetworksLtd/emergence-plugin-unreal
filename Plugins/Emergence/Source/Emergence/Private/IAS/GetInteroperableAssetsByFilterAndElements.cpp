@@ -5,6 +5,9 @@
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
+#include "IAS/AvatarElement.h"
+#include "IAS/NFTElement.h"
+#include "IAS/ThumbnailsElement.h"
 
 UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs, const TArray<FString>& Blockchains, const int PageNumber, const int PageSize)
 {
@@ -123,6 +126,12 @@ void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilte
 					NFTElement->EmergenceInteroperableAssetAvatarElement = FEmergenceInteroperableAssetAvatarElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(NFTElement);
 				}
+				if (ElementType == "thumbnails") {
+					auto NFTElement = NewObject<UEmergenceInteroperableAssetThumbnailsElement>(WorldContextObject);
+					NFTElement->EmergenceInteroperableAssetThumbnailsElement = FEmergenceInteroperableAssetThumbnailsElementInner(ElementObjectAsString);
+					OutputIA.Elements.Add(NFTElement);
+				}
+
 			}
 			OutputIAs.Add(OutputIA);
 		}
