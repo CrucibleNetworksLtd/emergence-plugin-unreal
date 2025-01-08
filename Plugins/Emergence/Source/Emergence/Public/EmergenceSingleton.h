@@ -90,7 +90,7 @@ public:
 
 	//Should we use the access token system, which is required by the Emergence Overlay, or skip it?
 	UPROPERTY(BlueprintReadWrite, Category = "Emergence|Login Flow")
-	bool UseAccessToken = true;
+	bool UseAccessToken = false;
 
 	UPROPERTY()
 	FString AccessTokenTimestamp;
