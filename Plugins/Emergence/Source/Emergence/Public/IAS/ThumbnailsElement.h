@@ -96,6 +96,6 @@ public:
     }
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetThumbnailsElementInner EmergenceInteroperableAssetThumbnailsElement;
+    FEmergenceInteroperableAssetThumbnailsElementInner ThumbnailsElementData;
     
 };
