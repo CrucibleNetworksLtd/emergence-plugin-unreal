@@ -51,7 +51,7 @@ void UWriteMethod::Activate()
 
 	UEmergenceSingleton* Singleton = UEmergenceSingleton::GetEmergenceManager(WorldContextObject);
 
-	if (this->LocalAccountName.IsEmpty() && !Singleton->HasAccessToken()) {
+	if (this->LocalAccountName.IsEmpty() && !Singleton->HasCachedAddress()) {
 		UE_LOG(LogEmergenceHttp, Error, TEXT("If you aren't using a local wallet you need to have connected with WalletConnect / FV Web Login to use WriteMethod!"));
 		return;
 	}

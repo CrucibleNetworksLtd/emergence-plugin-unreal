@@ -53,9 +53,6 @@ public:
 
 	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
 
-	UFUNCTION()
-	void OnRequestToSignForAccessTokenComplete(FString SignedMessage, EErrorCode StatusCode);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
 
 	UPROPERTY()
@@ -83,13 +80,6 @@ public:
 	//Are we logged in via a web login flow, rather than WC
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Login Flow")
 	bool UsingWebLoginFlow = false;
-
-	//Should we use the access token system, which is required by the Emergence Overlay, or skip it?
-	UPROPERTY(BlueprintReadWrite, Category = "Emergence|Login Flow")
-	bool UseAccessToken = false;
-
-	UPROPERTY()
-	FString AccessTokenTimestamp;
 
 	UPROPERTY()
 	FString DeviceID;
@@ -131,10 +121,7 @@ public:
 
 	//HTTPService Functions
 private:
-	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetAccessTokenRequest, GetHandshakeRequest;
-
-	UPROPERTY()
-	FString CurrentAccessToken = "";
+	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetHandshakeRequest;
 
 	UPROPERTY()
 	FString CurrentAddress = "";
@@ -153,26 +140,14 @@ private:
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	void GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
 	void ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	void GetAccessToken();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
 	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 public:
-	//Cancels any open GetAccessToken and GetHandshake requests.
+	//Cancels any open GetHandshake requests.
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Emergence Singleton")
 	void CancelSignInRequest();
-
-	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
-	UFUNCTION(Category = "Emergence|Emergence Singleton", BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
-	FString GetCurrentAccessToken();
-
-	//Do we have an access token? This will likely only be true when the player has logged in via wallet connect.
-	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
-	bool HasAccessToken();
 
 	//Do we have a wallet connected address? This will likely only be true when the player has logged in via wallet connect.
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
@@ -255,14 +230,6 @@ public:
 	//Called when the user has done the last step of a login process, or the process has had an error that causes it to finish.
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnLoginFinished OnLoginFinished;
-
-	//This is a hacky way of logging in via an existing access token, do not use this in production. It won't work with most methods anyway, only for testing the UI stuff (won't work with walletconnect / Futureverse custodial wallet requiring stuff).
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Debug Commands")
-	void ForceLoginViaAccessToken(FString AccessToken);
-
-	//this is used by ForceLoginViaAccessToken to override the returned value of IsConnected to true, if enabled
-	UPROPERTY()
-	bool ForceIsConnected = false;
 
 	UPROPERTY()
 	URequestToSign* RequestToSign;

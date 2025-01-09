@@ -18,7 +18,6 @@ AEmergenceUEExampleGameMode::AEmergenceUEExampleGameMode()
 void AEmergenceUEExampleGameMode::PerformCustodialLogin()
 {
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(this);
-	Singleton->UseAccessToken = false;
 	Singleton->OnLoginFinished.AddUniqueDynamic(this, &AEmergenceUEExampleGameMode::OnLoginFinalized);
 	auto CustodialLogin = UCustodialLogin::CustodialLogin(this);
 	CustodialLogin->Activate();
