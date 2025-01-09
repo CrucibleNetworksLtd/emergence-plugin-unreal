@@ -4,7 +4,6 @@
 #include "Engine/EngineTypes.h"
 #include "Environment.h"
 #include "EmergenceChainObject.h"
-#include "UI/EmergenceUI.h"
 #include "EmergencePluginSettings.generated.h"
 
 UCLASS(config = Game, defaultconfig)
@@ -22,10 +21,6 @@ public:
 	//Which cloud environment should be communicated with when the game is built as "Shipping". Default is "Production".
 	UPROPERTY(config, EditAnywhere, Category = "General", meta = (EditCondition = "!EnableDevelopmentEnvironment", DisplayName = "Shipping build cloud environment"))
 	EEmergenceEnvironment ShippingEnvironment = EEmergenceEnvironment::Production;
-
-	//Which type of login should the overlay use. Default is "WalletConnect".
-	UPROPERTY(config, EditAnywhere, Category = "General", meta = (DisplayName = "Overlay Login Type"))
-	EmergenceLoginType ProjectLoginType = EmergenceLoginType::WalletConnect;
 
 	//Which Futureverse cloud environment should be communicated with when the game is built as "Debug", "Development" or "Test". Default is "Staging".
 	UPROPERTY(config, EditAnywhere, Category = "Futureverse", meta = (DisplayName = "Debug/Development/Test build Futureverse cloud environment"))

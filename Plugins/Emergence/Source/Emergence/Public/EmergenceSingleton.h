@@ -12,7 +12,6 @@
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "PersonaStructs.h"
-#include "UI/EmergenceUI.h"
 #include "GameFramework/PlayerController.h"
 #include "Emergence.h"
 #include "Brushes/SlateDynamicImageBrush.h"
@@ -20,6 +19,7 @@
 #include "Environment.h"
 #include "WebLogin/CustodialLogin.h"
 #include "WalletService/RequestToSign.h"
+#include "AvatarService/AvatarByOwner.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )
@@ -63,10 +63,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
 	static EFutureverseEnvironment GetFutureverseEnvironment();
-
-	//Gets the project's Overlay Login Type from the project settings
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
-	EmergenceLoginType GetProjectLoginType();
 
 	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
@@ -165,8 +161,6 @@ private:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
 	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
-
-	UEmergenceUI* CurrentEmergenceUI;
 public:
 	//Cancels any open GetAccessToken and GetHandshake requests.
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Emergence Singleton")
@@ -175,18 +169,6 @@ public:
 	//Returns the last access token. Consider calling "HasAcessToken" before you call this. If we don't have an access token yet, returns "-1".
 	UFUNCTION(Category = "Emergence|Emergence Singleton", BlueprintPure, Meta = (DisplayName="Get Cached Access Token"))
 	FString GetCurrentAccessToken();
-
-	/**
-	 * Opens the Emergence UI (also known as the Overlay), returns the widget to focus.
-	 * @param OwnerPlayerController Player Controller that the overlay should be shown to. Should usually be the local player, who is usually "Player Controller 0".
-	 * @param EmergenceUIClass Should always be set to "EmergenceUI_BP".
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Overlay", meta = (DeterminesOutputType = "EmergenceUIClass"))
-	UEmergenceUI* OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass);
-
-	//Gets the Emergence UI (also known as the Overlay), also known as the Emergence Overlay
-	UFUNCTION(BlueprintPure, Category = "Emergence|Overlay")
-	UEmergenceUI* GetEmergenceUI();
 
 	//Do we have an access token? This will likely only be true when the player has logged in via wallet connect.
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
@@ -281,9 +263,6 @@ public:
 	//this is used by ForceLoginViaAccessToken to override the returned value of IsConnected to true, if enabled
 	UPROPERTY()
 	bool ForceIsConnected = false;
-
-	UFUNCTION()
-	void OnOverlayClosed();
 
 	UPROPERTY()
 	URequestToSign* RequestToSign;

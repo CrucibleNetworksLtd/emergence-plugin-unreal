@@ -103,20 +103,6 @@ EFutureverseEnvironment UEmergenceSingleton::GetFutureverseEnvironment()
 	return EFutureverseEnvironment::Staging;
 }
 
-EmergenceLoginType UEmergenceSingleton::GetProjectLoginType()
-{
-	if (!GConfig) {
-		return EmergenceLoginType::WalletConnect;
-	}
-
-	FString LoginTypeString;
-	if (!GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ProjectLoginType"), LoginTypeString, GGameIni)) {
-		return EmergenceLoginType::WalletConnect;
-	};
-
-	return StringToEnum<EmergenceLoginType>(LoginTypeString);
-}
-
 void UEmergenceSingleton::SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo)
 {
 	FuturepassInfoCache = FuturepassInfo;
@@ -174,61 +160,6 @@ FString UEmergenceSingleton::GetCurrentAccessToken()
 			GetAccessToken();
 		}
 		return FString("-1");
-	}
-}
-
-UEmergenceUI* UEmergenceSingleton::OpenEmergenceUI(APlayerController* OwnerPlayerController, TSubclassOf<UEmergenceUI> EmergenceUIClass)
-{
-	if (EmergenceUIClass && OwnerPlayerController) {
-		CurrentEmergenceUI = CreateWidget<UEmergenceUI>(OwnerPlayerController, EmergenceUIClass);
-		CurrentEmergenceUI->AddToViewport(9999);
-
-		//Get the current state of showing the mouse so we can set it back to this later
-		this->PreviousMouseShowState = OwnerPlayerController->bShowMouseCursor;
-		//Get the current state of input mode so we can set it back to this later
-		UGameViewportClient* GameViewportClient = OwnerPlayerController->GetWorld()->GetGameViewport();
-		bool IgnoringInput = GameViewportClient->IgnoreInput();
-		EMouseCaptureMode CaptureMouse = GameViewportClient->GetMouseCaptureMode();
-
-		if (IgnoringInput == false && CaptureMouse == EMouseCaptureMode::CaptureDuringMouseDown) //Game And UI
-		{
-			this->PreviousGameInputMode = 0;
-		}
-		else if (IgnoringInput == true && CaptureMouse == EMouseCaptureMode::NoCapture) //UI Only
-		{
-			this->PreviousGameInputMode = 1;
-		}
-		else //Game Only
-		{
-			this->PreviousGameInputMode = 2;
-		}
-
-		OwnerPlayerController->SetShowMouseCursor(true);
-		FInputModeUIOnly InputMode = FInputModeUIOnly();
-		InputMode.SetWidgetToFocus(CurrentEmergenceUI->GetCachedWidget());
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		OwnerPlayerController->SetInputMode(InputMode);
-
-		CurrentEmergenceUI->Closed.AddDynamic(this, &UEmergenceSingleton::OnOverlayClosed);
-
-		if (CurrentEmergenceUI) {
-			return CurrentEmergenceUI;
-		}
-		else {
-			return nullptr;
-		}
-	}
-	return nullptr;
-	
-}
-
-UEmergenceUI* UEmergenceSingleton::GetEmergenceUI()
-{
-	if (CurrentEmergenceUI->IsValidLowLevel()) {
-		return CurrentEmergenceUI;
-	}
-	else {
-		return nullptr;
 	}
 }
 
@@ -548,24 +479,6 @@ void UEmergenceSingleton::ForceLoginViaAccessToken(FString AccessToken)
 	UE_LOG(LogEmergence, Display, TEXT("Did a ForceLoginViaAccessToken"));
 	UE_LOG(LogEmergence, Display, TEXT("Current Address: %s"), *this->CurrentAddress);
 	UE_LOG(LogEmergence, Display, TEXT("Current Access Token: %s"), *this->CurrentAccessToken);
-}
-
-void UEmergenceSingleton::OnOverlayClosed()
-{
-	auto OpeningPlayerController = CurrentEmergenceUI->GetPlayerContext().GetPlayerController();
-	OpeningPlayerController->SetShowMouseCursor(this->PreviousMouseShowState);
-	switch (this->PreviousGameInputMode) {
-	case 0:
-		OpeningPlayerController->SetInputMode(FInputModeGameAndUI());
-		break;
-	case 1:
-		OpeningPlayerController->SetInputMode(FInputModeUIOnly());
-		break;
-	case 2:
-		OpeningPlayerController->SetInputMode(FInputModeGameOnly());
-		break;
-	}
-	CurrentEmergenceUI->Closed.RemoveDynamic(this, &UEmergenceSingleton::OnOverlayClosed);
 }
 
 void UEmergenceSingleton::GetAccessToken_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
