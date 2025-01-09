@@ -7,7 +7,7 @@
 #include "ThumbnailsElement.generated.h"
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail
+struct FThumbnailsElementInnerThumbnail
 {
 
     GENERATED_BODY()
@@ -30,9 +30,9 @@ struct FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail
     UPROPERTY(Category = "Emergence|Interoperable Asset System|Thumbnail", EditAnywhere, BlueprintReadWrite)
     FString FileFormat;
 
-    FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail() {};
+    FThumbnailsElementInnerThumbnail() {};
 
-    FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail(
+    FThumbnailsElementInnerThumbnail(
         FString _Id,
         FString _Url,
         int _Width,
@@ -50,29 +50,29 @@ struct FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail
 };
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetThumbnailsElementInner
+struct FThumbnailsElementInner
 {
 
     GENERATED_BODY()
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail SmallThumbnail;
+    FThumbnailsElementInnerThumbnail SmallThumbnail;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail LargeThumbnail;
+    FThumbnailsElementInnerThumbnail LargeThumbnail;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
-    TArray<FEmergenceInteroperableAssetThumbnailsElementInnerThumbnail> OtherThumbnails;
+    TArray<FThumbnailsElementInnerThumbnail> OtherThumbnails;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString ElementName;
 
-    FEmergenceInteroperableAssetThumbnailsElementInner() {};
+    FThumbnailsElementInner() {};
 
-    FEmergenceInteroperableAssetThumbnailsElementInner(FString _json_) {
-        FEmergenceInteroperableAssetThumbnailsElementInner _tmpEmergenceInteroperableAssetThumbnailsElementInner;
+    FThumbnailsElementInner(FString _json_) {
+        FThumbnailsElementInner _tmpEmergenceInteroperableAssetThumbnailsElementInner;
 
-        FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAssetThumbnailsElementInner>(
+        FJsonObjectConverter::JsonObjectStringToUStruct<FThumbnailsElementInner>(
             _json_,
             &_tmpEmergenceInteroperableAssetThumbnailsElementInner,
             0, 0);
@@ -86,16 +86,16 @@ struct FEmergenceInteroperableAssetThumbnailsElementInner
 };
 
 UCLASS(Category= "Emergence|Interoperable Asset System", BlueprintType)
-class EMERGENCE_API UEmergenceInteroperableAssetThumbnailsElement : public UEmergenceInteroperableAssetElement
+class EMERGENCE_API UThumbnailsElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 
 public:
-    UEmergenceInteroperableAssetThumbnailsElement() {
+    UThumbnailsElement() {
         ElementName = "thumbnails";
     }
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetThumbnailsElementInner ThumbnailsElementData;
+    FThumbnailsElementInner ThumbnailsElementData;
     
 };

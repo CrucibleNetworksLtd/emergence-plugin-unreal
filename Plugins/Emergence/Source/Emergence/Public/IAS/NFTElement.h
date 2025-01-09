@@ -8,7 +8,7 @@
 
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
+struct FNFTElementInnerAssetMediaType
 {
 
     GENERATED_BODY()
@@ -19,9 +19,9 @@ struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
     UPROPERTY(Category = "Emergence|Interoperable Asset System|MediaType", EditAnywhere, BlueprintReadWrite)
     FString Element;
 
-    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType() {};
+    FNFTElementInnerAssetMediaType() {};
 
-    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType(FString _Type, FString _Element) {
+    FNFTElementInnerAssetMediaType(FString _Type, FString _Element) {
 
         Type = _Type;
         Element = _Element;
@@ -31,20 +31,20 @@ struct FEmergenceInteroperableAssetNFTElementInnerAssetMediaType
 };
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetNFTElementInnerAsset
+struct FNFTElementInnerAsset
 {
 
     GENERATED_BODY()
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System|Asset", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetNFTElementInnerAssetMediaType MediaType;
+    FNFTElementInnerAssetMediaType MediaType;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System|Asset", EditAnywhere, BlueprintReadWrite)
     FString AssetLocation;
 
-    FEmergenceInteroperableAssetNFTElementInnerAsset() {};
+    FNFTElementInnerAsset() {};
 
-    FEmergenceInteroperableAssetNFTElementInnerAsset(FEmergenceInteroperableAssetNFTElementInnerAssetMediaType _MediaType, FString _AssetLocation) {
+    FNFTElementInnerAsset(FNFTElementInnerAssetMediaType _MediaType, FString _AssetLocation) {
 
         MediaType = _MediaType;
         AssetLocation = _AssetLocation;
@@ -54,7 +54,7 @@ struct FEmergenceInteroperableAssetNFTElementInnerAsset
 };
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetNFTElementInnerChain
+struct FNFTElementInnerChain
 {
 
     GENERATED_BODY()
@@ -65,9 +65,9 @@ struct FEmergenceInteroperableAssetNFTElementInnerChain
     UPROPERTY(Category = "Emergence|Interoperable Asset System|Chain", EditAnywhere, BlueprintReadWrite)
     FString ChainName;
 
-    FEmergenceInteroperableAssetNFTElementInnerChain() {};
+    FNFTElementInnerChain() {};
 
-    FEmergenceInteroperableAssetNFTElementInnerChain(bool _IsTestnet, FString _ChainName) {
+    FNFTElementInnerChain(bool _IsTestnet, FString _ChainName) {
 
         IsTestnet = _IsTestnet;
         ChainName = _ChainName;
@@ -77,7 +77,7 @@ struct FEmergenceInteroperableAssetNFTElementInnerChain
 };
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetNFTElementInner
+struct FNFTElementInner
 {
 
     GENERATED_BODY()
@@ -95,7 +95,7 @@ struct FEmergenceInteroperableAssetNFTElementInner
     TMap<FString, FString> Attributes;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
-    FEmergenceInteroperableAssetNFTElementInnerChain Chain;
+    FNFTElementInnerChain Chain;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString TokenNumber;
@@ -119,11 +119,11 @@ struct FEmergenceInteroperableAssetNFTElementInner
     FString Owner;
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
-    TArray<FEmergenceInteroperableAssetNFTElementInnerAsset> Assets;
+    TArray<FNFTElementInnerAsset> Assets;
 
-    FEmergenceInteroperableAssetNFTElementInner() {};
+    FNFTElementInner() {};
 
-    FEmergenceInteroperableAssetNFTElementInner(FString _Address, FString _NFTName, FString _Description, TMap<FString,FString> _Attributes, FEmergenceInteroperableAssetNFTElementInnerChain _Chain, FString _TokenNumber, int32 _TokenType, FString _CollectionName, int32 _PrimaryAsset, FString _ElementName, FString _Creator, FString _Owner, TArray<FEmergenceInteroperableAssetNFTElementInnerAsset> _Assets) {
+    FNFTElementInner(FString _Address, FString _NFTName, FString _Description, TMap<FString,FString> _Attributes, FNFTElementInnerChain _Chain, FString _TokenNumber, int32 _TokenType, FString _CollectionName, int32 _PrimaryAsset, FString _ElementName, FString _Creator, FString _Owner, TArray<FNFTElementInnerAsset> _Assets) {
 
         Address = _Address;
         NFTName = _NFTName;
@@ -141,10 +141,10 @@ struct FEmergenceInteroperableAssetNFTElementInner
 
     }
 
-    FEmergenceInteroperableAssetNFTElementInner(FString _json_) {
-        FEmergenceInteroperableAssetNFTElementInner _tmpEmergenceInteroperableAssetNFTElementInner;
+    FNFTElementInner(FString _json_) {
+        FNFTElementInner _tmpEmergenceInteroperableAssetNFTElementInner;
 
-        FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAssetNFTElementInner>(
+        FJsonObjectConverter::JsonObjectStringToUStruct<FNFTElementInner>(
             _json_,
             &_tmpEmergenceInteroperableAssetNFTElementInner,
             0, 0);
@@ -178,16 +178,16 @@ struct FEmergenceInteroperableAssetNFTElementInner
 };
 
 UCLASS(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-class EMERGENCE_API UEmergenceInteroperableAssetNFTElement : public UEmergenceInteroperableAssetElement
+class EMERGENCE_API UNFTElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 
 public:
-    UEmergenceInteroperableAssetNFTElement() {
+    UNFTElement() {
         ElementName = "NFT";
     }
 
     UPROPERTY(Category = "JSON|EmergenceInteroperableAsset|Element", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetNFTElementInner NFTElementData;
+    FNFTElementInner NFTElementData;
     
 };

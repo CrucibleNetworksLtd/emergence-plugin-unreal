@@ -7,7 +7,7 @@
 #include "AvatarElement.generated.h"
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
-struct FEmergenceInteroperableAssetAvatarElementInner
+struct FAvatarElementInner
 {
 
     GENERATED_BODY()
@@ -15,12 +15,12 @@ struct FEmergenceInteroperableAssetAvatarElementInner
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite)
     FString ElementName;
 
-    FEmergenceInteroperableAssetAvatarElementInner() {};
+    FAvatarElementInner() {};
 
-    FEmergenceInteroperableAssetAvatarElementInner(FString _json_) {
-        FEmergenceInteroperableAssetAvatarElementInner _tmpEmergenceInteroperableAssetAvatarElementInner;
+    FAvatarElementInner(FString _json_) {
+        FAvatarElementInner _tmpEmergenceInteroperableAssetAvatarElementInner;
 
-        FJsonObjectConverter::JsonObjectStringToUStruct<FEmergenceInteroperableAssetAvatarElementInner>(
+        FJsonObjectConverter::JsonObjectStringToUStruct<FAvatarElementInner>(
             _json_,
             &_tmpEmergenceInteroperableAssetAvatarElementInner,
             0, 0);
@@ -31,16 +31,16 @@ struct FEmergenceInteroperableAssetAvatarElementInner
 };
 
 UCLASS(Category= "Emergence|Interoperable Asset System", BlueprintType)
-class EMERGENCE_API UEmergenceInteroperableAssetAvatarElement : public UEmergenceInteroperableAssetElement
+class EMERGENCE_API UAvatarElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 
 public:
-    UEmergenceInteroperableAssetAvatarElement() {
-        ElementName = "NFT";
+    UAvatarElement() {
+        ElementName = "avatar";
     }
 
     UPROPERTY(Category = "Emergence|Interoperable Asset System", EditAnywhere, BlueprintReadWrite, meta = (ShowOnlyInnerProperties))
-    FEmergenceInteroperableAssetAvatarElementInner AvatarElementData;
+    FAvatarElementInner AvatarElementData;
     
 };

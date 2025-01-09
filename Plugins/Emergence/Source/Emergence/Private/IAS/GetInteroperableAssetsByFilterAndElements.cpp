@@ -36,13 +36,16 @@ void UGetInteroperableAssetsByFilterAndElements::Activate()
 	}
 	
 	requestURL += "?iasDsrdElmnts=";
-	for (int i = 0; i < DesiredElements.Array().Num(); i++) {
+	auto ElementsAsArray = DesiredElements.Array();
+	for (int i = 0; i < ElementsAsArray.Num(); i++) {
+		if (!ElementsAsArray[i]) {
+			continue;
+		}
 		
-		
-		requestURL += Cast<UEmergenceInteroperableAssetElement>(DesiredElements.Array()[i]->GetDefaultObject(true))->ElementName;
+		requestURL += Cast<UEmergenceInteroperableAssetElement>(ElementsAsArray[i]->GetDefaultObject(true))->ElementName;
 		//Gets the class from the array, constructs it to find its element name
 
-		if (i + 1 != DesiredElements.Num()) {
+		if (i + 1 != ElementsAsArray.Num()) {
 			requestURL += ",";
 		}
 	}
@@ -117,18 +120,18 @@ void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilte
 
 				FString ElementType = ElementObject->GetStringField("ElementName");
 				if (ElementType == "NFT") {
-					auto NFTElement = NewObject<UEmergenceInteroperableAssetNFTElement>(WorldContextObject);
-					NFTElement->NFTElementData = FEmergenceInteroperableAssetNFTElementInner(ElementObjectAsString);
+					auto NFTElement = NewObject<UNFTElement>(WorldContextObject);
+					NFTElement->NFTElementData = FNFTElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(NFTElement);
 				}
 				if (ElementType == "avatar") {
-					auto AvatarElement = NewObject<UEmergenceInteroperableAssetAvatarElement>(WorldContextObject);
-					AvatarElement->AvatarElementData = FEmergenceInteroperableAssetAvatarElementInner(ElementObjectAsString);
+					auto AvatarElement = NewObject<UAvatarElement>(WorldContextObject);
+					AvatarElement->AvatarElementData = FAvatarElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(AvatarElement);
 				}
 				if (ElementType == "thumbnails") {
-					auto ThumbnailsElement = NewObject<UEmergenceInteroperableAssetThumbnailsElement>(WorldContextObject);
-					ThumbnailsElement->ThumbnailsElementData = FEmergenceInteroperableAssetThumbnailsElementInner(ElementObjectAsString);
+					auto ThumbnailsElement = NewObject<UThumbnailsElement>(WorldContextObject);
+					ThumbnailsElement->ThumbnailsElementData = FThumbnailsElementInner(ElementObjectAsString);
 					OutputIA.Elements.Add(ThumbnailsElement);
 				}
 
