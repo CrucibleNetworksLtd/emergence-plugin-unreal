@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 UInventoryByOwner* UInventoryByOwner::InventoryByOwner(UObject* WorldContextObject, const FString& Address, const FString& Network)
 {

@@ -4,7 +4,6 @@
 #include "IAS/GetInteroperableAssetsByFilterAndElements.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 #include "IAS/AvatarElement.h"
 #include "IAS/NFTElement.h"
 #include "IAS/ThumbnailsElement.h"

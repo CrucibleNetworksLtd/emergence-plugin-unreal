@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 UValidateSignedMessage* UValidateSignedMessage::ValidateSignedMessage(UObject* WorldContextObject, const FString& Message, const FString& SignedMessage, const FString& Address)
 {

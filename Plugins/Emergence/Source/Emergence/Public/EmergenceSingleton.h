@@ -11,7 +11,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Containers/Queue.h"
 #include "ErrorCodeFunctionLibrary.h"
-#include "PersonaStructs.h"
 #include "GameFramework/PlayerController.h"
 #include "Emergence.h"
 #include "Brushes/SlateDynamicImageBrush.h"
@@ -51,8 +50,6 @@ public:
 	UFUNCTION()
 	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
 
-	void SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
 
 	UPROPERTY()
@@ -83,15 +80,6 @@ public:
 
 	UPROPERTY()
 	FString DeviceID;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence")
-	FEmergencePersona CachedCurrentPersona;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCachedPersonaUpdated, FEmergencePersona, NewPersona);
-
-	//When the user's active persona changes, this is called
-	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
-	FOnCachedPersonaUpdated OnCachedPersonaUpdated;
 
 	UPROPERTY()
 	TArray<FString> ContractsWithLoadedABIs;

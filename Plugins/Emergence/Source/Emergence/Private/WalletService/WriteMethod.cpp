@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 #include "WalletService/LoadContractInternal.h"
 #include "Templates/SharedPointer.h"
 #include "TimerManager.h"

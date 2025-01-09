@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 #include "GetTextureFromURL.h"
 
 UGetAvatar* UGetAvatar::GetAvatar(UObject* WorldContextObject, FString ImageMetadataURI)

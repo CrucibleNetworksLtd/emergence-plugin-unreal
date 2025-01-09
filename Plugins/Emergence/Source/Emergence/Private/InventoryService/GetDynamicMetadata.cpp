@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 UGetDynamicMetadata* UGetDynamicMetadata::GetDynamicMetadata(UObject* WorldContextObject, const FString& Network, const FString& Contract, const FString& TokenID)
 {

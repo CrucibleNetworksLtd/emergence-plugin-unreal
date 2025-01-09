@@ -4,7 +4,6 @@
 #include "AvatarService/AvatarByOwner.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 UAvatarByOwner* UAvatarByOwner::AvatarByOwner(UObject* WorldContextObject, const FString& Address)
 {

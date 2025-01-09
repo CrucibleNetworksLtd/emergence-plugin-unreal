@@ -4,7 +4,6 @@
 #include "Futurepass/SendARTMAsync.h"
 #include "WalletService/RequestToSign.h"
 #include "UObject/UObjectGlobals.h"
-#include "EmergenceSingleton.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "TimerManager.h"

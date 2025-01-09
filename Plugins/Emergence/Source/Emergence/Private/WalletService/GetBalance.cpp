@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 #include "EmergenceChainObject.h"
 
 UGetBalance* UGetBalance::GetBalance(UObject* WorldContextObject, FString Address, UEmergenceChain* Blockchain)

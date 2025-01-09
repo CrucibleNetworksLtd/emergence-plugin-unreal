@@ -12,6 +12,7 @@ public class Emergence : ModuleRules
 			RuntimeDependencies.Add("$(TargetOutputDir)/../../Plugins/Emergence/EmergenceDll/Win64/...");
 		}
 		
+		bEnforceIWYU = true;
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 		

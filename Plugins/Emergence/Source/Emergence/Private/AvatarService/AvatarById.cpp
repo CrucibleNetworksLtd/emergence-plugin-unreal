@@ -4,7 +4,6 @@
 #include "AvatarService/AvatarById.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 UAvatarById* UAvatarById::AvatarById(UObject* WorldContextObject, const FString& AvatarIdString)
 {

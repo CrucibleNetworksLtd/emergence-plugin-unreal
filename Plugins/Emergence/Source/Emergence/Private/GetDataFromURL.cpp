@@ -8,7 +8,6 @@
 #include "IImageWrapperModule.h"
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
-#include "EmergenceSingleton.h"
 
 void UGetDataFromUrl::Activate()
 {

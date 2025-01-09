@@ -72,12 +72,6 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 	}
 }
 
-void UEmergenceSingleton::SetCachedCurrentPersona(FEmergencePersona NewCachedCurrentPersona)
-{
-	this->CachedCurrentPersona = NewCachedCurrentPersona;
-	OnCachedPersonaUpdated.Broadcast(this->CachedCurrentPersona);
-}
-
 EFutureverseEnvironment UEmergenceSingleton::GetFutureverseEnvironment()
 {
 

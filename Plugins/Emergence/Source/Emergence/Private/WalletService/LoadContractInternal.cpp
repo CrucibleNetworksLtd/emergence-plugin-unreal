@@ -5,7 +5,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 
 ULoadContractInternal* ULoadContractInternal::LoadContract(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract)
 {
