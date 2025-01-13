@@ -20,15 +20,10 @@ public class Emergence : ModuleRules
 			new string[]
 			{
 				"Core",
-				"UMG",
-				"Sockets",
-				"Networking",
+                "UMG",
 				"JsonUtilities",
-				"Slate",
-				"SlateCore",
-				"Projects",
 				"HTTP",
-				"OpenSSL",
+				
 			}
 		);
 		
@@ -37,9 +32,11 @@ public class Emergence : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"SlateCore",
-				"Json"	
-			}
+				"Json",
+                "SlateCore",
+                "Projects",
+                "OpenSSL",
+            }
 		);
 
 		if (Target.Version.MajorVersion >= 5 && Target.Version.MinorVersion >= 2)
@@ -50,13 +47,20 @@ public class Emergence : ModuleRules
 					"ApplicationCore"
 				}
 			);
-		}	
-		
+		}
+
 		//Stuff added for WebLogin
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"HTTPServer",
+				"HttpServer"
+			}
+		);
+
+        PrivateDependencyModuleNames.AddRange(
+			new string[]
+			{
+				
 				"JwtVerifier",
 				"HashSHA256"
 			}
