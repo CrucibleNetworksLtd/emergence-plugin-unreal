@@ -52,6 +52,5 @@ void ULoadContractInternal::LoadContract_HttpRequestComplete(FHttpRequestPtr Htt
 	}
 	else {
 		OnLoadContractCompleted.Broadcast(FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("LoadContract", StatusCode);
 	}
 }

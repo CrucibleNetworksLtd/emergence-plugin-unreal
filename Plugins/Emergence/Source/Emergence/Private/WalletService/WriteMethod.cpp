@@ -226,7 +226,6 @@ void UWriteMethod::SendTransactionViaKeystoreComplete(FString Response)
 	}
 
 	//If the code gets to this point something has failed
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
 	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 }
 
@@ -243,7 +242,6 @@ void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, 
 			return;
 		}
 	}
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteMethod", StatusCode);
 	this->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), StatusCode);
 }
 

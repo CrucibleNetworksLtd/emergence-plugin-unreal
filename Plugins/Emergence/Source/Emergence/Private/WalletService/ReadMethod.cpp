@@ -106,7 +106,6 @@ void UReadMethod::ReadMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 	}
 	else {
 		OnReadMethodCompleted.Broadcast(FJsonObjectWrapper(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ReadMethod", StatusCode);
 	}
 	SetReadyToDestroy();
 }

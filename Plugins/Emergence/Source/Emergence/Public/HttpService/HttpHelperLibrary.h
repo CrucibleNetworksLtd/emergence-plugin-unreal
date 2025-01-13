@@ -160,31 +160,6 @@ public:
 		}
 	}
 
-	//our persona API depending on environment
-	inline static FString GetPersonaAPIURL() {
-
-#if UE_BUILD_SHIPPING
-		FString DevelopmentEnvironmentString = "Production";
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("DevelopmentEnvironment"), DevelopmentEnvironmentString, GGameIni);
-#else
-		FString DevelopmentEnvironmentString = "Staging";
-		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("ShippingEnvironment"), DevelopmentEnvironmentString, GGameIni);
-#endif
-
-		bool IsDevelopmentMode = false;
-		GConfig->GetBool(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("EnableDevelopmentEnvironment"), IsDevelopmentMode, GGameIni);
-
-		if (IsDevelopmentMode) {
-			return "https://57l0bi6g53.execute-api.us-east-1.amazonaws.com/staging/";
-		}
-
-		if (DevelopmentEnvironmentString == "Production") {
-			return "https://i30mnhu5vg.execute-api.us-east-1.amazonaws.com/prod/";
-		}
-
-		return "https://x8iq9e5fq1.execute-api.us-east-1.amazonaws.com/staging/";
-	}
-
 	//our inventory service depending on environment
 	inline static FString GetInventoryServiceHostURL() {
 

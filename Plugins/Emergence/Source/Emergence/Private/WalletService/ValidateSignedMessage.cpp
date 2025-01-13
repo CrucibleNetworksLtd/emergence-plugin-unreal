@@ -48,12 +48,10 @@ void UValidateSignedMessage::ValidateSignedMessage_HttpRequestComplete(FHttpRequ
 		else {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Unable to check access token validity"));
 			OnValidateSignedMessageCompleted.Broadcast(isValidToken, StatusCode);
-			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ValidateSignedMessage", StatusCode);
 		}
 	}
 	else {
 		OnValidateSignedMessageCompleted.Broadcast(isValidToken, StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("ValidateSignedMessage", StatusCode);
 	}
 	SetReadyToDestroy();
 }

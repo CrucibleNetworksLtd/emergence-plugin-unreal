@@ -58,7 +58,6 @@ void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpReque
 	}
 
 	OnAvatarByOwnerCompleted.Broadcast(TArray<FEmergenceAvatarResult>(), StatusCode);
-	UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("AvatarByOwner", StatusCode);
 	SetReadyToDestroy();
 }
 

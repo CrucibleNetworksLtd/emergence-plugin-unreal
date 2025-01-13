@@ -53,7 +53,6 @@ void UInventoryByOwner::InventoryByOwner_HttpRequestComplete(FHttpRequestPtr Htt
 	}
 	else {
 		OnInventoryByOwnerCompleted.Broadcast(FEmergenceInventory(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("InventoryByOwner", StatusCode);
 	}
 	SetReadyToDestroy();
 }

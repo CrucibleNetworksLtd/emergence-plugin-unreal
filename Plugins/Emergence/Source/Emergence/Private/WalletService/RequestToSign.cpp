@@ -30,7 +30,6 @@ void URequestToSign::Activate()
 			}
 			else {
 				OnRequestToSignCompleted.Broadcast("", StatusCode);
-				UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("RequestToSign", StatusCode);
 			}
 			SetReadyToDestroy();
 		});
@@ -71,12 +70,10 @@ void URequestToSign::RequestToSign_HttpRequestComplete(FHttpRequestPtr HttpReque
 		}
 		else {
 			OnRequestToSignCompleted.Broadcast("", EErrorCode::EmergenceInternalError);
-			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("RequestToSign", StatusCode);
 		}
 	}
 	else {
 		OnRequestToSignCompleted.Broadcast("", StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("RequestToSign", StatusCode);
 	}
 	SetReadyToDestroy();
 }

@@ -40,7 +40,6 @@ void UGetDynamicMetadata::GetDynamicMetadata_HttpRequestComplete(FHttpRequestPtr
 	}
 	else {
 		OnGetDynamicMetadataCompleted.Broadcast(FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetDynamicMetadata", StatusCode);
 	}
 	SetReadyToDestroy();
 }

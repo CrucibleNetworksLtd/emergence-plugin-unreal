@@ -37,7 +37,6 @@ void UGetAvatar::GetAvatar_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHtt
 	}
 	else {
 		OnGetAvatarCompleted.Broadcast(nullptr, FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetAvatar", StatusCode);
 	}
 	SetReadyToDestroy();
 }

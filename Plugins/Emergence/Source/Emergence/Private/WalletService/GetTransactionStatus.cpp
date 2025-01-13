@@ -50,7 +50,6 @@ void UGetTransactionStatus::GetTransactionStatus_HttpRequestComplete(FHttpReques
 	}
 	else {
 		OnGetTransactionStatusCompleted.Broadcast(FEmergenceTransaction(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTransactionStatus", StatusCode);
 	}
 	SetReadyToDestroy();
 }

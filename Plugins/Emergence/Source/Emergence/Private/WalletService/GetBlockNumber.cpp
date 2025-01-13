@@ -40,7 +40,6 @@ void UGetBlockNumber::GetBlockNumber_HttpRequestComplete(FHttpRequestPtr HttpReq
 	}
 	else {
 		OnGetBlockNumberCompleted.Broadcast(-1, StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetBlockNumber", StatusCode);
 	}
 	SetReadyToDestroy();
 }

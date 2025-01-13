@@ -87,26 +87,6 @@ public:
 	UPROPERTY()
 	TMap<FString, UTexture2D*> DownloadedImageCache;
 
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void SetOwnedAvatarNFTCache(TArray<FEmergenceAvatarResult> Results);
-
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void FlushOwnedAvatarNFTCache();
-
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
-	bool GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar);
-
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
-	TArray<FEmergenceAvatarResult> OwnedAvatarNFTCache;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOwnedAvatarNFTCacheUpdated);
-
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Overlay Methods")
-	FOnOwnedAvatarNFTCacheUpdated OnOwnedAvatarNFTCacheUpdated;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence Internal|Overlay Methods")
-	bool OwnedAvatarNFTCached = false;
-
 	//HTTPService Functions
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetHandshakeRequest;
@@ -117,9 +97,6 @@ private:
 	UPROPERTY()
 	FString CurrentChecksummedAddress = "";
 
-	//Returns true if this error code is a 401, and calls OnDatabaseAuthFailed. false on success.
-	bool HandleDatabaseServerAuthFail(EErrorCode ErrorCode);
-
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -129,9 +106,6 @@ private:
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDatabaseAuthFailed);
-	FOnDatabaseAuthFailed OnDatabaseAuthFailed;
 public:
 	//Cancels any open GetHandshake requests.
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Emergence Singleton")
@@ -147,14 +121,6 @@ public:
 
 	UFUNCTION()
 	FString GetCachedChecksummedAddress();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAnyRequestError, FString, ConnectionName, EErrorCode, StatusCode);
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAnyRequestError OnAnyRequestError;
-
-	//This shouldn't be necessary, you should be able to call .broadcast but I couldn't get it to show up in CreatePersona for some reason
-	void CallRequestError(FString ConnectionName, EErrorCode StatusCode);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, EErrorCode, StatusCode);
 
@@ -218,12 +184,5 @@ public:
 	//Called when the user has done the last step of a login process, or the process has had an error that causes it to finish.
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnLoginFinished OnLoginFinished;
-
-	UPROPERTY()
-	URequestToSign* RequestToSign;
-
-private:
-	bool PreviousMouseShowState;
-	int PreviousGameInputMode;
 };
 #pragma warning( pop )

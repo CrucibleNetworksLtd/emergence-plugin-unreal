@@ -1,7 +1,6 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 #include "EmergenceSingleton.h"
-#include "Engine/Engine.h"
 #include "Serialization/JsonWriter.h"
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "EngineUtils.h"
@@ -25,10 +24,6 @@
 
 #include "Engine/GameViewportClient.h"
 #include "TextureResource.h"
-
-#include "Misc/DateTime.h"
-
-#include "TimerManager.h"
 
 
 void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
@@ -103,30 +98,6 @@ void UEmergenceSingleton::ClearFuturepassInfomationCache()
 	FuturepassInfoCacheIsSet = false;
 }
 
-void UEmergenceSingleton::SetOwnedAvatarNFTCache(TArray<FEmergenceAvatarResult> Results)
-{
-	this->OwnedAvatarNFTCache = Results;
-	this->OwnedAvatarNFTCached = true;
-	this->OnOwnedAvatarNFTCacheUpdated.Broadcast();
-}
-
-void UEmergenceSingleton::FlushOwnedAvatarNFTCache()
-{
-	this->OwnedAvatarNFTCache.Empty();
-	this->OwnedAvatarNFTCached = false;
-}
-
-bool UEmergenceSingleton::HandleDatabaseServerAuthFail(EErrorCode ErrorCode)
-{
-	if (ErrorCode == EErrorCode::Denied) {
-		OnDatabaseAuthFailed.Broadcast();
-		return true;
-	}
-	else{
-		return false;
-	}
-}
-
 void UEmergenceSingleton::CancelSignInRequest()
 {
 	if (GetHandshakeRequest && GetHandshakeRequest->GetStatus() == EHttpRequestStatus::Processing) {
@@ -169,17 +140,11 @@ FString UEmergenceSingleton::GetCachedChecksummedAddress()
 	}
 }
 
-void UEmergenceSingleton::CallRequestError(FString ConnectionName, EErrorCode StatusCode)
-{
-	this->OnAnyRequestError.Broadcast(ConnectionName, StatusCode);
-}
-
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (ResponseCode != EErrorCode::Ok) { //this endpoint responds Http Ok rather than emergence ok, because its an image rather than emergence status json
 		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), ResponseCode);
-		OnAnyRequestError.Broadcast("GetQRCode", ResponseCode);
 		return;
 	}
 
@@ -194,7 +159,6 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 	}
 	else {
 		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), EErrorCode::EmergenceClientFailed);
-		OnAnyRequestError.Broadcast("GetQRCode", EErrorCode::EmergenceClientFailed);
 	}
 }
 
@@ -273,12 +237,10 @@ void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpR
 		}
 		else {
 			OnGetHandshakeCompleted.Broadcast(Address, EErrorCode::EmergenceClientWrongType);
-			OnAnyRequestError.Broadcast("GetHandshake", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnGetHandshakeCompleted.Broadcast(FString(), StatusCode);
-	OnAnyRequestError.Broadcast("GetHandshake", StatusCode);
 }
 
 void UEmergenceSingleton::GetHandshake(int Timeout)
@@ -305,7 +267,6 @@ void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpReq
 		return;
 	}
 	OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
-	OnAnyRequestError.Broadcast("ReinitializeWalletConnect", StatusCode);
 }
 
 void UEmergenceSingleton::ReinitializeWalletConnect()
@@ -333,12 +294,10 @@ void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRe
 		}
 		else {
 			OnIsConnectedCompleted.Broadcast(false, FString(), EErrorCode::EmergenceClientWrongType);
-			OnAnyRequestError.Broadcast("IsConnected", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnIsConnectedCompleted.Broadcast(false, FString(), StatusCode);
-	OnAnyRequestError.Broadcast("IsConnected", StatusCode);
 }
 
 void UEmergenceSingleton::IsConnected()
@@ -369,12 +328,10 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 		}
 		else {
 			OnKillSessionCompleted.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
-			OnAnyRequestError.Broadcast("KillSession", EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
 	OnKillSessionCompleted.Broadcast(false, StatusCode);
-	OnAnyRequestError.Broadcast("KillSession", StatusCode);
 }
 
 void UEmergenceSingleton::KillSession()
@@ -403,19 +360,4 @@ void UEmergenceSingleton::KillSession()
 		UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 	}
-}
-
-bool UEmergenceSingleton::GetAvatarByGUIDFromCache(FString GUID, FEmergenceAvatarMetadata& FoundAvatar)
-{
-	for (int i = 0; i < OwnedAvatarNFTCache.Num(); i++) {
-		FEmergenceAvatarMetadata* AvatarMetadata = OwnedAvatarNFTCache[i].Avatars.FindByPredicate([&](FEmergenceAvatarMetadata Avatar) {
-			return Avatar.GUID == GUID;
-			});
-		if (AvatarMetadata) {
-			FoundAvatar = *AvatarMetadata;
-			return true;
-		}
-	}
-
-	return false;
 }

@@ -41,7 +41,6 @@ void UGetTokenURIData::GetTokenURIData_HttpRequestComplete(FHttpRequestPtr HttpR
 	}
 	else {
 		OnGetTokenURIDataCompleted.Broadcast(FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("GetTokenURIData", StatusCode);
 	}
 	SetReadyToDestroy();
 }

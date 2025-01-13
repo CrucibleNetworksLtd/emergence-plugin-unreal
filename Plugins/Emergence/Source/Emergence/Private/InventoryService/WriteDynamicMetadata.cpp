@@ -51,7 +51,6 @@ void UWriteDynamicMetadata::WriteDynamicMetadata_HttpRequestComplete(FHttpReques
 	}
 	else {
 		OnWriteDynamicMetadataCompleted.Broadcast(FString(), StatusCode);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->CallRequestError("WriteDynamicMetadata", StatusCode);
 	}
 	SetReadyToDestroy();
 }
