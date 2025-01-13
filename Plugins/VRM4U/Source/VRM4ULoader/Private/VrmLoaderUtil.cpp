@@ -1,5 +1,5 @@
 ﻿// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
-#pragma once
+
 #include "VrmConvert.h"
 #include "VRM4ULoaderLog.h"
 
@@ -22,9 +22,19 @@
 
 //test
 
+
+#define VRM4U_UseLocalTGAHeader 1
+
+
+#ifndef  VRM4U_UseLocalTGAHeader
+#define VRM4U_UseLocalTGAHeader 0
+#endif
+
+#if	VRM4U_UseLocalTGAHeader
+
 #pragma pack(push,1)
 
-struct FTGAFileHeader2
+struct FTGAFileHeader
 {
 	uint8 IdFieldLength;
 	uint8 ColorMapType;
@@ -38,7 +48,7 @@ struct FTGAFileHeader2
 	uint16 Height;
 	uint8 BitsPerPixel;
 	uint8 ImageDescriptor;
-	friend FArchive& operator<<(FArchive& Ar, FTGAFileHeader2& H)
+	friend FArchive& operator<<(FArchive& Ar, FTGAFileHeader& H)
 	{
 		Ar << H.IdFieldLength << H.ColorMapType << H.ImageTypeCode;
 		Ar << H.ColorMapOrigin << H.ColorMapLength << H.ColorMapEntrySize;
@@ -48,10 +58,11 @@ struct FTGAFileHeader2
 	}
 };
 #pragma pack(pop)
+#endif
 
-void DecompressTGA_RLE_32bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_RLE_32bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint8* ImageData = (uint8*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 	uint32	Pixel = 0;
@@ -91,9 +102,9 @@ void DecompressTGA_RLE_32bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_RLE_24bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_RLE_24bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint8* ImageData = (uint8*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 	uint8    Pixel[4] = {};
@@ -134,9 +145,9 @@ void DecompressTGA_RLE_24bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_RLE_16bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_RLE_16bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint16* ImageData = (uint16*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 	uint16  FilePixel = 0;
@@ -181,10 +192,10 @@ void DecompressTGA_RLE_16bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_32bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_32bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
 
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint32* ImageData = (uint32*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 
@@ -194,9 +205,9 @@ void DecompressTGA_32bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_16bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_16bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint16* ImageData = (uint16*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 	uint16    FilePixel = 0;
@@ -218,9 +229,9 @@ void DecompressTGA_16bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_24bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
+void DecompressTGA_24bpp(const FTGAFileHeader* TGA, uint32* TextureData)
 {
-	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	uint8* IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	uint8* ColorMap = IdData + TGA->IdFieldLength;
 	uint8* ImageData = (uint8*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 	uint8    Pixel[4];
@@ -238,9 +249,9 @@ void DecompressTGA_24bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 	}
 }
 
-void DecompressTGA_8bpp(const FTGAFileHeader2* TGA, uint8* TextureData)
+void DecompressTGA_8bpp(const FTGAFileHeader* TGA, uint8* TextureData)
 {
-	const uint8* const IdData = (uint8*)TGA + sizeof(FTGAFileHeader2);
+	const uint8* const IdData = (uint8*)TGA + sizeof(FTGAFileHeader);
 	const uint8* const ColorMap = IdData + TGA->IdFieldLength;
 	const uint8* const ImageData = (uint8*)(ColorMap + (TGA->ColorMapEntrySize + 4) / 8 * TGA->ColorMapLength);
 
@@ -256,7 +267,7 @@ void DecompressTGA_8bpp(const FTGAFileHeader2* TGA, uint8* TextureData)
 
 bool DecompressTGA_helper(
 	const int dummy,
-	const FTGAFileHeader2* TGA,
+	const FTGAFileHeader* TGA,
 	uint32*& TextureData,
 	const int32 TextureDataSize,
 	FFeedbackContext* Warn = nullptr)
@@ -346,7 +357,7 @@ bool DecompressTGA_helper(
 
 
 bool DecompressTGA(
-	const FTGAFileHeader2* TGA,
+	const FTGAFileHeader* TGA,
 	VRMUtil::FImportImage& OutImage,
 	FFeedbackContext* Warn = nullptr)
 {
@@ -642,8 +653,8 @@ bool VRMLoaderUtil::LoadImageFromMemory(const void* vBuffer, const size_t Length
 	// TGA
 	//
 	// Support for alpha stored as pseudo-color 8-bit TGA
-	const FTGAFileHeader2* TGA = (FTGAFileHeader2*)Buffer;
-	if (Length >= sizeof(FTGAFileHeader2) &&
+	const FTGAFileHeader* TGA = (FTGAFileHeader*)Buffer;
+	if (Length >= sizeof(FTGAFileHeader) &&
 		((TGA->ColorMapType == 0 && TGA->ImageTypeCode == 2) ||
 			// ImageTypeCode 3 is greyscale
 			(TGA->ColorMapType == 0 && TGA->ImageTypeCode == 3) ||

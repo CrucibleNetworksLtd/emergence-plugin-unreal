@@ -4,6 +4,8 @@
 #include "ReadMethodJSONToStringArrayTest.h"
 #include "JsonObjectWrapper.h"
 #include "WalletService/EmergenceJSONHelpers.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 void AReadMethodJSONToStringArrayTest::StartTest()
 {

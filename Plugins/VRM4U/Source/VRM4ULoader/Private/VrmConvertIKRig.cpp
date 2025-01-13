@@ -441,6 +441,19 @@ public:
 		return c->GetRetargetPoses(SourceOrTarget);
 #endif
 	};
+	void SetRotationOffsetForRetargetPoseBone(
+		const FName& BoneName,
+		const FQuat& RotationOffset,
+		const ERetargetSourceOrTarget SourceOrTarget) const {
+#if	!WITH_EDITOR || UE_VERSION_OLDER_THAN(5,4,0)
+		return;
+#else
+		UIKRetargeterController* c = UIKRetargeterController::GetController(Retargeter);
+		return c->SetRotationOffsetForRetargetPoseBone(BoneName, RotationOffset, SourceOrTarget);
+#endif
+
+	}
+
 
 	void SetChainSetting() {
 #if	UE_VERSION_OLDER_THAN(5,2,0)
@@ -893,12 +906,14 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 					{TEXT("RightToe"),	TEXT("rightToes"),		TEXT("rightToes"),		0x02},
 					{TEXT("LeftToe"),	TEXT("leftToes"),		TEXT("leftToes"),		0x02},
 
+					{TEXT("LeftThumb"),		TEXT("leftThumbMetacarpal"),	TEXT("leftThumbDistal"),},	// vrm1 thumb
 					{TEXT("LeftThumb"),		TEXT("leftThumbProximal"),		TEXT("leftThumbDistal"),},
 					{TEXT("LeftIndex"),		TEXT("leftIndexProximal"),		TEXT("leftIndexDistal"),},
 					{TEXT("LeftMiddle"),	TEXT("leftMiddleProximal"),	TEXT("leftMiddleDistal"),},
 					{TEXT("LeftRing"),		TEXT("leftRingProximal"),		TEXT("leftRingDistal"),},
 					{TEXT("LeftPinky"),		TEXT("leftLittleProximal"),	TEXT("leftLittleDistal"),},
 
+					{TEXT("RightThumb"),	TEXT("rightThumbMetacarpal"),	TEXT("rightThumbDistal"),},	// vrm1 thumb
 					{TEXT("RightThumb"),	TEXT("rightThumbProximal"),	TEXT("rightThumbDistal"),},
 					{TEXT("RightIndex"),	TEXT("rightIndexProximal"),	TEXT("rightIndexDistal"),},
 					{TEXT("RightMiddle"),	TEXT("rightMiddleProximal"),	TEXT("rightMiddleDistal"),},
@@ -919,6 +934,18 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 					if ((t.mask & (1 << ik_no)) == 0) {
 						continue;
 					}
+					if (t.chain == TEXT("LeftThumb") || (t.chain == TEXT("RightThumb"))) {
+						bool b0 = (t.s1 == TEXT("leftThumbProximal"))  || (t.s1 == TEXT("rightThumbProximal"));
+						bool b1 = (t.s1 == TEXT("leftThumbMetacarpal")) || (t.s1 == TEXT("rightThumbMetacarpal"));
+
+						if (Options::Get().IsVRM10Model() && b0) {
+							continue;
+						}
+						if (Options::Get().IsVRM0Model() && b1) {
+							continue;
+						}
+					}
+
 					TT conv;
 					for (auto& modelName : vrmAssetList->VrmMetaObject->humanoidBoneTable) {
 						if (modelName.Key == "" || modelName.Value == "") {
@@ -985,10 +1012,13 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 			};
 
 			for (int ikr_no=0; ikr_no<2; ikr_no++){
-				UIKRetargeter* ikr = nullptr;
+
+				FSoftObjectPath r(table_asset[ikr_no]);
+				UObject* u = r.TryLoad();
+				if (u == nullptr) continue;
 
 				FString name = table_name[ikr_no];
-				ikr = VRM4U_NewObject<UIKRetargeter>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
+				UIKRetargeter* ikr = VRM4U_NewObject<UIKRetargeter>(vrmAssetList->Package, *name, RF_Public | RF_Standalone);
 
 #if WITH_EDITOR
 				ikr->TargetMeshOffset.Set(100, 0, 0);
@@ -1007,10 +1037,6 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 
 				c.SetIKRig(SourceOrTargetVRM, table_rig_ik[ikr_no]);
 
-				FSoftObjectPath r(table_asset[ikr_no]);
-
-				///Script/IKRig.IKRigDefinition'/Game/Characters/UEFN_Mannequin/Rigs/IK_UEFN_Mannequin.IK_UEFN_Mannequin'
-				UObject* u = r.TryLoad();
 				if (u) {
 					auto r2 = Cast<UIKRigDefinition>(u);
 					if (r2) {
@@ -1129,8 +1155,14 @@ bool VRMConverter::ConvertIKRig(UVrmAssetListObject *vrmAssetList) {
 					c.SetCurrentRetargetPose(UIKRetargeter::GetDefaultPoseName(), SourceOrTargetVRM);
 					c.SetCurrentRetargetPose(UIKRetargeter::GetDefaultPoseName(), SourceOrTargetMannequin);
 
+					// 自動で姿勢を作る。
+					// ただし足首はそのまま。自動設定がうまく動作しないため。
 					c.AutoAlignAllBones(SourceOrTargetMannequin);
-					c.AutoAlignAllBones(SourceOrTargetVRM);
+					c.SetRotationOffsetForRetargetPoseBone(TEXT("foot_l"), FQuat::Identity, SourceOrTargetMannequin);
+					c.SetRotationOffsetForRetargetPoseBone(TEXT("foot_r"), FQuat::Identity, SourceOrTargetMannequin);
+
+					// VRM側は変更しない
+					//c.AutoAlignAllBones(SourceOrTargetVRM);
 #endif
 				}
 				c.SetChainSetting();

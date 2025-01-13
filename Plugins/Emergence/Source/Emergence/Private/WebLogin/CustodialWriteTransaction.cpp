@@ -15,6 +15,7 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "TimerManager.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
 TDelegate<void(FString, FString, EErrorCode)> UCustodialWriteTransaction::CallbackComplete;

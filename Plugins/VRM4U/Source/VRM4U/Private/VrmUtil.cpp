@@ -8,6 +8,10 @@
 
 #include "VrmAssetListObject.h"
 #include "VrmMetaObject.h"
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+#else
+#include "VrmAssetUserData.h"
+#endif
 
 
 void FImportOptionData::init() {
@@ -869,7 +873,8 @@ int32 VRMUtil::GetDirectChildBones(FReferenceSkeleton& refs, int32 ParentBoneInd
 
 UVrmAssetListObject* VRMUtil::GetAssetListObject(const UObject *obj) {
 	
-	if (Cast<USkeletalMesh>(obj)) {
+	const USkeletalMesh *sk = Cast<const USkeletalMesh>(obj);
+	if (sk) {
 		const FString full = obj->GetPathName();
 		const FString baseName = obj->GetName();
 		const FString path = FPaths::GetPath(full);
@@ -900,6 +905,21 @@ UVrmAssetListObject* VRMUtil::GetAssetListObject(const UObject *obj) {
 					return Cast<UVrmAssetListObject>(u);
 				}
 			}
+		}
+
+		{
+#if	UE_VERSION_OLDER_THAN(5,1,0)
+#else
+			auto *dataArray = sk->GetAssetUserDataArray();
+			if (dataArray){
+				for (auto data : *dataArray) {
+					auto *d = Cast<UVrmAssetUserData>(data);
+					if (d->VrmAssetListObject) {
+						return d->VrmAssetListObject;
+					}
+				}
+			}
+#endif
 		}
 	}
 

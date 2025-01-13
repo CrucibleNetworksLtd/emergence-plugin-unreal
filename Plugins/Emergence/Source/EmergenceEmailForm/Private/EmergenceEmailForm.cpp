@@ -26,6 +26,11 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Serialization/JsonWriter.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Widgets/Images/SImage.h"
+#include "Widgets/Layout/SSpacer.h"
+#include "Widgets/Input/SCheckBox.h"
+#include "Widgets/Input/SEditableTextBox.h"
+#include "Framework/Application/SlateApplication.h"
 
 static const FName EmergenceEmailFormTabName("Emergence Email Form");
 static const TCHAR* ShowAgainConfigName = TEXT("ShowEmailBox");
