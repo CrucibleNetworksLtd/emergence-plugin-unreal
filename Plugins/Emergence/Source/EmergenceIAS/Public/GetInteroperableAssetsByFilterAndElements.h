@@ -12,7 +12,7 @@
 #include "GetInteroperableAssetsByFilterAndElements.generated.h"
 
 UCLASS()
-class EMERGENCE_API UGetInteroperableAssetsByFilterAndElements : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEIAS_API UGetInteroperableAssetsByFilterAndElements : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

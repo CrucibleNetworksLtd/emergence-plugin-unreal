@@ -1,4 +1,4 @@
-#include "IAS/InteroperableAssetLibrary.h"
+#include "InteroperableAssetLibrary.h"
 
 UEmergenceInteroperableAssetElement* UEmergenceInteroperableAssetLibrary::GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success)
 {

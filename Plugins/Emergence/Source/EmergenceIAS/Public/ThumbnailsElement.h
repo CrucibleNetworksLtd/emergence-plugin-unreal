@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
-#include "IAS/Element.h"
+#include "Element.h"
 #include "ThumbnailsElement.generated.h"
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
@@ -86,7 +86,7 @@ struct FThumbnailsElementInner
 };
 
 UCLASS(Category= "Emergence|Interoperable Asset System", BlueprintType)
-class EMERGENCE_API UThumbnailsElement : public UEmergenceInteroperableAssetElement
+class EMERGENCEIAS_API UThumbnailsElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 

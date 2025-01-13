@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
-#include "IAS/Element.h"
+#include "Element.h"
 #include "NFTElement.generated.h"
 
 
@@ -178,7 +178,7 @@ struct FNFTElementInner
 };
 
 UCLASS(Category="JSON|EmergenceInteroperableAsset", BlueprintType)
-class EMERGENCE_API UNFTElement : public UEmergenceInteroperableAssetElement
+class EMERGENCEIAS_API UNFTElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 

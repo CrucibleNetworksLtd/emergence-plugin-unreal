@@ -4,8 +4,8 @@
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
 #include "Serialization/JsonSerializer.h"
-#include "IAS/NFTElement.h"
-#include "IAS/AvatarElement.h"
+#include "NFTElement.h"
+#include "AvatarElement.h"
 #include "InteroperableAsset.generated.h"
 
 USTRUCT(Category="Emergence|Interoperable Asset System", BlueprintType)

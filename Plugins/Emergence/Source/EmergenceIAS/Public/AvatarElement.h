@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
-#include "IAS/Element.h"
+#include "Element.h"
 #include "AvatarElement.generated.h"
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
@@ -31,7 +31,7 @@ struct FAvatarElementInner
 };
 
 UCLASS(Category= "Emergence|Interoperable Asset System", BlueprintType)
-class EMERGENCE_API UAvatarElement : public UEmergenceInteroperableAssetElement
+class EMERGENCEIAS_API UAvatarElement : public UEmergenceInteroperableAssetElement
 {
   GENERATED_BODY()
 

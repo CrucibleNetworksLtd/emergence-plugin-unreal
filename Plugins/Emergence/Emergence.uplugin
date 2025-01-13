@@ -33,6 +33,16 @@
 			]
 		},
 		{
+			"Name": "EmergenceIAS",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		},
+		{
 			"Name": "EmergenceEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default",

@@ -2,12 +2,12 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "IAS/InteroperableAsset.h"
-#include "IAS/Element.h"
+#include "InteroperableAsset.h"
+#include "Element.h"
 #include "InteroperableAssetLibrary.generated.h"
 
 UCLASS()
-class EMERGENCE_API UEmergenceInteroperableAssetLibrary : public UBlueprintFunctionLibrary
+class EMERGENCEIAS_API UEmergenceInteroperableAssetLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
 public:

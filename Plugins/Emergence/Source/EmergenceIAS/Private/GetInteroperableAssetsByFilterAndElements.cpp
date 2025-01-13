@@ -1,12 +1,12 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 
-#include "IAS/GetInteroperableAssetsByFilterAndElements.h"
+#include "GetInteroperableAssetsByFilterAndElements.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "IAS/AvatarElement.h"
-#include "IAS/NFTElement.h"
-#include "IAS/ThumbnailsElement.h"
+#include "AvatarElement.h"
+#include "NFTElement.h"
+#include "ThumbnailsElement.h"
 
 UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs, const TArray<FString>& Blockchains, const int PageNumber, const int PageSize)
 {
