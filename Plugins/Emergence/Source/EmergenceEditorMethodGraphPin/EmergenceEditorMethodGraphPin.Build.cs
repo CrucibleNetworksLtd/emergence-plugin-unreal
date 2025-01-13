@@ -7,7 +7,7 @@ public class EmergenceEditorMethodGraphPin : ModuleRules
 	public EmergenceEditorMethodGraphPin(ReadOnlyTargetRules Target) : base(Target)
 	{
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
+		bEnforceIWYU = true;
 
         PrivateDependencyModuleNames.AddRange(
 			new string[] {

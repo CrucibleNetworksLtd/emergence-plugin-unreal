@@ -9,6 +9,7 @@ public class EmergenceUEExampleTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
+		bEnforceIWYU = true;
 		ExtraModuleNames.Add("EmergenceUEExample");
 	}
 }

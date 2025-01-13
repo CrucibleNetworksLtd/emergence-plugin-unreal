@@ -12,7 +12,6 @@
 #include "PlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
 #include "EmergenceEVMServerSubsystem.h"
-#include "Engine/Engine.h"
 #include "Misc/EngineVersionComparison.h"
 #include "HttpServerModule.h"
 #include "HttpHelperLibrary.generated.h"
