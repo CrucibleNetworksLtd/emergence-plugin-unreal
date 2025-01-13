@@ -7,8 +7,8 @@
 #include "EmergenceDeployment.h"
 #include "WalletService/WriteMethod.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogEmergence, Log, All);
-DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);
+EMERGENCE_API DECLARE_LOG_CATEGORY_EXTERN(LogEmergence, Log, All);
+EMERGENCE_API DECLARE_LOG_CATEGORY_EXTERN(LogEmergenceHttp, Log, All);
 
 class UWriteMethod;
 struct EmergenceLocalEVMJSON;
