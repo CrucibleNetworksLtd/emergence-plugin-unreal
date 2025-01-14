@@ -1,5 +1,5 @@
 #include "EmergenceLocalEVMThread.h"
-
+#include "Runtime/Launch/Resources/Version.h"
 
 bool FLocalEVMThreadRunnable::Init()
 {

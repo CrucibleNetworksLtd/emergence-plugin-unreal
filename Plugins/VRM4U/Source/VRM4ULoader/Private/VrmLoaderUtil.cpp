@@ -1,5 +1,5 @@
 ﻿// VRM4U Copyright (c) 2021-2024 Haruyoshi Yamamoto. This software is released under the MIT License.
-#pragma once
+
 #include "VrmConvert.h"
 #include "VRM4ULoaderLog.h"
 
@@ -21,6 +21,16 @@
 /////
 
 //test
+
+
+#define VRM4U_UseLocalTGAHeader 1
+
+
+#ifndef  VRM4U_UseLocalTGAHeader
+#define VRM4U_UseLocalTGAHeader 0
+#endif
+
+#if	VRM4U_UseLocalTGAHeader
 
 #pragma pack(push,1)
 
@@ -48,6 +58,7 @@ struct FTGAFileHeader2
 	}
 };
 #pragma pack(pop)
+#endif
 
 void DecompressTGA_RLE_32bpp(const FTGAFileHeader2* TGA, uint32* TextureData)
 {
