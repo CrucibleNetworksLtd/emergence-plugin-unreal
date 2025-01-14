@@ -33,9 +33,9 @@ FString UCustodialLogin::GetClientID()
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
 	
 	check(Singleton);
-
-	EFutureverseEnvironment Env = Singleton->GetFutureverseEnvironment();
-	if (Env == EFutureverseEnvironment::Development || Env == EFutureverseEnvironment::Staging) {
+	;
+	FString Env = UHttpHelperLibrary::GetFVEnvironment();
+	if (Env != "Production") {
 		FString DefaultFutureverseWebLoginStagingEnvClientID = "3KMMFCuY59SA4DDV8ggwc"; //default staging client id to be overriden
 		FString FutureverseWebLoginStagingEnvClientID;
 		GConfig->GetString(TEXT("/Script/EmergenceEditor.EmergencePluginSettings"), TEXT("FutureverseWebLoginStagingEnvClientID"), FutureverseWebLoginStagingEnvClientID, GGameIni);

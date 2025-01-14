@@ -33,15 +33,6 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	template<typename T>
-	inline static T StringToEnum(const FString& Name) {
-		UEnum* EnumClass = StaticEnum<T>();
-		if (!EnumClass) {
-			UE_LOG(LogEmergence, Fatal, TEXT("StringToEnum Enum not found: %s"), *Name);
-		}
-		return (T)EnumClass->GetIndexByName(FName(*Name), EGetByNameFlags::ErrorIfNotFound);
-	}
-
 	//Get the global Emergence service
 	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
@@ -50,37 +41,17 @@ public:
 	UFUNCTION()
 	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialLoginCompleted, FEmergenceCustodialLoginOutput, TokenData, EErrorCode, StatusCode);
-
-	UPROPERTY()
-	FOnCustodialLoginCompleted OnWebLoginCompleted;
-
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Overlay Methods")
-	static EFutureverseEnvironment GetFutureverseEnvironment();
-
-	//Sets the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to true)
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo);
-
-	//Clears the Emergence Singleton's cache of the futurepass information (and sets FuturepassInfoIsSet to false)
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void ClearFuturepassInfomationCache();
-
-	//Cache of the last Futurepass information set as part of SetFuturepassInfomationCache
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Futureverse")
-	FLinkedFuturepassInformationResponse FuturepassInfoCache;
-
-	//Is FuturepassInfoCache valid?
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Futureverse")
-	bool FuturepassInfoCacheIsSet = false;
-
-	//Are we logged in via a web login flow, rather than WC
+	//Are we logged in via a web login flow, rather than WalletConnect? 
+	//This is referenced by functions such as RequestToSign and WriteMethod to allow for behaviour switching depending on login type.
+	//You shouldn't need to ever change this manually. If you do, what caused you to need to change it manually is a bug and should be reported to Crucible.
 	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Login Flow")
 	bool UsingWebLoginFlow = false;
 
 	UPROPERTY()
 	FString DeviceID;
 
+	//Stores a list of contracts with loaded ABIs, in the format blockchain name + address. 
+	//This is used by various methods to check if the ABI needs to be sent to the server (if it is "new" to the server for this user)
 	UPROPERTY()
 	TArray<FString> ContractsWithLoadedABIs;
 
@@ -118,9 +89,6 @@ public:
 	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	FString GetCachedAddress(bool Checksummed = false);
-
-	UFUNCTION()
-	FString GetCachedChecksummedAddress();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, EErrorCode, StatusCode);
 

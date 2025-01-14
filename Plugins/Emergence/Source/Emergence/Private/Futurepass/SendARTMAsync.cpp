@@ -23,7 +23,7 @@ void USendFutureverseARTM::Activate()
 		UE_LOG(LogEmergence, Error, TEXT("Tried to get the user EOA address but it has never been set."));
 		return;
 	}
-	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedChecksummedAddress();
+	FString EoAAddress = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->GetCachedAddress(true);
 
 	//THIS MUST BE EOA / ETH CHECKSUMMED
 	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
