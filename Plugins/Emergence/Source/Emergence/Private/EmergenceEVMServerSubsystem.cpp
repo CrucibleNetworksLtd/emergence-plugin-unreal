@@ -2,7 +2,6 @@
 
 
 #include "EmergenceEVMServerSubsystem.h"
-#include "LocalEmergenceServer.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "EmergenceSingleton.h"
 #include "HttpModule.h"
