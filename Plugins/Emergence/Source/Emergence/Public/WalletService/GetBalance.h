@@ -20,7 +20,7 @@ public:
 	 * @param Address Address to get the balance of.
 	 * @param Blockchain Blockchain to get the balance on.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Overlay Methods")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
 	static UGetBalance* GetBalance(UObject* WorldContextObject, FString Address, UEmergenceChain* Blockchain);
 
 	virtual void Activate() override;
