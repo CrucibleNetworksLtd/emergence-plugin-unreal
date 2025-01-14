@@ -18,7 +18,6 @@
 #include "Environment.h"
 #include "WebLogin/CustodialLogin.h"
 #include "WalletService/RequestToSign.h"
-#include "AvatarService/AvatarByOwner.h"
 #include "EmergenceSingleton.generated.h"
 
 #pragma warning( push )

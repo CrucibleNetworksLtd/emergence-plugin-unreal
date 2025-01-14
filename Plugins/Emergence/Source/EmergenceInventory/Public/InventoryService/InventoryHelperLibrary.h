@@ -24,7 +24,7 @@ struct FEmergenceCombinedInventoryItem
 };
 
 UCLASS()
-class UInventoryHelperLibrary : public UBlueprintFunctionLibrary
+class EMERGENCEINVENTORY_API UInventoryHelperLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

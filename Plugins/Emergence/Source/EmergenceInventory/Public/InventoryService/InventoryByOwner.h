@@ -8,12 +8,12 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
-#include "EmergenceInventoryServiceStructs.h"
+#include "EmergenceInventorySharedStructs.h"
 #include "InventoryByOwner.generated.h"
 
 
 UCLASS()
-class EMERGENCE_API UInventoryByOwner : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEINVENTORY_API UInventoryByOwner : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

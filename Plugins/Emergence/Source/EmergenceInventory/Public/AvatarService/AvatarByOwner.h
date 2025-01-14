@@ -9,7 +9,7 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "Interfaces/IHttpRequest.h"
-#include "InventoryService/EmergenceInventoryServiceStructs.h"
+#include "EmergenceInventorySharedStructs.h"
 #include "AvatarByOwner.generated.h"
 
 USTRUCT(BlueprintType)
@@ -130,7 +130,7 @@ struct FEmergenceAvatarResult
 };
 
 UCLASS()
-class EMERGENCE_API UAvatarByOwner : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEINVENTORY_API UAvatarByOwner : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

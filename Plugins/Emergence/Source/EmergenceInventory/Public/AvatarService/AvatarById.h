@@ -9,14 +9,14 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "Interfaces/IHttpRequest.h"
-#include "InventoryService/EmergenceInventoryServiceStructs.h"
+#include "EmergenceInventorySharedStructs.h"
 #include "AvatarService/AvatarByOwner.h"
 #include "AvatarService/AvatarServiceLibrary.h"
 #include "AvatarById.generated.h"
 
 
 UCLASS()
-class EMERGENCE_API UAvatarById : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEINVENTORY_API UAvatarById : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

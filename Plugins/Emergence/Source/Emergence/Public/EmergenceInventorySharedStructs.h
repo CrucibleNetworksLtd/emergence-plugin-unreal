@@ -6,7 +6,7 @@
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "JsonObjectWrapper.h"
-#include "EmergenceInventoryServiceStructs.generated.h"
+#include "EmergenceInventorySharedStructs.generated.h"
 
 
 USTRUCT(BlueprintType)

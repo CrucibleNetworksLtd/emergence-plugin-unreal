@@ -12,7 +12,7 @@
 
 
 UCLASS()
-class EMERGENCE_API UGetTokenURIData : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEINVENTORY_API UGetTokenURIData : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

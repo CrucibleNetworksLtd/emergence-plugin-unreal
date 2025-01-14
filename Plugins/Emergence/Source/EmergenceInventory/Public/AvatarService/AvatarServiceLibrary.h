@@ -20,7 +20,7 @@ struct FEmergenceAvatarData
 };
 
 UCLASS()
-class EMERGENCE_API UAvatarServiceLibrary : public UBlueprintFunctionLibrary
+class EMERGENCEINVENTORY_API UAvatarServiceLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

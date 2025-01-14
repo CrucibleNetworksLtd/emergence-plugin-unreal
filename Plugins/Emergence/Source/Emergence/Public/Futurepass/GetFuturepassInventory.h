@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EmergenceAsyncSingleRequestBase.h"
-#include "InventoryService/EmergenceInventoryServiceStructs.h"
+#include "EmergenceInventorySharedStructs.h"
 #include "GetFuturepassInventory.generated.h"
 
 

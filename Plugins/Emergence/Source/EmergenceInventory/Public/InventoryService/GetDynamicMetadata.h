@@ -8,12 +8,12 @@
 #include "Interfaces/IHttpRequest.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
-#include "EmergenceInventoryServiceStructs.h"
+#include "EmergenceInventorySharedStructs.h"
 #include "GetDynamicMetadata.generated.h"
 
 
 UCLASS()
-class EMERGENCE_API UGetDynamicMetadata : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEINVENTORY_API UGetDynamicMetadata : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
