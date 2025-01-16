@@ -13,10 +13,10 @@ struct FLinkedFuturepassEOA
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	int proxyType = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	FString eoa;
 
 	FLinkedFuturepassEOA() {};
@@ -47,16 +47,16 @@ struct FLinkedFuturepassInformationResponse
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	FString futurepass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	FString ownerEoa;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	TArray<FLinkedFuturepassEOA> linkedEoas;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Futureverse")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse")
 	TArray<FLinkedFuturepassEOA> invalidEoas;
 
 	FLinkedFuturepassInformationResponse() {};
@@ -91,7 +91,7 @@ class EMERGENCE_API UGetLinkedFuturepassInformation : public UEmergenceAsyncSing
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Futureverse")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UGetLinkedFuturepassInformation* GetLinkedFuturepassInformation(UObject* WorldContextObject, FString Address);
 
 	virtual void Activate() override;

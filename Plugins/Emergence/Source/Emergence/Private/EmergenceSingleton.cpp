@@ -67,37 +67,6 @@ void UEmergenceSingleton::CompleteLoginViaWebLoginFlow(const FEmergenceCustodial
 	}
 }
 
-EFutureverseEnvironment UEmergenceSingleton::GetFutureverseEnvironment()
-{
-
-	FString Environment = UHttpHelperLibrary::GetFVEnvironment();
-
-	if (Environment == "Production") {
-		//Production Env URL
-		return EFutureverseEnvironment::Production;
-	}
-
-	if (Environment == "Development") {
-		//Development Env URL
-		return EFutureverseEnvironment::Development;
-	}
-
-	//Staging Env URL
-	return EFutureverseEnvironment::Staging;
-}
-
-void UEmergenceSingleton::SetFuturepassInfomationCache(FLinkedFuturepassInformationResponse FuturepassInfo)
-{
-	FuturepassInfoCache = FuturepassInfo;
-	FuturepassInfoCacheIsSet = true;
-}
-
-void UEmergenceSingleton::ClearFuturepassInfomationCache()
-{
-	FuturepassInfoCache = FLinkedFuturepassInformationResponse();
-	FuturepassInfoCacheIsSet = false;
-}
-
 void UEmergenceSingleton::CancelSignInRequest()
 {
 	if (GetHandshakeRequest && GetHandshakeRequest->GetStatus() == EHttpRequestStatus::Processing) {
@@ -127,16 +96,6 @@ FString UEmergenceSingleton::GetCachedAddress(bool Checksummed)
 		else {
 			return FString("-1");
 		}
-	}
-}
-
-FString UEmergenceSingleton::GetCachedChecksummedAddress()
-{
-	if (this->CurrentAddress.Len() > 0) {
-		return this->CurrentChecksummedAddress;
-	}
-	else {
-		return FString("-1");
 	}
 }
 
