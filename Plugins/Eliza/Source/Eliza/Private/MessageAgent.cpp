@@ -4,7 +4,9 @@
 #include "MessageAgent.h"
 #include "HttpService/ElizaHttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
-
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message)
 {
@@ -16,36 +18,37 @@ UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message)
 
 void UMessageAgent::Activate()
 {
-	FString requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + AgentId + "/message";
+	FString requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/message";
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
 
-	TSharedRef<FJsonObject> BodyContentJsonObject;
+	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
 	BodyContentJsonObject->SetStringField("text", Message);
 	FString JsonOutput;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
-	FJsonSerializer::Serialize(BodyContentJsonObject, Writer);
-	FString BodyContentString;
+	FJsonSerializer::Serialize(BodyContentJsonObject.ToSharedRef(), Writer);
 
 	UElizaHttpHelperLibrary::ExecuteHttpRequest<UMessageAgent>(
 		this,
 		&UMessageAgent::MessageAgent_HttpRequestComplete,
 		requestURL,
-		"GET",
+		"POST",
 		60.0F,
 		Headers,
-		BodyContentString
+		JsonOutput
 	);
 }
 
 void UMessageAgent::MessageAgent_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	// {"Data":[{"user":"eliza","text":"Testing, testing, 1-2-3! All systems operational, though my confidence intervals are a bit shaky today. Just making sure my response tensors are properly aligned. How's the audio coming through on your end?","action":"NONE"}]}
+	// [{"user":"eliza","text":"Loud and clear! My circuits are humming along, ready for whatever test you throw my way. If you need a debugging buddy or just someone to share the testing woes with, I'm here. How's everything looking on your end?","action":"NONE"}]
 	if (bSucceeded) {
 		TSharedPtr<FJsonValue> JsonValue;
-		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(HttpResponse->GetContentAsString());
+		FString ResponseString = HttpResponse->GetContentAsString();
+		UE_LOG(LogEliza, Display, TEXT("Message Agent response: %s"), *ResponseString);
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
-			TSharedPtr<FJsonValue> MessageData = JsonValue->AsObject()->GetArrayField("Data")[0];
+			TSharedPtr<FJsonValue> MessageData = JsonValue->AsArray()[0];
 			FString User = MessageData->AsObject()->GetStringField("user");
 			FString Text = MessageData->AsObject()->GetStringField("text");
 			FString Action = MessageData->AsObject()->GetStringField("action");

@@ -13,5 +13,5 @@ public:
 
 	//Where is the Eliza starter webserver located? Default is localhost:3000.
 	UPROPERTY(config, EditAnywhere, Category = "General")
-	FString ElizaHttpServerLocation = "localhost:3000";
+	FString ElizaHttpServerLocation = "http://localhost:3000";
 };

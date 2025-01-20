@@ -12,6 +12,8 @@
 #include "PlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/EngineVersionComparison.h"
+#include "Eliza.h"
+#include "Misc/ConfigCacheIni.h"
 #include "ElizaHttpHelperLibrary.generated.h"
 
 UCLASS()
@@ -23,7 +25,7 @@ public:
 
 	UFUNCTION()
 	static FString GetElizaStarterUrl() {
-		FString Location = "localhost:3000"; //default
+		FString Location = "http://localhost:3000"; //default
 		GConfig->GetString(TEXT("/Script/ElizaEditor.ElizaPluginSettings"), TEXT("ElizaHttpServerLocation"), Location, GGameIni);
 		return Location;
 	}
