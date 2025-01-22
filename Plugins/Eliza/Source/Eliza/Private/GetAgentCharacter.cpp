@@ -43,7 +43,7 @@ void UGetAgentCharacter::GetAgentCharacter_HttpRequestComplete(FHttpRequestPtr H
 	if (bSucceeded) {
 		TSharedPtr<FJsonValue> JsonValue;
 		FString ResponseString = HttpResponse->GetContentAsString();
-		UE_LOG(LogEliza, Display, TEXT("Message Agent response: %s"), *ResponseString);
+		UE_LOG(LogEliza, Display, TEXT("Get Agent Character response: %s"), *ResponseString);
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
 
