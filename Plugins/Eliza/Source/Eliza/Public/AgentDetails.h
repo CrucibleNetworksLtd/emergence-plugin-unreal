@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "AgentDetails.generated.h"
 
 USTRUCT(Category="JSON|AgentDetails", BlueprintType)
@@ -197,6 +198,34 @@ struct FAgentDetailsCharacter
   
   }
   
+  FAgentDetailsCharacter(FString _json_) {
+      FAgentDetailsCharacter CharacterStruct;
+
+      FJsonObjectConverter::JsonObjectStringToUStruct<FAgentDetailsCharacter>(_json_, &CharacterStruct, 0, 0);
+
+      TSharedPtr<FJsonObject> JsonObject;
+      TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(_json_);
+      if (FJsonSerializer::Deserialize(JsonReader, JsonObject) || JsonObject.IsValid())
+      {
+          auto MessageExamplesArray = JsonObject->GetArrayField("messageExamples");
+          for (int i = 0; i < MessageExamplesArray.Num(); i++) {
+
+              auto UserMessageExampleJson = MessageExamplesArray[i]->AsArray()[0]->AsObject();
+              FAgentDetailsCharacterMessageExample UserMessage;
+              UserMessage.user = UserMessageExampleJson->GetStringField("user");
+              UserMessage.content = UserMessageExampleJson->GetObjectField("content")->GetStringField("text");
+
+              auto AIMessageExampleJson = MessageExamplesArray[i]->AsArray()[1]->AsObject();
+              FAgentDetailsCharacterMessageExample AIMessage;
+              AIMessage.user = AIMessageExampleJson->GetStringField("user");
+              AIMessage.content = AIMessageExampleJson->GetObjectField("content")->GetStringField("text");
+              TArray<FAgentDetailsCharacterMessageExample> Example;
+              Example.Add(UserMessage);
+              Example.Add(AIMessage);
+              messageExamples.Add(FAgentDetailsCharacterMessageCombination(Example));
+          }
+      }
+  }
 };
 
 USTRUCT(Category="JSON|AgentDetails", BlueprintType)
@@ -224,6 +253,10 @@ struct FAgentDetails
   Add #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h" in 
   file with this structs.
   Also you need add "Json", "JsonUtilities" in Build.cs */
+
+  TSharedPtr<FJsonObject> FAgentDetailsToJson() {
+      return FJsonObjectConverter::UStructToJsonObject<FAgentDetails>(*this);
+  }
 
   FAgentDetails(FString _json_){
     FAgentDetails _tmpAgentDetails;
@@ -260,4 +293,17 @@ struct FAgentDetails
     }
   }
   
+};
+
+
+UCLASS()
+class UAgentDetailsHelperLibrary : public UBlueprintFunctionLibrary
+{
+    GENERATED_BODY()
+public:
+    UFUNCTION(BlueprintPure, Category = "Eliza")
+    static FAgentDetailsCharacter CharacterFromJsonString(FString JsonString)
+    {
+        return FAgentDetailsCharacter(JsonString);
+    }
 };
