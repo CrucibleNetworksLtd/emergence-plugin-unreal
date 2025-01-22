@@ -26,6 +26,7 @@ public class Eliza : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Json",
+				"JsonUtilities"
             }
 		);
 	}
