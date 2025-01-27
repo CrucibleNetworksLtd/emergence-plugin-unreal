@@ -9,7 +9,7 @@
 #include "Types/EmergenceErrorCode.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "Interfaces/IHttpRequest.h"
-#include "EmergenceInventorySharedStructs.h"
+#include "Types/EmergenceInventory.h"
 #include "AvatarByOwner.generated.h"
 
 USTRUCT(BlueprintType)

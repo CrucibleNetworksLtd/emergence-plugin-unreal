@@ -8,7 +8,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Types/EmergenceErrorCode.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
-#include "EmergenceInventorySharedStructs.h"
+#include "Types/EmergenceInventory.h"
 #include "InventoryByOwner.generated.h"
 
 

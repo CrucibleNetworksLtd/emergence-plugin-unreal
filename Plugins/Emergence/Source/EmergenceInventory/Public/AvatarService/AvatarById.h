@@ -9,7 +9,7 @@
 #include "Types/EmergenceErrorCode.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "Interfaces/IHttpRequest.h"
-#include "EmergenceInventorySharedStructs.h"
+#include "Types/EmergenceInventory.h"
 #include "AvatarService/AvatarByOwner.h"
 #include "AvatarService/AvatarServiceLibrary.h"
 #include "AvatarById.generated.h"

@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types/EmergenceErrorCode.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "JsonObjectWrapper.h"
-#include "EmergenceInventorySharedStructs.generated.h"
+#include "EmergenceInventory.generated.h"
 
 
 USTRUCT(BlueprintType)
