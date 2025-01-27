@@ -6,15 +6,19 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "Interfaces/IHttpRequest.h"
 #include "MessageAgent.generated.h"
-/**
- * 
- */
+
+
 UCLASS()
 class ELIZA_API UMessageAgent : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 	
 public:
+	/**
+	 * Sends a message to an agent.
+	 * @param AgentId The ID string of the agent to send the message to.
+	 * @param Message The message to send to the agent.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
 	static UMessageAgent* MessageAgent(FString AgentId, FString Message);
 

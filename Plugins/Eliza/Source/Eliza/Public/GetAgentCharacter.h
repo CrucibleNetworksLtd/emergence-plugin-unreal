@@ -15,6 +15,10 @@ class ELIZA_API UGetAgentCharacter : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 	
 public:
+	/**
+	 * Given an AgentId, returns details about a the character that agent is representing from its character file.
+	 * @param AgentId The ID string of the agent to get the character data of.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
 	static UGetAgentCharacter* GetAgentCharacter(FString AgentId);
 

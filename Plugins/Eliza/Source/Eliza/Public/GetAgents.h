@@ -36,6 +36,9 @@ class ELIZA_API UGetAgents : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 	
 public:
+	/**
+	 * Returns an array of all the agents running in your Eliza instance.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
 	static UGetAgents* GetAgents();
 
