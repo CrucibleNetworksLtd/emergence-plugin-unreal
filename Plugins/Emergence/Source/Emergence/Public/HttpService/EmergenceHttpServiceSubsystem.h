@@ -6,13 +6,14 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/IHttpRequest.h"
 #include "HttpRouteHandle.h"
-#include "EmergenceEVMServerSubsystem.generated.h"
+#include "EmergenceHttpServiceSubsystem.generated.h"
 
 /**
- * 
+ * Handles closing of active requests when a PIE session ends, amongst other calls that need to be made by the HTTP service on 
+ * game launch.
  */
 UCLASS()
-class EMERGENCE_API UEmergenceEVMServerSubsystem : public UGameInstanceSubsystem
+class EMERGENCE_API UEmergenceHttpServiceSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 public:

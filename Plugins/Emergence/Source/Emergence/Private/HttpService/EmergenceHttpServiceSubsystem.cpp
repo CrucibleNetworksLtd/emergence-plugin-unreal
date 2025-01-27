@@ -1,14 +1,13 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 
-#include "EmergenceEVMServerSubsystem.h"
+#include "HttpService/EmergenceHttpServiceSubsystem.h"
 #include "HttpService/HttpHelperLibrary.h"
-#include "EmergenceSingleton.h"
 #include "HttpModule.h"
 #include "HttpManager.h"
 #include "Runtime/Launch/Resources/Version.h"
 
-void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
+void UEmergenceHttpServiceSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 
 	//@TODO now the LocalEVM server is no more, we should probably move this code somewhere else and get rid of this class
 
@@ -29,14 +28,11 @@ void UEmergenceEVMServerSubsystem::Initialize(FSubsystemCollectionBase& Collecti
 	FHttpModule::Get().SetHttpThreadActiveFrameTimeInSeconds(1.0f / 100000.f);
 }
 
-void UEmergenceEVMServerSubsystem::Deinitialize() {
+void UEmergenceHttpServiceSubsystem::Deinitialize() {
 	
 	//clean up all in-flight requests
 	for (FHttpRequestRef Request : ActiveRequests) {
 		Request->OnProcessRequestComplete().Unbind();
 		Request->CancelRequest();		
 	}
-
-	//Cleanup caches of the user's info, and then tell the CloudEVM server to kill the sesson.
-	UEmergenceSingleton::GetEmergenceManager(GetGameInstance())->KillSession();
 }

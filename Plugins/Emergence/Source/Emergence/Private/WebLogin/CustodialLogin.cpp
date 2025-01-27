@@ -14,7 +14,7 @@
 #include "JwtVerifier.h"
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
-#include "EmergenceEVMServerSubsystem.h"
+
 #include <random>
 THIRD_PARTY_INCLUDES_START
 #include <openssl/rand.h>
@@ -95,7 +95,7 @@ void UCustodialLogin::Activate()
 	TSharedPtr<IHttpRouter> httpRouter = httpServerModule.GetHttpRouter(3000);
 	auto Singleton = UEmergenceSingleton::GetEmergenceManager(UCustodialLogin::ContextObject);
 	
-	auto EmergenceSub = UGameplayStatics::GetGameInstance(UCustodialLogin::ContextObject)->GetSubsystem<UEmergenceEVMServerSubsystem>();
+	auto EmergenceSub = UGameplayStatics::GetGameInstance(UCustodialLogin::ContextObject)->GetSubsystem<UEmergenceHttpServiceSubsystem>();
 
 	if (httpRouter.IsValid() && !UCustodialLogin::_isServerStarted) //server isn't started
 	{

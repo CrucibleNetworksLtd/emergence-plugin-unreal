@@ -33,6 +33,7 @@ void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
 
 void UEmergenceSingleton::Deinitialize()
 {
+	this->KillSession(false); //kill the session on game end. We don't need to wait to see if it happens or not, we're just trying to help out the server.
 	UGameInstanceSubsystem::Deinitialize();
 }
 
@@ -293,7 +294,7 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 	OnKillSessionCompleted.Broadcast(false, StatusCode);
 }
 
-void UEmergenceSingleton::KillSession()
+void UEmergenceSingleton::KillSession(bool TrackRequest)
 {
 	if(this->UsingWebLoginFlow){
 		this->CurrentAddress = "";
@@ -315,8 +316,12 @@ void UEmergenceSingleton::KillSession()
 
 		//we need to send the device ID if we have one, we won't have one for local EVM servers
 		Headers.Add(TPair<FString, FString>("deviceId", this->DeviceID));
-
-		UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
+		if (TrackRequest) {
+			UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this, &UEmergenceSingleton::KillSession_HttpRequestComplete, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
+		}
+		else {
+			UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(nullptr, nullptr, UHttpHelperLibrary::APIBase + "killSession", "GET", 60.0F, Headers);
+		}
 		UE_LOG(LogEmergenceHttp, Display, TEXT("KillSession request started, calling KillSession_HttpRequestComplete on request completed"));
 	}
 }

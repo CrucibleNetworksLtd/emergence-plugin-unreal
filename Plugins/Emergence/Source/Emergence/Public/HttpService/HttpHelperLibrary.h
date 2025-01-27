@@ -12,7 +12,7 @@
 #include "EmergenceSingleton.h"
 #include "PlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
-#include "EmergenceEVMServerSubsystem.h"
+#include "EmergenceHttpServiceSubsystem.h"
 #include "Misc/EngineVersionComparison.h"
 #include "HttpServerModule.h"
 #include "Types/EmergenceErrorCode.h"
@@ -312,7 +312,7 @@ public:
 				if (
 					World && //get the world
 					World->GetGameInstance()) { //if we actually got a world, get the game instance
-					UEmergenceEVMServerSubsystem* EmergenceSubsystem = World->GetGameInstance()->GetSubsystem<UEmergenceEVMServerSubsystem>();
+					UEmergenceHttpServiceSubsystem* EmergenceSubsystem = World->GetGameInstance()->GetSubsystem<UEmergenceHttpServiceSubsystem>();
 					if (EmergenceSubsystem) {
 						EmergenceSubsystem->ActiveRequests.Add(HttpRequest);
 					}

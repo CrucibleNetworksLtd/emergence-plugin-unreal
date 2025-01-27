@@ -130,9 +130,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
 
-	//killSession stuff
+	//Kills the walletconnect session. Setting TrackRequest to false will mean OnKillSessionCompleted will never fire,
+	//and this request won't be added to ActiveRequests (good to prevent this getting premptively killed going from PIE back to Editor.
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void KillSession();
+	void KillSession(bool TrackRequest = true);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
