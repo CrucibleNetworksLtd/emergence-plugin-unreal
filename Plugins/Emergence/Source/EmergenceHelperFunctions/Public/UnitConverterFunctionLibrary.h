@@ -22,7 +22,7 @@ enum class EEtherUnitType : uint8 {
 };
 
 UCLASS()
-class EMERGENCE_API UUnitConverterFunctionLibrary : public UBlueprintFunctionLibrary
+class EMERGENCEHELPERFUNCTIONS_API UUnitConverterFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

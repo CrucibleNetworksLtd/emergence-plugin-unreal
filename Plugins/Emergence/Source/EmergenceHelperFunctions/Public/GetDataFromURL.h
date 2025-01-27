@@ -12,7 +12,7 @@
 /**
  */
 UCLASS()
-class EMERGENCE_API UGetDataFromUrl : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEHELPERFUNCTIONS_API UGetDataFromUrl : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

@@ -12,7 +12,7 @@
 /**
  */
 UCLASS()
-class EMERGENCE_API UGetTextureFromUrl : public UEmergenceCancelableAsyncBase
+class EMERGENCEHELPERFUNCTIONS_API UGetTextureFromUrl : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:
