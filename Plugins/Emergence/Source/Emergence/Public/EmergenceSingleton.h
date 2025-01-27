@@ -53,9 +53,6 @@ public:
 	UPROPERTY()
 	TArray<FString> ContractsWithLoadedABIs;
 
-	UPROPERTY()
-	TMap<FString, UTexture2D*> DownloadedImageCache;
-
 	//HTTPService Functions
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetHandshakeRequest;
@@ -100,8 +97,6 @@ public:
 
 	UFUNCTION()
 	static bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
-
-	static TSharedPtr<FSlateDynamicImageBrush> RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, FString, WalletConnectString, EErrorCode, StatusCode);
 

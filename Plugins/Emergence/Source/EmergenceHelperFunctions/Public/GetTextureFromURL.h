@@ -50,6 +50,8 @@ private:
 
 	void WaitOneFrame();
 	
+	static TMap<FString, UTexture2D*> DownloadedImageCache;
+	
 	FString Url;
 	bool AllowCacheUsage;
 	

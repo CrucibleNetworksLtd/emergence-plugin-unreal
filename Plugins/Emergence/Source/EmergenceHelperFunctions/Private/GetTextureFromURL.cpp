@@ -10,10 +10,12 @@
 #include "Dom/JsonObject.h"
 #include "TimerManager.h"
 
+TMap<FString, UTexture2D*> UGetTextureFromUrl::DownloadedImageCache = {};
+
 void UGetTextureFromUrl::Activate()
 {
 	if (AllowCacheUsage) {
-		CachedTexturePtr = UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Find(this->Url);
+		CachedTexturePtr = UGetTextureFromUrl::DownloadedImageCache.Find(this->Url);
 		if (CachedTexturePtr) {
 			//even though we have this ready, we need to send it with a tiny timer or the node won't make sense (it will return its completed before its regular node flow has completed, THAT WOULD BE REALLY REALLY BAD AND CONFUSING).
 			this->Timer = WorldContextObject->GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UGetTextureFromUrl::WaitOneFrame);
@@ -79,7 +81,7 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
 		//if we still have a world context object
 		if (WorldContextObject && WorldContextObject->IsValidLowLevel()) {
-			UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Add(this->Url, QRCodeTexture);
+			UGetTextureFromUrl::DownloadedImageCache.Add(this->Url, QRCodeTexture);
 		}
 		return;
 	}
@@ -101,7 +103,7 @@ void UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr Htt
 	UTexture2D* QRCodeTexture;
 	if (UEmergenceSingleton::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
-		UEmergenceSingleton::GetEmergenceManager(WorldContextObject)->DownloadedImageCache.Add(this->Url, QRCodeTexture);
+		UGetTextureFromUrl::DownloadedImageCache.Add(this->Url, QRCodeTexture);
 		return;
 	}
 	else {
