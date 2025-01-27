@@ -107,7 +107,7 @@ void UWriteMethod::Activate()
 		SwitchChainRequest = Request;
 		Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 			EErrorCode StatusCode;
-			FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
+			FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 			if (res.IsValid()) { //this was required here for 5.4?
 				UE_LOG(LogEmergenceHttp, Display, TEXT("SwitchChain_HttpRequestComplete: %s"), *res->GetContentAsString());
 				if (StatusCode == EErrorCode::EmergenceOk) {
@@ -213,7 +213,7 @@ void UWriteMethod::SendTransactionViaKeystoreComplete(FString Response)
 		{
 			if (JsonObject->HasField("statusCode"))
 			{
-				StatusCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+				StatusCode = UEmergenceErrorCode::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
 			}
 		}
 
@@ -232,7 +232,7 @@ void UWriteMethod::SendTransactionViaKeystoreComplete(FString Response)
 void UWriteMethod::WriteMethod_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (HttpResponse) {
 		UE_LOG(LogEmergenceHttp, Display, TEXT("WriteMethod_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk) {

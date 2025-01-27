@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ErrorCodeFunctionLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 #include "JsonObjectWrapper.h"
 #include "EmergenceInventorySharedStructs.generated.h"

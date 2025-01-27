@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncSingleRequestBase.h"
+#include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "EmergenceInventorySharedStructs.h"
 #include "GetFuturepassInventory.generated.h"
 

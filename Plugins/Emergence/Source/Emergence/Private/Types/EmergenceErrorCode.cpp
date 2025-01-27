@@ -1,10 +1,10 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
 
-#include "ErrorCodeFunctionLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "Interfaces/IHttpResponse.h"
 
-const TMap <int32, EErrorCode> UErrorCodeFunctionLibrary::StatusCodeIntToErrorCode = {
+const TMap <int32, EErrorCode> UEmergenceErrorCode::StatusCodeIntToErrorCode = {
 	{(int32)EErrorCode::EmergenceOk, EErrorCode::EmergenceOk},
 	{(int32)EErrorCode::EmergenceNotConnected, EErrorCode::EmergenceNotConnected},
 	{(int32)EErrorCode::EmergenceAlreadyConnected, EErrorCode::EmergenceAlreadyConnected},
@@ -57,69 +57,9 @@ const TMap <int32, EErrorCode> UErrorCodeFunctionLibrary::StatusCodeIntToErrorCo
 	{512, EErrorCode::EmergenceInternalError}
 };
 
-FJsonObject UErrorCodeFunctionLibrary::TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
-
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
-	if (!EHttpResponseCodes::IsOk(UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(ResponseCode))) {
-		ReturnResponseCode = ResponseCode;
-		return FJsonObject();
-	}
-
-	
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-	TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
-	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-	{
-		if (JsonObject->HasField("statusCode"))
-		{
-			ReturnResponseCode = UErrorCodeFunctionLibrary::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
-		}
-		else {
-			//this fixes weird behaviour with GetPersonas
-			ReturnResponseCode = EErrorCode::EmergenceOk;
-		}
-		return *JsonObject.Get();
-	}
-	ReturnResponseCode = EErrorCode::EmergenceClientJsonParseFailed;
-	return FJsonObject();
-}
-
-EErrorCode UErrorCodeFunctionLibrary::GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+EErrorCode UEmergenceErrorCode::Conv_IntToErrorCode(int32 Status)
 {
-	if (!HttpResponse) {
-		return EErrorCode::EmergenceClientRequestCancelled;
-	}
-
-	//if the elapsed time is greater than the timeout, we've hit the timeout
-	if (HttpRequest->GetTimeout().IsSet() && HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
-		return EErrorCode::EmergenceClientRequestTimeout;
-	}
-
-	//if we didn't succeed, and we are less than the timeout, and the response code is 0
-	//it was probably a cancelled request
-	if (!bSucceeded && 
-		(HttpRequest->GetElapsedTime() < HttpRequest->GetTimeout().GetValue()) &&
-		HttpRequest->GetStatus() == EHttpRequestStatus::Failed &&
-		HttpResponse->GetResponseCode() == 0) {
-		return EErrorCode::EmergenceClientRequestCancelled;
-	}
-
-	//If we didn't even get a http response, give failed
-	if (!bSucceeded) return EErrorCode::EmergenceClientFailed;
-
-	//if we got one but its not readable, give invalid response
-	if (!HttpResponse.IsValid()) return EErrorCode::EmergenceClientInvalidResponse;
-
-	//if we got a readable one but it has a http error, give that
-	if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
-		UE_LOG(LogEmergenceHttp, Warning,TEXT("%s"),*HttpResponse->GetContentAsString());
-	}
-	return UErrorCodeFunctionLibrary::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
-}
-
-EErrorCode UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Status)
-{
-	const EErrorCode* ErrorCode = UErrorCodeFunctionLibrary::StatusCodeIntToErrorCode.Find(Status);
+	const EErrorCode* ErrorCode = UEmergenceErrorCode::StatusCodeIntToErrorCode.Find(Status);
 	if (ErrorCode != nullptr) {
 		return *ErrorCode;
 	}
@@ -128,9 +68,9 @@ EErrorCode UErrorCodeFunctionLibrary::Conv_IntToErrorCode(int32 Status)
 	}
 }
 
-int32 UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(EErrorCode ErrorCode)
+int32 UEmergenceErrorCode::Conv_ErrorCodeToInt(EErrorCode ErrorCode)
 {
-	auto Int = UErrorCodeFunctionLibrary::StatusCodeIntToErrorCode.FindKey(ErrorCode);
+	auto Int = UEmergenceErrorCode::StatusCodeIntToErrorCode.FindKey(ErrorCode);
 	if (Int != nullptr) {
 		return *Int;
 	}
@@ -139,7 +79,7 @@ int32 UErrorCodeFunctionLibrary::Conv_ErrorCodeToInt(EErrorCode ErrorCode)
 	}
 }
 
-bool UErrorCodeFunctionLibrary::Conv_ErrorCodeToBool(EErrorCode ErrorCode)
+bool UEmergenceErrorCode::Conv_ErrorCodeToBool(EErrorCode ErrorCode)
 {
 	return ErrorCode == EErrorCode::EmergenceOk;
 }

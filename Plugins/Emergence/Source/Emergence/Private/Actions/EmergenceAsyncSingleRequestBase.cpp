@@ -1,6 +1,6 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-#include "EmergenceAsyncSingleRequestBase.h"
+#include "Actions/EmergenceAsyncSingleRequestBase.h"
 
 bool UEmergenceAsyncSingleRequestBase::IsActive() const
 {

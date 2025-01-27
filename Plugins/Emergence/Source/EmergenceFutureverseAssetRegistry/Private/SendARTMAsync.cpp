@@ -39,7 +39,7 @@ void USendFutureverseARTM::Activate()
 	GetNonceRequest->OnProcessRequestComplete().BindLambda([&, EoAAddress](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		//when the request finishes
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetNonce_HttpRequestComplete: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			int Nonce = JsonObject.GetObjectField("data")->GetIntegerField("getNonceForChainAddress");
@@ -115,7 +115,7 @@ void USendFutureverseARTM::OnRequestToSignCompleted(FString SignedMessage, EErro
 	SendMutationRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		//when the request finishes
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("SendMutationRequest_HttpRequestComplete: %s"), *res->GetContentAsString());
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			_TransactionHash = JsonObject.GetObjectField("data")->GetObjectField("submitTransaction")->GetStringField("transactionHash");
@@ -155,7 +155,7 @@ void USendFutureverseARTM::GetARTMStatus()
 	UE_LOG(LogEmergenceHttp, Display, TEXT("ARTM Request Content: %s"), *ContentAsString);
 	GetTransactionStatusRequest->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		if (StatusCode == EErrorCode::EmergenceOk && !JsonObject.HasField("errors")) {
 			UE_LOG(LogEmergenceHttp, Display, TEXT("Get ARTM Transaction: %s"), *res->GetContentAsString());
 			FString TransactionStatus = JsonObject.GetObjectField("data")->GetObjectField("transaction")->GetStringField("status");

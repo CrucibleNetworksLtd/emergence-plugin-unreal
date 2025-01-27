@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceChainObject.h"
-#include "EmergenceContract.h"
+#include "Types/EmergenceChain.h"
+#include "Types/EmergenceContract.h"
 #include "EmergenceDeployment.generated.h"
 
 /**

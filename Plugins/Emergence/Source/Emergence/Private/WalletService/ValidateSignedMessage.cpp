@@ -30,7 +30,7 @@ void UValidateSignedMessage::Activate()
 void UValidateSignedMessage::ValidateSignedMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {	
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 
 	bool isValidToken = false;
 	if (StatusCode == EErrorCode::EmergenceOk) {

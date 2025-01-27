@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceDeployment.h"
 #include "WalletService/WriteMethod.h"
 
 EMERGENCE_API DECLARE_LOG_CATEGORY_EXTERN(LogEmergence, Log, All);

@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncSingleRequestBase.h"
+#include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "HttpServerRequest.h"
 #include "HttpResultCallback.h"
 #include "HttpRouteHandle.h"
-#include "ErrorCodeFunctionLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "CustodialSignMessage.generated.h"
 
 //This class should only be called by Request To Sign

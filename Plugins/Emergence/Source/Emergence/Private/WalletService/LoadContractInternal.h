@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
-#include "ErrorCodeFunctionLibrary.h"
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceErrorCode.h"
+#include "Types/EmergenceDeployment.h"
 #include "LoadContractInternal.generated.h"
 
 UCLASS(NotBlueprintable)

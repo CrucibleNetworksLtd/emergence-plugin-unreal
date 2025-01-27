@@ -152,7 +152,7 @@ void UGetInteroperableAssetsByFilterAndElements::OnGetInteroperableAssetsByFilte
 	
 	
 	/*EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpResponse, bSucceeded, StatusCode);
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		

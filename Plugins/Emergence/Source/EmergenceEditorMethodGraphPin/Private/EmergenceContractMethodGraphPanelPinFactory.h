@@ -3,7 +3,7 @@
 #pragma once
 
 #include "EdGraphUtilities.h"
-#include "EmergenceContract.h"
+#include "Types/EmergenceContract.h"
 #include "EmergenceContractMethodGraphPin.h"
 
 class FEmergenceContractMethodGraphPanelPinFactory: public FGraphPanelPinFactory

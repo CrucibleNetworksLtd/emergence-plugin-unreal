@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncSingleRequestBase.h"
+#include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
-#include "ErrorCodeFunctionLibrary.h"
-#include "Transaction.h"
-#include "EmergenceChainObject.h"
+#include "Types/EmergenceErrorCode.h"
+#include "Types/Transaction.h"
+#include "Types/EmergenceChain.h"
 #include "GetBlockNumber.generated.h"
 
 UCLASS()

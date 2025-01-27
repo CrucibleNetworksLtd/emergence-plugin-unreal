@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceAsyncSingleRequestBase.h"
+#include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
-#include "ErrorCodeFunctionLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "Interfaces/IHttpRequest.h"
 #include "InteroperableAsset.h"
 #include "GetInteroperableAssetsByFilterAndElements.generated.h"

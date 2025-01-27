@@ -128,7 +128,7 @@ void UCustodialWriteTransaction::GetEncodedData_HttpRequestComplete(FHttpRequest
 	UE_LOG(LogEmergence, Display, TEXT("GetEncodedData_HttpRequestComplete:\n%s"), *HttpResponse->GetContentAsString());
 
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject GetEncodedDataJson = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject GetEncodedDataJson = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 
 	if (StatusCode == EErrorCode::EmergenceOk) { //if the response comes back okay, as parseable JSON
 		FString Data = GetEncodedDataJson.GetObjectField("message")->GetStringField("Data"); //we get the message data field
@@ -210,7 +210,7 @@ void UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete(FHttpRequ
 	UE_LOG(LogEmergence, Display, TEXT("Transaction data: %s"), *HttpResponse->GetContentAsString());
 
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject GetEncodedPayloadResponse = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	
 	if (StatusCode != EErrorCode::EmergenceOk) { //if there were HTTP error codes and the response wasn't parsable as JSON
 		UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload_HttpRequestComplete: failed"));
@@ -350,7 +350,7 @@ void UCustodialWriteTransaction::SendTransaction_HttpRequestComplete(FHttpReques
 	UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete"));
 	UE_LOG(LogEmergence, Display, TEXT("SendTransaction_HttpRequestComplete data: %s"), *HttpResponse->GetContentAsString());
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject GetEncodedPayloadResponse = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject GetEncodedPayloadResponse = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 
 	if (StatusCode == EErrorCode::EmergenceOk) { //if the response is valid json
 		FString Hash;

@@ -6,8 +6,8 @@ DEFINE_LOG_CATEGORY(LogEmergenceHttp)
 #include "Core.h"
 #include "Modules/ModuleManager.h"
 #include "Interfaces/IPluginManager.h"
-#include "EmergenceChainObject.h"
-#include "EmergenceContract.h"
+#include "Types/EmergenceChain.h"
+#include "Types/EmergenceContract.h"
 #include "EmergenceLocalEVMThread.h"
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"

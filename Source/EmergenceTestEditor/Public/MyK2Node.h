@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "K2Node.h"
 #include "K2Node_ConstructObjectFromClass.h"
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceDeployment.h"
 #include "MyK2Node.generated.h"
 
 /**

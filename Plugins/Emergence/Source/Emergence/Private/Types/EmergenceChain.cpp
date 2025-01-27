@@ -1,6 +1,6 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-#include "EmergenceChainObject.h"
+#include "Types/EmergenceChain.h"
 #include "Misc/ConfigCacheIni.h"
 
 UEmergenceChain::UEmergenceChain(FString _NodeURL)

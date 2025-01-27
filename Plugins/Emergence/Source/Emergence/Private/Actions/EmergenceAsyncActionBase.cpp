@@ -1,6 +1,6 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-#include "EmergenceAsyncActionBase.h"
+#include "Actions/EmergenceAsyncActionBase.h"
 
 UWorld* UEmergenceAsyncActionBase::GetWorld() const
 {

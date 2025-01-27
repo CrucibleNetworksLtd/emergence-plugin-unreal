@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceCancelableAsyncBase.h"
+#include "Actions/EmergenceCancelableAsyncBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
-#include "ErrorCodeFunctionLibrary.h"
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceErrorCode.h"
+#include "Types/EmergenceDeployment.h"
 #include "WalletService/GetTransactionStatus.h"
 #include "Engine/EngineTypes.h"
-#include "Transaction.h"
+#include "Types/Transaction.h"
 #include "WriteMethod.generated.h"
 
 UCLASS()

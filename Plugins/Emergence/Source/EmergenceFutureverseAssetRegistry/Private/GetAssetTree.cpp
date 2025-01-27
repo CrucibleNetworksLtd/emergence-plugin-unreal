@@ -41,7 +41,7 @@ void UGetFutureverseAssetTree::Activate()
 void UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetAssetTree_HttpRequestComplete: %s"), *HttpResponse->GetContentAsString());
 
 	if (StatusCode == EErrorCode::EmergenceOk) {

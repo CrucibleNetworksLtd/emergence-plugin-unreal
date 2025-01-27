@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EmergenceCancelableAsyncBase.h"
+#include "Actions/EmergenceCancelableAsyncBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
-#include "ErrorCodeFunctionLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "Emergence.h"
 #include "GetTextureFromURL.generated.h"
 /**

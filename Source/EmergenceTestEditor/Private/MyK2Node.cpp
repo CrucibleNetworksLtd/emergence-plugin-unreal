@@ -5,7 +5,7 @@
 #include "BlueprintActionDatabaseRegistrar.h"
 #include "BlueprintNodeSpawner.h"
 #include "EdGraph/EdGraphNode.h"
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceDeployment.h"
 #include "EdGraphSchema_K2.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"

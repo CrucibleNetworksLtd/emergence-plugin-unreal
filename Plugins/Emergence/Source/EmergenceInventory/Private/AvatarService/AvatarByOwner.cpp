@@ -34,7 +34,7 @@ void UAvatarByOwner::Activate()
 void UAvatarByOwner::AvatarByOwner_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FJsonObjectConverter::JsonArrayToUStruct<FEmergenceAvatarResult>(JsonObject.GetArrayField("message"), &this->Results, 0, 0);

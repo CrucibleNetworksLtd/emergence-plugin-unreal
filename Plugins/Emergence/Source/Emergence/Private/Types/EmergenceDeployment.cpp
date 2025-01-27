@@ -1,6 +1,6 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-#include "EmergenceDeployment.h"
+#include "Types/EmergenceDeployment.h"
 #include "HttpService/HttpHelperLibrary.h"
 
 UEmergenceDeployment* UEmergenceDeployment::CreateEmergenceDeployment(FString _Address, UEmergenceChain* _Blockchain, UEmergenceContract* _Contract)

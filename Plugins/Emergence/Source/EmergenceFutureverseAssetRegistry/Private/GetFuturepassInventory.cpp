@@ -32,7 +32,7 @@ void UGetFuturepassInventory::Activate() {
 		Content, false);
 	Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
 		EErrorCode StatusCode;
-		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
+		FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetFuturepassInventory_HttpRequestComplete: %s"), *res->GetContentAsString());
 
 		if (StatusCode == EErrorCode::EmergenceOk) {

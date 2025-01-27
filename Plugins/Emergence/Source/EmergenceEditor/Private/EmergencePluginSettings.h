@@ -2,8 +2,8 @@
 
 #pragma once
 #include "Engine/EngineTypes.h"
-#include "Environment.h"
-#include "EmergenceChainObject.h"
+#include "Types/Environment.h"
+#include "Types/EmergenceChain.h"
 #include "EmergencePluginSettings.generated.h"
 
 UCLASS(config = Game, defaultconfig)

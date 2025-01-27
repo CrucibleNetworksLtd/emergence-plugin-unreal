@@ -20,7 +20,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Containers/UnrealString.h"
 
-#include "EmergenceChainObject.h"
+#include "Types/EmergenceChain.h"
 
 #include "Engine/GameViewportClient.h"
 #include "TextureResource.h"
@@ -101,7 +101,7 @@ FString UEmergenceSingleton::GetCachedAddress(bool Checksummed)
 
 void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
-	EErrorCode ResponseCode = UErrorCodeFunctionLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
+	EErrorCode ResponseCode = UHttpHelperLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
 	if (ResponseCode != EErrorCode::Ok) { //this endpoint responds Http Ok rather than emergence ok, because its an image rather than emergence status json
 		OnGetQRCodeCompleted.Broadcast(nullptr, FString(), ResponseCode);
 		return;
@@ -182,7 +182,7 @@ bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8
 void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		FString Address;
 		if (JsonObject.GetObjectField("message")->TryGetStringField("address", Address)) {
@@ -220,7 +220,7 @@ void UEmergenceSingleton::GetHandshake(int Timeout)
 
 void UEmergenceSingleton::ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		OnReinitializeWalletConnectCompleted.Broadcast(StatusCode);
 		return;
@@ -237,7 +237,7 @@ void UEmergenceSingleton::ReinitializeWalletConnect()
 void UEmergenceSingleton::IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode = EErrorCode::EmergenceClientFailed;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool IsConnected;
@@ -278,7 +278,7 @@ void UEmergenceSingleton::IsConnected()
 void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	EErrorCode StatusCode;
-	FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
+	FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(HttpRequest, HttpResponse, bSucceeded, StatusCode);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool Disconnected;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {

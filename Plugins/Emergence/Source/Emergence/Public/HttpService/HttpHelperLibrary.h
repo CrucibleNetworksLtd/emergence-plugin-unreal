@@ -15,6 +15,8 @@
 #include "EmergenceEVMServerSubsystem.h"
 #include "Misc/EngineVersionComparison.h"
 #include "HttpServerModule.h"
+#include "Types/EmergenceErrorCode.h"
+#include "Interfaces/IHttpResponse.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**
@@ -363,5 +365,66 @@ public:
 		}
 
 		return HttpRequest;
+	};
+
+	//tries to parse a response as json, calls GetResponseErrors automagically
+	static FJsonObject TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
+
+		EErrorCode ResponseCode = UHttpHelperLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
+		if (!EHttpResponseCodes::IsOk(UEmergenceErrorCode::Conv_ErrorCodeToInt(ResponseCode))) {
+			ReturnResponseCode = ResponseCode;
+			return FJsonObject();
+		}
+
+
+		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+		TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*HttpResponse->GetContentAsString());
+		if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+		{
+			if (JsonObject->HasField("statusCode"))
+			{
+				ReturnResponseCode = UEmergenceErrorCode::Conv_IntToErrorCode(JsonObject->GetIntegerField("statusCode"));
+			}
+			else {
+				//this fixes weird behaviour with GetPersonas
+				ReturnResponseCode = EErrorCode::EmergenceOk;
+			}
+			return *JsonObject.Get();
+		}
+		ReturnResponseCode = EErrorCode::EmergenceClientJsonParseFailed;
+		return FJsonObject();
+	};
+
+	//Gets any pre-content parse errors
+	static EErrorCode GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded) {
+		if (!HttpResponse) {
+			return EErrorCode::EmergenceClientRequestCancelled;
+		}
+
+		//if the elapsed time is greater than the timeout, we've hit the timeout
+		if (HttpRequest->GetTimeout().IsSet() && HttpRequest->GetElapsedTime() > HttpRequest->GetTimeout().GetValue()) {
+			return EErrorCode::EmergenceClientRequestTimeout;
+		}
+
+		//if we didn't succeed, and we are less than the timeout, and the response code is 0
+		//it was probably a cancelled request
+		if (!bSucceeded &&
+			(HttpRequest->GetElapsedTime() < HttpRequest->GetTimeout().GetValue()) &&
+			HttpRequest->GetStatus() == EHttpRequestStatus::Failed &&
+			HttpResponse->GetResponseCode() == 0) {
+			return EErrorCode::EmergenceClientRequestCancelled;
+		}
+
+		//If we didn't even get a http response, give failed
+		if (!bSucceeded) return EErrorCode::EmergenceClientFailed;
+
+		//if we got one but its not readable, give invalid response
+		if (!HttpResponse.IsValid()) return EErrorCode::EmergenceClientInvalidResponse;
+
+		//if we got a readable one but it has a http error, give that
+		if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
+			UE_LOG(LogEmergenceHttp, Warning, TEXT("%s"), *HttpResponse->GetContentAsString());
+		}
+		return UEmergenceErrorCode::Conv_IntToErrorCode(HttpResponse->GetResponseCode());
 	};
 };

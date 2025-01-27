@@ -8,7 +8,7 @@
 #include "Emergence.h"
 #include "Dom/JsonObject.h"
 #include "Runtime/Core/Public/Misc/ConfigCacheIni.h"
-#include "ErrorCodeFunctionLibrary.generated.h"
+#include "EmergenceErrorCode.generated.h"
 
 UENUM(BlueprintType)
 enum class EErrorCode : uint8 {
@@ -72,16 +72,10 @@ enum class EErrorCode : uint8 {
 };
 
 UCLASS()
-class EMERGENCE_API UErrorCodeFunctionLibrary : public UBlueprintFunctionLibrary
+class EMERGENCE_API UEmergenceErrorCode : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	//tries to parse a response as json, calls GetResponseErrors automagically
-	static FJsonObject TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& JsonObject);
-
-	//Gets any pre-content parse errors
-	static EErrorCode GetResponseErrors(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
 	/**
 	 * Converts an interger to an error code enum.
 	 * @param HttpStatus Http status code as an interger to be converted.
