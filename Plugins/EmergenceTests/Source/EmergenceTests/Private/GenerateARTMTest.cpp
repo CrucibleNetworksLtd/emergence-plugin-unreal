@@ -2,7 +2,7 @@
 
 
 #include "GenerateARTMTest.h"
-#include "Futurepass/ARTMBuilderLibrary.h"
+#include "ARTMBuilderLibrary.h"
 
 void AGenerateARTMTest::StartTest()
 {

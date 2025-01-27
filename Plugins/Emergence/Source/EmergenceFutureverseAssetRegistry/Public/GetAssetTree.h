@@ -39,7 +39,7 @@ struct FFutureverseAssetTreePath
 };
 
 UCLASS()
-class EMERGENCE_API UGetFutureverseAssetTree : public UEmergenceAsyncSingleRequestBase
+class EMERGENCEFUTUREVERSEASSETREGISTRY_API UGetFutureverseAssetTree : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

@@ -1,19 +1,18 @@
 // Copyright Crucible Networks Ltd 2023. All Rights Reserved.
 
-#include "Futurepass/GetFuturepassInventoryByCollectionAndOwner.h"
+#include "GetFuturepassInventory.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 
-UGetFuturepassInventoryByCollectionAndOwner* UGetFuturepassInventoryByCollectionAndOwner::GetFuturepassInventoryByCollectionAndOwner(UObject* WorldContextObject, TArray<FString> Addresses, TArray<FString> Collections){
-	UGetFuturepassInventoryByCollectionAndOwner* BlueprintNode = NewObject<UGetFuturepassInventoryByCollectionAndOwner>();
+UGetFuturepassInventory* UGetFuturepassInventory::GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses){
+	UGetFuturepassInventory* BlueprintNode = NewObject<UGetFuturepassInventory>();
 	BlueprintNode->Addresses = Addresses;
-	BlueprintNode->Collections = Collections;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
 
-void UGetFuturepassInventoryByCollectionAndOwner::Activate() {
+void UGetFuturepassInventory::Activate() {
 	FString AddressString;
 	for (int i = 0; i < Addresses.Num(); i++) {
 		if (i != 0) {
@@ -21,18 +20,9 @@ void UGetFuturepassInventoryByCollectionAndOwner::Activate() {
 		}
 		AddressString = AddressString + "\"" + Addresses[i] + "\"";
 	}
-	
-	FString CollectionString;
-	for (int i = 0; i < Collections.Num(); i++) {
-		if (i != 0) {
-			CollectionString = CollectionString + ",";
-		}
-		CollectionString = CollectionString + "\"" + Collections[i] + "\"";
-	}
 
-
-	FString Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float, $collectionIds: [CollectionId!]) {\r\n  assets(addresses: $addresses, first: $first, collectionIds: $collectionIds) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        rawAttributes\r\n}\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId\r\ncollectionId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 1000, "collectionIds":[)" + CollectionString + R"(] }})";
-	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventoryByCollectionAndOwner>(
+	FString Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float) {\r\n  assets(addresses: $addresses, first: $first) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        rawAttributes\r\n}\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId\r\ncollectionId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 1000 }})";
+	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
 		this,
 		nullptr,
 		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
@@ -41,11 +31,6 @@ void UGetFuturepassInventoryByCollectionAndOwner::Activate() {
 		{TPair<FString, FString>("Content-Type","application/json")},
 		Content, false);
 	Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
-		//Yes, I know this is WET code when you consider its already implemented in GetFuturepassInventory. 
-		//However, given that we're going to probably be changing this up a bit relatively soon when we implement IAS, I think its worth the time saving now so that...
-		//...FV can start to make use of this in their games now. Just keep in mind when this and GetFuturepassInventory is restructured, 
-		//that this bit of code below is pretty much the same as that in GetFuturepassInventory.
-		
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UErrorCodeFunctionLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetFuturepassInventory_HttpRequestComplete: %s"), *res->GetContentAsString());

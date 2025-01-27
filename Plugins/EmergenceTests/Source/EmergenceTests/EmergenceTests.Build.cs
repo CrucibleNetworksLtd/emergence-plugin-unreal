@@ -17,6 +17,7 @@ public class EmergenceTests : ModuleRules
 				"Engine",
 				"FunctionalTesting",
 				"Emergence",
+				"EmergenceFutureverseAssetRegistry",
 				"Json",
                 "JsonUtilities"
             }

@@ -1,6 +1,6 @@
 // Copyright Crucible Networks Ltd 2024. All Rights Reserved.
 
-#include "Futurepass/ARTMBuilderLibrary.h"
+#include "ARTMBuilderLibrary.h"
 #include "Emergence.h"
 
 FString UARTMBuilderLibrary::GenerateARTM(FString Message, TArray<FFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce)

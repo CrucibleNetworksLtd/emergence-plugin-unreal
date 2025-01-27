@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "EmergenceCancelableAsyncBase.h"
-#include "Futurepass/ARTMBuilderLibrary.h"
+#include "ARTMBuilderLibrary.h"
 #include "ErrorCodeFunctionLibrary.h"
 #include "SendARTMAsync.generated.h"
 
 
 UCLASS()
-class EMERGENCE_API USendFutureverseARTM : public UEmergenceCancelableAsyncBase
+class EMERGENCEFUTUREVERSEASSETREGISTRY_API USendFutureverseARTM : public UEmergenceCancelableAsyncBase
 {
 	GENERATED_BODY()
 public:

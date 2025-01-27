@@ -38,7 +38,7 @@ struct FFutureverseARTMOperation
 };
 
 UCLASS()
-class EMERGENCE_API UARTMBuilderLibrary : public UBlueprintFunctionLibrary
+class EMERGENCEFUTUREVERSEASSETREGISTRY_API UARTMBuilderLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

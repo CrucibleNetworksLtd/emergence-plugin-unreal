@@ -14,7 +14,6 @@
 #include "GameFramework/PlayerController.h"
 #include "Emergence.h"
 #include "Brushes/SlateDynamicImageBrush.h"
-#include "Futurepass/GetLinkedFuturepassInformation.h"
 #include "Environment.h"
 #include "WebLogin/CustodialLogin.h"
 #include "WalletService/RequestToSign.h"
