@@ -85,12 +85,6 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	FString GetCachedAddress(bool Checksummed = false);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURIRequestCompleted, FString, WalletConnectURI, EErrorCode, StatusCode);
-
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
-	FOnGetWalletConnectURIRequestCompleted OnGetWalletConnectURIRequestCompleted;
-
-
 	//GetQRCode stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void GetQRCode();
