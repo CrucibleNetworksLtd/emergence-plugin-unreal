@@ -38,7 +38,6 @@ void UWalletConnectCode::AccessTokenCompleted(EErrorCode StatusCode) {
 		this->GetOwningPlayer()->GetWorld()->GetTimerManager().ClearTimer(TimeRemainingTimerHandle);
 		Singleton->OnGetHandshakeCompleted.RemoveDynamic(this, &UWalletConnectCode::GetHandshakeCompleted);
 		Singleton->OnGetQRCodeCompleted.RemoveDynamic(this, &UWalletConnectCode::QRCodeCompleted);
-		Singleton->OnReinitializeWalletConnectCompleted.RemoveDynamic(this, &UWalletConnectCode::ReinitializeWalletConnectCompleted);
 		this->OnSignInSuccess.Broadcast(); //call sign in success
 	}
 	else {
@@ -95,7 +94,6 @@ void UWalletConnectCode::UpdateTimeRemaining()
 }
 
 void UWalletConnectCode::ReinitializeWalletConnectCompleted(EErrorCode StatusCode) {
-	Singleton->OnReinitializeWalletConnectCompleted.RemoveDynamic(this, &UWalletConnectCode::ReinitializeWalletConnectCompleted);
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		this->StartAttempt();
 	}

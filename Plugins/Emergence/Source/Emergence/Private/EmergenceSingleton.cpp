@@ -7,14 +7,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ObjectMacros.h"
 #include "GameDelegates.h"
-#include "Engine/Texture2D.h"
 
 //for HTTP services
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-#include "IImageWrapperModule.h"
-#include "IImageWrapper.h"
+
 #include "Dom/JsonObject.h"
 
 #include "HttpService/HttpHelperLibrary.h"
@@ -23,7 +21,8 @@
 #include "Types/EmergenceChain.h"
 
 #include "Engine/GameViewportClient.h"
-#include "TextureResource.h"
+
+#include "ImageHelperLibrary.h"
 
 
 void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
@@ -110,7 +109,7 @@ void UEmergenceSingleton::GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequ
 
 	TArray<uint8> ResponseBytes = HttpResponse->GetContent();
 	UTexture2D* QRCodeTexture;
-	if (RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponseBytes, QRCodeTexture)) {
+	if (UImageHelperLibrary::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponseBytes, QRCodeTexture)) {
 
 		this->DeviceID = HttpResponse->GetHeader("deviceId");
 		FString WalletConnectString = HttpResponse->GetHeader("walletconnecturi");
@@ -128,56 +127,6 @@ void UEmergenceSingleton::GetQRCode()
 
 	UHttpHelperLibrary::ExecuteHttpRequest<UEmergenceSingleton>(this,&UEmergenceSingleton::GetQRCode_HttpRequestComplete, UHttpHelperLibrary::APIBase + "qrcode");
 	UE_LOG(LogEmergenceHttp, Display, TEXT("GetQRCode request started, calling GetQRCode_HttpRequestComplete on request completed"));
-}
-
-bool UEmergenceSingleton::RawDataToBrush(FName ResourceName, const TArray< uint8 >& InRawData, UTexture2D*& LoadedT2D)
-{
-	int32 Width;
-	int32 Height;
-
-	TArray<uint8> DecodedImage;
-	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	TSharedPtr<IImageWrapper> ImageWrapper;
-
-	if (InRawData.Num() == 0) { //if there is no raw data, fail out
-		return false;
-	}
-
-	if (InRawData[0] == 0x89) {
-		ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
-	}
-	else if (InRawData[0] == 0xFF && InRawData[1] == 0xD8 && InRawData[2] == 0xFF) {
-		ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
-	}
-	else {
-		return false;
-	}
-
-	if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(InRawData.GetData(), InRawData.Num()))
-	{
-		TArray<uint8> UncompressedBGRA;
-		if (ImageWrapper->GetRaw(ERGBFormat::BGRA, 8, UncompressedBGRA))
-		{
-			LoadedT2D = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_B8G8R8A8);
-
-			if (!LoadedT2D) return false;
-
-			Width = ImageWrapper->GetWidth();
-			Height = ImageWrapper->GetHeight();
-#if(ENGINE_MINOR_VERSION >= 4) && (ENGINE_MAJOR_VERSION >= 5)
-			void* TextureData = LoadedT2D->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-			FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
-			LoadedT2D->GetPlatformData()->Mips[0].BulkData.Unlock();
-#else
-			void* TextureData = LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-			FMemory::Memcpy(TextureData, UncompressedBGRA.GetData(), UncompressedBGRA.Num());
-			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
-#endif
-			LoadedT2D->UpdateResource();
-			return true;
-		}
-	}
-	return false;
 }
 
 void UEmergenceSingleton::GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)

@@ -9,6 +9,7 @@
 #include "IImageWrapper.h"
 #include "Dom/JsonObject.h"
 #include "TimerManager.h"
+#include "ImageHelperLibrary.h"
 
 TMap<FString, UTexture2D*> UGetTextureFromUrl::DownloadedImageCache = {};
 
@@ -77,7 +78,7 @@ void UGetTextureFromUrl::GetTextureFromUrl_HttpRequestComplete(FHttpRequestPtr H
 	}
 
 	UTexture2D* QRCodeTexture;
-	if (UEmergenceSingleton::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+	if (UImageHelperLibrary::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
 		//if we still have a world context object
 		if (WorldContextObject && WorldContextObject->IsValidLowLevel()) {
@@ -101,7 +102,7 @@ void UGetTextureFromUrl::ConvertGIFtoPNG_HttpRequestComplete(FHttpRequestPtr Htt
 	UE_LOG(LogEmergenceHttp, Display, TEXT("Convert GIF to PNG returned, turning it into a texture..."));
 	TArray<uint8> ResponceBytes = HttpResponse->GetContent();
 	UTexture2D* QRCodeTexture;
-	if (UEmergenceSingleton::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
+	if (UImageHelperLibrary::RawDataToBrush(*(FString(TEXT("QRCODE"))), ResponceBytes, QRCodeTexture)) {
 		OnGetTextureFromUrlCompleted.Broadcast(QRCodeTexture, EErrorCode::EmergenceOk);
 		UGetTextureFromUrl::DownloadedImageCache.Add(this->Url, QRCodeTexture);
 		return;

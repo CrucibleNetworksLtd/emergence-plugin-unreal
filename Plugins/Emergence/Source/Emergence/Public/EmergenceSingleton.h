@@ -67,10 +67,6 @@ public:
 	UFUNCTION()
 	void GetQRCode();
 
-	//Takes a JPEG or PNG image and turns it into a UTexture2D
-	UFUNCTION()
-	static bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
-
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, FString, WalletConnectString, EErrorCode, StatusCode);
 
 	UPROPERTY()
