@@ -32,7 +32,7 @@ public:
 	virtual void Deinitialize() override;
 
 	//Get the global Emergence service
-	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
+	UFUNCTION(BlueprintPure, Category = "Emergence", meta = (DeprecatedFunction, DeprecationMessage = "This function is deprecated. Please use the subsystem node.", DisplayName = "Get Emergence Service", WorldContext = "ContextObject", CompactNodeTitle = "Emergence"))
 	static UEmergenceSingleton* GetEmergenceManager(const UObject* ContextObject);
 
 	/** Force initialize the emergence manager, this shouldn't be nessacery. Just a version of GetEmergenceManager with an execute input.  */
@@ -53,7 +53,6 @@ public:
 	UPROPERTY()
 	TArray<FString> ContractsWithLoadedABIs;
 
-	//HTTPService Functions
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetHandshakeRequest;
 
@@ -86,7 +85,7 @@ public:
 	FString GetCachedAddress(bool Checksummed = false);
 
 	//GetQRCode stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	UFUNCTION()
 	void GetQRCode();
 
 	UFUNCTION()
@@ -94,21 +93,20 @@ public:
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnGetQRCodeCompleted, UTexture2D*, Icon, FString, WalletConnectString, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
+	UPROPERTY()
 	FOnGetQRCodeCompleted OnGetQRCodeCompleted;
 
 	//Handshake stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	UFUNCTION()
 	void GetHandshake(int Timeout = 60);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetHandshakeCompleted, FString, Address, EErrorCode, StatusCode);
 
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
+	UPROPERTY()
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
-
-	//isConnected stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
+	//Checks if the walletconnect session is still valid
+	UFUNCTION(BlueprintCallable, Category = "Emergence|WalletConnect Methods")
 	void IsConnected();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, EErrorCode, StatusCode);
@@ -118,8 +116,8 @@ public:
 
 	//Kills the walletconnect session. Setting TrackRequest to false will mean OnKillSessionCompleted will never fire,
 	//and this request won't be added to ActiveRequests (good to prevent this getting premptively killed going from PIE back to Editor.
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
 	void KillSession(bool TrackRequest = true);
+	UFUNCTION()
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
