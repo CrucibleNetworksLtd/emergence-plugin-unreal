@@ -16,9 +16,7 @@ public class EmergenceFutureverseAssetRegistry : ModuleRules
 			new string[]
 			{
 				"Core",
-				"JsonUtilities",
-				"Emergence",
-				"HTTP",
+				"Emergence"
 			}
 		);
 		
@@ -26,9 +24,10 @@ public class EmergenceFutureverseAssetRegistry : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
+				"Json",
+				"JsonUtilities",
 				"Engine",
-				"SlateCore",
-				"Json"	
+				"HTTP"
 			}
 		);
 

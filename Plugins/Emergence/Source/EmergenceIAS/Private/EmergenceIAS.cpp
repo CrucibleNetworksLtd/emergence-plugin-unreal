@@ -6,15 +6,6 @@
 
 #define LOCTEXT_NAMESPACE "FEmergenceIASModule"
 
-void FEmergenceIASModule::StartupModule()
-{
-
-}
-
-void FEmergenceIASModule::ShutdownModule()
-{
-
-}
 
 #undef LOCTEXT_NAMESPACE
 	
