@@ -106,14 +106,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
-	//ReinitializeWalletConnect stuff
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
-	void ReinitializeWalletConnect();
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReinitializeWalletConnectCompleted, EErrorCode, StatusCode);
-
-	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
-	FOnReinitializeWalletConnectCompleted OnReinitializeWalletConnectCompleted;
 
 	//isConnected stuff
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Overlay Methods")
