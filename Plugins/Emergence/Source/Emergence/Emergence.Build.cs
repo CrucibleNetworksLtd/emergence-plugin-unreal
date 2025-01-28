@@ -53,7 +53,7 @@ public class Emergence : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"HttpServer"
+				"HTTPServer"
 			}
 		);
 

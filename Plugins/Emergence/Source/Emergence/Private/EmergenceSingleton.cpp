@@ -33,7 +33,7 @@ void UEmergenceSingleton::Initialize(FSubsystemCollectionBase& Collection)
 
 void UEmergenceSingleton::Deinitialize()
 {
-	this->KillSession(false); //kill the session on game end. We don't need to wait to see if it happens or not, we're just trying to help out the server.
+	this->KillWalletConnectSession(false); //kill the session on game end. We don't need to wait to see if it happens or not, we're just trying to help out the server.
 	UGameInstanceSubsystem::Deinitialize();
 }
 
@@ -267,25 +267,25 @@ void UEmergenceSingleton::KillSession_HttpRequestComplete(FHttpRequestPtr HttpRe
 	if (StatusCode == EErrorCode::EmergenceOk) {
 		bool Disconnected;
 		if (JsonObject.GetObjectField("message")->TryGetBoolField("disconnected", Disconnected)) {
-			OnKillSessionCompleted.Broadcast(Disconnected, StatusCode);
+			OnSessionEnded.Broadcast(Disconnected, StatusCode);
 			this->DeviceID = "";
 		}
 		else {
-			OnKillSessionCompleted.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
+			OnSessionEnded.Broadcast(Disconnected, EErrorCode::EmergenceClientWrongType);
 		}
 		return;
 	}
-	OnKillSessionCompleted.Broadcast(false, StatusCode);
+	OnSessionEnded.Broadcast(false, StatusCode);
 }
 
-void UEmergenceSingleton::KillSession(bool TrackRequest)
+void UEmergenceSingleton::KillWalletConnectSession(bool TrackRequest)
 {
 	if(this->UsingWebLoginFlow){
 		this->CurrentAddress = "";
 		this->CurrentChecksummedAddress = "";
 		this->DeviceID = "";
 		
-		OnKillSessionCompleted.Broadcast(true, EErrorCode::EmergenceOk);
+		OnSessionEnded.Broadcast(true, EErrorCode::EmergenceOk);
 	
 		return;
 	}

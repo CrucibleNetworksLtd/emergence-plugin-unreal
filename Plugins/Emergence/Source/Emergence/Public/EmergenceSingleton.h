@@ -39,12 +39,7 @@ public:
 	UFUNCTION()
 	void CompleteLoginViaWebLoginFlow(const FEmergenceCustodialLoginOutput LoginData, EErrorCode ErrorCode);
 
-	//Are we logged in via a web login flow, rather than WalletConnect? 
-	//This is referenced by functions such as RequestToSign and WriteMethod to allow for behaviour switching depending on login type.
-	//You shouldn't need to ever change this manually. If you do, what caused you to need to change it manually is a bug and should be reported to Crucible.
-	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Login Flow")
-	bool UsingWebLoginFlow = false;
-
+	//The device ID, used by CloudEVM to know which WalletConnect session this client is talking to
 	UPROPERTY()
 	FString DeviceID;
 
@@ -56,12 +51,6 @@ public:
 private:
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> GetHandshakeRequest;
 
-	UPROPERTY()
-	FString CurrentAddress = "";
-
-	UPROPERTY()
-	FString CurrentChecksummedAddress = "";
-
 	void GetQRCode_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void GetHandshake_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
@@ -69,25 +58,16 @@ private:
 	void IsConnected_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
-
-	void ReinitializeWalletConnect_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 	//Cancels any open GetHandshake requests.
 	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Emergence Singleton")
 	void CancelSignInRequest();
 
-	//Do we have a wallet connected address? This will likely only be true when the player has logged in via wallet connect.
-	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
-	bool HasCachedAddress();
-
-	//Returns the last wallet connected address (if GetHandshake has been called already) If we don't have one yet, returns "-1".
-	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
-	FString GetCachedAddress(bool Checksummed = false);
-
 	//GetQRCode stuff
 	UFUNCTION()
 	void GetQRCode();
 
+	//Takes a JPEG or PNG image and turns it into a UTexture2D
 	UFUNCTION()
 	static bool RawDataToBrush(FName ResourceName, const TArray<uint8>& InRawData, UTexture2D*& LoadedT2D);
 
@@ -114,21 +94,48 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Emergence Internal|Emergence Singleton")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
 
-	//Kills the walletconnect session. Setting TrackRequest to false will mean OnKillSessionCompleted will never fire,
+	//Kills the walletconnect session. Setting TrackRequest to false will mean OnSessionEnded will never fire,
 	//and this request won't be added to ActiveRequests (good to prevent this getting premptively killed going from PIE back to Editor.
-	void KillSession(bool TrackRequest = true);
 	UFUNCTION()
+	void KillWalletConnectSession(bool TrackRequest = true);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKillSessionCompleted, bool, Response, EErrorCode, StatusCode);
 
-	//Called when the Emergence session ends and a new WalletConnect / Futureverse custodial wallet connection can be started
+/*
+* ---- The section below are all generic methods to both Futureverse Custodial and WalletConnect style logins
+*/
+
+	//Do we have a Wallet Address? This will likely only be true when the player has logged in via WalletConnect / Futureverse Custodial session.
+	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
+	bool HasCachedAddress();
+
+	//Returns the last wallet connected address. If we don't have one yet, returns "-1".
+	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
+	FString GetCachedAddress(bool Checksummed = false);
+
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSessionEnded, bool, Response, EErrorCode, StatusCode);
+
+	//Called when a WalletConnect / Futureverse Custodial session ends.
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
-	FOnKillSessionCompleted OnKillSessionCompleted;
+	FOnSessionEnded OnSessionEnded;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLoginFinished, EErrorCode, StatusCode);
 	
-	//Called when the user has done the last step of a login process, or the process has had an error that causes it to finish.
+	//Called when the user has done the last step of a login process (either WalletConnect / Futureverse Custodial), or the process has had an error that causes it to finish.
 	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
 	FOnLoginFinished OnLoginFinished;
+
+	//Are we logged in via a web login flow, rather than WalletConnect? 
+	//This is referenced by functions such as RequestToSign and WriteMethod to allow for behaviour switching depending on login type.
+	//You shouldn't need to ever change this manually. If you do, what caused you to need to change it manually is a bug and should be reported to Crucible.
+	UPROPERTY(BlueprintReadOnly, Category = "Emergence|Login Flow")
+	bool UsingWebLoginFlow = false;
+
+private:
+	UPROPERTY()
+	FString CurrentAddress = "";
+
+	UPROPERTY()
+	FString CurrentChecksummedAddress = "";
 };
 #pragma warning( pop )
