@@ -23,7 +23,7 @@ void USetAgentCharacter::Activate()
 
 	FString JsonOutput;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
-	FJsonSerializer::Serialize(AgentDetails.FAgentDetailsToJson()->GetObjectField("character").ToSharedRef(), Writer);
+	FJsonSerializer::Serialize(AgentDetails.FAgentDetailsToJson()->GetObjectField(TEXT("character")).ToSharedRef(), Writer);
 	
 	UE_LOG(LogTemp, Display, TEXT("%s"), *JsonOutput);
 

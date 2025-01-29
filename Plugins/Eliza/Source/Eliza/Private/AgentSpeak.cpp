@@ -23,7 +23,7 @@ void UAgentSpeak::Activate()
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
-	BodyContentJsonObject->SetStringField("text", Message);
+	BodyContentJsonObject->SetStringField(TEXT("text"), Message);
 	FString JsonOutput;
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
 	FJsonSerializer::Serialize(BodyContentJsonObject.ToSharedRef(), Writer);
@@ -49,9 +49,9 @@ void UAgentSpeak::AgentSpeak_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
 			TSharedPtr<FJsonValue> MessageData = JsonValue->AsArray()[0];
-			FString User = MessageData->AsObject()->GetStringField("user");
-			FString Text = MessageData->AsObject()->GetStringField("text");
-			FString Action = MessageData->AsObject()->GetStringField("action");
+			FString User = MessageData->AsObject()->GetStringField(TEXT("user"));
+			FString Text = MessageData->AsObject()->GetStringField(TEXT("text"));
+			FString Action = MessageData->AsObject()->GetStringField(TEXT("action"));
 
 			OnAgentSpeakCompleted.Broadcast(true, User, Text, Action);
 			return;

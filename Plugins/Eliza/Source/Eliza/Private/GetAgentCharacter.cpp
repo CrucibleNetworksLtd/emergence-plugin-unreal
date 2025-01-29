@@ -20,21 +20,11 @@ void UGetAgentCharacter::Activate()
 	FString requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/Agents/" + AgentId;
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
-
-	/*TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
-	BodyContentJsonObject->SetStringField("text", Message);
-	FString JsonOutput;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
-	FJsonSerializer::Serialize(BodyContentJsonObject.ToSharedRef(), Writer);*/
 	
 	UElizaHttpHelperLibrary::ExecuteHttpRequest<UGetAgentCharacter>(
 		this,
 		&UGetAgentCharacter::GetAgentCharacter_HttpRequestComplete,
-		requestURL/*,
-		"GET",
-		60.0F,
-		Headers,
-		JsonOutput*/
+		requestURL
 	);
 }
 

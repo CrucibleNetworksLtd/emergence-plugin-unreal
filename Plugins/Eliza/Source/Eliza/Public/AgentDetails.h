@@ -207,18 +207,18 @@ struct FAgentDetailsCharacter
       TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(_json_);
       if (FJsonSerializer::Deserialize(JsonReader, JsonObject) || JsonObject.IsValid())
       {
-          auto MessageExamplesArray = JsonObject->GetArrayField("messageExamples");
+          auto MessageExamplesArray = JsonObject->GetArrayField(TEXT("messageExamples"));
           for (int i = 0; i < MessageExamplesArray.Num(); i++) {
 
               auto UserMessageExampleJson = MessageExamplesArray[i]->AsArray()[0]->AsObject();
               FAgentDetailsCharacterMessageExample UserMessage;
-              UserMessage.user = UserMessageExampleJson->GetStringField("user");
-              UserMessage.content = UserMessageExampleJson->GetObjectField("content")->GetStringField("text");
+              UserMessage.user = UserMessageExampleJson->GetStringField(TEXT("user"));
+              UserMessage.content = UserMessageExampleJson->GetObjectField(TEXT("content"))->GetStringField(TEXT("text"));
 
               auto AIMessageExampleJson = MessageExamplesArray[i]->AsArray()[1]->AsObject();
               FAgentDetailsCharacterMessageExample AIMessage;
-              AIMessage.user = AIMessageExampleJson->GetStringField("user");
-              AIMessage.content = AIMessageExampleJson->GetObjectField("content")->GetStringField("text");
+              AIMessage.user = AIMessageExampleJson->GetStringField(TEXT("user"));
+              AIMessage.content = AIMessageExampleJson->GetObjectField(TEXT("content"))->GetStringField(TEXT("text"));
               TArray<FAgentDetailsCharacterMessageExample> Example;
               Example.Add(UserMessage);
               Example.Add(AIMessage);
@@ -273,18 +273,18 @@ struct FAgentDetails
     TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(_json_);
     if (FJsonSerializer::Deserialize(JsonReader, JsonObject) || JsonObject.IsValid())
     {
-        auto MessageExamplesArray = JsonObject->GetObjectField("character")->GetArrayField("messageExamples");
+        auto MessageExamplesArray = JsonObject->GetObjectField(TEXT("character"))->GetArrayField(TEXT("messageExamples"));
         for (int i = 0; i < MessageExamplesArray.Num(); i++) {
            
             auto UserMessageExampleJson = MessageExamplesArray[i]->AsArray()[0]->AsObject();
             FAgentDetailsCharacterMessageExample UserMessage;
-            UserMessage.user = UserMessageExampleJson->GetStringField("user");
-            UserMessage.content = UserMessageExampleJson->GetObjectField("content")->GetStringField("text");
+            UserMessage.user = UserMessageExampleJson->GetStringField(TEXT("user"));
+            UserMessage.content = UserMessageExampleJson->GetObjectField(TEXT("content"))->GetStringField(TEXT("text"));
 
             auto AIMessageExampleJson = MessageExamplesArray[i]->AsArray()[1]->AsObject();
             FAgentDetailsCharacterMessageExample AIMessage;
-            AIMessage.user = AIMessageExampleJson->GetStringField("user");
-            AIMessage.content = AIMessageExampleJson->GetObjectField("content")->GetStringField("text");
+            AIMessage.user = AIMessageExampleJson->GetStringField(TEXT("user"));
+            AIMessage.content = AIMessageExampleJson->GetObjectField(TEXT("content"))->GetStringField(TEXT("text"));
             TArray<FAgentDetailsCharacterMessageExample> Example;
             Example.Add(UserMessage);
             Example.Add(AIMessage);
