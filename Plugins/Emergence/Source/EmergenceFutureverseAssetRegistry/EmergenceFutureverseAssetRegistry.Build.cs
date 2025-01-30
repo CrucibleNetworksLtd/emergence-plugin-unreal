@@ -16,7 +16,7 @@ public class EmergenceFutureverseAssetRegistry : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Emergence"
+				"EmergenceCore"
 			}
 		);
 		
@@ -27,7 +27,8 @@ public class EmergenceFutureverseAssetRegistry : ModuleRules
 				"Json",
 				"JsonUtilities",
 				"Engine",
-				"HTTP"
+				"HTTP",
+				"EmergenceBlockchainWallet"
 			}
 		);
 

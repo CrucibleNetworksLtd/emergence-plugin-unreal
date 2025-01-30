@@ -16,7 +16,7 @@ public class EmergenceInventory : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Emergence"
+				"EmergenceCore"
 			}
 		);
 		

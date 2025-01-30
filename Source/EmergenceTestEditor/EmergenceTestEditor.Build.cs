@@ -12,7 +12,7 @@ public class EmergenceTestEditor : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"Emergence",
+			"EmergenceCore",
 			"JsonUtilities",
 			"Json",
 			"UnrealEd",

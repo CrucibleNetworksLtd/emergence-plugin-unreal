@@ -27,7 +27,7 @@ public class EmergenceEditorMethodGraphPin : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(
 		new string[] { 
-			"Emergence"
+			"EmergenceCore"
 			}
 		);
 	}

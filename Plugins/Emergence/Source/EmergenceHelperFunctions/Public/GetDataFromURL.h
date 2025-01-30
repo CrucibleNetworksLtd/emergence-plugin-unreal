@@ -7,7 +7,7 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Types/EmergenceErrorCode.h"
-#include "Emergence.h"
+#include "EmergenceCore.h"
 #include "GetDataFromURL.generated.h"
 /**
  */

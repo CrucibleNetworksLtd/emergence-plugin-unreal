@@ -31,6 +31,7 @@
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Serialization/JsonSerializer.h"
 
 static const FName EmergenceEmailFormTabName("Emergence Email Form");
 static const TCHAR* ShowAgainConfigName = TEXT("ShowEmailBox");

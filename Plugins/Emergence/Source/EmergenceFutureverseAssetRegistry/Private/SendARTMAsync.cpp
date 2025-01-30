@@ -7,6 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "TimerManager.h"
+#include "EmergenceSingleton.h"
 
 USendFutureverseARTM* USendFutureverseARTM::SendFutureverseARTM(UObject* _WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations) {
 	USendFutureverseARTM* BlueprintNode = NewObject<USendFutureverseARTM>();

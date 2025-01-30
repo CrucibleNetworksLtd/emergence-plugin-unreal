@@ -23,7 +23,17 @@
 	],
 	"Modules": [
 		{
-			"Name": "Emergence",
+			"Name": "EmergenceCore",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		},
+		{
+			"Name": "EmergenceBlockchainWallet",
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault",
 			"WhitelistPlatforms": [
@@ -103,11 +113,11 @@
 			"LoadingPhase": "PreLoadingScreen",
 			"PlatformAllowList": [
 				"Win64",
-				"Linux",
+				"Linux"
 			],
 			"WhitelistPlatforms": [
 				"Win64",
-				"Linux",
+				"Linux"
 			]
 		},
 		{

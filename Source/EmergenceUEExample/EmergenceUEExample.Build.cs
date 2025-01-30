@@ -17,7 +17,8 @@ public class EmergenceUEExample : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"HeadMountedDisplay",
-			"Emergence"
-		});
+			"EmergenceCore",
+            "EmergenceBlockchainWallet"
+        });
 	}
 }

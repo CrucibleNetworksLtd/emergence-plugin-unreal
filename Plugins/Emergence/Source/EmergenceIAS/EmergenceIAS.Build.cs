@@ -16,7 +16,7 @@ public class EmergenceIAS : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Emergence"
+				"EmergenceCore"
 			}
 		);
 		

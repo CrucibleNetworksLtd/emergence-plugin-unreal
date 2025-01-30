@@ -17,7 +17,7 @@ public class EmergenceHelperFunctions : ModuleRules
 			{
 				"Core",
 				"JsonUtilities",
-				"Emergence",
+				"EmergenceCore",
 				"HTTP",
 			}
 		);
@@ -27,7 +27,6 @@ public class EmergenceHelperFunctions : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"SlateCore",
 				"Json"	
 			}
 		);

@@ -33,7 +33,7 @@ public class EmergenceEmailForm : ModuleRules
 				"HTTP",
 				"Json",
 				"JsonUtilities",
-				"Emergence"
+				"EmergenceCore"
 			}
 			);
 	}

@@ -7,7 +7,6 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Types/EmergenceErrorCode.h"
-#include "Emergence.h"
 #include "GetTextureFromURL.generated.h"
 /**
  */

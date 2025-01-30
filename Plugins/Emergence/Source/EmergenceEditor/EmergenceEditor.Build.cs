@@ -25,7 +25,7 @@ public class EmergenceEditor : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(
 		new string[] { 
-			"Emergence" 
+			"EmergenceCore" 
 			}
 		);
 	}

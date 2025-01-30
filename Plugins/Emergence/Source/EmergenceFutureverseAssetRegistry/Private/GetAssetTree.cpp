@@ -3,6 +3,7 @@
 
 #include "GetAssetTree.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "Types/EmergenceErrorCode.h"
 #include "Interfaces/IHttpResponse.h"
 
 UGetFutureverseAssetTree* UGetFutureverseAssetTree::GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId)
