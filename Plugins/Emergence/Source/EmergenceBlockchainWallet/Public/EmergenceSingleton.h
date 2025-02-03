@@ -92,7 +92,7 @@ public:
 
 	//Kills the walletconnect session. Setting TrackRequest to false will mean OnSessionEnded will never fire,
 	//and this request won't be added to ActiveRequests (good to prevent this getting premptively killed going from PIE back to Editor.
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void KillWalletConnectSession(bool TrackRequest = true);
 
 
@@ -100,14 +100,9 @@ public:
 * ---- The section below are all generic methods to both Futureverse Custodial and WalletConnect style logins
 */
 
-	//Do we have a Wallet Address? This will likely only be true when the player has logged in via WalletConnect / Futureverse Custodial session.
-	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
-	bool HasCachedAddress();
-
-	//Returns the last wallet connected address. If we don't have one yet, returns "-1".
+	//Returns the last wallet connected address. If we don't have one yet, returns "" (empty string).
 	UFUNCTION(BlueprintPure, Category = "Emergence|Emergence Singleton")
 	FString GetCachedAddress(bool Checksummed = false);
-
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSessionEnded, bool, Response, EErrorCode, StatusCode);
 

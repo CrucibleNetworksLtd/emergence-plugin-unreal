@@ -74,19 +74,14 @@ void UEmergenceSingleton::CancelSignInRequest()
 	}
 }
 
-bool UEmergenceSingleton::HasCachedAddress()
-{
-	return this->CurrentAddress != FString("");
-}
-
 FString UEmergenceSingleton::GetCachedAddress(bool Checksummed)
 {
 	if (Checksummed) {
 		if (this->CurrentChecksummedAddress.Len() > 0) {
-			return this->CurrentChecksummedAddress;
+			return this->CurrentChecksummedAddress;		
 		}
 		else {
-			return FString("-1");
+			return "";
 		}
 	}
 	else {
@@ -94,7 +89,7 @@ FString UEmergenceSingleton::GetCachedAddress(bool Checksummed)
 			return this->CurrentAddress;
 		}
 		else {
-			return FString("-1");
+			return "";
 		}
 	}
 }
