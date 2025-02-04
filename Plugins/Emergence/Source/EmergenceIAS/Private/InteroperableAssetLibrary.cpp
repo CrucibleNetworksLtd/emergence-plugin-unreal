@@ -1,4 +1,5 @@
 #include "InteroperableAssetLibrary.h"
+#include "EmergenceInteroperableAssetElement.h"
 
 UEmergenceInteroperableAssetElement* UEmergenceInteroperableAssetLibrary::GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success)
 {

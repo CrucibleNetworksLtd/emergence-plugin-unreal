@@ -18,6 +18,7 @@
 #include "Types/EmergenceErrorCode.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Engine/GameInstance.h"
 #include "HttpHelperLibrary.generated.h"
 
 /**

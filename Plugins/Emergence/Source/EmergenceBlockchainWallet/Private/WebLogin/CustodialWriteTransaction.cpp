@@ -16,6 +16,7 @@
 #include "Containers/ArrayView.h"
 #include "HttpService/HttpHelperLibrary.h"
 #include "TimerManager.h"
+#include "EmergenceSingleton.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
 TDelegate<void(FString, FString, EErrorCode)> UCustodialWriteTransaction::CallbackComplete;

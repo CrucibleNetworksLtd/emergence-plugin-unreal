@@ -6,8 +6,10 @@
 #include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
+#include "EmergenceInteroperableAssetElement.h"
 #include "Types/EmergenceErrorCode.h"
 #include "Interfaces/IHttpRequest.h"
+#include "Templates/SubclassOf.h"
 #include "InteroperableAsset.h"
 #include "GetInteroperableAssetsByFilterAndElements.generated.h"
 
@@ -28,7 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "NFTIDs, Blockchains"), Category = "Emergence|Interoperable Asset Service")
 	static UGetInteroperableAssetsByFilterAndElements* GetInteroperableAssetsByFilterAndElements(
 		UObject* WorldContextObject, 
-		const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, 
+		const TSet<TSubclassOf<class UEmergenceInteroperableAssetElement>>& DesiredElements, 
 		const FString& CollectionID, 
 		const FString& WalletAddress, 
 		const TArray<FString>& NFTIDs, 

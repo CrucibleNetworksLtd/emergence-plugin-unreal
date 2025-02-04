@@ -2,8 +2,9 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "InteroperableAsset.h"
-#include "Element.h"
+#include "EmergenceInteroperableAssetElement.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Templates/SubclassOf.h"
 #include "InteroperableAssetLibrary.generated.h"
 
 UCLASS()

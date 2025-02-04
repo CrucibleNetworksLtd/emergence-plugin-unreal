@@ -7,6 +7,8 @@
 #include "AvatarElement.h"
 #include "NFTElement.h"
 #include "ThumbnailsElement.h"
+#include "InteroperableAsset.h"
+#include "EmergenceInteroperableAssetElement.h"
 
 UGetInteroperableAssetsByFilterAndElements* UGetInteroperableAssetsByFilterAndElements::GetInteroperableAssetsByFilterAndElements(UObject* WorldContextObject, const TSet<TSubclassOf<UEmergenceInteroperableAssetElement>>& DesiredElements, const FString& CollectionID, const FString& WalletAddress, const TArray<FString>& NFTIDs, const TArray<FString>& Blockchains, const int PageNumber, const int PageSize)
 {

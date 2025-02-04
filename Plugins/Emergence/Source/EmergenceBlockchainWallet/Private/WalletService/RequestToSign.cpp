@@ -5,6 +5,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceSingleton.h"
 
 URequestToSign* URequestToSign::RequestToSign(UObject* WorldContextObject, const FString& MessageToSign)
 {

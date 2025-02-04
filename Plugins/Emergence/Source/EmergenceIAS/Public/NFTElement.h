@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
-#include "Element.h"
+#include "EmergenceInteroperableAssetElement.h"
 #include "NFTElement.generated.h"
 
 

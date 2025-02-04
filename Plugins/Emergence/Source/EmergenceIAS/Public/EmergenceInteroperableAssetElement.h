@@ -2,7 +2,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "Element.generated.h"
+#include "EmergenceInteroperableAssetElement.generated.h"
 
 UCLASS(Abstract, HideDropdown, Category = "Emergence|Interoperable Asset System")
 class EMERGENCEIAS_API UEmergenceInteroperableAssetElement : public UObject

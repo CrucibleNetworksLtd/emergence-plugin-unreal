@@ -7,6 +7,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Types/EmergenceChain.h"
 #include "WalletService/LoadContractInternal.h"
+#include "EmergenceSingleton.h"
 
 UReadMethod* UReadMethod::ReadMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, TArray<FString> Parameters)
 {

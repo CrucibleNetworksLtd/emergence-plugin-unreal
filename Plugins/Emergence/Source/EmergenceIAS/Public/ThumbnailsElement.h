@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "JsonObjectConverter.h"
-#include "Element.h"
+#include "EmergenceInteroperableAssetElement.h"
 #include "ThumbnailsElement.generated.h"
 
 USTRUCT(Category = "Emergence|Interoperable Asset System", BlueprintType)
