@@ -4,21 +4,6 @@
 #include "AvatarService/AvatarServiceLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 
-bool UAvatarServiceLibrary::GetEmergencePreferredNodeURL(FString Blockchain, FString &URL) {
-	const TMap<FString, FString> BlockchainToURL = {
-		{"RINKEBY", "https://rinkeby.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134"},
-		{"POLYGON","https://polygon-mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134"},
-		{"Ethereum","https://mainnet.infura.io/v3/cb3531f01dcf4321bbde11cd0dd25134"}
-	};
-	if (BlockchainToURL.Contains(Blockchain)) {
-		URL = *BlockchainToURL.Find(Blockchain);
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 FEmergenceAvatarData UAvatarServiceLibrary::FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString, bool& FoundAvatar)
 {
 	if (AvatarString.IsEmpty() || Avatars.Num() == 0) { //if the data was empty

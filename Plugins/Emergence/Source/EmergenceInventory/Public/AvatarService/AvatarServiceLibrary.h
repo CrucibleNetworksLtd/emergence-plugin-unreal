@@ -24,10 +24,6 @@ class EMERGENCEINVENTORY_API UAvatarServiceLibrary : public UBlueprintFunctionLi
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Avatar Service")
-	static bool GetEmergencePreferredNodeURL(FString Blockchain, FString& URL);
-
-	//
 	
 	/**
 	 * Given an array of avatar results, find the one that matches the avatar string (which is in the format [BLOCKCHAIN]:[ADDRESS]:[TOKENID]:[AVATARGUID])
