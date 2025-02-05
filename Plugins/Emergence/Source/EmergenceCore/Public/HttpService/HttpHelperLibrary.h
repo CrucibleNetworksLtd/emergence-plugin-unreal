@@ -77,7 +77,7 @@ public:
 	};
 
 	//The URL to send the user to to create a futurepass depending on environment
-	UFUNCTION(BlueprintPure, Category="Emergence Internal|UI")
+	UFUNCTION(BlueprintPure, Category="Emergence|UI")
 	static FString GetFutureverseCreateFuturepassURL() {
 
 		FString Environment = GetFVEnvironment();

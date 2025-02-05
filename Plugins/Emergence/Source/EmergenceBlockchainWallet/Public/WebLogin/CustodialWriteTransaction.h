@@ -15,7 +15,7 @@ class EMERGENCEBLOCKCHAINWALLET_API UCustodialWriteTransaction : public UEmergen
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Content"), Category = "Emergence|Custodial Login")
+	UFUNCTION()
 	static UCustodialWriteTransaction* CustodialWriteTransaction(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FString Method, FString Value, TArray<FString> Content);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCustodialWriteTransactionCompleted, const FString, TransactionHash, EErrorCode, StatusCode);

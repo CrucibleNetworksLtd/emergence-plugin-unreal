@@ -16,7 +16,7 @@ class EMERGENCEBLOCKCHAINWALLET_API UCustodialSignMessage : public UEmergenceAsy
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
+	UFUNCTION()
 	static UCustodialSignMessage* CustodialSignMessage(UObject* WorldContextObject, FString FVCustodialEOA, FString Message);
 
 	void BeginDestroy() override;
