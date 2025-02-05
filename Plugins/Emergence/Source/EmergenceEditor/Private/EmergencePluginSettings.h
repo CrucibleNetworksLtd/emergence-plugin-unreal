@@ -42,17 +42,9 @@ public:
 	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Enable Development Environment"))
 	bool EnableDevelopmentEnvironment = false;
 
-	//For Crucible use only! Used to set the location of a custom version of the EVM server. Leave blank for the default.
-	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Custom Emergence Server Location", FilePathFilter = "Emergence Server (EmergenceEVMLocalServer.exe)|EmergenceEVMLocalServer.exe"))
-	FFilePath CustomEmergenceServerLocation;
-
 	//The IPFS node to use when getting IPFS data via HTTP. Leaving it blank will use the default "http://ipfs.openmeta.xyz/ipfs/". The IPFS hash will be added to the end (for example, using the default: "http://ipfs.openmeta.xyz/ipfs/Qme7ss3ARVgxv6rXqVPiikMJ8u2NLgmgszg13pYrDKEoiu")
 	UPROPERTY(config, EditAnywhere, Category = "IPFS", meta = (DisplayName = "Custom IPFS Node"))
 	FString IPFSNode;
-	
-	//For Crucible use only! Shows the EVM server output window.
-	UPROPERTY(AdvancedDisplay, config, EditAnywhere, Category = "General", meta = (DisplayName = "[INTERNAL] Launch EVM server hidden"))
-	bool LaunchServerHidden = true;
 
 	//If false, libcurl will be prevented from reusing connections. This can speed up requests on some systems. If you toggle this, you may have to restart the editor for it to fully have an effect.
 	UPROPERTY(config, EditAnywhere, Category = "libCurl", meta = (DisplayName = "Allow LibCurl Connection Reuse", EditCondition = "EngineHasConnectionReuseConfig", EditConditionHides, HideEditConditionToggle))
