@@ -77,32 +77,3 @@ FString UInventoryHelperLibrary::GetBestDisplayImage(TArray<FEmergenceInventoryI
     }
     return BestFoundURL;
 }
-
-FString UInventoryHelperLibrary::GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents)
-{
-    FString BestFoundURL = "";
-    for (int i = 0; i < Contents.Num(); i++) {
-
-        if (Contents[i].mimeType == "model/gltf-binary") { //the favourite
-            return Contents[i].url;
-        }
-    }
-    return BestFoundURL;
-}
-
-TSet<FString> UInventoryHelperLibrary::GetDynamicMetadataCategories(FString DynamicMetadata)
-{
-    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-    TSharedRef <TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(*DynamicMetadata);
-
-    TSet<FString> ReturnSet;
-
-    if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid()) {
-        auto CategoryArray = JsonObject->GetArrayField("Categories");
-        for (int i = 0; i < CategoryArray.Num(); i++) {
-            ReturnSet.Add(CategoryArray[i]->AsString());
-        }
-    }
-
-    return ReturnSet;
-}

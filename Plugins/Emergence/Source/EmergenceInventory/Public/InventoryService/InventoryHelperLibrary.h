@@ -43,18 +43,4 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category = "Emergence|Inventory Service")
 	static FString GetBestDisplayImage(TArray<FEmergenceInventoryItemsMetaContent> Contents);
-
-	/**
-	 * Given an EmergenceInventoryItemsMetaContent array, find the best model's URL. Currently, only finds the first content with the mimeType "model/gltf-binary". If nothing is found, returns an empty string.
-	 * @param Contents This is usually retrieved from a Emergence Inventory Item's Metadata's Content array.
-	 */
-	UFUNCTION(BlueprintPure, Category = "Emergence|Interface Helpers")
-	static FString GetBestModel(TArray<FEmergenceInventoryItemsMetaContent> Contents);
-
-	/**
-	 * Gets a set of categories, given a correctly formatted DynamicMetadata.
-	 * @param DynamicMetadata A dynamic metadata string, this is useually retrieved from a Emergence Inventory Item's Metadata's "dynamic metadata".
-	 */
-	UFUNCTION(BlueprintPure, Category = "Emergence|Inventory Service")
-	static TSet<FString> GetDynamicMetadataCategories(FString DynamicMetadata);
 };
