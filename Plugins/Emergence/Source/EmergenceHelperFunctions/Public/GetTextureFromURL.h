@@ -19,7 +19,7 @@ class EMERGENCEHELPERFUNCTIONS_API UGetTextureFromUrl : public UEmergenceCancela
 	GENERATED_BODY()
 public:
 	//Takes a URL string and gets the PNG, JPEG or GIF from it. Will not work with anything other than PNGs, JPEGs or GIFs.
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG, JPEG or GIF)", WorldContext = "WorldContextObject"), Category = "Emergence Internal|Interface Helpers")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", DisplayName="Get Texture From URL (PNG, JPEG or GIF)", WorldContext = "WorldContextObject"), Category = "Emergence|Interface Helpers")
 	static UGetTextureFromUrl* TextureFromUrl(const FString& Url, UObject* WorldContextObject, bool AllowCacheUsage = true) {
 		UGetTextureFromUrl* BlueprintNode = NewObject<UGetTextureFromUrl>(); //I don't know why, but every time I tried to put this in the cpp file it wouldn't link it properly and would fail to compile. If you think you can fix it, go ahead.
 		

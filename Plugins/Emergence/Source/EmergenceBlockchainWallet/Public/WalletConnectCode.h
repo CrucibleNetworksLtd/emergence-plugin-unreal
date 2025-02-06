@@ -35,7 +35,7 @@ private:
 	UFUNCTION()
 	void GetHandshakeCompleted(FString Address, EErrorCode StatusCode);
 
-	UFUNCTION(BlueprintCallable, Category = "Emergence Internal|Wallet Connect")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
 	void CancelAll();
 
 	//Starts a new attempt at showing the user a QR code and getting a handshake. Only manually call this if you're using ActivateOnConstruct = false

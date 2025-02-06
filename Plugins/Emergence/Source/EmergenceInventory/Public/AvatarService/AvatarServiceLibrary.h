@@ -12,10 +12,10 @@ struct FEmergenceAvatarData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Avatar Service|AvatarData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Avatar Service|AvatarData")
 	FEmergenceAvatarResult AvatarNFT;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence Internal|Avatar Service|AvatarData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Avatar Service|AvatarData")
 	FEmergenceAvatarMetadata Avatar;
 };
 

@@ -43,7 +43,7 @@ class EMERGENCEFUTUREVERSEASSETREGISTRY_API UARTMBuilderLibrary : public UBluepr
 	GENERATED_BODY()
 public:
 	//ADDRESS IS EOA ADDRESS / MUST BE ETH CHECKSUMMED
-	UFUNCTION(BlueprintPure, Category = "Emergence Internal|Futureverse")
+	UFUNCTION()
 	static FString GenerateARTM(FString Message, TArray<FFutureverseARTMOperation> ARTMOperations, FString Address, FString Nonce);
 
 };
