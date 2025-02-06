@@ -1,13 +1,14 @@
-// Copyright Crucible Networks Ltd 2023. All Rights Reserved.
+// Copyright Crucible Networks Ltd 2025. All Rights Reserved.
 
 #include "GetFuturepassInventory.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
 
-UGetFuturepassInventory* UGetFuturepassInventory::GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses){
+UGetFuturepassInventory* UGetFuturepassInventory::GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses, TArray<FString> Collections){
 	UGetFuturepassInventory* BlueprintNode = NewObject<UGetFuturepassInventory>();
 	BlueprintNode->Addresses = Addresses;
+	BlueprintNode->Collections = Collections;
 	BlueprintNode->WorldContextObject = WorldContextObject;
 	return BlueprintNode;
 }
@@ -20,8 +21,23 @@ void UGetFuturepassInventory::Activate() {
 		}
 		AddressString = AddressString + "\"" + Addresses[i] + "\"";
 	}
+	
+	FString Content;
+	
+	if(Collections.Num() > 0){
+		FString CollectionString;
+		for (int i = 0; i < Collections.Num(); i++) {
+			if (i != 0) {
+				CollectionString = CollectionString + ",";
+			}
+			CollectionString = CollectionString + "\"" + Collections[i] + "\"";
+		}
+		Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float, $collectionIds: [CollectionId!]) {\r\n  assets(addresses: $addresses, first: $first, collectionIds: $collectionIds) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        rawAttributes\r\n}\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId\r\ncollectionId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 1000, "collectionIds":[)" + CollectionString + R"(] }})";
+	}
+	else{
+		Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float) {\r\n  assets(addresses: $addresses, first: $first) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        rawAttributes\r\n}\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId\r\ncollectionId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 1000 }})";
+	}
 
-	FString Content = R"({"query":"query Asset($addresses: [ChainAddress!]!, $first: Float) {\r\n  assets(addresses: $addresses, first: $first) {\r\n    edges {\r\n      node {\r\n        metadata {\r\n          properties\r\n          attributes\r\n        rawAttributes\r\n}\r\n        collection {\r\n          chainId\r\n          chainType\r\n          location\r\n          name\r\n        }\r\ntokenId\r\ncollectionId      }\r\n    }\r\n  }\r\n}","variables":{"addresses":[)" + AddressString + R"(], "first": 1000 }})";
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
 		this,
 		nullptr,
@@ -30,7 +46,9 @@ void UGetFuturepassInventory::Activate() {
 		60.0F, //give the user lots of time to mess around setting high gas fees
 		{TPair<FString, FString>("Content-Type","application/json")},
 		Content, false);
+		
 	Request->OnProcessRequestComplete().BindLambda([&](FHttpRequestPtr req, FHttpResponsePtr res, bool bSucceeded) {
+	
 		EErrorCode StatusCode;
 		FJsonObject JsonObject = UHttpHelperLibrary::TryParseResponseAsJson(req, res, bSucceeded, StatusCode);
 		UE_LOG(LogEmergenceHttp, Display, TEXT("GetFuturepassInventory_HttpRequestComplete: %s"), *res->GetContentAsString());
