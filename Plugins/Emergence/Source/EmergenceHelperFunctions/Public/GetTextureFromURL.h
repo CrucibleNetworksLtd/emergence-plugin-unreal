@@ -7,7 +7,9 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Types/EmergenceErrorCode.h"
+#if ENGINE_MAJOR_VERSION > 4
 #include "Engine/TimerHandle.h"
+#endif
 #include "GetTextureFromURL.generated.h"
 /**
  */

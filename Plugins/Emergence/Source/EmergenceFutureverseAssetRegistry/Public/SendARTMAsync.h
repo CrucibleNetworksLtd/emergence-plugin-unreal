@@ -6,7 +6,9 @@
 #include "Actions/EmergenceCancelableAsyncBase.h"
 #include "ARTMBuilderLibrary.h"
 #include "Types/EmergenceErrorCode.h"
+#if ENGINE_MAJOR_VERSION > 4
 #include "Engine/TimerHandle.h"
+#endif
 #include "SendARTMAsync.generated.h"
 
 
