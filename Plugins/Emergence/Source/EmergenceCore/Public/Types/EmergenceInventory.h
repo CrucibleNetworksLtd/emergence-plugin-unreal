@@ -116,18 +116,14 @@ struct FEmergenceInventoryItemMeta
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Inventory Service|Item|Meta")
     TArray<FEmergenceInventoryItemsMetaContent> content;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Inventory Service|Item|Meta")
-    FString dynamicMetadata;
-
     FEmergenceInventoryItemMeta() {};
 
-    FEmergenceInventoryItemMeta(FString _name, FString _description, TArray<FEmergenceInventoryItemsMetaAttribute> _attributes, TArray<FEmergenceInventoryItemsMetaContent> _content, FString _dynamicMetadata) {
+    FEmergenceInventoryItemMeta(FString _name, FString _description, TArray<FEmergenceInventoryItemsMetaAttribute> _attributes, TArray<FEmergenceInventoryItemsMetaContent> _content) {
 
         name = _name;
         description = _description;
         attributes = _attributes;
         content = _content;
-        dynamicMetadata = _dynamicMetadata;
 
     }
 
@@ -143,7 +139,6 @@ struct FEmergenceInventoryItemMeta
         description = _tmpEmergenceInventoryItemMeta.description;
         attributes = _tmpEmergenceInventoryItemMeta.attributes;
         content = _tmpEmergenceInventoryItemMeta.content;
-        dynamicMetadata = _tmpEmergenceInventoryItemMeta.dynamicMetadata;
     }
 
 };
