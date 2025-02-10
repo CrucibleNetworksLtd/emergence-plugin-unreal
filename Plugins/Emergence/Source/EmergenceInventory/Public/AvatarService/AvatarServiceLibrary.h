@@ -18,19 +18,3 @@ struct FEmergenceAvatarData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Avatar Service|AvatarData")
 	FEmergenceAvatarMetadata Avatar;
 };
-
-UCLASS()
-class EMERGENCEINVENTORY_API UAvatarServiceLibrary : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-public:
-	
-	/**
-	 * Given an array of avatar results, find the one that matches the avatar string (which is in the format [BLOCKCHAIN]:[ADDRESS]:[TOKENID]:[AVATARGUID])
-	 * @param Avatars The output of AvatarByOwner, a list of Emergence Avatars.
-	 * @param AvatarString A Emergence Avatar string, usually outputted by OnCachedPersonaUpdated.
-	 * @param FoundAvatar If an Avatar matching Avatar String was found.
-	 */
-	UFUNCTION(BlueprintPure, Category = "Emergence|Helpers")
-	static FEmergenceAvatarData FindAvatarFromString(TArray<FEmergenceAvatarResult> Avatars, FString AvatarString, bool& FoundAvatar);
-};
