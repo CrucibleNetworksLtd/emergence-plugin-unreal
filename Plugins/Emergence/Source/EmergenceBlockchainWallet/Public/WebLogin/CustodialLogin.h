@@ -31,7 +31,7 @@ class EMERGENCEBLOCKCHAINWALLET_API UCustodialLogin : public UEmergenceAsyncSing
 	GENERATED_BODY()
 public:
 	/**
-	 * Begins a Futurepass custodial web login by opening the user's browser. When they complete this, EmergenceSingleton->OnLoginFinished will be called.
+	 * Begins a Futurepass custodial web login by opening the user's browser. When they complete this, GetSubsystem<UEmergenceSingleton>()->OnLoginFinished will be called.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
 	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
