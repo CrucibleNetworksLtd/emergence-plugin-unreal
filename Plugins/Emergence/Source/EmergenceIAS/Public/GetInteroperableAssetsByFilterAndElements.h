@@ -21,6 +21,7 @@ public:
 	/**
 	 * Gets IAs by one or many filters, and one or many IAS Elements.
 	 * @param DesiredElements A set of Emergence IAS Elements that should be included.
+	 * @param CollectionID A collection that the NFTs must be from.
 	 * @param WalletAddress A wallet address which all the NFTs must be owned by.
 	 * @param NFTIDs An array of NFT IDs to include. They must be in the format CHAIN:Address:TokenId
 	 * @param Blockchains A array of blockchains to include results from. Options are "ETHEREUM", "SEPOLIA".

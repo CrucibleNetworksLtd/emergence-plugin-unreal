@@ -91,6 +91,10 @@ class EMERGENCEBLOCKCHAINWALLET_API UGetLinkedFuturepassInformation : public UEm
 {
 	GENERATED_BODY()
 public:
+	/**
+	 * Given a wallet address, gets any linked futurepass information relevent for this wallet.
+	 * @param Address The address to find a linked futurepass for. This is usually the user's Ethereum address.
+	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UGetLinkedFuturepassInformation* GetLinkedFuturepassInformation(UObject* WorldContextObject, FString Address);
 
