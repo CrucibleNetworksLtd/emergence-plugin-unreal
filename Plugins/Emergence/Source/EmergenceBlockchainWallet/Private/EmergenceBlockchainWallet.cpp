@@ -29,15 +29,15 @@ void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* 
 		return; //error out
 	}
 	
-	if (!ExampleLibraryHandle) { //if we don't have a handle on the lib already
-		ExampleLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
+	if (!ContainerLibraryHandle) { //if we don't have a handle on the lib already
+		ContainerLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
 	}
 
-	if (ExampleLibraryHandle && !ExampleLibraryFunction) { //if we now have a handle (not a guarantee), and we don't have a library
-		ExampleLibraryFunction = (_getExampleLibraryFunction)FPlatformProcess::GetDllExport(ExampleLibraryHandle, TEXT("entry"));
+	if (ContainerLibraryHandle && !SendTransactionViaKeystoreFunctionHandle) { //if we now have a handle (not a guarantee), and we don't have a library
+		SendTransactionViaKeystoreFunctionHandle = (_getSendTransactionViaKeystoreFunctionHandle)FPlatformProcess::GetDllExport(ContainerLibraryHandle, TEXT("entry"));
 	}
 	
-	if(!ExampleLibraryHandle || !ExampleLibraryFunction) { //if we don't have either of them by now
+	if(!ContainerLibraryHandle || !SendTransactionViaKeystoreFunctionHandle) { //if we don't have either of them by now
 		UE_LOG(LogEmergence, Error, TEXT("Failed to load library."));
 		WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
 		return; //give up
@@ -77,9 +77,9 @@ void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* 
 		0 //return length
 	};
 
-	if (ExampleLibraryHandle)
+	if (ContainerLibraryHandle)
 	{
-		if (ExampleLibraryFunction) {
+		if (SendTransactionViaKeystoreFunctionHandle) {
 
 			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
 			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
@@ -87,7 +87,7 @@ void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* 
 			const wchar_t* MyWideCharString = (*LibraryPath);
 			wcscpy(Runnable->fullpath, MyWideCharString);
 			Runnable->length = LibraryPath.Len();
-			Runnable->ExampleLibraryFunction = ExampleLibraryFunction;
+			Runnable->ExampleLibraryFunction = SendTransactionViaKeystoreFunctionHandle;
 			Runnable->WriteMethod = WriteMethod;
 			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
 			return;

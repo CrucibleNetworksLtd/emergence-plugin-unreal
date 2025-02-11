@@ -17,8 +17,8 @@ public:
 	void SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse);
 private:
 	/** Handle to the test dll we will load */
-	void* ExampleLibraryHandle;
+	void* ContainerLibraryHandle;
 
-	typedef int(*_getExampleLibraryFunction)(wchar_t* fullpath, int length, EmergenceLocalEVMJSON* Data);
-	_getExampleLibraryFunction ExampleLibraryFunction;
+	typedef int(*_getSendTransactionViaKeystoreFunctionHandle)(wchar_t* fullpath, int length, EmergenceLocalEVMJSON* Data);
+	_getSendTransactionViaKeystoreFunctionHandle SendTransactionViaKeystoreFunctionHandle;
 };
