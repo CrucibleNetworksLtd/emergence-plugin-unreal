@@ -4,6 +4,7 @@
 #include "AvatarService/AvatarByOwner.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceInventory.h"
 
 UAvatarByOwner* UAvatarByOwner::AvatarByOwner(UObject* WorldContextObject, const FString& Address)
 {
@@ -16,9 +17,9 @@ UAvatarByOwner* UAvatarByOwner::AvatarByOwner(UObject* WorldContextObject, const
 
 void UAvatarByOwner::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::GetAvatarServiceAPIURL() + "byOwner?address=" + Address;
+	FString requestURL = FEmergenceInventoryModule::GetAvatarServiceAPIURL() + "byOwner?address=" + Address;
 	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::GetAvatarServiceHostURL()});
+	Headers.Add(TPair<FString, FString>{"Host", FEmergenceInventoryModule::GetAvatarServiceHostURL()});
 
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UAvatarByOwner>(
 		this,

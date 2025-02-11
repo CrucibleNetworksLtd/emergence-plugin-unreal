@@ -4,6 +4,7 @@
 #include "AvatarService/AvatarById.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceInventory.h"
 
 UAvatarById* UAvatarById::AvatarById(UObject* WorldContextObject, const FString& AvatarIdString)
 {
@@ -16,9 +17,9 @@ UAvatarById* UAvatarById::AvatarById(UObject* WorldContextObject, const FString&
 
 void UAvatarById::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::GetAvatarServiceAPIURL() + "id?id=" + AvatarIdString;
+	FString requestURL = FEmergenceInventoryModule::GetAvatarServiceAPIURL() + "id?id=" + AvatarIdString;
 	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::GetAvatarServiceHostURL()});
+	Headers.Add(TPair<FString, FString>{"Host", FEmergenceInventoryModule::GetAvatarServiceHostURL()});
 
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UAvatarById>(
 		this,

@@ -5,6 +5,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceInventory.h"
 
 UInventoryByOwner* UInventoryByOwner::InventoryByOwner(UObject* WorldContextObject, const FString& Address, const FString& Network)
 {
@@ -18,9 +19,9 @@ UInventoryByOwner* UInventoryByOwner::InventoryByOwner(UObject* WorldContextObje
 
 void UInventoryByOwner::Activate()
 {
-	FString requestURL = UHttpHelperLibrary::GetInventoryServiceAPIURL() + "byOwner?address=" + Address + "&network=" + Network;
+	FString requestURL = FEmergenceInventoryModule::GetInventoryServiceAPIURL() + "byOwner?address=" + Address + "&network=" + Network;
 	TArray<TPair<FString, FString>> Headers;
-	Headers.Add(TPair<FString, FString>{"Host", UHttpHelperLibrary::GetInventoryServiceHostURL()});
+	Headers.Add(TPair<FString, FString>{"Host", FEmergenceInventoryModule::GetInventoryServiceHostURL()});
 	
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UInventoryByOwner>(
 		this,
