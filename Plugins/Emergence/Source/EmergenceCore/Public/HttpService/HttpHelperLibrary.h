@@ -83,25 +83,6 @@ public:
 		return "https://identity-dashboard.futureverse.cloud/";
 	};
 
-	//the graphQL of the futureverse asset registery depending on environment
-	inline static FString GetFutureverseAssetRegistryAPIURL() {
-
-		FString Environment = GetFVEnvironment();
-
-		if (Environment == "Production") {
-			//Production Env URL
-			return "https://ar-api.futureverse.app/graphql";
-		}
-
-		if (Environment == "Development") {
-			//Development Env URL
-			return "https://ar-api.futureverse.dev/graphql";
-		}
-
-		//Staging Env URL
-		return "https://ar-api.futureverse.cloud/graphql";
-	};
-
 	//the chain id to use with futurepasses depending on environment
 	inline static FString GetFutureverseFuturepassChainId() {
 

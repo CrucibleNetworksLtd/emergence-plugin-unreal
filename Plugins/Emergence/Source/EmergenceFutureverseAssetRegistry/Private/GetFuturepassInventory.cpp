@@ -4,6 +4,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "HttpService/HttpHelperLibrary.h"
+#include "EmergenceFutureverseAssetRegistry.h"
 
 UGetFuturepassInventory* UGetFuturepassInventory::GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses, TArray<FString> Collections){
 	UGetFuturepassInventory* BlueprintNode = NewObject<UGetFuturepassInventory>();
@@ -41,7 +42,7 @@ void UGetFuturepassInventory::Activate() {
 	Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFuturepassInventory>(
 		this,
 		nullptr,
-		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+		FEmergenceFutureverseAssetRegistryModule::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		60.0F, //give the user lots of time to mess around setting high gas fees
 		{TPair<FString, FString>("Content-Type","application/json")},

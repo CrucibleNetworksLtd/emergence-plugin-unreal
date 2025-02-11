@@ -8,6 +8,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "TimerManager.h"
 #include "EmergenceSingleton.h"
+#include "EmergenceFutureverseAssetRegistry.h"
 
 USendFutureverseARTM* USendFutureverseARTM::SendFutureverseARTM(UObject* _WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations) {
 	USendFutureverseARTM* BlueprintNode = NewObject<USendFutureverseARTM>();
@@ -35,7 +36,7 @@ void USendFutureverseARTM::Activate()
 	GetNonceRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
-		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+		FEmergenceFutureverseAssetRegistryModule::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		300.0F, //give the user lots of time to mess around setting high gas fees
 		TArray<TPair<FString,FString>>(),
@@ -110,7 +111,7 @@ void USendFutureverseARTM::OnRequestToSignCompleted(FString SignedMessage, EErro
 	SendMutationRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
-		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+		FEmergenceFutureverseAssetRegistryModule::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		60.0F,
 		TArray<TPair<FString, FString>>(),
@@ -150,7 +151,7 @@ void USendFutureverseARTM::GetARTMStatus()
 	GetTransactionStatusRequest = UHttpHelperLibrary::ExecuteHttpRequest<USendFutureverseARTM>(
 		this,
 		nullptr,
-		UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+		FEmergenceFutureverseAssetRegistryModule::GetFutureverseAssetRegistryAPIURL(),
 		"POST",
 		60.0F,
 		TArray<TPair<FString, FString>>(),

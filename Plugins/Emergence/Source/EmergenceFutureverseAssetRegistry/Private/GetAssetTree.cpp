@@ -5,6 +5,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Types/EmergenceErrorCode.h"
 #include "Interfaces/IHttpResponse.h"
+#include "EmergenceFutureverseAssetRegistry.h"
 
 UGetFutureverseAssetTree* UGetFutureverseAssetTree::GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId)
 {
@@ -26,7 +27,7 @@ void UGetFutureverseAssetTree::Activate()
 		Request = UHttpHelperLibrary::ExecuteHttpRequest<UGetFutureverseAssetTree>(
 			this,
 			&UGetFutureverseAssetTree::GetAssetTree_HttpRequestComplete,
-			UHttpHelperLibrary::GetFutureverseAssetRegistryAPIURL(),
+			FEmergenceFutureverseAssetRegistryModule::GetFutureverseAssetRegistryAPIURL(),
 			"POST",
 			60.0F,
 			Headers,
