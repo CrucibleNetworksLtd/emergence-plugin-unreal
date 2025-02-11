@@ -17,6 +17,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "TimerManager.h"
 #include "EmergenceSingleton.h"
+#include "FutureverseEnvironmentLibrary.h"
 
 bool UCustodialWriteTransaction::_isServerStarted = false;
 TDelegate<void(FString, FString, EErrorCode)> UCustodialWriteTransaction::CallbackComplete;
@@ -181,7 +182,7 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	JsonInputs->SetStringField("value", InputValue);
 	JsonInputs->SetStringField("data", Data);
 	JsonInputs->SetStringField("rpcUrl", InputRpcUrl);
-	JsonInputs->SetStringField("environment", UHttpHelperLibrary::GetFVEnvironment());
+	JsonInputs->SetStringField("environment", UFutureverseEnvironmentLibrary::GetFVEnvironment());
 
 	//serialize the JSON into a string
 	FString JsonInputsString;
@@ -193,7 +194,7 @@ void UCustodialWriteTransaction::EncodeTransaction(FString Eoa, FString ChainId,
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::GetEncodedPayload_HttpRequestComplete,
-		UHttpHelperLibrary::GetFVHelperServiceURL() + "encode-transaction",
+		UFutureverseEnvironmentLibrary::GetFVHelperServiceURL() + "encode-transaction",
 		"POST",
 		300.0F,
 		Headers,
@@ -339,7 +340,7 @@ void UCustodialWriteTransaction::SendTranscation(FString Signature, FString EOA)
 	UHttpHelperLibrary::ExecuteHttpRequest<UCustodialWriteTransaction>(
 		this,
 		&UCustodialWriteTransaction::SendTransaction_HttpRequestComplete,
-		UHttpHelperLibrary::GetFVHelperServiceURL() + "send-transaction",
+		UFutureverseEnvironmentLibrary::GetFVHelperServiceURL() + "send-transaction",
 		"POST",
 		300.0F, //Give the server a bit longer to send it, as we're waiting for the blockchain here
 		Headers,

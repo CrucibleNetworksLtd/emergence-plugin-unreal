@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
-#include "HttpService/HttpHelperLibrary.h"
+#include "FutureverseEnvironmentLibrary.h"
 
 class FEmergenceFutureverseAssetRegistryModule : public IModuleInterface
 {
@@ -13,7 +13,7 @@ public:
 	//the graphQL of the futureverse asset registery depending on environment
 	inline static FString GetFutureverseAssetRegistryAPIURL() {
 
-		FString Environment = UHttpHelperLibrary::GetFVEnvironment();
+		FString Environment = UFutureverseEnvironmentLibrary::GetFVEnvironment();
 
 		if (Environment == "Production") {
 			//Production Env URL

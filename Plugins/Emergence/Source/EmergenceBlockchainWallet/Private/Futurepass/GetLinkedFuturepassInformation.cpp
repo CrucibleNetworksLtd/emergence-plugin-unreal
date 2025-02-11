@@ -5,6 +5,7 @@
 #include "HttpService/HttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Interfaces/IHttpRequest.h"
+#include "FutureverseEnvironmentLibrary.h"
 
 UGetLinkedFuturepassInformation* UGetLinkedFuturepassInformation::GetLinkedFuturepassInformation(UObject* WorldContextObject, FString Address)
 {
@@ -15,8 +16,8 @@ UGetLinkedFuturepassInformation* UGetLinkedFuturepassInformation::GetLinkedFutur
 }
 
 void UGetLinkedFuturepassInformation::Activate(){
-	FString URL = UHttpHelperLibrary::GetFutureverseFuturepassAPIURL() + "/linked-futurepass?eoa=";
-	URL = URL + UHttpHelperLibrary::GetFutureverseFuturepassChainId() + ":EVM:" + Address;
+	FString URL = UFutureverseEnvironmentLibrary::GetFutureverseFuturepassAPIURL() + "/linked-futurepass?eoa=";
+	URL = URL + UFutureverseEnvironmentLibrary::GetFutureverseFuturepassChainId() + ":EVM:" + Address;
 	LinkedFuturepassRequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetLinkedFuturepassInformation>(
 		this,
 		nullptr,
@@ -36,7 +37,7 @@ void UGetLinkedFuturepassInformation::Activate(){
 			if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
 				FString OwnedFuturepass;
 				if(JsonValue->AsObject()->TryGetStringField("ownedFuturepass", OwnedFuturepass)){
-					FString LinkedEOAURL = UHttpHelperLibrary::GetFutureverseFuturepassAPIURL() + "/linked-eoa?futurepass=" + OwnedFuturepass;
+					FString LinkedEOAURL = UFutureverseEnvironmentLibrary::GetFutureverseFuturepassAPIURL() + "/linked-eoa?futurepass=" + OwnedFuturepass;
 					
 					LinkedEOARequest = UHttpHelperLibrary::ExecuteHttpRequest<UGetLinkedFuturepassInformation>(
 						this,

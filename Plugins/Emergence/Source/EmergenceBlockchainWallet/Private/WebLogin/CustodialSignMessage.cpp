@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include "FutureverseEnvironmentLibrary.h"
 
 bool UCustodialSignMessage::_isServerStarted = false;
 FHttpRouteHandle UCustodialSignMessage::RouteHandle = nullptr;
@@ -133,7 +134,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	SignTransactionPayloadJsonObject->SetStringField("account", *FVCustodialEOA);
 	SignTransactionPayloadJsonObject->SetStringField("message", UTF8MessageHex.c_str());
 	SignTransactionPayloadJsonObject->SetStringField("callbackUrl", "http://localhost:3000/signature-callback");
-	SignTransactionPayloadJsonObject->SetStringField("idpUrl", UHttpHelperLibrary::GetFutureverseAuthURL());
+	SignTransactionPayloadJsonObject->SetStringField("idpUrl", UFutureverseEnvironmentLibrary::GetFutureverseAuthURL());
 
 	TSharedPtr<FJsonObject> EncodedPayloadJsonObject = MakeShareable(new FJsonObject);
 	EncodedPayloadJsonObject->SetStringField("id", "client:2"); //must be formatted as `client:${ an identifier number }`
@@ -148,7 +149,7 @@ void UCustodialSignMessage::LaunchSignMessageURL()
 	UE_LOG(LogEmergence, Display, TEXT("GetEncodedPayload Base64Encode: %s"), *Base64Encode);
 
 	//Construct the URL
-	FString URL = UHttpHelperLibrary::GetFutureverseSignerURL() + "?request=" + Base64Encode;
+	FString URL = UFutureverseEnvironmentLibrary::GetFutureverseSignerURL() + "?request=" + Base64Encode;
 	UCustodialSignMessage::CallbackComplete.BindLambda([&](FString SignedMessage, EErrorCode Error) { //bind something for when we get a callback from the users browser
 		OnCustodialSignMessageComplete.ExecuteIfBound(SignedMessage, Error);
 	});

@@ -15,6 +15,7 @@
 #include "SHA256Hash.h"
 #include "Containers/ArrayView.h"
 #include "EmergenceSingleton.h"
+#include "FutureverseEnvironmentLibrary.h"
 
 #include <random>
 THIRD_PARTY_INCLUDES_START
@@ -35,7 +36,7 @@ FString UCustodialLogin::GetClientID()
 	
 	check(Singleton);
 	;
-	FString Env = UHttpHelperLibrary::GetFVEnvironment();
+	FString Env = UFutureverseEnvironmentLibrary::GetFVEnvironment();
 	if (Env != "Production") {
 		FString DefaultFutureverseWebLoginStagingEnvClientID = "3KMMFCuY59SA4DDV8ggwc"; //default staging client id to be overriden
 		FString FutureverseWebLoginStagingEnvClientID;
@@ -161,7 +162,7 @@ void UCustodialLogin::Activate()
 		});
 
 	//Encode the params in a GET request style
-	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL() + "/auth?";
+	FString URL = UFutureverseEnvironmentLibrary::GetFutureverseAuthURL() + "/auth?";
 	for (int i = 0; i < UrlParams.Num(); i++) {
 		URL += UrlParams[i].Key;
 		URL += "=";
@@ -211,7 +212,7 @@ bool UCustodialLogin::HandleAuthRequestCallback(const FHttpServerRequest& Req, c
 		TPair<FString, FString>{"code_verifier", UCustodialLogin::code},
 	});
 
-	FString URL = UHttpHelperLibrary::GetFutureverseAuthURL() + "/token?"; //URL changes depending on FV environment
+	FString URL = UFutureverseEnvironmentLibrary::GetFutureverseAuthURL() + "/token?"; //URL changes depending on FV environment
 
 	//for some reason, the parameters on this request are encoded like a GET url's parameters, but then sent in a POST as part of the content, don't ask me why lol
 	FString Params;
