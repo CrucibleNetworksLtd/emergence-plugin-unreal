@@ -60,7 +60,7 @@ private:
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 	//Cancels any open GetHandshake requests.
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton|Emergence Singleton")
 	void CancelSignInRequest();
 
 	//GetQRCode stuff
@@ -82,14 +82,14 @@ public:
 	FOnGetHandshakeCompleted OnGetHandshakeCompleted;
 
 	//Checks if a walletconnect session is still valid.
-	UFUNCTION(BlueprintCallable, Category = "Emergence|WalletConnect Methods")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton|WalletConnect Methods")
 	void IsConnected();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnIsConnectedCompleted, bool, IsConnected, FString, Address, EErrorCode, StatusCode);
 
 
 	//Called when IsConnected is returned.
-	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton")
+	UPROPERTY(BlueprintAssignable, Category = "Emergence|Emergence Singleton|WalletConnect Methods")
 	FOnIsConnectedCompleted OnIsConnectedCompleted;
 
 	//Kills the walletconnect session. Setting TrackRequest to false will mean OnSessionEnded will never fire,
