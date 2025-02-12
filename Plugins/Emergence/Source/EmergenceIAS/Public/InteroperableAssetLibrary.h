@@ -12,6 +12,11 @@ class EMERGENCEIAS_API UEmergenceInteroperableAssetLibrary : public UBlueprintFu
 {
     GENERATED_BODY()
 public:
+    /**
+     * Given an array of Emergence IA Elements, find the one that matches a given Element class.
+     * @param Array An array of Emergence IA Elements.
+     * @param ElementClass A class of Elements to find.
+     */
     UFUNCTION(BlueprintPure, meta=(DeterminesOutputType="ElementClass"), Category = "Emergence|Interoperable Asset System")
     static UEmergenceInteroperableAssetElement* GetInteroperableAssetElement(TArray<UEmergenceInteroperableAssetElement*> Array, UPARAM(meta = (AllowAbstract = false))TSubclassOf<UEmergenceInteroperableAssetElement> ElementClass, bool& success);
 };
