@@ -67,47 +67,6 @@ void UEmergenceVRMMeshComponent::ActivateVRMMeshFromData(const TArray<uint8>& Da
 	}
 }
 
-const EEmergenceVRMImportMaterialType UEmergenceVRMMeshComponent::MaterialTypeFromString(const FString MaterialString)
-{
-	FString SanitizedMaterialString = MaterialString.ToLower();
-
-	//MToonUnlit
-	if (MaterialString == "mtoonunlit") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_MToonUnlit;
-	}
-
-	//MToonLit
-	if (MaterialString == "mtoonlit") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_MToon;
-	}
-
-	//PBR
-	if (MaterialString == "pbr") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_glTF;
-	}
-
-	//Subsurface
-	if (MaterialString == "subsurface") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_SSS;
-	}
-
-	//Subsurface Profile
-	if (MaterialString == "subsurfaceprofile") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_SSSProfile;
-	}
-
-	//Unlit
-	if (MaterialString == "unlit") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_Unlit;
-	}
-
-	if (MaterialString == "emergencemtoonunlit") {
-		return EEmergenceVRMImportMaterialType::VRMIMT_EmergenceMToonUnlit;
-	}
-
-	return EEmergenceVRMImportMaterialType::VRMIMT_MToonUnlit;
-}
-
 void UEmergenceVRMMeshComponent::VRMLoadCompleted(int Linkage)
 {
 	USkeletalMeshComponent* ParentSkeletalMesh = Cast<USkeletalMeshComponent>(GetAttachParent());
