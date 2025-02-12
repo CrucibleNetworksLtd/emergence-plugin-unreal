@@ -11,8 +11,7 @@ UENUM(BlueprintType)
 enum class EEmergenceWalletConnectStepError : uint8
 {
 	QRCodeFail,
-	HandshakeFail,
-	AccessTokenFail
+	HandshakeFail
 };
 
 UCLASS(HideCategories=(Appearance, Localization))
@@ -35,13 +34,6 @@ private:
 	UFUNCTION()
 	void GetHandshakeCompleted(FString Address, EErrorCode StatusCode);
 
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
-	void CancelAll();
-
-	//Starts a new attempt at showing the user a QR code and getting a handshake. Only manually call this if you're using ActivateOnConstruct = false
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
-	void StartAttempt();
-
 	UPROPERTY()
 	UEmergenceSingleton* Singleton;
 
@@ -51,6 +43,14 @@ private:
 	UFUNCTION()
 	void UpdateTimeRemaining();
 public:
+
+	//Cancels all requests and clears the refresh timer.
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
+	void CancelAll();
+
+	//Starts a new attempt at showing the user a QR code and getting a handshake. Only manually call this if you're using ActivateOnConstruct = false
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
+	void StartAttempt();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSignInSuccess);
 

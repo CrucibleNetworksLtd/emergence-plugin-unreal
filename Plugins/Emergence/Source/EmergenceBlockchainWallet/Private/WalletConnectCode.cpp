@@ -41,7 +41,7 @@ void UWalletConnectCode::AccessTokenCompleted(EErrorCode StatusCode) {
 		this->OnSignInSuccess.Broadcast(); //call sign in success
 	}
 	else {
-		this->OnSignInFailure.Broadcast(EEmergenceWalletConnectStepError::AccessTokenFail);
+		this->OnSignInFailure.Broadcast(EEmergenceWalletConnectStepError::HandshakeFail);
 		this->CancelAllAndRestartAttempt();
 	}
 }
