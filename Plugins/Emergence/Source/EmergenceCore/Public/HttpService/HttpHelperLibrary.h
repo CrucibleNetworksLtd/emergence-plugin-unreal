@@ -150,7 +150,14 @@ public:
 	static FJsonObject TryParseResponseAsJson(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, EErrorCode& ReturnResponseCode) {
 
 		EErrorCode ResponseCode = UHttpHelperLibrary::GetResponseErrors(HttpRequest, HttpResponse, bSucceeded);
-		if (!EHttpResponseCodes::IsOk(UEmergenceErrorCode::Conv_ErrorCodeToInt(ResponseCode))) {
+		int ResponseAsInt = UEmergenceErrorCode::Conv_ErrorCodeToInt(ResponseCode);
+		
+		if (!bSucceeded) {
+			ReturnResponseCode = ResponseCode;
+			return FJsonObject();
+		}
+
+		if (!EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode())) {
 			ReturnResponseCode = ResponseCode;
 			return FJsonObject();
 		}
