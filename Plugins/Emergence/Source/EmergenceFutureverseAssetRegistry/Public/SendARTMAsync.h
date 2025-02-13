@@ -6,6 +6,7 @@
 #include "Actions/EmergenceCancelableAsyncBase.h"
 #include "ARTMBuilderLibrary.h"
 #include "Types/EmergenceErrorCode.h"
+#include "Runtime/Launch/Resources/Version.h"
 #if ENGINE_MAJOR_VERSION > 4
 #include "Engine/TimerHandle.h"
 #endif
