@@ -8,19 +8,34 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message)
+UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstanceOverride)
 {
 	UMessageAgent* BlueprintNode = NewObject<UMessageAgent>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
 	return BlueprintNode;
 }
 
 void UMessageAgent::Activate()
 {
-	FString requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/message";
+	FString requestURL;
+
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
+
+	if (ElizaInstanceOverride) {
+		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
+			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/speak";
+		}
+		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
+			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + AgentId + "/api/speak";
+			Headers.Add(TPair<FString, FString>{"X-Api-Key", ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
+		}
+	}
+	else {
+		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/speak";
+	}
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
 	BodyContentJsonObject->SetStringField(TEXT("text"), Message);
