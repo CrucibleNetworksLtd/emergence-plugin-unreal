@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "Interfaces/IHttpRequest.h"
+#include "ElizaInstance.h"
 #include "AgentSpeak.generated.h"
 /**
  * 
@@ -15,8 +16,8 @@ class ELIZA_API UAgentSpeak : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static UAgentSpeak* AgentSpeak(FString AgentId, FString Message);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", AdvancedDisplay = "ElizaInstanceOverride"), Category = "Eliza")
+	static UAgentSpeak* AgentSpeak(FString AgentId, FString Message, UElizaInstance* ElizaInstanceOverride);
 
 	virtual void Activate() override;
 
@@ -28,4 +29,6 @@ private:
 	void AgentSpeak_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 	FString AgentId, Message;
+
+	UElizaInstance* ElizaInstanceOverride;
 };

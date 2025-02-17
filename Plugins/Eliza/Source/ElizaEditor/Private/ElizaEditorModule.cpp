@@ -13,11 +13,17 @@
 #include "Styling/SlateStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Styling/SlateStyleRegistry.h"
+#include "AssetTypeCategories.h"
+#include "AssetToolsModule.h"
+#include "ElizaInstanceFactory.h"
+#include "ElizaInstanceAssetTypeActions.h"
 #define LOCTEXT_NAMESPACE "ElizaEditorModule"
 
 class FElizaEditorModule : public IModuleInterface
 {
-	
+private:
+	TSharedPtr<FElizaInstanceAssetTypeActions> ElizaAssetTypeActions;
+public:
 	virtual void StartupModule() override
 	{
 
@@ -25,6 +31,14 @@ class FElizaEditorModule : public IModuleInterface
 		StyleSet = MakeShareable(new FSlateStyleSet("ElizaAssetStyle"));
 		FString ContentDir = IPluginManager::Get().FindPlugin("Eliza")->GetBaseDir();
 		StyleSet->SetContentRoot(ContentDir);
+		
+		//Create web3 category
+		EAssetTypeCategories::Type AgentsCategory = FAssetToolsModule::GetModule().Get().RegisterAdvancedAssetCategory(FName(TEXT("Agents")), FText::FromString("Agents"));
+		
+		//Register asset types
+		ElizaAssetTypeActions = MakeShareable(new FElizaInstanceAssetTypeActions(AgentsCategory));
+		FAssetToolsModule::GetModule().Get().RegisterAssetTypeActions(ElizaAssetTypeActions.ToSharedRef());
+		
 		RegisterSettings();
 	}
 
