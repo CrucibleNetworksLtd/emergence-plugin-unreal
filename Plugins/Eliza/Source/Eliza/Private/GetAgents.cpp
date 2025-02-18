@@ -8,20 +8,39 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UGetAgents* UGetAgents::GetAgents()
+UGetAgents* UGetAgents::GetAgents(UElizaInstance* _ElizaInstanceOverride)
 {
 	UGetAgents* BlueprintNode = NewObject<UGetAgents>();
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
 	return BlueprintNode;
 }
 
 void UGetAgents::Activate()
 {
-	FString requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/Agents";
+	FString requestURL;
+
+	TArray<TPair<FString, FString>> Headers;
+
+	if (ElizaInstanceOverride) {
+		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
+			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/Agents";
+		}
+		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
+			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/Agents";
+			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
+		}
+	}
+	else {
+		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/Agents";
+	}
 
 	UElizaHttpHelperLibrary::ExecuteHttpRequest<UGetAgents>(
 		this,
 		&UGetAgents::GetAgents_HttpRequestComplete,
-		requestURL
+		requestURL,
+		"GET",
+		60.0F,
+		Headers
 	);
 }
 

@@ -25,6 +25,9 @@ struct ELIZA_API FElizaInstanceStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Eliza|Instance")
 	FString FleekAPIKey;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Eliza|Instance")
+	FString FleekAgentId;
 };
 
 UCLASS(BlueprintType, CollapseCategories)
@@ -39,7 +42,7 @@ public:
 	UElizaInstance(FElizaInstanceStruct ElizaInstance);
 
 	UFUNCTION(BlueprintPure, Category = "Eliza|Instance")
-	static UElizaInstance* CreateElizaInstance(FString LocationURL, EElizaAPIType APIType, FString FleekAPIKey);
+	static UElizaInstance* CreateElizaInstance(FString LocationURL, EElizaAPIType APIType, FString FleekAPIKey, FString FleekAgentId);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Eliza", meta=(ShowInnerProperties))
 	FElizaInstanceStruct ElizaInstance;

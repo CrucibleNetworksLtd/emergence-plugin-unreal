@@ -26,15 +26,15 @@ void UMessageAgent::Activate()
 
 	if (ElizaInstanceOverride) {
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/speak";
+			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/message";
 		}
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + AgentId + "/api/speak";
-			Headers.Add(TPair<FString, FString>{"X-Api-Key", ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
+			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/message";
+			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
 		}
 	}
 	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/speak";
+		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/message";
 	}
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
@@ -63,13 +63,18 @@ void UMessageAgent::MessageAgent_HttpRequestComplete(FHttpRequestPtr HttpRequest
 		UE_LOG(LogEliza, Display, TEXT("Message Agent response: %s"), *ResponseString);
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
-			TSharedPtr<FJsonValue> MessageData = JsonValue->AsArray()[0];
-			FString User = MessageData->AsObject()->GetStringField(TEXT("user"));
-			FString Text = MessageData->AsObject()->GetStringField(TEXT("text"));
-			FString Action = MessageData->AsObject()->GetStringField(TEXT("action"));
+			if (JsonValue->Type == EJson::Array) {
+				TSharedPtr<FJsonValue> MessageData = JsonValue->AsArray()[0];
+				FString User = MessageData->AsObject()->GetStringField(TEXT("user"));
+				FString Text = MessageData->AsObject()->GetStringField(TEXT("text"));
+				FString Action = MessageData->AsObject()->GetStringField(TEXT("action"));
 
-			OnMessageAgentCompleted.Broadcast(true, User, Text, Action);
-			return;
+				OnMessageAgentCompleted.Broadcast(true, User, Text, Action);
+				return;
+			}
+			else {
+				//an error happened @TODO handle it
+			}
 		}
 	}
 

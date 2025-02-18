@@ -26,17 +26,16 @@ void UAgentSpeak::Activate()
 
 	if (ElizaInstanceOverride) {
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/speak";
+			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/message";
 		}
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + AgentId + "/api/speak";
-			Headers.Add(TPair<FString, FString>{"X-Api-Key", ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
+			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/message";
+			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
 		}
 	}
 	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/speak";
+		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/message";
 	}
-	
 	
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
