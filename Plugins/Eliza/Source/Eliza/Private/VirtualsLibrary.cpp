@@ -83,6 +83,29 @@ void UVirtualsLibrary::SendVirtualsMessage(UObject* WorldContextObject, FString 
 	);
 }
 
+void UVirtualsLibrary::ChangeVirtualsLocation(UObject* WorldContextObject, FString Location, FString Atmosphere)
+{
+	TArray<TPair<FString, FString>> Headers;
+	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
+
+	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
+	BodyContentJsonObject->SetStringField(TEXT("location"), Location);
+	BodyContentJsonObject->SetStringField(TEXT("atmosphere"), Atmosphere);
+	FString JsonOutput;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
+	FJsonSerializer::Serialize(BodyContentJsonObject.ToSharedRef(), Writer);
+
+	UElizaHttpHelperLibrary::ExecuteHttpRequest<UVirtualsLibrary>(
+		this,
+		&UVirtualsLibrary::SendVirtualsMessage_HttpRequestComplete,
+		"https://virtuals-server.vercel.app/api/handleLocationChange",
+		"POST",
+		60.0F,
+		Headers,
+		JsonOutput
+	);
+}
+
 void UVirtualsLibrary::SendVirtualsMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	if (bSucceeded) {

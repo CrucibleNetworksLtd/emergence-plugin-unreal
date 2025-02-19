@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
 	void SendVirtualsMessage(UObject* WorldContextObject, FString Message);
 
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	void ChangeVirtualsLocation(UObject* WorldContextObject, FString Location, FString Atmosphere);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOnVirtualMessageRecieved, FString, Message);
 
 	UPROPERTY(BlueprintAssignable)
