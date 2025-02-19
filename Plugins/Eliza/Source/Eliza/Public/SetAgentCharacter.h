@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "Interfaces/IHttpRequest.h"
 #include "AgentDetails.h"
+#include "ElizaInstance.h"
 #include "SetAgentCharacter.generated.h"
 
 
@@ -15,17 +16,22 @@ class ELIZA_API USetAgentCharacter : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 	
 public:
+	//If CreateNew is set to false, then it will only try to update an existing one based on the given ID. If CreateNew is true, it will create a new agent based on the given ID
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static USetAgentCharacter* SetAgentCharacter(FAgentDetails AgentDetails);
+	static USetAgentCharacter* SetAgentCharacter(FAgentDetailsCharacter AgentCharacter, bool CreateNew, UElizaInstance* ElizaInstanceOverride);
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSetAgentCharacterCompleted, bool, Success, FAgentDetails, Agent);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSetAgentCharacterCompleted, bool, Success, FString, AgentID);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnSetAgentCharacterCompleted OnSetAgentCharacterCompleted;
 private:
 	void SetAgentCharacter_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	FAgentDetails AgentDetails;
+	FAgentDetailsCharacter AgentCharacter;
+
+	bool CreateNew;
+
+	UElizaInstance* ElizaInstanceOverride;
 };
