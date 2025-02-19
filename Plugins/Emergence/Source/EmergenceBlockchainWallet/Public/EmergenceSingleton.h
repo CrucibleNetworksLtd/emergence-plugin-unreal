@@ -22,7 +22,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 
-UCLASS()
+UCLASS(Category = "Emergence|Emergence Singleton")
 class EMERGENCEBLOCKCHAINWALLET_API UEmergenceSingleton : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
@@ -60,7 +60,7 @@ private:
 	void KillSession_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 public:
 	//Cancels any open GetHandshake requests.
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton|Emergence Singleton")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Emergence Singleton|WalletConnect Methods")
 	void CancelSignInRequest();
 
 	//GetQRCode stuff

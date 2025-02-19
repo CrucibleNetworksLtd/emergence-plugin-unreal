@@ -44,6 +44,6 @@ public:
 	 * @param _Symbol Symbol of the blockchain (for example ETH, or MATIC).
 	 * @param _ChainID Chain ID of the blockchain.
 	 */
-	UFUNCTION(BlueprintPure, Category="Emergence|Blockchain")
+	UFUNCTION(BlueprintPure, Category="Emergence|Web3 Assets")
 	static UEmergenceChain* CreateEmergenceChain(FText _Name, FString _NodeURL, FString _Symbol, int64 _ChainID);
 };

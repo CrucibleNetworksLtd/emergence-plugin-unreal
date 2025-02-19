@@ -34,7 +34,7 @@ public:
 	 * @param InventoryItems Output of InventoryByOwner.
 	 * @param Avatars Output of AvatarsByOwner.
 	 */
-	UFUNCTION(BlueprintCallable, Category="Emergence|Interface Helpers")
+	UFUNCTION(BlueprintCallable, Category="Emergence|Helpers")
 	static TArray<FEmergenceCombinedInventoryItem> OrganiseInventoryItems(TArray<FEmergenceInventoryItem> InventoryItems, TArray< FEmergenceAvatarResult> Avatars);
 
 	/**

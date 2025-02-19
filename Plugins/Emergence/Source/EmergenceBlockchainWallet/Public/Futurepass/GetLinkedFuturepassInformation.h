@@ -95,7 +95,7 @@ public:
 	 * Given a wallet address, gets any linked futurepass information relevent for this wallet.
 	 * @param Address The address to find a linked futurepass for. This is usually the user's Ethereum address.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse|Futurepass")
 	static UGetLinkedFuturepassInformation* GetLinkedFuturepassInformation(UObject* WorldContextObject, FString Address);
 
 	virtual void Activate() override;

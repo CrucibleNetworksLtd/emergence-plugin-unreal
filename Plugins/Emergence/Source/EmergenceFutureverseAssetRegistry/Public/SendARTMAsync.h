@@ -23,7 +23,7 @@ public:
 	 * @param Message The message to include as part of the ARTM, tells the user what is happening.
 	 * @param ARTMOperations The operations to perform as part of the ARTM, such as creating or deleting links.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse|Asset Registry")
 	static USendFutureverseARTM* SendFutureverseARTM(UObject* WorldContextObject, FString Message, TArray<FFutureverseARTMOperation> ARTMOperations);
 
 	virtual void Activate() override;

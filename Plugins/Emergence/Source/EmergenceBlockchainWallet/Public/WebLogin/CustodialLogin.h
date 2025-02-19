@@ -33,7 +33,7 @@ public:
 	/**
 	 * Begins a Futurepass custodial web login by opening the user's browser. When they complete this, GetSubsystem<UEmergenceSingleton>()->OnLoginFinished will be called.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Custodial Login")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
 	static UCustodialLogin* CustodialLogin(const UObject* WorldContextObject);
 
 	void Activate() override;

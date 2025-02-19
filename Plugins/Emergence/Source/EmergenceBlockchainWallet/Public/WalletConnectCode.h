@@ -45,11 +45,11 @@ private:
 public:
 
 	//Cancels all requests and clears the refresh timer.
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect QR Code")
 	void CancelAll();
 
 	//Starts a new attempt at showing the user a QR code and getting a handshake. Only manually call this if you're using ActivateOnConstruct = false
-	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect")
+	UFUNCTION(BlueprintCallable, Category = "Emergence|Wallet Connect QR Code")
 	void StartAttempt();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSignInSuccess);

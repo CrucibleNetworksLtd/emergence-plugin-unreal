@@ -18,7 +18,7 @@ class EMERGENCEBLOCKCHAINWALLET_API UFutureverseEnvironmentLibrary : public UBlu
 public:
 
 	//The URL to send the user to to create a futurepass depending on environment
-	UFUNCTION(BlueprintPure, Category = "Emergence|UI")
+	UFUNCTION(BlueprintPure, Category = "Emergence|Futureverse|Futurepass")
 	static FString GetFutureverseCreateFuturepassURL() {
 
 		FString Environment = GetFVEnvironment();

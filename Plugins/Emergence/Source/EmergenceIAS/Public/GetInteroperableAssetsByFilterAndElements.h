@@ -28,7 +28,7 @@ public:
 	 * @pamam PageNumber Which page number to get as part of pagination.
 	 * @param PageSize Size of the page to get. Default is 50.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "NFTIDs, Blockchains"), Category = "Emergence|Interoperable Asset Service")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "NFTIDs, Blockchains"), Category = "Emergence|Interoperable Asset System")
 	static UGetInteroperableAssetsByFilterAndElements* GetInteroperableAssetsByFilterAndElements(
 		UObject* WorldContextObject, 
 		const TSet<TSubclassOf<class UEmergenceInteroperableAssetElement>>& DesiredElements, 

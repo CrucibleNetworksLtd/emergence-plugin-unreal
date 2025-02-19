@@ -13,10 +13,10 @@ struct FFutureverseAssetTreeObject
 
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Predicate Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Registry|Predicate Data")
 	FString Id;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Predicate Data")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Registry|Predicate Data")
 	TMap<FString, FString> AdditionalData;
 
 };
@@ -27,13 +27,13 @@ struct FFutureverseAssetTreePath
 
     GENERATED_BODY()
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Registry|Asset Tree Part")
     FString Id;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Registry|Asset Tree Part")
 	FString RDFType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Tree Part")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Emergence|Futureverse|Asset Registry|Asset Tree Part")
 	TMap<FString, FFutureverseAssetTreeObject> Objects;
 
 };
@@ -48,7 +48,7 @@ public:
 	 * @param TokenId The interger ID of the token you want to get the Asset Tree of. For example: "473" (without quotes).
 	 * @param CollectionId The collection ID of the token you want to get the asset tree of. For example: "7672:root:303204" (without quotes).
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Futureverse|Asset Registry")
 	static UGetFutureverseAssetTree* GetFutureverseAssetTree(UObject* WorldContextObject, FString TokenId, FString CollectionId);
 
 	virtual void Activate() override;

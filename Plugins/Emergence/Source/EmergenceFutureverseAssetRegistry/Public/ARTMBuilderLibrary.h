@@ -19,16 +19,16 @@ struct FFutureverseARTMOperation
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Futureverse|ATRM Operation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Emergence|Futureverse|Asset Registry|ATRM Operation")
 	EFutureverseARTMOperationType OperationType = EFutureverseARTMOperationType::NONE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|Asset Registry|ATRM Operation")
 	FString Slot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|Asset Registry|ATRM Operation")
 	FString LinkA;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|ATRM Operation")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Emergence|Futureverse|Asset Registry|ATRM Operation")
 	FString LinkB;
 
 	FFutureverseARTMOperation() {};

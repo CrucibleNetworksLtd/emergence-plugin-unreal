@@ -38,7 +38,7 @@ public:
 	 * Creates a Emergence Contract object, which represents a contract ABI.
 	 * @param _ABI The contract's ABI. You can find this as an output of the contract's compiler, or on websites such as Etherscan or Polygonscan if the contract's ABI was uploaded.
 	 */
-	UFUNCTION(BlueprintPure, Category="Emergence|Contract")
+	UFUNCTION(BlueprintPure, Category="Emergence|Web3 Assets")
 	static UEmergenceContract* CreateEmergenceContract(FString _ABI);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Contract")

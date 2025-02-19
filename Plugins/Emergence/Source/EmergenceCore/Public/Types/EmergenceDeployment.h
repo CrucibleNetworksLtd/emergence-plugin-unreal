@@ -27,7 +27,7 @@ public:
 	 * @param Blockchain A blockchain object representing the blockchain that this contract resides on.
 	 * @param Contract A contract object which contains the ABI of this contract.
 	 */
-	UFUNCTION(BlueprintPure, Category="Emergence|Deployed Contract")
+	UFUNCTION(BlueprintPure, Category="Emergence|Web3 Assets")
 	static UEmergenceDeployment* CreateEmergenceDeployment(FString Address, UEmergenceChain* Blockchain, UEmergenceContract* Contract);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Deployed Contract")

@@ -29,7 +29,7 @@ public:
 	 * @param NumberOfConfirmations The number of confirmations to wait for before deciding this transaction "confirmed".
 	 * @param TimeBetweenChecks The amount of time between checks in seconds.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Parameters"), Category = "Emergence|Blockchain Interactions")
+	UFUNCTION(BlueprintCallable, meta = (Value = "0", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Parameters"), Category = "Emergence|Wallet Requests")
 	static UWriteMethod* WriteMethod(UObject* WorldContextObject, UEmergenceDeployment* DeployedContract, FEmergenceContractMethod MethodName, FString Value, TArray<FString> Parameters, FString PrivateKey, FString GasPrice, int NumberOfConfirmations = 5, float TimeBetweenChecks = 5.0F);
 
 	virtual void Activate() override;

@@ -26,7 +26,7 @@ class EMERGENCEHELPERFUNCTIONS_API UUnitConverterFunctionLibrary : public UBluep
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintPure, Category = "Emergence|Interface Helpers", meta = (DisplayName = "Convert EtherUnit To EtherUnit"))
+	UFUNCTION(BlueprintPure, Category = "Emergence|Helpers", meta = (DisplayName = "Convert EtherUnit To EtherUnit"))
 	static FString Convert(const FString& source, EEtherUnitType sourceUnit, EEtherUnitType targetUnit, UPARAM(DisplayName="Decimal separator") const FString& comaSeparator);
 	
 	static FString ConvertTest();

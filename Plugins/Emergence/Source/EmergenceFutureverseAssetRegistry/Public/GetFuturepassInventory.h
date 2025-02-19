@@ -18,7 +18,7 @@ public:
 	 * @param Addresses A list of addresses to get the futurepass inventory of - just the address, no blockchain information.
 	 * @param Collections An optional list of collections to filter the inventory by - these should be in the format <chainID>:<chainType>:<Contract address>, e.g. "5:evm:0x1cac32d9893deca7769a2e64edc186163125d43b". If no collections are provided, it returns all collections.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Collections"), Category = "Emergence|Futureverse")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", AutoCreateRefTerm = "Collections"), Category = "Emergence|Futureverse|Asset Registry")
 	static UGetFuturepassInventory* GetFuturepassInventory(UObject* WorldContextObject, TArray<FString> Addresses, TArray<FString> Collections);
 
 	virtual void Activate() override;
