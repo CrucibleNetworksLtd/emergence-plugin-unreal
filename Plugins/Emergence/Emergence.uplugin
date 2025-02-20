@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.5.2.1",
+	"VersionName": "0.6",
 	"FriendlyName": "Emergence",
 	"Description": "",
 	"Category": "Metaverse",
@@ -10,7 +10,7 @@
 	"DocsURL": "https://docs.openmetadao.com/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/2a2ac549e90440b59cc331c53de19e88",
 	"SupportURL": "https://discord.gg/openmetadao",
-	"EngineVersion": "5.1",
+	"EngineVersion": "5.4",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
