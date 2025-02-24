@@ -41,7 +41,7 @@ public:
 	 * Returns an array of all the agents running in your Eliza instance.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static UGetAgents* GetAgents(UElizaInstance* ElizaInstanceOverride);
+	static UGetAgents* GetAgents(UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
 

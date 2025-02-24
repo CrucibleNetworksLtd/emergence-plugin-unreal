@@ -8,12 +8,12 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstanceOverride)
+UMessageAgent* UMessageAgent::MessageAgent(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstance)
 {
 	UMessageAgent* BlueprintNode = NewObject<UMessageAgent>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
 	return BlueprintNode;
 }
 

@@ -21,7 +21,7 @@ public:
 	 * @param AgentId The ID string of the agent to get the character data of.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static UGetAgentCharacter* GetAgentCharacter(FString AgentId, UElizaInstance* ElizaInstanceOverride);
+	static UGetAgentCharacter* GetAgentCharacter(FString AgentId, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
 

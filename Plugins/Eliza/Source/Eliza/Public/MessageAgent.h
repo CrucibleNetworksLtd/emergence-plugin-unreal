@@ -21,7 +21,7 @@ public:
 	 * @param Message The message to send to the agent.
 	 */
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static UMessageAgent* MessageAgent(FString AgentId, FString Message, UElizaInstance* ElizaInstanceOverride);
+	static UMessageAgent* MessageAgent(FString AgentId, FString Message, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
 

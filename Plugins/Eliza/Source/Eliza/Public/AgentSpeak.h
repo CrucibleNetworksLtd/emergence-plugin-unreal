@@ -17,7 +17,7 @@ class ELIZA_API UAgentSpeak : public UBlueprintAsyncActionBase
 	
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", AdvancedDisplay = "ElizaInstanceOverride"), Category = "Eliza")
-	static UAgentSpeak* AgentSpeak(FString AgentId, FString Message, UElizaInstance* ElizaInstanceOverride);
+	static UAgentSpeak* AgentSpeak(FString AgentId, FString Message, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
 

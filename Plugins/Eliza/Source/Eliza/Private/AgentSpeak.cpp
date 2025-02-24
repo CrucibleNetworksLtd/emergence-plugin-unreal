@@ -8,12 +8,12 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UAgentSpeak* UAgentSpeak::AgentSpeak(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstanceOverride)
+UAgentSpeak* UAgentSpeak::AgentSpeak(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstance)
 {
 	UAgentSpeak* BlueprintNode = NewObject<UAgentSpeak>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
 	return BlueprintNode;
 }
 

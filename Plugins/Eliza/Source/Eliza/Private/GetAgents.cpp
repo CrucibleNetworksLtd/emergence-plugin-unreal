@@ -8,10 +8,10 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UGetAgents* UGetAgents::GetAgents(UElizaInstance* _ElizaInstanceOverride)
+UGetAgents* UGetAgents::GetAgents(UElizaInstance* _ElizaInstance)
 {
 	UGetAgents* BlueprintNode = NewObject<UGetAgents>();
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
 	return BlueprintNode;
 }
 

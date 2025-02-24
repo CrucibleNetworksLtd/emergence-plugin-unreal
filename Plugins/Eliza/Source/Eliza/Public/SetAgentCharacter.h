@@ -18,7 +18,7 @@ class ELIZA_API USetAgentCharacter : public UBlueprintAsyncActionBase
 public:
 	//If CreateNew is set to false, then it will only try to update an existing one based on the given ID. If CreateNew is true, it will create a new agent based on the given ID
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Eliza")
-	static USetAgentCharacter* SetAgentCharacter(FAgentDetailsCharacter AgentCharacter, bool CreateNew, UElizaInstance* ElizaInstanceOverride);
+	static USetAgentCharacter* SetAgentCharacter(FAgentDetailsCharacter AgentCharacter, bool CreateNew, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
 

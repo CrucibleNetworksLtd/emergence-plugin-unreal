@@ -8,11 +8,11 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-USetAgentCharacter* USetAgentCharacter::SetAgentCharacter(FAgentDetailsCharacter _AgentCharacter, bool _CreateNew, UElizaInstance* _ElizaInstanceOverride)
+USetAgentCharacter* USetAgentCharacter::SetAgentCharacter(FAgentDetailsCharacter _AgentCharacter, bool _CreateNew, UElizaInstance* _ElizaInstance)
 {
 	USetAgentCharacter* BlueprintNode = NewObject<USetAgentCharacter>();
 	BlueprintNode->AgentCharacter = _AgentCharacter;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstanceOverride;
+	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
 	BlueprintNode->CreateNew = _CreateNew;
 	return BlueprintNode;
 }
