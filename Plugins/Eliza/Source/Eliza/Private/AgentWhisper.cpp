@@ -1,23 +1,23 @@
 // Copyright Crucible Networks Ltd 2025. All Rights Reserved.
 
 
-#include "AgentSpeak.h"
+#include "AgentWhisper.h"
 #include "HttpService/ElizaHttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 
-UAgentSpeak* UAgentSpeak::AgentSpeak(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstance)
+UAgentWhisper* UAgentWhisper::AgentWhisper(FString _AgentId, FString _Message, UElizaInstance* _ElizaInstance)
 {
-	UAgentSpeak* BlueprintNode = NewObject<UAgentSpeak>();
+	UAgentWhisper* BlueprintNode = NewObject<UAgentWhisper>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
 	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
 	return BlueprintNode;
 }
 
-void UAgentSpeak::Activate()
+void UAgentWhisper::Activate()
 {
 	FString requestURL;
 
@@ -26,15 +26,15 @@ void UAgentSpeak::Activate()
 
 	if (ElizaInstanceOverride) {
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/tts";
+			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/Whisper";
 		}
 		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/tts";
+			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/Whisper";
 			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
 		}
 	}
 	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/tts";
+		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/Whisper";
 	}
 	
 
@@ -44,9 +44,9 @@ void UAgentSpeak::Activate()
 	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&JsonOutput);
 	FJsonSerializer::Serialize(BodyContentJsonObject.ToSharedRef(), Writer);
 
-	UElizaHttpHelperLibrary::ExecuteHttpRequest<UAgentSpeak>(
+	UElizaHttpHelperLibrary::ExecuteHttpRequest<UAgentWhisper>(
 		this,
-		&UAgentSpeak::AgentSpeak_HttpRequestComplete,
+		&UAgentWhisper::AgentWhisper_HttpRequestComplete,
 		requestURL,
 		"POST",
 		60.0F,
@@ -55,7 +55,7 @@ void UAgentSpeak::Activate()
 	);
 }
 
-void UAgentSpeak::AgentSpeak_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+void UAgentWhisper::AgentWhisper_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
 {
 	// [{"user":"eliza","text":"Loud and clear! My circuits are humming along, ready for whatever test you throw my way. If you need a debugging buddy or just someone to share the testing woes with, I'm here. How's everything looking on your end?","action":"NONE"}]
 	if (bSucceeded) {
@@ -73,11 +73,11 @@ void UAgentSpeak::AgentSpeak_HttpRequestComplete(FHttpRequestPtr HttpRequest, FH
 			}
 
 
-			//OnAgentSpeakCompleted.Broadcast(true, User, Text, Action);
+			//OnAgentWhisperCompleted.Broadcast(true, User, Text, Action);
 			return;
 		}
 	}
 
-	OnAgentSpeakCompleted.Broadcast(false, FString(), FString(), FString());
+	OnAgentWhisperCompleted.Broadcast(false, FString(), FString(), FString());
 	return;
 }
