@@ -3,6 +3,10 @@
 #include "VirtualsLibrary.h"
 #include "HttpService/ElizaHttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Serialization/JsonWriter.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "Dom/JsonObject.h"
 
 void UVirtualsLibrary::Initialize(FSubsystemCollectionBase& Collection)
 {

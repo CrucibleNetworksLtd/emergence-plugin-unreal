@@ -25,15 +25,15 @@ public:
 
 	void GetStream_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(Category = "Virtuals", BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
 	void SendVirtualsMessage(UObject* WorldContextObject, FString Message);
 
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	UFUNCTION(Category = "Virtuals", BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
 	void ChangeVirtualsLocation(UObject* WorldContextObject, FString Location, FString Atmosphere);
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOnVirtualMessageRecieved, FString, Message);
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(Category = "Virtuals", BlueprintAssignable)
 	FOnOnVirtualMessageRecieved OnVirtualMessageRecieved;
 
 	void SendVirtualsMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
