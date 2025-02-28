@@ -13,29 +13,18 @@ UAgentSpeak* UAgentSpeak::AgentSpeak(FString _AgentId, FString _Message, UElizaI
 	UAgentSpeak* BlueprintNode = NewObject<UAgentSpeak>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
+	BlueprintNode->ElizaInstance = _ElizaInstance;
 	return BlueprintNode;
 }
 
 void UAgentSpeak::Activate()
 {
-	FString requestURL;
+	FString requestURL = ElizaInstance->GetAPIUrl() + AgentId + "/tts";
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
 
-	if (ElizaInstanceOverride) {
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/tts";
-		}
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/tts";
-			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
-		}
-	}
-	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/tts";
-	}
+	Headers.Append(ElizaInstance->RequiredHeaders());
 	
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);

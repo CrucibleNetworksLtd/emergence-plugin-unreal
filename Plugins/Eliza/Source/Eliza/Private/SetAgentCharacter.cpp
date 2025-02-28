@@ -12,13 +12,18 @@ USetAgentCharacter* USetAgentCharacter::SetAgentCharacter(FAgentDetailsCharacter
 {
 	USetAgentCharacter* BlueprintNode = NewObject<USetAgentCharacter>();
 	BlueprintNode->AgentCharacter = _AgentCharacter;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
+	BlueprintNode->ElizaInstance = _ElizaInstance;
 	BlueprintNode->CreateNew = _CreateNew;
 	return BlueprintNode;
 }
 
 void USetAgentCharacter::Activate()
 {
+	if (!ElizaInstance) { //Prevent continuing if we don't have an eliza instance.
+		UE_LOG(LogEliza, Error, TEXT("You must supply an Eliza Instance to comminicate with. You can create them in the content browser, or use the CreateElizaInstance function."));
+		return;
+	}
+
 	FString AgentID;
 	
 	if (CreateNew) {
@@ -28,23 +33,12 @@ void USetAgentCharacter::Activate()
 		AgentID = AgentCharacter.id; //Get the ID from the given data struct
 	}
 
-	FString requestURL;
+	FString requestURL = ElizaInstance->GetAPIUrl() + AgentID + "/set";
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
 
-	if (ElizaInstanceOverride) {
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/Agents/" + AgentID + "/set";
-		}
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/Agents/" + AgentID + "/set";
-			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
-		}
-	}
-	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/Agents/" + AgentID + "/set";
-	}
+	Headers.Append(ElizaInstance->RequiredHeaders());
 	
 
 	FString JsonOutput;

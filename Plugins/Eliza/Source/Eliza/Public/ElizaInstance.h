@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "ElizaInstance.generated.h"
 
 UENUM(BlueprintType)
@@ -46,5 +47,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Eliza", meta=(ShowInnerProperties))
 	FElizaInstanceStruct ElizaInstance;
+
+	UFUNCTION()
+	FString GetAPIUrl();
+
+	TArray<TPair<FString, FString>> RequiredHeaders();
 
 };

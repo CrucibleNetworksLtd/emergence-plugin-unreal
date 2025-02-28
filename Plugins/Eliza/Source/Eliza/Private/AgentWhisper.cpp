@@ -13,30 +13,29 @@ UAgentWhisper* UAgentWhisper::AgentWhisper(FString _AgentId, FString _Message, U
 	UAgentWhisper* BlueprintNode = NewObject<UAgentWhisper>();
 	BlueprintNode->AgentId = _AgentId;
 	BlueprintNode->Message = _Message;
-	BlueprintNode->ElizaInstanceOverride = _ElizaInstance;
+	BlueprintNode->ElizaInstance = _ElizaInstance;
 	return BlueprintNode;
 }
 
 void UAgentWhisper::Activate()
 {
-	FString requestURL;
+	if (!ElizaInstance) { //Prevent continuing if we don't have an eliza instance.
+		UE_LOG(LogEliza, Error, TEXT("You must supply an Eliza Instance to comminicate with. You can create them in the content browser, or use the CreateElizaInstance function."));
+		return;
+	}
+
+	if (AgentId.IsEmpty()) {
+		UE_LOG(LogEliza, Error, TEXT("You must supply an Eliza AgentID to comminicate with. Try finding the ones in this Eliza instance with the GetAgents function."));
+		return;
+	}
+
+	FString requestURL = ElizaInstance->GetAPIUrl() + AgentId + "/Whisper";
 
 	TArray<TPair<FString, FString>> Headers;
 	Headers.Add(TPair<FString, FString>{"content-type", "application/json"});
 
-	if (ElizaInstanceOverride) {
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::GenericEliza) {
-			requestURL = ElizaInstanceOverride->ElizaInstance.LocationURL + "/" + AgentId + "/Whisper";
-		}
-		if (ElizaInstanceOverride->ElizaInstance.APIType == EElizaAPIType::Fleek) {
-			requestURL = "https://api.fleek.xyz/api/v1/ai-agents/" + ElizaInstanceOverride->ElizaInstance.FleekAgentId + "/api/" + AgentId + "/Whisper";
-			Headers.Add(TPair<FString, FString>{"x-api-key", "" + ElizaInstanceOverride->ElizaInstance.FleekAPIKey});
-		}
-	}
-	else {
-		requestURL = UElizaHttpHelperLibrary::GetElizaStarterUrl() + "/" + AgentId + "/Whisper";
-	}
-	
+	Headers.Append(ElizaInstance->RequiredHeaders());
+
 
 	TSharedPtr<FJsonObject> BodyContentJsonObject = MakeShareable(new FJsonObject);
 	BodyContentJsonObject->SetStringField(TEXT("text"), Message);

@@ -54,5 +54,5 @@ private:
 
 	FString AgentId, Message;
 
-	UElizaInstance* ElizaInstanceOverride;
+	UElizaInstance* ElizaInstance;
 };

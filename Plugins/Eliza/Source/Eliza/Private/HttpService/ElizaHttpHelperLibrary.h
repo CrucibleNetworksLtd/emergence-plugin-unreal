@@ -32,13 +32,6 @@ public:
 		}
 	}
 
-	UFUNCTION()
-	static FString GetElizaStarterUrl() {
-		FString Location = "http://localhost:3000"; //default
-		GConfig->GetString(TEXT("/Script/ElizaEditor.ElizaPluginSettings"), TEXT("ElizaHttpServerLocation"), Location, GGameIni);
-		return Location;
-	}
-
 	template<typename T>
 	inline static TSharedRef<IHttpRequest, ESPMode::ThreadSafe> ExecuteHttpRequest(T* FunctionBindObject, void(T::* FunctionBindFunction)(FHttpRequestPtr, FHttpResponsePtr, bool), const FString& URL, const FString& Verb = TEXT("GET"), const float& Timeout = 60.0F, const TArray<TPair<FString, FString>>& Headers = TArray<TPair<FString, FString>>(), const FString& Content = FString(), const bool ProcessRequestInstantly = true)
 	{

@@ -33,5 +33,5 @@ private:
 
 	bool CreateNew;
 
-	UElizaInstance* ElizaInstanceOverride;
+	UElizaInstance* ElizaInstance;
 };
