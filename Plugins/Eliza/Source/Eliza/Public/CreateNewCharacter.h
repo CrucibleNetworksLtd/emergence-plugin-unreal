@@ -21,7 +21,7 @@ public:
 	 * @param AgentCharacter The character struct that the agent will use.
 	 * @param ElizaInstance The Eliza instance that we should be communicating with. This can either be a ElizaInstance game asset created in the content browser, or created on the fly with the CreateElizaInstance method.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", KeyWords = "Eliza Character Agent"), Category = "Eliza")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", KeyWords = "Eliza Agent CreateCharacter"), Category = "Eliza")
 	static UCreateNewCharacter* CreateNewCharacter(FAgentDetailsCharacter AgentCharacter, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;

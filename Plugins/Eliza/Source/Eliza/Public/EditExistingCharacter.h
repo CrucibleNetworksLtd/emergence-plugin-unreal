@@ -22,7 +22,7 @@ public:
 	 * @param AgentCharacter The character struct that the agent will use. You must supply an a Character struct with the "id" being the same as the id of the character you want to edit on the eliza server.
 	 * @param ElizaInstance The Eliza instance that we should be communicating with. This can either be a ElizaInstance game asset created in the content browser, or created on the fly with the CreateElizaInstance method.
 	 */
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", KeyWords = "Eliza Character Agent"), Category = "Eliza")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", KeyWords = "Eliza Agent EditCharacter"), Category = "Eliza")
 	static UEditExistingCharacter* EditExistingCharacter(FString AgentId, FAgentDetailsCharacter AgentCharacter, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
