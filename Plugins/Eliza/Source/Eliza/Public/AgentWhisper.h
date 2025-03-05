@@ -16,7 +16,7 @@ class ELIZA_API UAgentWhisper : public UBlueprintAsyncActionBase
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", AdvancedDisplay = "ElizaInstance"), Category = "Eliza")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", KeyWords = "Eliza Character Agent"), Category = "Eliza")
 	static UAgentWhisper* AgentWhisper(FString AgentId, FString Message, UElizaInstance* ElizaInstance);
 
 	virtual void Activate() override;
