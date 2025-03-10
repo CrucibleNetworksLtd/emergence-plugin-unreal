@@ -1,7 +1,7 @@
 // Copyright Crucible Networks Ltd 2025. All Rights Reserved.
 
 
-#include "GetVirtualsAgents.h"
+#include "Virtuals/GetVirtualsAgents.h"
 #include "HttpService/ElizaHttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Dom/JsonObject.h"
@@ -41,11 +41,11 @@ void UGetVirtualsAgents::GetVirtualsAgents_HttpRequestComplete(FHttpRequestPtr H
 		UE_LOG(LogEliza, Display, TEXT("Get Agents response: %s"), *ResponseString);
 		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(ResponseString);
 		if (FJsonSerializer::Deserialize(Reader, JsonValue)) {
-			TArray<FVirtualAgent> Agents;
+			TArray<FVirtualsAgent> Agents;
 			auto AgentsArray = JsonValue->AsArray();
 			for (int i = 0; i < AgentsArray.Num(); i++) {
 				auto Agent = AgentsArray[i]->AsObject();
-				Agents.Add(FVirtualAgent(Agent->GetStringField(TEXT("entityId")), Agent->GetStringField(TEXT("name"))));
+				Agents.Add(FVirtualsAgent(Agent->GetStringField(TEXT("entityId")), Agent->GetStringField(TEXT("name"))));
 			}
 			OnGetVirtualsAgentsCompleted.Broadcast(true, Agents);
 
@@ -53,6 +53,6 @@ void UGetVirtualsAgents::GetVirtualsAgents_HttpRequestComplete(FHttpRequestPtr H
 		}
 	}
 
-	OnGetVirtualsAgentsCompleted.Broadcast(false, TArray<FVirtualAgent>());
+	OnGetVirtualsAgentsCompleted.Broadcast(false, TArray<FVirtualsAgent>());
 	return;
 }

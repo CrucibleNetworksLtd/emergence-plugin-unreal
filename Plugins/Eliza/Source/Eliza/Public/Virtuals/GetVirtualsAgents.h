@@ -5,11 +5,10 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "Interfaces/IHttpRequest.h"
-#include "ElizaInstance.h"
 #include "GetVirtualsAgents.generated.h"
 
 USTRUCT(BlueprintType)
-struct FVirtualAgent
+struct FVirtualsAgent
 {
 	GENERATED_BODY()
 
@@ -19,9 +18,9 @@ struct FVirtualAgent
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Agent")
 	FString name;
 
-	FVirtualAgent() {};
+	FVirtualsAgent() {};
 
-	FVirtualAgent(FString _EntityId, FString _Name) {
+	FVirtualsAgent(FString _EntityId, FString _Name) {
 		entityId = _EntityId;
 		name = _Name;
 	};
@@ -39,7 +38,7 @@ public:
 
 	virtual void Activate() override;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetVirtualsAgentsCompleted, bool, Success, const TArray<FVirtualAgent>&, Agents);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetVirtualsAgentsCompleted, bool, Success, const TArray<FVirtualsAgent>&, Agents);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGetVirtualsAgentsCompleted OnGetVirtualsAgentsCompleted;

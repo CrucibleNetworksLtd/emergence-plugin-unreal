@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "VirtualsLibrary.h"
+#include "Virtuals/VirtualsLibrary.h"
 #include "HttpService/ElizaHttpHelperLibrary.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Serialization/JsonWriter.h"
