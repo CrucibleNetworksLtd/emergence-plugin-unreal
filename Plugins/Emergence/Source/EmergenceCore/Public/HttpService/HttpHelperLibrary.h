@@ -32,24 +32,10 @@ class EMERGENCECORE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 public:
 	inline static FString APIBase = "https://evm7.openmeta.xyz/api/";
 
-	inline static FString EmergenceVersionNumberCache;
+	inline static FString EmergenceVersionNumberCache = "0.6";
 
 	inline static FString GetEmergenceVersionNumber() {
-		if (UHttpHelperLibrary::EmergenceVersionNumberCache.IsEmpty()) { //if the cache is empty
-			IPluginManager& PluginManager = IPluginManager::Get();
-			TArray<TSharedRef<IPlugin>> Plugins = PluginManager.GetDiscoveredPlugins();
-			for (const TSharedRef<IPlugin>& Plugin : Plugins) {
-				if (Plugin->GetName() == "Emergence") {
-					const FPluginDescriptor& Descriptor = Plugin->GetDescriptor();
-					UHttpHelperLibrary::EmergenceVersionNumberCache = Descriptor.VersionName;
-					return UHttpHelperLibrary::EmergenceVersionNumberCache;
-				}
-			}
-			return "error";
-		}
-		else { //if we have it already
-			return UHttpHelperLibrary::EmergenceVersionNumberCache;
-		}
+		return UHttpHelperLibrary::EmergenceVersionNumberCache;
 	};	
 
 	inline static FString InternalIPFSURLToHTTP(FString IPFSURL) {
