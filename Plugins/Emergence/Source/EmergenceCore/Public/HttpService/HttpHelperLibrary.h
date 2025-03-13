@@ -8,7 +8,6 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Misc/EngineVersion.h"
-#include "Interfaces/IPluginManager.h"
 #include "PlatformHttp.h"
 #include "Kismet/GameplayStatics.h"
 #include "EmergenceHttpServiceSubsystem.h"
