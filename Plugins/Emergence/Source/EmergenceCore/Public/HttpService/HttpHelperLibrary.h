@@ -31,7 +31,7 @@ class EMERGENCECORE_API UHttpHelperLibrary : public UBlueprintFunctionLibrary
 public:
 	inline static FString APIBase = "https://evm7.openmeta.xyz/api/";
 
-	inline static FString EmergenceVersionNumberCache = "0.6";
+	inline static FString EmergenceVersionNumberCache = "0.6.0.3";
 
 	inline static FString GetEmergenceVersionNumber() {
 		return UHttpHelperLibrary::EmergenceVersionNumberCache;
