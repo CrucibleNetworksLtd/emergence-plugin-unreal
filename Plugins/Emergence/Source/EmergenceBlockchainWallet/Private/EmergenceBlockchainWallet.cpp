@@ -12,8 +12,6 @@
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
 
-FEmergenceBlockchainWalletModule::_GetURIHandle FEmergenceBlockchainWalletModule::GetURI = nullptr;
-
 void FEmergenceBlockchainWalletModule::StartupModule()
 {
 #if PLATFORM_WINDOWS
@@ -37,7 +35,11 @@ void FEmergenceBlockchainWalletModule::StartupModule()
 		GetURI = (_GetURIHandle)FPlatformProcess::GetDllExport(LocalEVMLibraryHandle, TEXT("GetQRCode"));
 	}
 
-	if (!GetURI) { //if getting the handle failed, give up now
+	if (LocalEVMLibraryHandle && !RequestToSignHandle) {
+		RequestToSignHandle = (_getRequestToSignHandle)FPlatformProcess::GetDllExport(LocalEVMLibraryHandle, TEXT("RequestToSign"));
+	}
+
+	if (!GetURI || !RequestToSignHandle) { //if getting the handle failed, give up now
 		UE_LOG(LogEmergence, Error, TEXT("Failed to load LocalEVMLibrary."));
 		return; //give up
 	}

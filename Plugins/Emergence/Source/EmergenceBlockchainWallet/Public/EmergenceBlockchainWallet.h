@@ -29,8 +29,10 @@ private:
 
 public:
 	typedef void(*_GetURIHandle)(UTF16CHAR& uri, int& status);
+	_GetURIHandle GetURI;
 
-	static _GetURIHandle GetURI;
+	typedef char* (*_getRequestToSignHandle)(char* messagePtr);
+	_getRequestToSignHandle RequestToSignHandle;
 
 
 };

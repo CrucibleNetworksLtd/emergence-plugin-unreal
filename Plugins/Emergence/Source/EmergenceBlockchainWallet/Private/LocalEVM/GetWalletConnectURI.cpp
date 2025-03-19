@@ -20,7 +20,9 @@ void UGetWalletConnectURI::Activate()
 	status = -1;
 
 	FLocalEVM3ThreadRunnable* Runnable = new FLocalEVM3ThreadRunnable();
-	Runnable->GetURI = FEmergenceBlockchainWalletModule::GetURI;
+	FEmergenceBlockchainWalletModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet");
+
+	Runnable->GetURI = Module.GetURI;
 	Runnable->UriBufferRef = uriBuffer;
 	Runnable->StatusRef = &status;
 	auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVM3Thread"));
@@ -57,5 +59,6 @@ void UGetWalletConnectURI::UpdateStatus()
 	if (uriBuffer[0] != NULL && status != 2) {
 		UE_LOG(LogTemp, Display, TEXT("DONE!!!"));
 		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(RepeatingTimerHandle, this, &UGetWalletConnectURI::UpdateStatus, 0.0f, false);
+		OnGetWalletConnectURICompleted.Broadcast(FString(), EErrorCode::EmergenceOk);
 	}
 }
