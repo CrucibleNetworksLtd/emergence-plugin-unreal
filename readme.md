@@ -1,5 +1,7 @@
 # Emergence Unreal Plugin
 
+This is the working repository for the [Emergence Unreal Plugin](https://github.com/CrucibleNetworksLtd/EmergenceSDKUnreal/releases), you can find releases [here](https://github.com/CrucibleNetworksLtd/EmergenceSDKUnreal/releases).
+
 ## Getting started
 To run and compile this, you need the following:
 - Unreal Engine 5.4, 5.5
