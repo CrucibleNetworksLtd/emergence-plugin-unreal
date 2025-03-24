@@ -1,4 +1,4 @@
-# Emergence Unreal Plugin Working Repo
+# Emergence Unreal Plugin
 
 This is the working repository for the [Emergence Unreal Plugin](https://github.com/CrucibleNetworksLtd/EmergenceSDKUnreal/releases), you can find releases [here in the release repo](https://github.com/CrucibleNetworksLtd/EmergenceSDKUnreal/releases).
 
