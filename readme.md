@@ -1,6 +1,7 @@
 # Emergence Unreal Plugin
 
 This is the working repository for the Emergence Unreal Plugin, you can find releases here in this repo.
+The docs can be found here https://cruciblenetworksltd.github.io/Emergence-Plugin-Docs/
 
 ## Getting started
 To run and compile this, you need the following:
