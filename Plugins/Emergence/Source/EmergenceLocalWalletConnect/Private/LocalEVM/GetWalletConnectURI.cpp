@@ -4,7 +4,7 @@
 #include "LocalEVM/GetWalletConnectURI.h"
 #include "Types/EmergenceChain.h"
 #include "EmergenceLocalEVMGetURIThread.h"
-#include "EmergenceBlockchainWallet.h"
+#include "EmergenceLocalWalletConnect.h"
 
 UGetWalletConnectURI* UGetWalletConnectURI::GetWalletConnectURI(UObject* WorldContextObject)
 {
@@ -20,7 +20,7 @@ void UGetWalletConnectURI::Activate()
 	status = -1;
 
 
-	FEmergenceBlockchainWalletModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet");
+	FEmergenceLocalWalletConnectModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceLocalWalletConnectModule>("EmergenceLocalWalletConnect");
 
 	//Currently, doing this will reset the internal state of the WalletConnect Library. @TODO do this more cleanly
 	Module.FreeLibrary();

@@ -8,54 +8,8 @@
 #include "Types/EmergenceContract.h"
 #include "EmergenceLocalEVMThread.h"
 #include "EmergenceCore.h"
-#include "EmergenceLocalEVMGetURIThread.h"
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
-
-FEmergenceBlockchainWalletModule::_GetURIHandle FEmergenceBlockchainWalletModule::GetURI = nullptr;
-
-FEmergenceBlockchainWalletModule::_getRequestToSignHandle FEmergenceBlockchainWalletModule::RequestToSignHandle = nullptr;
-
-void FEmergenceBlockchainWalletModule::LoadLibrary()
-{
-#if PLATFORM_WINDOWS
-	if (GetURI) { //if we already have a handle to the function
-		return;
-	}
-
-	FString BaseDir = IPluginManager::Get().FindPlugin("Emergence")->GetBaseDir();
-	FString DllLocation = BaseDir + "/LocalEVM/CloudEVM3.dll";
-	FPlatformProcess::AddDllDirectory(*DllLocation);
-	FString LibraryPath = FPaths::ConvertRelativePathToFull(DllLocation);
-
-	if (LibraryPath.IsEmpty()) {
-		UE_LOG(LogEmergence, Error, TEXT("Failed to load LocalEVMLibrary, library path empty."));
-		return; //error out
-	}
-
-	LocalEVMLibraryHandle = FPlatformProcess::GetDllHandle(*LibraryPath);
-
-	if (LocalEVMLibraryHandle && !GetURI) { //if we now have a handle (not a guarantee), and we don't have a library
-		GetURI = (_GetURIHandle)FPlatformProcess::GetDllExport(LocalEVMLibraryHandle, TEXT("GetQRCode"));
-	}
-
-	if (LocalEVMLibraryHandle && !RequestToSignHandle) {
-		RequestToSignHandle = (_getRequestToSignHandle)FPlatformProcess::GetDllExport(LocalEVMLibraryHandle, TEXT("RequestToSign"));
-	}
-
-	if (!GetURI || !RequestToSignHandle) { //if getting the handle failed, give up now
-		UE_LOG(LogEmergence, Error, TEXT("Failed to load LocalEVMLibrary."));
-		return; //give up
-	}
-#endif
-}
-
-void FEmergenceBlockchainWalletModule::FreeLibrary()
-{
-	FPlatformProcess::FreeDllHandle(LocalEVMLibraryHandle);
-	RequestToSignHandle = nullptr;
-	GetURI = nullptr;
-}
 
 void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)
 {

@@ -16,7 +16,7 @@ enum class EWalletConnectState : uint8
 };
 
 UCLASS()
-class EMERGENCEBLOCKCHAINWALLET_API UGetWalletConnectURI : public UEmergenceAsyncSingleRequestBase
+class EMERGENCELOCALWALLETCONNECT_API UGetWalletConnectURI : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:

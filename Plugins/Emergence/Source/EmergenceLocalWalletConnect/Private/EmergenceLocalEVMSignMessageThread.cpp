@@ -1,8 +1,11 @@
+// Copyright Crucible Networks Ltd 2025. All Rights Reserved.
+
 #include "EmergenceLocalEVMSignMessageThread.h"
+#include "Types/EmergenceErrorCode.h"
 
 bool FLocalEVMSignMessageThreadRunnable::Init()
 {
-	GetRequestToSignHandle = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet").RequestToSignHandle;
+	GetRequestToSignHandle = FModuleManager::Get().GetModuleChecked<FEmergenceLocalWalletConnectModule>("EmergenceLocalWalletConnect").RequestToSignHandle;
 	return true;
 }
 

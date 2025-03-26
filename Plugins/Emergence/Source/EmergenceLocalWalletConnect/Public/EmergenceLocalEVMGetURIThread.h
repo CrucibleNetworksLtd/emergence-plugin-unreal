@@ -4,9 +4,10 @@
 
 #include "Core.h"
 #include "HAL/Runnable.h"
-#include "EmergenceBlockchainWallet.h"
+#include "EmergenceLocalWalletConnect.h"
+#include "Types/EmergenceErrorCode.h"
 
-class EMERGENCEBLOCKCHAINWALLET_API FLocalEVMGetURIThreadRunnable : public FRunnable
+class EMERGENCELOCALWALLETCONNECT_API FLocalEVMGetURIThreadRunnable : public FRunnable
 {
 public:
 
@@ -22,5 +23,5 @@ public:
 	int* StatusRef;
 
 private:
-	FEmergenceBlockchainWalletModule::_GetURIHandle GetURI;
+	FEmergenceLocalWalletConnectModule::_GetURIHandle GetURI;
 };

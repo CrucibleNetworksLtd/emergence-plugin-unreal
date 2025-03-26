@@ -2,7 +2,7 @@
 
 
 #include "LocalEVM/LocalRequestToSign.h"
-#include "EmergenceBlockchainWallet.h"
+#include "EmergenceLocalWalletConnect.h"
 #include "Modules/ModuleManager.h"
 #include "EmergenceLocalEVMSignMessageThread.h"
 
@@ -17,7 +17,7 @@ ULocalRequestToSign* ULocalRequestToSign::LocalRequestToSign(UObject* _WorldCont
 void ULocalRequestToSign::Activate()
 {
 	UE_LOG(LogTemp, Display, TEXT("LocalRequestToSign Activate"));
-	FEmergenceBlockchainWalletModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet");
+	FEmergenceLocalWalletConnectModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceLocalWalletConnectModule>("EmergenceLocalWalletConnect");
 
 	FLocalEVMSignMessageThreadRunnable* Runnable = new FLocalEVMSignMessageThreadRunnable();
 	Runnable->MessageToSignRef = TCHAR_TO_ANSI(*this->MessageToSign);

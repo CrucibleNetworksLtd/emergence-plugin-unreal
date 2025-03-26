@@ -4,10 +4,10 @@
 
 #include "Core.h"
 #include "HAL/Runnable.h"
-#include "EmergenceBlockchainWallet.h"
+#include "EmergenceLocalWalletConnect.h"
 #include "LocalEVM/LocalRequestToSign.h"
 
-class EMERGENCEBLOCKCHAINWALLET_API FLocalEVMSignMessageThreadRunnable : public FRunnable
+class EMERGENCELOCALWALLETCONNECT_API FLocalEVMSignMessageThreadRunnable : public FRunnable
 {
 public:
 
@@ -24,5 +24,5 @@ public:
 	ULocalRequestToSign::FOnLocalRequestToSignCompleted* RequestToSignCompletedHandle;
 
 private:
-	FEmergenceBlockchainWalletModule::_getRequestToSignHandle GetRequestToSignHandle;
+	FEmergenceLocalWalletConnectModule::_getRequestToSignHandle GetRequestToSignHandle;
 };

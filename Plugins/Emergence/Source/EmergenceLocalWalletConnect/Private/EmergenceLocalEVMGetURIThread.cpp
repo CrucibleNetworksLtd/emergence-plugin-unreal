@@ -2,7 +2,7 @@
 
 bool FLocalEVMGetURIThreadRunnable::Init()
 {
-	GetURI = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet").GetURI;
+	GetURI = FModuleManager::Get().GetModuleChecked<FEmergenceLocalWalletConnectModule>("EmergenceLocalWalletConnect").GetURI;
 	return true;
 }
 

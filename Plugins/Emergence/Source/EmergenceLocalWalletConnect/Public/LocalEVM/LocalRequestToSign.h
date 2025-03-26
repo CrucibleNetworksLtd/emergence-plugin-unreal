@@ -7,7 +7,7 @@
 #include "LocalRequestToSign.generated.h"
 
 UCLASS()
-class EMERGENCEBLOCKCHAINWALLET_API ULocalRequestToSign : public UEmergenceAsyncSingleRequestBase
+class EMERGENCELOCALWALLETCONNECT_API ULocalRequestToSign : public UEmergenceAsyncSingleRequestBase
 {
 	GENERATED_BODY()
 public:
