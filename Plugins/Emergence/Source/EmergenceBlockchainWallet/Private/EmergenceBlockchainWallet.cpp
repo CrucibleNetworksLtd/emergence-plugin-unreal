@@ -8,11 +8,15 @@
 #include "Types/EmergenceContract.h"
 #include "EmergenceLocalEVMThread.h"
 #include "EmergenceCore.h"
-#include "EmergenceLocalEVM3Thread.h"
+#include "EmergenceLocalEVMGetURIThread.h"
 
 #define LOCTEXT_NAMESPACE "FEmergenceModule"
 
-void FEmergenceBlockchainWalletModule::StartupModule()
+FEmergenceBlockchainWalletModule::_GetURIHandle FEmergenceBlockchainWalletModule::GetURI = nullptr;
+
+FEmergenceBlockchainWalletModule::_getRequestToSignHandle FEmergenceBlockchainWalletModule::RequestToSignHandle = nullptr;
+
+void FEmergenceBlockchainWalletModule::LoadLibrary()
 {
 #if PLATFORM_WINDOWS
 	if (GetURI) { //if we already have a handle to the function
@@ -43,77 +47,14 @@ void FEmergenceBlockchainWalletModule::StartupModule()
 		UE_LOG(LogEmergence, Error, TEXT("Failed to load LocalEVMLibrary."));
 		return; //give up
 	}
-	/*
-	char* uriBuffer = new char[256];
-	int* status = new int(-1);
-
-	FLocalEVM3ThreadRunnable* Runnable = new FLocalEVM3ThreadRunnable();
-	Runnable->GetURI = GetURI;
-	Runnable->UriBufferRef = *uriBuffer;
-	Runnable->StatusRef = *status;
-	auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVM3Thread"));
-	
-
-	//GetURI(*uriBuffer, *status);
-	FString URIAsString = ANSI_TO_TCHAR(uriBuffer);
-	UE_LOG(LogTemp, Display, TEXT("URI: %s"), *URIAsString);
-	
-	/*
-	FString GasPriceInternal;
-	GasPriceInternal.Empty(0);
-	if (!GasPrice.IsEmpty()) {
-		GasPriceInternal = GasPrice;
-	}
-
-	char* ABI = new char[Deployment->Contract->ABI.GetCharArray().Num()];
-	TCHAR* CharArray = Deployment->Contract->ABI.GetCharArray().GetData();
-	for (int i = 0; i < Deployment->Contract->ABI.GetCharArray().Num(); i++) {
-		TCHAR c = CharArray[i];
-		ABI[i] = (ANSICHAR)c;
-	}
-
-	EmergenceLocalEVMJSON* jsonArgs = new EmergenceLocalEVMJSON{
-		0, //unused
-		"", //unused
-		TCHAR_TO_ANSI(Deployment->Address.GetCharArray().GetData()),
-		ABI,
-		TCHAR_TO_ANSI(Deployment->Blockchain->Name.ToString().GetCharArray().GetData()),
-		TCHAR_TO_ANSI(Deployment->Blockchain->NodeURL.GetCharArray().GetData()),
-		TCHAR_TO_ANSI(MethodName.GetCharArray().GetData()),
-		"", //no longer used
-		"", //no longer used
-		R"()", //no longer used
-		TCHAR_TO_ANSI(FString::FromInt(Deployment->Blockchain->ChainID).GetCharArray().GetData()),
-		TCHAR_TO_ANSI(GasPriceInternal.GetCharArray().GetData()),
-		TCHAR_TO_ANSI(Value.GetCharArray().GetData()),
-		TCHAR_TO_ANSI(PrivateKey.GetCharArray().GetData()),
-		TCHAR_TO_ANSI(PublicKey.GetCharArray().GetData()),
-		nullptr, //return address
-		0 //return length
-	};
-
-	if (ContainerLibraryHandle)
-	{
-		if (SendTransactionViaKeystoreFunctionHandle) {
-
-			FLocalEVMThreadRunnable* Runnable = new FLocalEVMThreadRunnable();
-			Runnable->Data = new EmergenceLocalEVMJSON(*jsonArgs);
-			//wchar_t* NewFullpath = static_cast<wchar_t*>((TCHAR*)*LibraryPath);
-			const wchar_t* MyWideCharString = (*LibraryPath);
-			wcscpy(Runnable->fullpath, MyWideCharString);
-			Runnable->length = LibraryPath.Len();
-			Runnable->ExampleLibraryFunction = SendTransactionViaKeystoreFunctionHandle;
-			Runnable->WriteMethod = WriteMethod;
-			auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVMThread"));
-			return;
-		}
-	}
-
-	//if it hasn't returned by now something has gone really wrong
-	UE_LOG(LogEmergence, Error, TEXT("Failed to load library, handles weren't valid."));
-	WriteMethod->OnTransactionConfirmed.Broadcast(FEmergenceTransaction(), EErrorCode::EmergenceInternalError);
-	return;*/
 #endif
+}
+
+void FEmergenceBlockchainWalletModule::FreeLibrary()
+{
+	FPlatformProcess::FreeDllHandle(LocalEVMLibraryHandle);
+	RequestToSignHandle = nullptr;
+	GetURI = nullptr;
 }
 
 void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse)

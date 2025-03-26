@@ -3,7 +3,7 @@
 
 #include "LocalEVM/GetWalletConnectURI.h"
 #include "Types/EmergenceChain.h"
-#include "EmergenceLocalEVM3Thread.h"
+#include "EmergenceLocalEVMGetURIThread.h"
 #include "EmergenceBlockchainWallet.h"
 
 UGetWalletConnectURI* UGetWalletConnectURI::GetWalletConnectURI(UObject* WorldContextObject)
@@ -19,46 +19,61 @@ void UGetWalletConnectURI::Activate()
 	FMemory::Memzero(uriBuffer, sizeof(UTF16CHAR) * 256);
 	status = -1;
 
-	FLocalEVM3ThreadRunnable* Runnable = new FLocalEVM3ThreadRunnable();
+
 	FEmergenceBlockchainWalletModule Module = FModuleManager::Get().GetModuleChecked<FEmergenceBlockchainWalletModule>("EmergenceBlockchainWallet");
 
-	Runnable->GetURI = Module.GetURI;
+	//Currently, doing this will reset the internal state of the WalletConnect Library. @TODO do this more cleanly
+	Module.FreeLibrary();
+	Module.LoadLibrary();
+
+	FLocalEVMGetURIThreadRunnable* Runnable = new FLocalEVMGetURIThreadRunnable();
 	Runnable->UriBufferRef = uriBuffer;
 	Runnable->StatusRef = &status;
 	auto Thread = FRunnableThread::Create(Runnable, TEXT("LocalEVM3Thread"));
 
 	//start a repeating timer
 	WorldContextObject->GetWorld()->GetTimerManager().SetTimer(RepeatingTimerHandle, this, &UGetWalletConnectURI::UpdateStatus, 0.5f, true);
-	/*
-	while (uriBuffer[0] == NULL) {
-		FString URIAsString = uriBuffer;
-		UE_LOG(LogTemp, Display, TEXT("URI: %s"), *URIAsString);
-	}
 
-	FString URIAsString = FString(256, uriBuffer);
-	UE_LOG(LogTemp, Display, TEXT("URI: %s"), *URIAsString);
-
-	while (status == 2) {
-		UE_LOG(LogTemp, Display, TEXT("status: %d"), status);
-	}
-	UE_LOG(LogTemp, Display, TEXT("status: %d"), status);
-	*/
+	//If the user hasn't connected after 5 min, time out the thing before 5 min @TODO figure out why it only stays open for 5 min
+	WorldContextObject->GetWorld()->GetTimerManager().SetTimer(TimeoutTimerHandle, this, &UGetWalletConnectURI::Timeout, 300.0f, false);
 }
 
 void UGetWalletConnectURI::UpdateStatus()
 {
-	if (uriBuffer[0] != NULL) {
+	//status codes
+	//2: nothing has happened yet
+	//1: success, user connected!
+	//0: fail, wasn't acknowledged in time
+
+	if (uriBuffer[0] != NULL && !HasReportedWalletConnectURI) { //we have a walletconnect string
 		FString URIAsString = FString(256, uriBuffer);
-		UE_LOG(LogTemp, Display, TEXT("URI: %s"), *URIAsString);
+		HasReportedWalletConnectURI = true;
+		WalletConnectStateChanged.Broadcast(URIAsString, EWalletConnectState::WaitingForConnection);
+		return;
 	}
 
-	if (status != 2) {
-		UE_LOG(LogTemp, Display, TEXT("status: %d"), status);
-	}
+	if (status != 2) { //finished
 
-	if (uriBuffer[0] != NULL && status != 2) {
-		UE_LOG(LogTemp, Display, TEXT("DONE!!!"));
+		//Clear the timers
 		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(RepeatingTimerHandle, this, &UGetWalletConnectURI::UpdateStatus, 0.0f, false);
-		OnGetWalletConnectURICompleted.Broadcast(FString(), EErrorCode::EmergenceOk);
+		WorldContextObject->GetWorld()->GetTimerManager().SetTimer(TimeoutTimerHandle, this, &UGetWalletConnectURI::UpdateStatus, 0.0f, false);
+
+		FString URIAsString = FString(256, uriBuffer);
+
+		if (status == 1) { //if status == 0, success, lets go!
+			WalletConnectStateChanged.Broadcast(URIAsString, EWalletConnectState::ConnectionSuccessful);
+		}
+		
+		if (status == 0) { //otherwise, report that we've finished but it wasn't a success.
+			WalletConnectStateChanged.Broadcast(URIAsString, EWalletConnectState::ConnectionRefused);
+		}
 	}
+}
+
+void UGetWalletConnectURI::Timeout()
+{
+	//Clear the timer
+	WorldContextObject->GetWorld()->GetTimerManager().SetTimer(RepeatingTimerHandle, this, &UGetWalletConnectURI::UpdateStatus, 0.0f, false);
+
+	WalletConnectStateChanged.Broadcast(FString(), EWalletConnectState::ConnectionTimedout);
 }

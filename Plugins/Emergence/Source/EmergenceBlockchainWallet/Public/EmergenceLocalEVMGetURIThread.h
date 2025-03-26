@@ -6,11 +6,11 @@
 #include "HAL/Runnable.h"
 #include "EmergenceBlockchainWallet.h"
 
-class EMERGENCEBLOCKCHAINWALLET_API FLocalEVM3ThreadRunnable : public FRunnable
+class EMERGENCEBLOCKCHAINWALLET_API FLocalEVMGetURIThreadRunnable : public FRunnable
 {
 public:
 
-	FLocalEVM3ThreadRunnable() {};
+	FLocalEVMGetURIThreadRunnable() {};
 
 	//override Init,Run and Stop.
 	virtual bool Init() override;
@@ -18,8 +18,9 @@ public:
 	virtual void Exit() override;
 	virtual void Stop() override;
 
-	FEmergenceBlockchainWalletModule::_GetURIHandle GetURI;
-
 	UTF16CHAR* UriBufferRef;
 	int* StatusRef;
+
+private:
+	FEmergenceBlockchainWalletModule::_GetURIHandle GetURI;
 };

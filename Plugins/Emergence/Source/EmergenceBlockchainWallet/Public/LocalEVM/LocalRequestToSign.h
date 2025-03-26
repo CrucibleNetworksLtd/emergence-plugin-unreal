@@ -12,7 +12,7 @@ class EMERGENCEBLOCKCHAINWALLET_API ULocalRequestToSign : public UEmergenceAsync
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Emergence|Blockchain Interactions")
-	static ULocalRequestToSign* LocalRequestToSign(UObject* WorldContextObject);
+	static ULocalRequestToSign* LocalRequestToSign(UObject* WorldContextObject, FString MessageToSign);
 
 	virtual void Activate() override;
 
@@ -21,9 +21,10 @@ public:
 
 	FTimerHandle RepeatingTimerHandle;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLocalRequestToSignCompleted, FString, Balance, EErrorCode, StatusCode);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLocalRequestToSignCompleted, FString, SignedMessage, EErrorCode, StatusCode);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLocalRequestToSignCompleted OnLocalRequestToSignCompleted;
 private:
+	FString MessageToSign;
 };

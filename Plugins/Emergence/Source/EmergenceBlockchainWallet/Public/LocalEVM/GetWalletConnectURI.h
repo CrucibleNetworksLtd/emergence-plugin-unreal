@@ -6,6 +6,15 @@
 #include "Actions/EmergenceAsyncSingleRequestBase.h"
 #include "GetWalletConnectURI.generated.h"
 
+UENUM(BlueprintType)
+enum class EWalletConnectState : uint8
+{
+	WaitingForConnection UMETA(ToolTip = "We're waiting for the user to connect their wallet"),
+	ConnectionSuccessful UMETA(ToolTip = "The user has successfully connected their wallet"),
+	ConnectionTimedout UMETA(ToolTip = "The user has failed to connect their wallet, and WalletConnect timed out"),
+	ConnectionRefused UMETA(ToolTip = "The user rejected the connection")
+};
+
 UCLASS()
 class EMERGENCEBLOCKCHAINWALLET_API UGetWalletConnectURI : public UEmergenceAsyncSingleRequestBase
 {
@@ -18,14 +27,20 @@ public:
 
 	void UpdateStatus();
 
+	void Timeout();
+
 	UTF16CHAR* uriBuffer;
 	int status;
 
 	FTimerHandle RepeatingTimerHandle;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGetWalletConnectURICompleted, FString, Balance, EErrorCode, StatusCode);
+	FTimerHandle TimeoutTimerHandle;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWalletConnectStateChanged, FString, WalletConnectURL, EWalletConnectState, State);
 
 	UPROPERTY(BlueprintAssignable)
-	FOnGetWalletConnectURICompleted OnGetWalletConnectURICompleted;
+	FWalletConnectStateChanged WalletConnectStateChanged;
 private:
+	UPROPERTY()
+	bool HasReportedWalletConnectURI = false;
 };

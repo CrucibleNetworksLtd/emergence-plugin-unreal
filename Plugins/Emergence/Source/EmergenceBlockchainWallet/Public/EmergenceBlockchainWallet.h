@@ -13,7 +13,9 @@ struct EmergenceLocalEVMJSON;
 class FEmergenceBlockchainWalletModule : public IModuleInterface
 {
 public:
-	void StartupModule() override;
+	void LoadLibrary();
+
+	void FreeLibrary();
 
 	void SendTransactionViaKeystore(UWriteMethod* WriteMethod, UEmergenceDeployment* Deployment, FString MethodName, FString PrivateKey, FString PublicKey, FString GasPrice, FString Value, FString& TransactionResponse);
 private:
@@ -29,10 +31,10 @@ private:
 
 public:
 	typedef void(*_GetURIHandle)(UTF16CHAR& uri, int& status);
-	_GetURIHandle GetURI;
+	static _GetURIHandle GetURI;
 
 	typedef char* (*_getRequestToSignHandle)(char* messagePtr);
-	_getRequestToSignHandle RequestToSignHandle;
+	static _getRequestToSignHandle RequestToSignHandle;
 
 
 };
