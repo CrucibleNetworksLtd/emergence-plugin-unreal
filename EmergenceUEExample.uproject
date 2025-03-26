@@ -17,10 +17,6 @@
 	],
 	"Plugins": [
 		{
-			"Name": "KantanDocGen",
-			"Enabled": false
-		},
-		{
 			"Name": "ActorLayerUtilities",
 			"Enabled": false
 		},
@@ -423,10 +419,6 @@
 		},
 		{
 			"Name": "CLionSourceCodeAccess",
-			"Enabled": false
-		},
-		{
-			"Name": "JsonBlueprint",
 			"Enabled": false
 		}
 	]
