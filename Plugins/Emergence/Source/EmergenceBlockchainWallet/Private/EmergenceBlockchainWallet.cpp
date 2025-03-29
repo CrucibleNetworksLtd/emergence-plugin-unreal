@@ -108,4 +108,4 @@ void FEmergenceBlockchainWalletModule::SendTransactionViaKeystore(UWriteMethod* 
 
 #undef LOCTEXT_NAMESPACE
 	
-IMPLEMENT_MODULE(FEmergenceBlockchainWalletModule, Emergence)
+IMPLEMENT_MODULE(FEmergenceBlockchainWalletModule, EmergenceBlockchainWallet)
